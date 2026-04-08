@@ -2,7 +2,6 @@ import { currentUser } from '@clerk/nextjs/server'
 import MoodSelector from './_components/MoodSelector'
 import LumiNudge from './_components/LumiNudge'
 import LowBatteryBanner from './_components/LowBatteryBanner'
-import RoutineCheckin from './_components/RoutineCheckin'
 import Link from 'next/link'
 
 function getGreeting() {
@@ -165,9 +164,6 @@ export default async function TodayPage() {
       >
         QUICK ACTIONS
       </p>
-
-      {/* Morning Routine Check-in */}
-      <RoutineCheckin />
 
       <div className="grid grid-cols-3 gap-2">
         <Link

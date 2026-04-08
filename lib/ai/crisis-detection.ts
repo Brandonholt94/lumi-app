@@ -88,7 +88,6 @@ This is beyond what I'm able to hold with you, and I don't want to pretend other
 **Please reach out right now:**
 - **988 Suicide & Crisis Lifeline** — [Call or text 988](tel:988) (US, 24/7)
 - **Crisis Text Line** — [Text HOME to 741741](sms:741741?body=HOME) (free, 24/7)
-- **Emergency services** — [Call 911](tel:911) if you're in immediate danger
 
 I'm not going anywhere. But please let someone trained for this be with you first.`
 

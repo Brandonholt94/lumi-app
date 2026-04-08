@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useMood } from '../../_components/MoodContext'
 
 const moods = [
   { key: 'foggy',   emoji: '😶', label: 'Foggy'   },
@@ -10,16 +10,16 @@ const moods = [
 ]
 
 export default function MoodSelector() {
-  const [selected, setSelected] = useState<string | null>(null)
+  const { mood, setMood } = useMood()
 
   return (
     <div className="grid grid-cols-4 gap-[7px] mb-4">
-      {moods.map((mood) => {
-        const active = selected === mood.key
+      {moods.map((m) => {
+        const active = mood === m.key
         return (
           <button
-            key={mood.key}
-            onClick={() => setSelected(mood.key)}
+            key={m.key}
+            onClick={() => setMood(m.key)}
             className="flex flex-col items-center gap-1 rounded-[14px] py-[9px] px-1 transition-all duration-150"
             style={{
               background: active ? 'rgba(244,165,130,0.08)' : 'white',
@@ -27,7 +27,7 @@ export default function MoodSelector() {
               boxShadow: '0 1px 4px rgba(45,42,62,0.04)',
             }}
           >
-            <span className="text-[19px] leading-none">{mood.emoji}</span>
+            <span className="text-[19px] leading-none">{m.emoji}</span>
             <span
               className="text-[10px] font-bold"
               style={{
@@ -35,7 +35,7 @@ export default function MoodSelector() {
                 color: active ? '#C4663A' : '#2D2A3E',
               }}
             >
-              {mood.label}
+              {m.label}
             </span>
           </button>
         )

@@ -70,8 +70,9 @@ export default function CaptureInput() {
     <>
       {/* Input card */}
       <div
-        className="rounded-[20px] p-[14px] mb-[10px]"
+        className="rounded-[20px] mb-[10px]"
         style={{
+          padding: '16px',
           background: 'white',
           border: recording ? '1.5px solid rgba(244,165,130,0.5)' : '1.5px solid rgba(45,42,62,0.08)',
           boxShadow: recording
@@ -200,38 +201,26 @@ export default function CaptureInput() {
       {/* Capture button */}
       <button
         onClick={handleCapture}
-        disabled={!text.trim() && !recording}
-        className="w-full rounded-full mb-5 transition-all active:scale-[0.98]"
+        className="w-full rounded-full mb-5 transition-all active:scale-[0.98] hover:opacity-90"
         style={{
-          padding: '14px',
-          background: text.trim() ? 'linear-gradient(135deg, #F4A582, #F5C98A)' : 'rgba(45,42,62,0.08)',
+          padding: '15px',
+          background: 'linear-gradient(135deg, #F4A582, #F5C98A)',
           fontFamily: 'var(--font-nunito-sans)',
           fontSize: '15px',
           fontWeight: 800,
-          color: text.trim() ? '#1E1C2E' : 'rgba(45,42,62,0.3)',
+          color: '#1E1C2E',
           border: 'none',
-          cursor: text.trim() ? 'pointer' : 'default',
-          transition: 'all 0.2s',
+          cursor: 'pointer',
+          opacity: text.trim() ? 1 : 0.45,
+          transition: 'opacity 0.2s',
         }}
       >
         Capture it
       </button>
 
-      {/* Filter + label row */}
-      <div className="flex items-center justify-between mb-[10px]">
-        <p
-          style={{
-            fontFamily: 'var(--font-nunito-sans)',
-            fontSize: '10px',
-            fontWeight: 800,
-            letterSpacing: '0.1em',
-            color: '#9895B0',
-          }}
-        >
-          RECENT CAPTURES
-        </p>
-
-        {/* Filter dropdown */}
+      {/* Filter pill + label row */}
+      <div className="flex items-center gap-3 mb-[10px]">
+        {/* Filter dropdown — left side */}
         <div className="relative">
           <button
             onClick={() => setFilterOpen(o => !o)}
@@ -261,7 +250,7 @@ export default function CaptureInput() {
 
           {filterOpen && (
             <div
-              className="absolute right-0 top-[calc(100%+6px)] z-50 overflow-hidden"
+              className="absolute left-0 top-[calc(100%+6px)] z-50 overflow-hidden"
               style={{
                 background: 'white',
                 borderRadius: '16px',
@@ -297,6 +286,19 @@ export default function CaptureInput() {
             </div>
           )}
         </div>
+
+        <p
+          style={{
+            fontFamily: 'var(--font-nunito-sans)',
+            fontSize: '10px',
+            fontWeight: 800,
+            letterSpacing: '0.1em',
+            color: '#9895B0',
+            marginLeft: 2,
+          }}
+        >
+          RECENT CAPTURES
+        </p>
       </div>
 
       {/* Captures list */}

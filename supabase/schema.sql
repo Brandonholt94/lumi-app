@@ -73,6 +73,16 @@ CREATE TABLE captures (
   created_at TIMESTAMPTZ DEFAULT now()
 );
 
+-- Crisis flags (internal safety record — never shown to user)
+CREATE TABLE crisis_flags (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  clerk_user_id TEXT NOT NULL,
+  tier TEXT NOT NULL CHECK (tier IN ('CRISIS', 'DISTRESS')),
+  matched_phrase TEXT,
+  message_excerpt TEXT,   -- first 200 chars only, for review
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
 -- User context (Lumi's compressed memory)
 CREATE TABLE user_context (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -95,6 +105,7 @@ ALTER TABLE focus_sessions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE brain_dumps    ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_context   ENABLE ROW LEVEL SECURITY;
 ALTER TABLE captures       ENABLE ROW LEVEL SECURITY;
+ALTER TABLE crisis_flags   ENABLE ROW LEVEL SECURITY;
 
 -- Users can only see their own data
 CREATE POLICY "own data only" ON profiles       FOR ALL USING (clerk_user_id = current_setting('app.clerk_user_id', true));
@@ -104,6 +115,8 @@ CREATE POLICY "own data only" ON focus_sessions FOR ALL USING (clerk_user_id = c
 CREATE POLICY "own data only" ON brain_dumps    FOR ALL USING (clerk_user_id = current_setting('app.clerk_user_id', true));
 CREATE POLICY "own data only" ON user_context   FOR ALL USING (clerk_user_id = current_setting('app.clerk_user_id', true));
 CREATE POLICY "own data only" ON captures       FOR ALL USING (clerk_user_id = current_setting('app.clerk_user_id', true));
+-- crisis_flags: service role only — no user-level access
+CREATE POLICY "service only" ON crisis_flags    FOR ALL USING (false);
 
 -- ─────────────────────────────────────────
 -- INDEXES
@@ -115,3 +128,5 @@ CREATE INDEX idx_focus_user          ON focus_sessions(clerk_user_id, started_at
 CREATE INDEX idx_brain_dumps_user    ON brain_dumps(clerk_user_id, created_at DESC);
 CREATE INDEX idx_captures_user       ON captures(clerk_user_id, created_at DESC);
 CREATE INDEX idx_captures_tag        ON captures(clerk_user_id, tag, created_at DESC);
+CREATE INDEX idx_crisis_flags_user   ON crisis_flags(clerk_user_id, created_at DESC);
+CREATE INDEX idx_crisis_flags_tier   ON crisis_flags(tier, created_at DESC);

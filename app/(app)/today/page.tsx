@@ -48,7 +48,7 @@ export default async function TodayPage() {
       <p
         className="mb-5"
         style={{
-          fontFamily: 'var(--font-quicksand)',
+          fontFamily: 'var(--font-nunito-sans)',
           fontSize: '12.5px',
           fontWeight: 600,
           color: '#9895B0',
@@ -125,7 +125,7 @@ export default async function TodayPage() {
         >
           <p
             style={{
-              fontFamily: 'var(--font-quicksand)',
+              fontFamily: 'var(--font-nunito-sans)',
               fontSize: '11.5px',
               fontWeight: 600,
               color: 'rgba(245,243,240,0.62)',
@@ -188,7 +188,7 @@ export default async function TodayPage() {
           </span>
           <span
             className="text-[9.5px]"
-            style={{ fontFamily: 'var(--font-quicksand)', fontWeight: 600, color: '#9895B0' }}
+            style={{ fontFamily: 'var(--font-nunito-sans)', fontWeight: 600, color: '#9895B0' }}
           >
             Start a timer
           </span>
@@ -212,7 +212,7 @@ export default async function TodayPage() {
           </span>
           <span
             className="text-[9.5px]"
-            style={{ fontFamily: 'var(--font-quicksand)', fontWeight: 600, color: '#9895B0' }}
+            style={{ fontFamily: 'var(--font-nunito-sans)', fontWeight: 600, color: '#9895B0' }}
           >
             Clear your head
           </span>
@@ -236,7 +236,7 @@ export default async function TodayPage() {
           </span>
           <span
             className="text-[9.5px]"
-            style={{ fontFamily: 'var(--font-quicksand)', fontWeight: 600, color: '#9895B0' }}
+            style={{ fontFamily: 'var(--font-nunito-sans)', fontWeight: 600, color: '#9895B0' }}
           >
             Whatever&apos;s up
           </span>

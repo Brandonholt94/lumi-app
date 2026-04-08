@@ -31,7 +31,7 @@ export default function LumiNudge() {
       <span style={{ fontSize: '14px', marginTop: '1px' }}>✦</span>
       <p
         style={{
-          fontFamily: 'var(--font-quicksand)',
+          fontFamily: 'var(--font-nunito-sans)',
           fontSize: '12.5px',
           fontWeight: 600,
           color: '#2D2A3E',

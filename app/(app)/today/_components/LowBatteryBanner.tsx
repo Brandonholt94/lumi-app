@@ -19,7 +19,7 @@ export default function LowBatteryBanner() {
         <span className="text-[15px]">🔋</span>
         <p
           style={{
-            fontFamily: 'var(--font-quicksand)',
+            fontFamily: 'var(--font-nunito-sans)',
             fontSize: '12px',
             fontWeight: 600,
             color: '#2D2A3E',

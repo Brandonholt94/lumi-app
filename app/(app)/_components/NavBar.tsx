@@ -21,13 +21,13 @@ export default function NavBar() {
       */}
       <svg
         className="absolute w-full pointer-events-none"
-        style={{ top: '-10px', left: 0, height: 'calc(100% + 10px)' }}
+        style={{ top: '-28px', left: 0, height: 'calc(100% + 28px)' }}
         viewBox="0 0 390 90"
         preserveAspectRatio="none"
         xmlns="http://www.w3.org/2000/svg"
       >
         <path
-          d="M0,10 L148,10 C158,10 162,6.4 167,3.6 C173,0.9 184,0 195,0 C206,0 217,0.9 223,3.6 C228,6.4 232,10 242,10 L390,10 L390,90 L0,90 Z"
+          d="M0,28 L148,28 C158,28 162,22 167,16 C173,9 184,0 195,0 C206,0 217,9 223,16 C228,22 232,28 242,28 L390,28 L390,90 L0,90 Z"
           fill="#1E1C2E"
         />
       </svg>
@@ -70,7 +70,7 @@ export default function NavBar() {
         </Link>
 
         {/* Lumi — sits in the arch */}
-        <Link href="/chat" className="flex flex-col items-center gap-1 flex-1 -mt-10">
+        <Link href="/chat" className="flex flex-col items-center gap-1 flex-1 -mt-7">
           <div
             className="w-12 h-12 rounded-full flex items-center justify-center"
             style={{

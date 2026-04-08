@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 
 type Tag = 'task' | 'idea' | 'worry' | 'reminder' | null
 
@@ -8,7 +8,7 @@ interface Capture {
   id: string
   text: string
   tag: Tag
-  createdAt: Date
+  created_at: string
 }
 
 const TAG_STYLES: Record<NonNullable<Tag>, { bg: string; color: string; border: string; dot: string; label: string }> = {
@@ -27,8 +27,12 @@ const FILTER_OPTIONS: { value: Tag | 'all' | 'none'; label: string; dot?: string
   { value: 'none',     label: 'Untagged',  dot: 'rgba(45,42,62,0.2)' },
 ]
 
-function formatTime(date: Date) {
-  return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+function formatTime(dateStr: string) {
+  return new Date(dateStr).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+}
+
+function isToday(dateStr: string) {
+  return new Date(dateStr).toDateString() === new Date().toDateString()
 }
 
 export default function CaptureInput() {
@@ -38,20 +42,39 @@ export default function CaptureInput() {
   const [filter, setFilter] = useState<Tag | 'all' | 'none'>('all')
   const [filterOpen, setFilterOpen] = useState(false)
   const [recording, setRecording] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [loading, setLoading] = useState(true)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
-  function handleCapture() {
-    if (!text.trim()) return
-    const newCapture: Capture = {
-      id: crypto.randomUUID(),
-      text: text.trim(),
-      tag: selectedTag,
-      createdAt: new Date(),
+  // Load captures from Supabase on mount
+  useEffect(() => {
+    fetch('/api/captures')
+      .then(r => r.json())
+      .then(data => {
+        if (Array.isArray(data)) setCaptures(data)
+      })
+      .finally(() => setLoading(false))
+  }, [])
+
+  async function handleCapture() {
+    if (!text.trim() || saving) return
+    setSaving(true)
+    try {
+      const res = await fetch('/api/captures', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: text.trim(), tag: selectedTag }),
+      })
+      const newCapture = await res.json()
+      if (res.ok) {
+        setCaptures(prev => [newCapture, ...prev])
+        setText('')
+        setSelectedTag(null)
+        textareaRef.current?.focus()
+      }
+    } finally {
+      setSaving(false)
     }
-    setCaptures(prev => [newCapture, ...prev])
-    setText('')
-    setSelectedTag(null)
-    textareaRef.current?.focus()
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {
@@ -91,7 +114,7 @@ export default function CaptureInput() {
           color: '#9895B0',
         }}
       >
-        {date} · {captures.length} capture{captures.length !== 1 ? 's' : ''} this week
+        {date} · {loading ? '—' : `${captures.length} capture${captures.length !== 1 ? 's' : ''} this week`}
       </p>
 
       {/* Lumi hint */}
@@ -262,11 +285,11 @@ export default function CaptureInput() {
           color: '#1E1C2E',
           border: 'none',
           cursor: 'pointer',
-          opacity: text.trim() ? 1 : 0.65,
+          opacity: text.trim() && !saving ? 1 : 0.65,
           transition: 'opacity 0.2s',
         }}
       >
-        Capture it
+        {saving ? 'Saving…' : 'Capture it'}
       </button>
 
       {/* Filter pill + label row */}
@@ -410,7 +433,7 @@ export default function CaptureInput() {
                       color: '#9895B0',
                     }}
                   >
-                    {s ? `${s.label} · ` : ''}Today at {formatTime(capture.createdAt)}
+                    {s ? `${s.label} · ` : ''}{isToday(capture.created_at) ? 'Today' : 'Yesterday'} at {formatTime(capture.created_at)}
                   </p>
                 </div>
               </div>

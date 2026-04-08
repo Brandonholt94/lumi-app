@@ -66,19 +66,70 @@ export default function CaptureInput() {
 
   const activeFilter = FILTER_OPTIONS.find(o => o.value === filter)
 
+  const date = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
+
   return (
     <>
+      {/* Header */}
+      <h1
+        className="leading-none mb-[4px]"
+        style={{
+          fontFamily: 'var(--font-fraunces)',
+          fontSize: '34px',
+          fontWeight: 900,
+          color: '#1E1C2E',
+        }}
+      >
+        Brain Dump
+      </h1>
+      <p
+        className="mb-4"
+        style={{
+          fontFamily: 'var(--font-nunito-sans)',
+          fontSize: '12px',
+          fontWeight: 600,
+          color: '#9895B0',
+        }}
+      >
+        {date} · {captures.length} capture{captures.length !== 1 ? 's' : ''} this week
+      </p>
+
+      {/* Lumi hint */}
+      <div
+        className="rounded-[14px] px-4 py-3 mb-4 flex gap-[10px] items-start"
+        style={{
+          background: 'rgba(244,165,130,0.07)',
+          border: '1.5px solid rgba(244,165,130,0.18)',
+        }}
+      >
+        <span style={{ fontSize: '13px', marginTop: '1px', flexShrink: 0 }}>✦</span>
+        <p
+          style={{
+            fontFamily: 'var(--font-nunito-sans)',
+            fontSize: '12px',
+            fontWeight: 600,
+            color: '#2D2A3E',
+            lineHeight: 1.5,
+          }}
+        >
+          <strong style={{ color: '#F4A582', fontWeight: 700 }}>Lumi: </strong>
+          No sorting, no priority — just get it out of your head. That&apos;s the whole job right now.
+        </p>
+      </div>
+
       {/* Input card */}
       <div
-        className="rounded-[20px] mb-[10px]"
         style={{
+          borderRadius: '20px',
           padding: '16px',
+          marginBottom: '12px',
           background: 'white',
           border: recording ? '1.5px solid rgba(244,165,130,0.5)' : '1.5px solid rgba(45,42,62,0.08)',
           boxShadow: recording
-            ? '0 0 0 3px rgba(244,165,130,0.1), 0 2px 8px rgba(45,42,62,0.04)'
-            : '0 2px 8px rgba(45,42,62,0.04)',
+            ? '0 0 0 3px rgba(244,165,130,0.1), 0 4px 16px rgba(45,42,62,0.08)'
+            : '0 4px 16px rgba(45,42,62,0.08)',
           transition: 'border-color 0.2s, box-shadow 0.2s',
+          overflow: 'hidden',
         }}
       >
         {recording ? (
@@ -211,7 +262,7 @@ export default function CaptureInput() {
           color: '#1E1C2E',
           border: 'none',
           cursor: 'pointer',
-          opacity: text.trim() ? 1 : 0.45,
+          opacity: text.trim() ? 1 : 0.65,
           transition: 'opacity 0.2s',
         }}
       >
@@ -327,7 +378,8 @@ export default function CaptureInput() {
                   background: 'white',
                   border: '1px solid rgba(45,42,62,0.07)',
                   padding: '12px 14px',
-                  boxShadow: '0 1px 3px rgba(45,42,62,0.04)',
+                  borderRadius: '16px',
+                  boxShadow: '0 2px 8px rgba(45,42,62,0.07)',
                 }}
               >
                 <div

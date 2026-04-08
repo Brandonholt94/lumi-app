@@ -1,5 +1,6 @@
 import { currentUser } from '@clerk/nextjs/server'
 import MoodSelector from './_components/MoodSelector'
+import OneFocusCard from './_components/OneFocusCard'
 import LumiNudge from './_components/LumiNudge'
 import LowBatteryBanner from './_components/LowBatteryBanner'
 import Link from 'next/link'
@@ -78,78 +79,10 @@ export default async function TodayPage() {
       <LumiNudge />
 
       {/* One Focus card */}
-      <div
-        className="rounded-[22px] p-4 mb-4 relative overflow-hidden"
-        style={{ background: '#1E1C2E' }}
-      >
-        {/* Subtle glow */}
-        <div
-          className="absolute pointer-events-none"
-          style={{
-            top: '-40px', right: '-40px',
-            width: '120px', height: '120px',
-            background: 'radial-gradient(circle, rgba(244,165,130,0.14) 0%, transparent 70%)',
-          }}
-        />
-
-        <p
-          className="mb-2"
-          style={{
-            fontFamily: 'var(--font-nunito-sans)',
-            fontSize: '9.5px',
-            fontWeight: 800,
-            letterSpacing: '0.13em',
-            color: '#F4A582',
-          }}
-        >
-          ✦ YOUR ONE FOCUS TODAY
-        </p>
-
-        <p
-          className="mb-3"
-          style={{
-            fontFamily: 'var(--font-fraunces)',
-            fontSize: '18px',
-            fontWeight: 700,
-            color: '#F5F3F0',
-            lineHeight: 1.25,
-          }}
-        >
-          Reply to Marcus about the project proposal
-        </p>
-
-        <div
-          className="rounded-[11px] p-[10px_12px] mb-3"
-          style={{ background: 'rgba(255,255,255,0.06)' }}
-        >
-          <p
-            style={{
-              fontFamily: 'var(--font-nunito-sans)',
-              fontSize: '11.5px',
-              fontWeight: 600,
-              color: 'rgba(245,243,240,0.62)',
-              lineHeight: 1.55,
-            }}
-          >
-            <span style={{ color: '#F4A582', fontWeight: 700 }}>Lumi:</span>{' '}
-            You&apos;ve been circling this one for a few days. Want to just open the email and read it? That&apos;s the whole first step.
-          </p>
-        </div>
-
-        <Link
-          href="/focus"
-          className="block text-center rounded-full py-[13px] transition-opacity hover:opacity-90 active:scale-[0.98]"
-          style={{
-            background: 'linear-gradient(135deg, #F4A582, #F5C98A)',
-            fontFamily: 'var(--font-nunito-sans)',
-            fontSize: '14px',
-            fontWeight: 800,
-            color: '#1E1C2E',
-          }}
-        >
-          Let&apos;s start →
-        </Link>
-      </div>
+      <OneFocusCard
+        task="Reply to Marcus about the project proposal"
+        lumiMessage="You've been circling this one for a few days. Want to just open the email and read it? That's the whole first step."
+      />
 
       {/* Quick Actions */}
       <p

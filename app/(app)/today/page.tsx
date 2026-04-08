@@ -78,11 +78,8 @@ export default async function TodayPage() {
       {/* Lumi Nudge */}
       <LumiNudge />
 
-      {/* One Focus card */}
-      <OneFocusCard
-        task="Reply to Marcus about the project proposal"
-        lumiMessage="You've been circling this one for a few days. Want to just open the email and read it? That's the whole first step."
-      />
+      {/* One Focus card — fetches real task from AI + Supabase */}
+      <OneFocusCard />
 
       {/* Quick Actions */}
       <p

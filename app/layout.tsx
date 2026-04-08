@@ -1,6 +1,6 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { ClerkProvider } from '@clerk/nextjs'
-import { Nunito_Sans, Quicksand } from 'next/font/google'
+import { Nunito_Sans, Quicksand, Fraunces } from 'next/font/google'
 import './globals.css'
 
 const nunitoSans = Nunito_Sans({
@@ -15,10 +15,19 @@ const quicksand = Quicksand({
   weight: ['500', '600', '700'],
 })
 
+const fraunces = Fraunces({
+  variable: '--font-fraunces',
+  subsets: ['latin'],
+  weight: ['700', '900'],
+})
+
 export const metadata: Metadata = {
   title: 'Lumi — ADHD Companion',
-  description: 'The companion for your ADHD brain. Available the 167 hours a week a therapist isn\'t.',
+  description: "The companion for your ADHD brain. Available the 167 hours a week a therapist isn't.",
   manifest: '/manifest.json',
+}
+
+export const viewport: Viewport = {
   themeColor: '#1E1C2E',
 }
 
@@ -29,7 +38,7 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <html lang="en" className={`${nunitoSans.variable} ${quicksand.variable} h-full`}>
+      <html lang="en" className={`${nunitoSans.variable} ${quicksand.variable} ${fraunces.variable} h-full`}>
         <body className="min-h-full bg-[#FBF8F5]">{children}</body>
       </html>
     </ClerkProvider>

@@ -17,8 +17,8 @@ export async function POST(req: Request) {
     model: anthropic('claude-sonnet-4-5'),
     system: buildLumiSystemPrompt(userContext),
     messages,
-    maxTokens: 1024,
+    maxOutputTokens: 1024,
   })
 
-  return result.toDataStreamResponse()
+  return result.toTextStreamResponse()
 }

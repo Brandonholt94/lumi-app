@@ -10,29 +10,9 @@ export default function NavBar() {
   return (
     <nav
       className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md z-50"
-      style={{ overflow: 'visible' }}
+      style={{ background: '#1E1C2E', overflow: 'visible' }}
     >
-      {/*
-        SVG background with arch curving up around the Lumi circle.
-        ViewBox 0 0 390 90:
-          - y=22 is the normal nav top edge
-          - arch peaks at y=0 in the center (22px above the flat edge)
-          - nav content runs from y=22 to y=90
-      */}
-      <svg
-        className="absolute w-full pointer-events-none"
-        style={{ top: '-10px', left: 0, height: 'calc(100% + 10px)' }}
-        viewBox="0 0 390 90"
-        preserveAspectRatio="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          d="M0,10 L148,10 C160,10 165,6.4 171,3.6 C178,0.9 187,0 195,0 C203,0 212,0.9 219,3.6 C225,6.4 230,10 242,10 L390,10 L390,90 L0,90 Z"
-          fill="#1E1C2E"
-        />
-      </svg>
-
-      <div className="relative flex items-end justify-around px-1 pt-3 pb-7">
+      <div className="relative flex items-center justify-around px-1 pt-3 pb-7">
 
         {/* Today */}
         <Link href="/today" className="flex flex-col items-center gap-1 flex-1">
@@ -69,29 +49,37 @@ export default function NavBar() {
           </span>
         </Link>
 
-        {/* Lumi — sits in the arch */}
-        <Link href="/chat" className="flex flex-col items-center gap-1 flex-1 -mt-5">
+        {/* Lumi — floats above nav, Acorns-style */}
+        <Link href="/chat" className="flex flex-col items-center gap-1 flex-1 -mt-8">
           <div
-            className="w-12 h-12 rounded-full flex items-center justify-center"
+            className="w-14 h-14 rounded-full flex items-center justify-center"
             style={{
               background: 'linear-gradient(135deg, #F4A582, #F5C98A)',
               boxShadow: '0 4px 20px rgba(244,165,130,0.5)',
             }}
           >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-              {/* Rays */}
-              <line x1="12" y1="1"  x2="12" y2="4"  stroke="#1E1C2E" strokeWidth="2" strokeLinecap="round" />
-              <line x1="1"  y1="11" x2="4"  y2="11" stroke="#1E1C2E" strokeWidth="2" strokeLinecap="round" />
-              <line x1="20" y1="11" x2="23" y2="11" stroke="#1E1C2E" strokeWidth="2" strokeLinecap="round" />
-              <line x1="4.22" y1="3.8"  x2="6.34" y2="5.92" stroke="#1E1C2E" strokeWidth="2" strokeLinecap="round" />
-              <line x1="19.78" y1="3.8" x2="17.66" y2="5.92" stroke="#1E1C2E" strokeWidth="2" strokeLinecap="round" />
-              <line x1="3.22" y1="17.5" x2="5.34" y2="15.38" stroke="#1E1C2E" strokeWidth="2" strokeLinecap="round" />
-              <line x1="20.78" y1="17.5" x2="18.66" y2="15.38" stroke="#1E1C2E" strokeWidth="2" strokeLinecap="round" />
+            {/* Beacon / alarm icon — matching reference exactly */}
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+              {/* Top ray */}
+              <line x1="12" y1="1" x2="12" y2="4" stroke="#1E1C2E" strokeWidth="2" strokeLinecap="round"/>
+              {/* Upper-left ray */}
+              <line x1="4.22" y1="4.22" x2="6.34" y2="6.34" stroke="#1E1C2E" strokeWidth="2" strokeLinecap="round"/>
+              {/* Upper-right ray */}
+              <line x1="19.78" y1="4.22" x2="17.66" y2="6.34" stroke="#1E1C2E" strokeWidth="2" strokeLinecap="round"/>
+              {/* Left ray */}
+              <line x1="1" y1="11" x2="4" y2="11" stroke="#1E1C2E" strokeWidth="2" strokeLinecap="round"/>
+              {/* Right ray */}
+              <line x1="23" y1="11" x2="20" y2="11" stroke="#1E1C2E" strokeWidth="2" strokeLinecap="round"/>
+              {/* Lower-left ray */}
+              <line x1="4.22" y1="17.78" x2="6.34" y2="15.66" stroke="#1E1C2E" strokeWidth="2" strokeLinecap="round"/>
+              {/* Lower-right ray */}
+              <line x1="19.78" y1="17.78" x2="17.66" y2="15.66" stroke="#1E1C2E" strokeWidth="2" strokeLinecap="round"/>
               {/* Center circle */}
-              <circle cx="12" cy="11" r="3" fill="#1E1C2E" />
-              {/* Base stand */}
-              <line x1="8" y1="21" x2="16" y2="21" stroke="#1E1C2E" strokeWidth="2" strokeLinecap="round" />
-              <line x1="12" y1="17" x2="12" y2="21" stroke="#1E1C2E" strokeWidth="1.5" strokeLinecap="round" />
+              <circle cx="12" cy="11" r="3" fill="#1E1C2E"/>
+              {/* Stem */}
+              <line x1="12" y1="14" x2="12" y2="19" stroke="#1E1C2E" strokeWidth="2" strokeLinecap="round"/>
+              {/* Base */}
+              <line x1="8" y1="20" x2="16" y2="20" stroke="#1E1C2E" strokeWidth="2" strokeLinecap="round"/>
             </svg>
           </div>
           <span className="text-[10px] font-bold" style={{ fontFamily: 'var(--font-nunito-sans)', color: '#F4A582' }}>

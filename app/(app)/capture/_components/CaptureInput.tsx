@@ -301,7 +301,7 @@ export default function CaptureInput() {
 
           {filterOpen && (
             <div
-              className="absolute left-0 top-[calc(100%+6px)] z-50 overflow-hidden"
+              className="absolute left-0 bottom-[calc(100%+6px)] z-50 overflow-hidden"
               style={{
                 background: 'white',
                 borderRadius: '16px',
@@ -328,7 +328,7 @@ export default function CaptureInput() {
                   }}
                 >
                   {opt.dot && (
-                    <span style={{ width: 8, height: 8, borderRadius: '50%', background: opt.dot, flexShrink: 0, display: 'inline-block' }} />
+                    <span style={{ width: 8, height: 8, borderRadius: '50%', background: opt.dot, flexShrink: 0, display: 'inline-block', marginRight: 4 }} />
                   )}
                   {opt.label}
                   {filter === opt.value && <span style={{ marginLeft: 'auto', color: '#F4A582' }}>✓</span>}

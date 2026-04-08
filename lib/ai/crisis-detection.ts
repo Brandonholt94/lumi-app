@@ -86,12 +86,12 @@ export const CRISIS_RESPONSE = `What you're carrying right now sounds really hea
 This is beyond what I'm able to hold with you, and I don't want to pretend otherwise. There are people who are specifically trained to be with you in this moment.
 
 **Please reach out right now:**
-- **988 Suicide & Crisis Lifeline** — call or text **988** (US, 24/7)
-- **Crisis Text Line** — text **HOME** to **741741** (free, 24/7)
-- **Emergency services** — call **911** if you're in immediate danger
+- **988 Suicide & Crisis Lifeline** — [Call or text 988](tel:988) (US, 24/7)
+- **Crisis Text Line** — [Text HOME to 741741](sms:741741?body=HOME) (free, 24/7)
+- **Emergency services** — [Call 911](tel:911) if you're in immediate danger
 
 I'm not going anywhere. But please let someone trained for this be with you first.`
 
 // Distress response prefix — prepended to Lumi's normal response
 // Signals to Lumi to be in crisis-adjacent mode without a hard handoff
-export const DISTRESS_CONTEXT = `The user's message contains language suggesting significant emotional distress — hopelessness or feeling at a breaking point. Do not attempt to problem-solve or give advice. Lead entirely with warmth and presence. Validate deeply before anything else. At the end of your response, gently surface that if things feel really dark, support is available at 988 or by texting HOME to 741741 — frame it as care, not alarm.`
+export const DISTRESS_CONTEXT = `The user's message contains language suggesting significant emotional distress — hopelessness or feeling at a breaking point. Do not attempt to problem-solve or give advice. Lead entirely with warmth and presence. Validate deeply before anything else. At the end of your response, gently surface that if things feel really dark, support is available — include this exact markdown so it renders as a clickable link: [call or text 988](tel:988) anytime. Frame it as care, not alarm. One sentence only.`

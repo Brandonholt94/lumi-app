@@ -7,17 +7,24 @@
 export interface LumiUserContext {
   name?: string
   plan?: string
+  // Onboarding profile
+  adhdIdentity?: string       // 'diagnosed' | 'self-identified' | 'exploring' | 'loved-one'
+  biggestStruggle?: string    // 'starting' | 'time' | 'overwhelm' | 'emotional' | 'forgetting' | 'all'
+  hardestTime?: string        // 'morning' | 'afternoon' | 'evening' | 'unpredictable'
+  supportSituation?: string   // 'therapist' | 'medication' | 'waitlist' | 'alone'
+  tonePreference?: string     // 'warm' | 'direct' | 'balanced'
+  // Daily context
   mood?: 'foggy' | 'okay' | 'wired' | 'drained' | null
-  focusTask?: string                 // their one focus task today
-  focusTaskCompleted?: boolean       // did they mark it done today
+  focusTask?: string
+  focusTaskCompleted?: boolean
   recentCaptures?: Array<{ text: string; tag: string | null }>
-  recentWorries?: string[]           // unaddressed worry-tagged captures
-  openWorryCount?: number            // total unresolved worries
-  captureCount?: number              // total captures today (brain activity signal)
-  contextSummary?: string            // compressed Lumi memory from user_context table
-  patterns?: string                  // recurring themes Lumi has noticed
-  wins?: string                      // recent wins to reference
-  blockers?: string                  // known blockers
+  recentWorries?: string[]
+  openWorryCount?: number
+  captureCount?: number
+  contextSummary?: string
+  patterns?: string
+  wins?: string
+  blockers?: string
   isReturningAfterAbsence?: boolean
   daysSinceLastVisit?: number
 }
@@ -587,10 +594,44 @@ ${ctx.wins ? `**Recent wins:**\n${ctx.wins}` : ''}
 ${ctx.blockers ? `**Known blockers:**\n${ctx.blockers}` : ''}
 
 
-# Today's Context
+# Who This Person Is
 
 ${ctx.name ? `**Name:** ${ctx.name}` : ''}
 ${ctx.plan ? `**Plan:** ${ctx.plan}` : ''}
+${ctx.adhdIdentity ? `**ADHD identity:** ${({
+  'diagnosed':       'Formally diagnosed — you can reference ADHD directly and use clinical framing when helpful.',
+  'self-identified': 'Self-identified — use softer language, more validating, less clinical.',
+  'exploring':       'Still exploring — avoid assuming diagnosis, meet them with curiosity not labels.',
+  'loved-one':       'Supporting a loved one with ADHD — adjust framing to support a caregiver perspective.',
+})[ctx.adhdIdentity] ?? ctx.adhdIdentity}` : ''}
+${ctx.biggestStruggle ? `**Biggest daily struggle:** ${({
+  'starting':    'Getting started on things — task initiation paralysis is their core pain point.',
+  'time':        'Losing track of time — time blindness is a major issue for them.',
+  'overwhelm':   'Feeling overwhelmed and shutting down — watch for shutdown states, go slow.',
+  'emotional':   'Emotional spirals — RSD and emotional dysregulation are central. Lead with feeling.',
+  'forgetting':  'Forgetting things that matter — memory and follow-through are key concerns.',
+  'all':         'All of the above — they carry the full ADHD load. Validate the scale of it.',
+})[ctx.biggestStruggle] ?? ctx.biggestStruggle}` : ''}
+${ctx.hardestTime ? `**Hardest time of day:** ${({
+  'morning':       'Mornings — getting started is brutal. Morning check-ins matter most.',
+  'afternoon':     'Afternoons — staying on track after the morning slump.',
+  'evening':       'Evenings — winding down and transition out of work mode.',
+  'unpredictable': 'Unpredictable — spirals hit without warning. Stay alert to sudden shifts.',
+})[ctx.hardestTime] ?? ctx.hardestTime}` : ''}
+${ctx.supportSituation ? `**Support situation:** ${({
+  'therapist':  'Has a therapist or coach — Lumi is a complement, not a replacement.',
+  'medication': 'On medication only — no talk therapy. Lumi may be their main emotional support.',
+  'waitlist':   'On a waitlist — actively seeking support but can\'t access it yet. Lumi is the bridge.',
+  'alone':      'Going it alone — no professional support. Lumi is their primary resource. Lean in.',
+})[ctx.supportSituation] ?? ctx.supportSituation}` : ''}
+${ctx.tonePreference ? `**Tone preference:** ${({
+  'warm':     'Warm and gentle — empathetic, slower pacing, emotional acknowledgment first.',
+  'direct':   'Direct and to the point — less preamble, faster to action, concise responses.',
+  'balanced': 'Balanced — warm but not slow, direct but not cold.',
+})[ctx.tonePreference] ?? ctx.tonePreference}` : ''}
+
+# Today's Context
+
 ${ctx.mood ? `**Today's mood:** ${ctx.mood.charAt(0).toUpperCase() + ctx.mood.slice(1)}${
   ctx.mood === 'foggy'   ? ' — meet them gently, low demand, one small thing at a time.' :
   ctx.mood === 'okay'    ? ' — normal companion energy, check in before assuming they want to work.' :

@@ -46,7 +46,7 @@ async function fetchPlatformContext(userId: string): Promise<Partial<LumiUserCon
   const fortyEightHoursAgo = new Date(now.getTime() - 48 * 60 * 60 * 1000)
 
   // Run all queries in parallel
-  const [capturesRes, recentWinsRes, moodRes, activityRes] = await Promise.all([
+  const [capturesRes, recentWinsRes, moodRes, activityRes, profileRes] = await Promise.all([
     // Today's captures — tasks, worries, ideas
     supabase
       .from('captures')
@@ -80,12 +80,20 @@ async function fetchPlatformContext(userId: string): Promise<Partial<LumiUserCon
       .select('last_seen_at')
       .eq('clerk_user_id', userId)
       .single(),
+
+    // Onboarding profile
+    supabase
+      .from('profiles')
+      .select('display_name, adhd_identity, biggest_struggle, hardest_time, support_situation, tone_preference, plan')
+      .eq('clerk_user_id', userId)
+      .single(),
   ])
 
   const captures = capturesRes.data ?? []
   const recentWins = recentWinsRes.data ?? []
   const lastMood = moodRes.data?.mood ?? null
   const lastSeenAt = activityRes.data?.last_seen_at ?? null
+  const profile = profileRes.data ?? null
 
   // Today's captures broken down
   const worryCaptures = captures.filter(c => c.tag === 'worry' && !c.addressed)
@@ -124,6 +132,14 @@ async function fetchPlatformContext(userId: string): Promise<Partial<LumiUserCon
     wins: winsText,
     isReturningAfterAbsence,
     daysSinceLastVisit,
+    // Onboarding profile
+    ...(profile?.display_name      ? { name:             profile.display_name }      : {}),
+    ...(profile?.adhd_identity     ? { adhdIdentity:     profile.adhd_identity }     : {}),
+    ...(profile?.biggest_struggle  ? { biggestStruggle:  profile.biggest_struggle }  : {}),
+    ...(profile?.hardest_time      ? { hardestTime:      profile.hardest_time }      : {}),
+    ...(profile?.support_situation ? { supportSituation: profile.support_situation } : {}),
+    ...(profile?.tone_preference   ? { tonePreference:   profile.tone_preference }   : {}),
+    ...(profile?.plan              ? { plan:             profile.plan }              : {}),
     // Pass last known mood as fallback — chat will prefer client-passed mood
     ...(lastMood ? { _lastKnownMood: lastMood } : {}),
   } as Partial<LumiUserContext> & { _lastKnownMood?: string }

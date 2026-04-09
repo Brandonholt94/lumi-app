@@ -1,5 +1,6 @@
 import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
+import { createClient } from '@supabase/supabase-js'
 import NavBar from './_components/NavBar'
 import SplashScreen from './_components/SplashScreen'
 import { MoodProvider } from './_components/MoodContext'
@@ -12,6 +13,19 @@ export default async function AppLayout({
 }) {
   const { userId } = await auth()
   if (!userId) redirect('/sign-in')
+
+  // Gate: redirect to onboarding if not complete
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('onboarding_completed_at')
+    .eq('clerk_user_id', userId)
+    .single()
+
+  if (!profile?.onboarding_completed_at) redirect('/onboarding')
 
   return (
     <MoodProvider>

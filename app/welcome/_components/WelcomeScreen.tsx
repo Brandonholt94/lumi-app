@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 
 const PEACH  = '#F4A582'
 const GOLD   = '#F5C98A'
@@ -19,6 +20,8 @@ const FEATURES = [
 export default function WelcomeScreen({ name }: { name: string }) {
   const [phase, setPhase] = useState(0)
   // 0 = nothing, 1 = greeting, 2 = subtitle, 3 = features, 4 = cta
+  const searchParams = useSearchParams()
+  const upgraded = searchParams.get('upgraded') === 'true'
 
   useEffect(() => {
     const timers = [
@@ -77,6 +80,28 @@ export default function WelcomeScreen({ name }: { name: string }) {
       }}>
         Your brain isn't broken. It just needed something built for it. That's me.
       </p>
+
+      {/* Upgrade success banner */}
+      {upgraded && (
+        <div style={{
+          background: `linear-gradient(135deg, rgba(244,165,130,0.15), rgba(232,160,191,0.15))`,
+          border: `1px solid rgba(244,165,130,0.3)`,
+          borderRadius: 14, padding: '12px 16px',
+          marginBottom: 24, width: '100%', maxWidth: 340,
+          opacity: phase >= 2 ? 1 : 0,
+          transition: 'opacity 0.5s ease',
+          display: 'flex', alignItems: 'center', gap: 10,
+        }}>
+          <span style={{ fontSize: 18 }}>🎉</span>
+          <p style={{
+            fontFamily: 'var(--font-nunito-sans)',
+            fontSize: '13px', fontWeight: 700,
+            color: DARK, margin: 0, lineHeight: 1.4,
+          }}>
+            You&apos;re all set! Your trial starts now. Welcome to the full Lumi experience.
+          </p>
+        </div>
+      )}
 
       {/* Feature pills */}
       <div style={{

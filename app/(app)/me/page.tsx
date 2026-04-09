@@ -1,4 +1,5 @@
-import { currentUser } from '@clerk/nextjs/server'
+import { auth, currentUser } from '@clerk/nextjs/server'
+import { createClient } from '@supabase/supabase-js'
 import Link from 'next/link'
 
 // ─── Icon primitives ────────────────────────────────────────────────────────
@@ -179,7 +180,14 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 // ─── Page ───────────────────────────────────────────────────────────────────
 
+const PLAN_LABELS: Record<string, string> = {
+  free:      'Free',
+  core:      'Core',
+  companion: 'Companion',
+}
+
 export default async function MePage() {
+  const { userId } = await auth()
   const user = await currentUser()
   const firstName = user?.firstName ?? ''
   const lastName = user?.lastName ?? ''
@@ -187,6 +195,20 @@ export default async function MePage() {
   // Only use imageUrl if user explicitly uploaded a photo (hasImage),
   // otherwise Clerk returns a generated purple/blue avatar
   const avatar = user?.hasImage ? user.imageUrl : null
+
+  let planLabel = 'Free'
+  if (userId) {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
+    const { data } = await supabase
+      .from('profiles')
+      .select('plan')
+      .eq('clerk_user_id', userId)
+      .single()
+    if (data?.plan) planLabel = PLAN_LABELS[data.plan] ?? 'Free'
+  }
 
   return (
     <div className="flex flex-col h-full overflow-y-auto" style={{ background: '#ffffff', paddingBottom: 40 }}>
@@ -294,7 +316,7 @@ export default async function MePage() {
 
         {/* ACCOUNT */}
         <Section title="Account">
-          <Row icon={icons.star}    label="Your plan"     value="Free"  valueDim  href="/me/subscription" />
+          <Row icon={icons.star}    label="Your plan"     value={planLabel}  valueDim={planLabel === 'Free'}  href="/me/subscription" />
           <Row icon={icons.bell}    label="Notifications"               href="/me/notifications" />
           <Row icon={icons.trophy}  label="Your wins"                   href="/me/wins"          last />
         </Section>

@@ -12,6 +12,41 @@ function getServiceClient() {
   )
 }
 
+export async function POST(req: Request) {
+  const { userId } = await auth()
+  if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const body = await req.json()
+  const {
+    started_at,
+    ended_at,
+    planned_duration,
+    actual_duration,
+    completed,
+    task_label      = null,
+    ambient_sound   = 'off',
+    pauses          = 0,
+    thoughts_captured = 0,
+  } = body
+
+  const supabase = getServiceClient()
+  const { error } = await supabase.from('focus_sessions').insert({
+    clerk_user_id: userId,
+    started_at,
+    ended_at,
+    planned_duration,
+    actual_duration,
+    completed,
+    task_label,
+    ambient_sound,
+    pauses,
+    thoughts_captured,
+  })
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json({ ok: true })
+}
+
 export async function GET(req: Request) {
   const { userId } = await auth()
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -52,9 +87,9 @@ export async function GET(req: Request) {
 
   try {
     const { text } = await generateText({
-      model: anthropic('claude-sonnet-4-6'),
+      model: anthropic('claude-sonnet-4.6'),
       prompt,
-      maxTokens: 300,
+      maxOutputTokens: 300,
     })
 
     // Parse the JSON response from Claude

@@ -4,6 +4,7 @@ import OneFocusCard from './_components/OneFocusCard'
 import LumiNudge from './_components/LumiNudge'
 import LowBatteryBanner from './_components/LowBatteryBanner'
 import Link from 'next/link'
+import ProfileButton from '../_components/ProfileButton'
 
 function getGreeting() {
   const hour = new Date().getHours()
@@ -27,35 +28,42 @@ export default async function TodayPage() {
   const date = getFormattedDate()
 
   return (
-    <div className="flex flex-col h-full px-5 pt-3 pb-4 overflow-y-auto">
+    <div className="flex flex-col h-full overflow-y-auto">
 
-      {/* Greeting */}
-      <h1
-        className="leading-none mb-[5px]"
-        style={{
-          fontFamily: 'var(--font-fraunces)',
-          fontSize: '38px',
-          fontWeight: 900,
-          color: '#1E1C2E',
-          lineHeight: 1.0,
-        }}
-      >
-        {greeting},<br />
-        <span style={{ background: 'linear-gradient(90deg, #F4A582, #F5C98A, #8FAAE0)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-          {firstName}.
-        </span>
-      </h1>
-      <p
-        className="mb-5"
-        style={{
-          fontFamily: 'var(--font-nunito-sans)',
-          fontSize: '12.5px',
-          fontWeight: 600,
-          color: '#9895B0',
-        }}
-      >
-        {date} · Let&apos;s find your one thing.
-      </p>
+      {/* ── White header ── */}
+      <div style={{ background: '#ffffff', padding: '32px 20px 20px' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+          <div>
+            <h1
+              style={{
+                fontFamily: 'var(--font-fraunces)',
+                fontSize: '38px',
+                fontWeight: 900,
+                color: '#1E1C2E',
+                lineHeight: 1.0,
+                marginBottom: 6,
+              }}
+            >
+              {greeting},<br />
+              <span style={{ background: 'linear-gradient(90deg, #F4A582, #F5C98A, #8FAAE0)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+                {firstName}.
+              </span>
+            </h1>
+            <p style={{
+              fontFamily: 'var(--font-nunito-sans)',
+              fontSize: '12.5px',
+              fontWeight: 600,
+              color: '#9895B0',
+            }}>
+              {date} · Let&apos;s find your one thing.
+            </p>
+          </div>
+          <ProfileButton />
+        </div>
+      </div>
+
+      {/* ── Beige body ── */}
+      <div className="flex flex-col flex-1 px-5 pb-4" style={{ background: '#FBF8F5', paddingTop: 28 }}>
 
       {/* Mood check-in */}
       <p
@@ -169,6 +177,7 @@ export default async function TodayPage() {
         </Link>
       </div>
 
+      </div>{/* end beige body */}
     </div>
   )
 }

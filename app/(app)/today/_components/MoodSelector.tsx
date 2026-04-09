@@ -19,7 +19,7 @@ export default function MoodSelector() {
         return (
           <button
             key={m.key}
-            onClick={() => setMood(m.key)}
+            onClick={() => setMood(m.key as 'foggy' | 'okay' | 'wired' | 'drained')}
             className="flex flex-col items-center gap-1 rounded-[14px] py-[9px] px-1 transition-all duration-150"
             style={{
               background: active ? 'rgba(244,165,130,0.08)' : 'white',

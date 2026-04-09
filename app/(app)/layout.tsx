@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import NavBar from './_components/NavBar'
 import SplashScreen from './_components/SplashScreen'
 import { MoodProvider } from './_components/MoodContext'
+import ActivityTracker from './_components/ActivityTracker'
 
 export default async function AppLayout({
   children,
@@ -14,9 +15,10 @@ export default async function AppLayout({
 
   return (
     <MoodProvider>
+      <ActivityTracker />
       <div className="min-h-screen bg-[#FBF8F5] flex flex-col max-w-md mx-auto relative">
         <SplashScreen />
-        <main className="flex-1 pb-24 overflow-hidden">
+        <main className="flex-1 overflow-hidden flex flex-col">
           {children}
         </main>
         <NavBar />

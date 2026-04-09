@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import ProfileButton from '../../_components/ProfileButton'
 
 type Tag = 'task' | 'idea' | 'worry' | 'reminder' | null
 
@@ -93,29 +94,37 @@ export default function CaptureInput() {
 
   return (
     <>
-      {/* Header */}
-      <h1
-        className="leading-none mb-[4px]"
-        style={{
-          fontFamily: 'var(--font-fraunces)',
-          fontSize: '34px',
-          fontWeight: 900,
-          color: '#1E1C2E',
-        }}
-      >
-        Brain Dump
-      </h1>
-      <p
-        className="mb-4"
-        style={{
-          fontFamily: 'var(--font-nunito-sans)',
-          fontSize: '12px',
-          fontWeight: 600,
-          color: '#9895B0',
-        }}
-      >
-        {date} · {loading ? '—' : `${captures.length} capture${captures.length !== 1 ? 's' : ''} this week`}
-      </p>
+      {/* ── White header ── */}
+      <div style={{ background: '#ffffff', padding: '32px 20px 20px' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+          <div>
+            <h1
+              style={{
+                fontFamily: 'var(--font-fraunces)',
+                fontSize: '34px',
+                fontWeight: 900,
+                color: '#1E1C2E',
+                lineHeight: 1.1,
+                marginBottom: 6,
+              }}
+            >
+              Brain Dump
+            </h1>
+            <p style={{
+              fontFamily: 'var(--font-nunito-sans)',
+              fontSize: '12px',
+              fontWeight: 600,
+              color: '#9895B0',
+            }}>
+              {date} · {loading ? '—' : `${captures.length} capture${captures.length !== 1 ? 's' : ''} this week`}
+            </p>
+          </div>
+          <ProfileButton />
+        </div>
+      </div>
+
+      {/* ── Beige body ── */}
+      <div style={{ background: '#FBF8F5', padding: '28px 20px 0' }}>
 
       {/* Lumi hint */}
       <div
@@ -387,7 +396,7 @@ export default function CaptureInput() {
             paddingTop: '24px',
           }}
         >
-          Nothing captured yet. Start dumping.
+          Your head is clear. Add something above.
         </p>
       ) : (
         <div className="flex flex-col gap-[8px]">
@@ -448,6 +457,7 @@ export default function CaptureInput() {
           50% { opacity: 0.4; transform: scale(0.75); }
         }
       `}</style>
+      </div>{/* end beige body */}
     </>
   )
 }

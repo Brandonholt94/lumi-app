@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import ProfileButton from '../_components/ProfileButton'
 
 // ─────────────────────────────────────────────────────────
@@ -109,6 +110,7 @@ function BrainReportCard({ plan }: { plan: 'free' | 'core' | 'companion' }) {
   const [status,  setStatus]  = useState<'idle' | 'loading' | 'done' | 'error'>('idle')
   const [report,  setReport]  = useState<string | null>(null)
   const isPaid = plan !== 'free'
+  const router = useRouter()
 
   async function generate() {
     setStatus('loading')
@@ -168,7 +170,9 @@ function BrainReportCard({ plan }: { plan: 'free' | 'core' | 'companion' }) {
             </p>
           </div>
 
-          <button style={{
+          <button
+            onClick={() => router.push('/upgrade')}
+            style={{
             width: '100%', padding: '14px',
             background: 'linear-gradient(135deg, #F4A582, #F5C98A)',
             border: 'none', borderRadius: 12, cursor: 'pointer',

@@ -164,9 +164,8 @@ export default function SignUpPage() {
     }}>
 
       {/* Stacked logo */}
-      <Link href="https://lumimind.app" style={{ marginBottom: 32, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
-        <Image src="/lumi-brandmark.svg" alt="" width={64} height={52} priority />
-        <Image src="/lumi-wordmark-dark.svg" alt="Lumi" width={88} height={34} />
+      <Link href="https://lumimind.app" style={{ marginBottom: 28, display: 'block' }}>
+        <Image src="/lumi-stacked.svg" alt="Lumi" width={148} height={148} priority />
       </Link>
 
       {/* Card */}

@@ -49,8 +49,13 @@ function TypingIndicator() {
       }}>
         <LumiBrandmarkWhite size={14} />
       </div>
-      <div className="rounded-2xl px-4 py-3"
-        style={{ background: '#F3EFE9' }}>
+      <div className="rounded-2xl px-4 py-3" style={{
+        background: 'rgba(255,255,255,0.72)',
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
+        border: '1px solid rgba(255,255,255,0.85)',
+        boxShadow: '0 2px 14px rgba(244,165,130,0.1), inset 0 1px 0 rgba(255,255,255,0.95)',
+      }}>
         <div className="flex gap-[5px] items-center" style={{ height: 16 }}>
           {[0, 1, 2].map(i => (
             <div key={i} style={{
@@ -388,7 +393,17 @@ export default function ChatPage() {
                       <div style={{
                         borderRadius: 18,
                         padding: '10px 14px',
-                        background: isUser ? '#2D2A3E' : '#F3EFE9',
+                        background: isUser
+                          ? 'rgba(45,42,62,0.82)'
+                          : 'rgba(255,255,255,0.72)',
+                        backdropFilter: 'blur(16px)',
+                        WebkitBackdropFilter: 'blur(16px)',
+                        border: isUser
+                          ? '1px solid rgba(255,255,255,0.07)'
+                          : '1px solid rgba(255,255,255,0.85)',
+                        boxShadow: isUser
+                          ? '0 2px 14px rgba(45,42,62,0.18), inset 0 1px 0 rgba(255,255,255,0.06)'
+                          : '0 2px 14px rgba(244,165,130,0.1), inset 0 1px 0 rgba(255,255,255,0.95)',
                         fontFamily: 'var(--font-quicksand)',
                         fontSize: '15px',
                         fontWeight: 500,

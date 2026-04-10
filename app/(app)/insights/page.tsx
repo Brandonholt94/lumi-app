@@ -179,7 +179,7 @@ function BrainReportCard({ plan }: { plan: 'free' | 'starter' | 'core' | 'compan
             fontFamily: 'var(--font-nunito-sans)', fontSize: '14px', fontWeight: 800,
             color: '#1E1C2E',
           }}>
-            Unlock with Core — $29/mo
+            Unlock with Core — $14/mo
           </button>
           <p style={{
             textAlign: 'center', marginTop: 8,

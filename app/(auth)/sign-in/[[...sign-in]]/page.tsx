@@ -1,6 +1,6 @@
 'use client'
 
-import { useSignIn } from '@clerk/nextjs'
+import { useSignIn, useClerk } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 import { useState, FormEvent, CSSProperties } from 'react'
 import Image from 'next/image'
@@ -124,6 +124,7 @@ type Phase = 'credentials' | 'forgot-email' | 'forgot-code'
 
 export default function SignInPage() {
   const { signIn } = useSignIn()
+  const { setActive } = useClerk()
   const router = useRouter()
 
   const [phase, setPhase]       = useState<Phase>('credentials')
@@ -143,10 +144,9 @@ export default function SignInPage() {
     try {
       const { error: err } = await signIn.password({ identifier: email, password })
       if (err) { setError(clerkMsg(err)); setLoading(false); return }
-      const { error: finalErr } = await signIn.finalize({
-        navigate: ({ decorateUrl }) => { router.push(decorateUrl('/today')) },
-      })
-      if (finalErr) { setError(clerkMsg(finalErr)); setLoading(false); return }
+      if (!signIn.createdSessionId) { setError('Sign-in failed. Please try again.'); setLoading(false); return }
+      await setActive({ session: signIn.createdSessionId })
+      router.push('/today')
     } catch (e: unknown) {
       setError(clerkMsg(e))
       setLoading(false)
@@ -180,10 +180,9 @@ export default function SignInPage() {
       if (verifyErr) { setError(clerkMsg(verifyErr)); setLoading(false); return }
       const { error: pwErr } = await signIn.resetPasswordEmailCode.submitPassword({ password: newPw })
       if (pwErr) { setError(clerkMsg(pwErr)); setLoading(false); return }
-      const { error: finalErr } = await signIn.finalize({
-        navigate: ({ decorateUrl }) => { router.push(decorateUrl('/today')) },
-      })
-      if (finalErr) { setError(clerkMsg(finalErr)); setLoading(false); return }
+      if (!signIn.createdSessionId) { setError('Reset failed. Please try again.'); setLoading(false); return }
+      await setActive({ session: signIn.createdSessionId })
+      router.push('/today')
     } catch (e: unknown) {
       setError(clerkMsg(e))
       setLoading(false)

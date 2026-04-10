@@ -1,6 +1,6 @@
 'use client'
 
-import { useSignUp } from '@clerk/nextjs'
+import { useSignUp, useClerk } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 import { useState, FormEvent, CSSProperties } from 'react'
 import Image from 'next/image'
@@ -109,6 +109,7 @@ type Phase = 'form' | 'verify'
 
 export default function SignUpPage() {
   const { signUp } = useSignUp()
+  const { setActive } = useClerk()
   const router = useRouter()
 
   const [phase, setPhase]       = useState<Phase>('form')
@@ -145,10 +146,9 @@ export default function SignUpPage() {
     try {
       const { error: verifyErr } = await signUp.verifications.verifyEmailCode({ code })
       if (verifyErr) { setError(clerkMsg(verifyErr)); setLoading(false); return }
-      const { error: finalErr } = await signUp.finalize({
-        navigate: ({ decorateUrl }) => { router.push(decorateUrl('/onboarding')) },
-      })
-      if (finalErr) { setError(clerkMsg(finalErr)); setLoading(false); return }
+      if (!signUp.createdSessionId) { setError('Verification failed. Please try again.'); setLoading(false); return }
+      await setActive({ session: signUp.createdSessionId })
+      router.push('/onboarding')
     } catch (e: unknown) {
       setError(clerkMsg(e))
       setLoading(false)

@@ -147,11 +147,16 @@ export default function SignInPage() {
         strategy: 'password',
         password,
       })
-      if (result.status === 'complete') {
-        await setActive!({ session: result.createdSessionId! })
-        router.push('/today')
+      if (result.status === 'complete' || result.status === 'needs_client_trust') {
+        await setActive!({
+          session: result.createdSessionId!,
+          navigate: async ({ decorateUrl }) => {
+            const url = decorateUrl('/today')
+            if (url.startsWith('https')) { window.location.href = url } else { router.push(url) }
+          },
+        })
       } else {
-        setError('Sign-in incomplete. Please try again.')
+        setError('Sign-in failed. Please try again.')
         setLoading(false)
       }
     } catch (e: unknown) {
@@ -191,11 +196,16 @@ export default function SignInPage() {
         code,
         password: newPw,
       })
-      if (result.status === 'complete') {
-        await setActive!({ session: result.createdSessionId! })
-        router.push('/today')
+      if (result.status === 'complete' || result.status === 'needs_client_trust') {
+        await setActive!({
+          session: result.createdSessionId!,
+          navigate: async ({ decorateUrl }) => {
+            const url = decorateUrl('/today')
+            if (url.startsWith('https')) { window.location.href = url } else { router.push(url) }
+          },
+        })
       } else {
-        setError('Reset incomplete. Please try again.')
+        setError('Reset failed. Please try again.')
         setLoading(false)
       }
     } catch (e: unknown) {

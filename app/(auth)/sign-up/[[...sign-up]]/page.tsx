@@ -143,11 +143,16 @@ export default function SignUpPage() {
     setLoading(true)
     try {
       const result = await signUp.attemptEmailAddressVerification({ code })
-      if (result.status === 'complete') {
-        await setActive!({ session: result.createdSessionId! })
-        router.push('/onboarding')
+      if (result.status === 'complete' || result.status === 'needs_client_trust') {
+        await setActive!({
+          session: result.createdSessionId!,
+          navigate: async ({ decorateUrl }) => {
+            const url = decorateUrl('/onboarding')
+            if (url.startsWith('https')) { window.location.href = url } else { router.push(url) }
+          },
+        })
       } else {
-        setError('Verification incomplete. Please try again.')
+        setError('Verification failed. Please try again.')
         setLoading(false)
       }
     } catch (e: unknown) {

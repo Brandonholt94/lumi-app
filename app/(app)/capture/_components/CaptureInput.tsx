@@ -49,6 +49,7 @@ export default function CaptureInput() {
   const [breakdownTask, setBreakdownTask] = useState<string>('')
   const [subtasks, setSubtasks] = useState<{ text: string; minutes: number }[]>([])
   const [breakdownLoading, setBreakdownLoading] = useState(false)
+  const [breakdownError, setBreakdownError] = useState(false)
   const [addingAll, setAddingAll] = useState(false)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -129,6 +130,7 @@ export default function CaptureInput() {
     setBreakdownTask(capture.text)
     setBreakdownForId(capture.id)
     setSubtasks([])
+    setBreakdownError(false)
     setBreakdownLoading(true)
     try {
       const res = await fetch('/api/captures/breakdown', {
@@ -136,8 +138,15 @@ export default function CaptureInput() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: capture.text }),
       })
+      if (!res.ok) { setBreakdownError(true); return }
       const data = await res.json()
-      if (Array.isArray(data.subtasks)) setSubtasks(data.subtasks)
+      if (Array.isArray(data.subtasks) && data.subtasks.length > 0) {
+        setSubtasks(data.subtasks)
+      } else {
+        setBreakdownError(true)
+      }
+    } catch {
+      setBreakdownError(true)
     } finally {
       setBreakdownLoading(false)
     }
@@ -614,8 +623,26 @@ export default function CaptureInput() {
               </div>
             )}
 
+            {/* Error state */}
+            {!breakdownLoading && breakdownError && (
+              <div style={{ padding: '24px 0', textAlign: 'center' }}>
+                <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: 13, fontWeight: 600, color: '#9895B0', marginBottom: 12 }}>
+                  Couldn't break this down right now.
+                </p>
+                <button
+                  onClick={() => handleBreakdown({ id: breakdownForId!, text: breakdownTask, tag: 'task', created_at: '' })}
+                  style={{
+                    fontFamily: 'var(--font-nunito-sans)', fontSize: 12, fontWeight: 800,
+                    color: '#F4A582', background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+                  }}
+                >
+                  Try again →
+                </button>
+              </div>
+            )}
+
             {/* Subtasks */}
-            {!breakdownLoading && subtasks.length > 0 && (
+            {!breakdownLoading && !breakdownError && subtasks.length > 0 && (
               <>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
                   {subtasks.map((s, i) => (

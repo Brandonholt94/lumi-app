@@ -183,7 +183,7 @@ export default function SignUpPage() {
         {phase === 'form' && (
           <>
             <h1 style={{ fontFamily: 'var(--font-fraunces)', fontSize: 26, fontWeight: 900, color: '#1E1C2E', marginBottom: 4, lineHeight: 1.1 }}>
-              Built for your brain.
+              A new day for your brain.
             </h1>
             <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: 13, fontWeight: 600, color: '#9895B0', marginBottom: 28 }}>
               7 days free. No credit card needed.

@@ -1,6 +1,6 @@
 'use client'
 
-import { useSignUp, useClerk } from '@clerk/nextjs'
+import { useSignUp } from '@clerk/nextjs/legacy'
 import { useRouter } from 'next/navigation'
 import { useState, FormEvent, CSSProperties } from 'react'
 import Image from 'next/image'
@@ -96,7 +96,8 @@ function EyeOff() {
 
 function clerkMsg(err: unknown): string {
   if (!err) return ''
-  const e = err as { longMessage?: string; message?: string }
+  const e = err as { longMessage?: string; message?: string; errors?: Array<{ longMessage?: string; message?: string }> }
+  if (e.errors?.[0]) return e.errors[0].longMessage ?? e.errors[0].message ?? 'Something went wrong.'
   return e.longMessage ?? e.message ?? 'Something went wrong. Try again.'
 }
 
@@ -108,8 +109,7 @@ function blur(e: React.FocusEvent<HTMLInputElement>) { e.target.style.borderColo
 type Phase = 'form' | 'verify'
 
 export default function SignUpPage() {
-  const { signUp } = useSignUp()
-  const { setActive } = useClerk()
+  const { isLoaded, signUp, setActive } = useSignUp()
   const router = useRouter()
 
   const [phase, setPhase]       = useState<Phase>('form')
@@ -123,14 +123,12 @@ export default function SignUpPage() {
 
   async function handleSignUp(e: FormEvent) {
     e.preventDefault()
-    if (!signUp) return
+    if (!isLoaded || !signUp) return
     setError(null)
     setLoading(true)
     try {
-      const { error: err } = await signUp.password({ emailAddress: email, password })
-      if (err) { setError(clerkMsg(err)); setLoading(false); return }
-      const { error: sendErr } = await signUp.verifications.sendEmailCode()
-      if (sendErr) { setError(clerkMsg(sendErr)); setLoading(false); return }
+      await signUp.create({ emailAddress: email, password })
+      await signUp.prepareEmailAddressVerification({ strategy: 'email_code' })
       setPhase('verify')
     } catch (e: unknown) {
       setError(clerkMsg(e))
@@ -140,15 +138,18 @@ export default function SignUpPage() {
 
   async function handleVerify(e: FormEvent) {
     e.preventDefault()
-    if (!signUp) return
+    if (!isLoaded || !signUp) return
     setError(null)
     setLoading(true)
     try {
-      const { error: verifyErr } = await signUp.verifications.verifyEmailCode({ code })
-      if (verifyErr) { setError(clerkMsg(verifyErr)); setLoading(false); return }
-      if (!signUp.createdSessionId) { setError('Verification failed. Please try again.'); setLoading(false); return }
-      await setActive({ session: signUp.createdSessionId })
-      router.push('/onboarding')
+      const result = await signUp.attemptEmailAddressVerification({ code })
+      if (result.status === 'complete') {
+        await setActive!({ session: result.createdSessionId! })
+        router.push('/onboarding')
+      } else {
+        setError('Verification incomplete. Please try again.')
+        setLoading(false)
+      }
     } catch (e: unknown) {
       setError(clerkMsg(e))
       setLoading(false)
@@ -156,9 +157,9 @@ export default function SignUpPage() {
   }
 
   async function handleResend() {
-    if (!signUp) return
+    if (!isLoaded || !signUp) return
     try {
-      await signUp.verifications.sendEmailCode()
+      await signUp.prepareEmailAddressVerification({ strategy: 'email_code' })
       setResent(true)
       setTimeout(() => setResent(false), 4000)
     } catch {

@@ -1,6 +1,6 @@
 'use client'
 
-import { useSignIn, useClerk } from '@clerk/nextjs'
+import { useSignIn } from '@clerk/nextjs/legacy'
 import { useRouter } from 'next/navigation'
 import { useState, FormEvent, CSSProperties } from 'react'
 import Image from 'next/image'
@@ -111,7 +111,8 @@ function BackBtn({ onClick }: { onClick: () => void }) {
 
 function clerkMsg(err: unknown): string {
   if (!err) return ''
-  const e = err as { longMessage?: string; message?: string }
+  const e = err as { longMessage?: string; message?: string; errors?: Array<{ longMessage?: string; message?: string }> }
+  if (e.errors?.[0]) return e.errors[0].longMessage ?? e.errors[0].message ?? 'Something went wrong.'
   return e.longMessage ?? e.message ?? 'Something went wrong. Try again.'
 }
 
@@ -123,8 +124,7 @@ function blur(e: React.FocusEvent<HTMLInputElement>) { e.target.style.borderColo
 type Phase = 'credentials' | 'forgot-email' | 'forgot-code'
 
 export default function SignInPage() {
-  const { signIn } = useSignIn()
-  const { setActive } = useClerk()
+  const { isLoaded, signIn, setActive } = useSignIn()
   const router = useRouter()
 
   const [phase, setPhase]       = useState<Phase>('credentials')
@@ -138,15 +138,22 @@ export default function SignInPage() {
 
   async function handleSignIn(e: FormEvent) {
     e.preventDefault()
-    if (!signIn) return
+    if (!isLoaded || !signIn) return
     setError(null)
     setLoading(true)
     try {
-      const { error: err } = await signIn.password({ identifier: email, password })
-      if (err) { setError(clerkMsg(err)); setLoading(false); return }
-      if (!signIn.createdSessionId) { setError('Sign-in failed. Please try again.'); setLoading(false); return }
-      await setActive({ session: signIn.createdSessionId })
-      router.push('/today')
+      const result = await signIn.create({
+        identifier: email,
+        strategy: 'password',
+        password,
+      })
+      if (result.status === 'complete') {
+        await setActive!({ session: result.createdSessionId! })
+        router.push('/today')
+      } else {
+        setError('Sign-in incomplete. Please try again.')
+        setLoading(false)
+      }
     } catch (e: unknown) {
       setError(clerkMsg(e))
       setLoading(false)
@@ -155,14 +162,17 @@ export default function SignInPage() {
 
   async function handleSendReset(e: FormEvent) {
     e.preventDefault()
-    if (!signIn) return
+    if (!isLoaded || !signIn) return
     setError(null)
     setLoading(true)
     try {
-      const { error: createErr } = await signIn.create({ identifier: email })
-      if (createErr) { setError(clerkMsg(createErr)); setLoading(false); return }
-      const { error: sendErr } = await signIn.resetPasswordEmailCode.sendCode()
-      if (sendErr) { setError(clerkMsg(sendErr)); setLoading(false); return }
+      const attempt = await signIn.create({ identifier: email })
+      const factor = attempt.supportedFirstFactors?.find(
+        (f): f is { strategy: 'reset_password_email_code'; emailAddressId: string; safeIdentifier: string; primary?: boolean } =>
+          f.strategy === 'reset_password_email_code'
+      )
+      if (!factor) { setError('Password reset not available for this account.'); setLoading(false); return }
+      await signIn.prepareFirstFactor({ strategy: 'reset_password_email_code', emailAddressId: factor.emailAddressId })
       setPhase('forgot-code')
     } catch (e: unknown) {
       setError(clerkMsg(e))
@@ -172,17 +182,22 @@ export default function SignInPage() {
 
   async function handleResetPassword(e: FormEvent) {
     e.preventDefault()
-    if (!signIn) return
+    if (!isLoaded || !signIn) return
     setError(null)
     setLoading(true)
     try {
-      const { error: verifyErr } = await signIn.resetPasswordEmailCode.verifyCode({ code })
-      if (verifyErr) { setError(clerkMsg(verifyErr)); setLoading(false); return }
-      const { error: pwErr } = await signIn.resetPasswordEmailCode.submitPassword({ password: newPw })
-      if (pwErr) { setError(clerkMsg(pwErr)); setLoading(false); return }
-      if (!signIn.createdSessionId) { setError('Reset failed. Please try again.'); setLoading(false); return }
-      await setActive({ session: signIn.createdSessionId })
-      router.push('/today')
+      const result = await signIn.attemptFirstFactor({
+        strategy: 'reset_password_email_code',
+        code,
+        password: newPw,
+      })
+      if (result.status === 'complete') {
+        await setActive!({ session: result.createdSessionId! })
+        router.push('/today')
+      } else {
+        setError('Reset incomplete. Please try again.')
+        setLoading(false)
+      }
     } catch (e: unknown) {
       setError(clerkMsg(e))
       setLoading(false)

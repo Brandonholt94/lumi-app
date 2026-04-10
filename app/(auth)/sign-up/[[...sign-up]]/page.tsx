@@ -145,11 +145,6 @@ export default function SignUpPage() {
     try {
       const { error: verifyErr } = await signUp.verifications.verifyEmailCode({ code })
       if (verifyErr) { setError(clerkMsg(verifyErr)); setLoading(false); return }
-      if (signUp.status !== 'complete') {
-        setError('Verification failed. Please try again.')
-        setLoading(false)
-        return
-      }
       const { error: finalErr } = await signUp.finalize()
       if (finalErr) { setError(clerkMsg(finalErr)); setLoading(false); return }
       router.push('/onboarding')

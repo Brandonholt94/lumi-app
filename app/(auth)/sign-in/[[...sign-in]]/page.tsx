@@ -143,11 +143,6 @@ export default function SignInPage() {
     try {
       const { error: err } = await signIn.password({ identifier: email, password })
       if (err) { setError(clerkMsg(err)); setLoading(false); return }
-      if (signIn.status !== 'complete') {
-        setError('Sign-in requires additional verification. Please contact support.')
-        setLoading(false)
-        return
-      }
       const { error: finalErr } = await signIn.finalize()
       if (finalErr) { setError(clerkMsg(finalErr)); setLoading(false); return }
       router.push('/today')
@@ -184,11 +179,6 @@ export default function SignInPage() {
       if (verifyErr) { setError(clerkMsg(verifyErr)); setLoading(false); return }
       const { error: pwErr } = await signIn.resetPasswordEmailCode.submitPassword({ password: newPw })
       if (pwErr) { setError(clerkMsg(pwErr)); setLoading(false); return }
-      if (signIn.status !== 'complete') {
-        setError('Password reset failed. Please try again.')
-        setLoading(false)
-        return
-      }
       const { error: finalErr } = await signIn.finalize()
       if (finalErr) { setError(clerkMsg(finalErr)); setLoading(false); return }
       router.push('/today')

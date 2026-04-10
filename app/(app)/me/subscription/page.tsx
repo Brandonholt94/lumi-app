@@ -3,7 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import MeHeader from '../_components/MeHeader'
 import SubscriptionClient from './SubscriptionClient'
 
-type Plan = 'free' | 'core' | 'companion'
+type Plan = 'free' | 'starter' | 'core' | 'companion'
 
 export default async function SubscriptionPage() {
   const { userId } = await auth()
@@ -21,8 +21,8 @@ export default async function SubscriptionPage() {
       .eq('clerk_user_id', userId)
       .single()
 
-    if (data?.plan === 'core' || data?.plan === 'companion') {
-      currentPlan = data.plan
+    if (['starter', 'core', 'companion'].includes(data?.plan)) {
+      currentPlan = data.plan as Plan
     }
   }
 

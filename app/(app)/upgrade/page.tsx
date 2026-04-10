@@ -14,29 +14,32 @@ type BillingCycle = 'monthly' | 'annual'
 
 const PLANS = [
   {
-    key: 'free',
-    name: 'Free',
-    monthly: 0,
-    annual: 0,
-    description: 'Get a feel for Lumi',
+    key: 'starter',
+    name: 'Starter',
+    monthly: 7,
+    annual: 4,
+    annualTotal: 48,
+    description: 'A gentle place to begin',
     features: [
-      'Brain Dump (up to 10/day)',
+      'Lumi chat (20 messages/day)',
+      'Brain Dump (unlimited)',
       'Daily mood check-in',
-      'Basic focus timer',
-      'Limited Lumi chat (10 messages/day)',
+      'One Focus task',
     ],
-    cta: null, // already on this plan
-    gradient: null,
+    cta: 'Start 7-day free trial',
+    gradient: `linear-gradient(135deg, ${GOLD}, ${PEACH})`,
+    popular: false,
   },
   {
     key: 'core',
     name: 'Core',
-    monthly: 29,
-    annual: 19,
+    monthly: 14,
+    annual: 10,
+    annualTotal: 120,
     description: 'Everything you need to stay on track',
     features: [
-      'Unlimited Brain Dump',
       'Unlimited Lumi chat',
+      'Unlimited Brain Dump',
       'Focus sessions + history',
       'Weekly Brain Report',
       'Mood + energy trends',
@@ -48,8 +51,9 @@ const PLANS = [
   {
     key: 'companion',
     name: 'Companion',
-    monthly: 49,
-    annual: 35,
+    monthly: 24,
+    annual: 16,
+    annualTotal: 192,
     description: 'Lumi at its fullest',
     features: [
       'Everything in Core',
@@ -115,7 +119,7 @@ export default function UpgradePage() {
           Upgrade Lumi
         </h1>
         <p style={{ fontSize: '15px', color: MUTED, fontWeight: 600, lineHeight: 1.5 }}>
-          7-day free trial on Core and Companion. Cancel anytime.
+          7-day free trial on all plans. Cancel anytime.
         </p>
       </div>
 
@@ -164,7 +168,6 @@ export default function UpgradePage() {
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
         {PLANS.map(plan => {
           const price = billing === 'annual' ? plan.annual : plan.monthly
-          const isFree = plan.key === 'free'
           const isLoading = loading === plan.key
 
           return (
@@ -211,18 +214,12 @@ export default function UpgradePage() {
                   </p>
                 </div>
                 <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                  {isFree ? (
-                    <span style={{ fontSize: '22px', fontWeight: 900, color: DARKER }}>Free</span>
-                  ) : (
-                    <>
-                      <span style={{ fontSize: '26px', fontWeight: 900, color: DARKER }}>${price}</span>
-                      <span style={{ fontSize: '13px', color: MUTED, fontWeight: 600 }}>/mo</span>
-                      {billing === 'annual' && (
-                        <p style={{ fontSize: '11px', color: MUTED, fontWeight: 600, marginTop: 2 }}>
-                          {plan.key === 'companion' ? 'billed $420/yr' : plan.key === 'core' ? 'billed $228/yr' : 'billed annually'}
-                        </p>
-                      )}
-                    </>
+                  <span style={{ fontSize: '26px', fontWeight: 900, color: DARKER }}>${price}</span>
+                  <span style={{ fontSize: '13px', color: MUTED, fontWeight: 600 }}>/mo</span>
+                  {billing === 'annual' && (
+                    <p style={{ fontSize: '11px', color: MUTED, fontWeight: 600, marginTop: 2 }}>
+                      billed ${plan.annualTotal}/yr
+                    </p>
                   )}
                 </div>
               </div>

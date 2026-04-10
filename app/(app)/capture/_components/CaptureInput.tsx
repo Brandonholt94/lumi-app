@@ -45,6 +45,11 @@ export default function CaptureInput() {
   const [recording, setRecording] = useState(false)
   const [saving, setSaving] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [breakdownForId, setBreakdownForId] = useState<string | null>(null)
+  const [breakdownTask, setBreakdownTask] = useState<string>('')
+  const [subtasks, setSubtasks] = useState<{ text: string; minutes: number }[]>([])
+  const [breakdownLoading, setBreakdownLoading] = useState(false)
+  const [addingAll, setAddingAll] = useState(false)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const recognitionRef = useRef<any>(null)
@@ -118,6 +123,48 @@ export default function CaptureInput() {
 
   function handleKeyDown(e: React.KeyboardEvent) {
     if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) handleCapture()
+  }
+
+  async function handleBreakdown(capture: Capture) {
+    setBreakdownTask(capture.text)
+    setBreakdownForId(capture.id)
+    setSubtasks([])
+    setBreakdownLoading(true)
+    try {
+      const res = await fetch('/api/captures/breakdown', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: capture.text }),
+      })
+      const data = await res.json()
+      if (Array.isArray(data.subtasks)) setSubtasks(data.subtasks)
+    } finally {
+      setBreakdownLoading(false)
+    }
+  }
+
+  async function handleAddAll() {
+    if (!subtasks.length || addingAll) return
+    setAddingAll(true)
+    try {
+      const added: Capture[] = []
+      for (const subtask of subtasks) {
+        const res = await fetch('/api/captures', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: subtask.text, tag: 'task' }),
+        })
+        if (res.ok) {
+          const c = await res.json()
+          added.push(c)
+        }
+      }
+      setCaptures(prev => [...added.reverse(), ...prev])
+      setBreakdownForId(null)
+      setSubtasks([])
+    } finally {
+      setAddingAll(false)
+    }
   }
 
   const filtered = captures.filter(c => {
@@ -479,16 +526,32 @@ export default function CaptureInput() {
                   >
                     {capture.text}
                   </p>
-                  <p
-                    style={{
-                      fontFamily: 'var(--font-nunito-sans)',
-                      fontSize: '10.5px',
-                      fontWeight: 600,
-                      color: '#9895B0',
-                    }}
-                  >
-                    {s ? `${s.label} · ` : ''}{isToday(capture.created_at) ? 'Today' : 'Yesterday'} at {formatTime(capture.created_at)}
-                  </p>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                    <p
+                      style={{
+                        fontFamily: 'var(--font-nunito-sans)',
+                        fontSize: '10.5px',
+                        fontWeight: 600,
+                        color: '#9895B0',
+                      }}
+                    >
+                      {s ? `${s.label} · ` : ''}{isToday(capture.created_at) ? 'Today' : 'Yesterday'} at {formatTime(capture.created_at)}
+                    </p>
+                    {capture.tag === 'task' && (
+                      <button
+                        onClick={() => handleBreakdown(capture)}
+                        style={{
+                          background: 'none', border: 'none', cursor: 'pointer',
+                          fontFamily: 'var(--font-nunito-sans)',
+                          fontSize: '10px', fontWeight: 800,
+                          color: '#F4A582', padding: '2px 0',
+                          whiteSpace: 'nowrap', flexShrink: 0,
+                        }}
+                      >
+                        ✦ Break it down
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             )
@@ -501,8 +564,99 @@ export default function CaptureInput() {
           0%, 100% { opacity: 1; transform: scale(1); }
           50% { opacity: 0.4; transform: scale(0.75); }
         }
+        @keyframes sheetUp {
+          from { transform: translateY(100%); }
+          to { transform: translateY(0); }
+        }
       `}</style>
       </div>{/* end beige body */}
+
+      {/* ── Breakdown bottom sheet ── */}
+      {breakdownForId && (
+        <div
+          style={{
+            position: 'fixed', inset: 0, zIndex: 100,
+            background: 'rgba(30,28,46,0.5)',
+            display: 'flex', alignItems: 'flex-end',
+          }}
+          onClick={e => { if (e.target === e.currentTarget) setBreakdownForId(null) }}
+        >
+          <div
+            style={{
+              width: '100%', maxHeight: '85vh',
+              background: '#FBF8F5', borderRadius: '24px 24px 0 0',
+              padding: '24px 20px 40px',
+              overflowY: 'auto',
+              animation: 'sheetUp 0.28s cubic-bezier(0.32,0.72,0,1)',
+            }}
+          >
+            {/* Handle */}
+            <div style={{ width: 36, height: 4, borderRadius: 2, background: 'rgba(45,42,62,0.15)', margin: '0 auto 20px' }} />
+
+            {/* Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
+              <div style={{ flex: 1, paddingRight: 12 }}>
+                <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: 11, fontWeight: 800, letterSpacing: '0.08em', color: '#9895B0', marginBottom: 4 }}>BREAKING DOWN</p>
+                <p style={{ fontFamily: 'var(--font-fraunces)', fontSize: 18, fontWeight: 900, color: '#1E1C2E', lineHeight: 1.3 }}>{breakdownTask}</p>
+              </div>
+              <button
+                onClick={() => setBreakdownForId(null)}
+                style={{ background: 'rgba(45,42,62,0.07)', border: 'none', borderRadius: '50%', width: 32, height: 32, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7A7890" strokeWidth="2.5" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+              </button>
+            </div>
+
+            {/* Loading state */}
+            {breakdownLoading && (
+              <div style={{ padding: '32px 0', textAlign: 'center' }}>
+                <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: 13, fontWeight: 700, color: '#F4A582' }}>Lumi is thinking…</p>
+              </div>
+            )}
+
+            {/* Subtasks */}
+            {!breakdownLoading && subtasks.length > 0 && (
+              <>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
+                  {subtasks.map((s, i) => (
+                    <div
+                      key={i}
+                      style={{
+                        background: 'white', borderRadius: 14,
+                        padding: '12px 14px',
+                        border: '1px solid rgba(45,42,62,0.07)',
+                        display: 'flex', alignItems: 'center', gap: 12,
+                      }}
+                    >
+                      <span style={{ color: '#F4A582', fontSize: 12, flexShrink: 0 }}>✦</span>
+                      <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: 13, fontWeight: 600, color: '#2D2A3E', flex: 1, lineHeight: 1.4 }}>{s.text}</p>
+                      <span style={{
+                        fontFamily: 'var(--font-nunito-sans)', fontSize: 10, fontWeight: 800,
+                        color: '#9895B0', background: 'rgba(45,42,62,0.06)',
+                        borderRadius: 99, padding: '3px 8px', flexShrink: 0,
+                      }}>{s.minutes}m</span>
+                    </div>
+                  ))}
+                </div>
+
+                <button
+                  onClick={handleAddAll}
+                  disabled={addingAll}
+                  style={{
+                    width: '100%', padding: '15px', borderRadius: 14, border: 'none',
+                    background: 'linear-gradient(135deg, #F4A582, #F5C98A)',
+                    fontFamily: 'var(--font-nunito-sans)', fontSize: 15, fontWeight: 800,
+                    color: '#1E1C2E', cursor: addingAll ? 'wait' : 'pointer',
+                    opacity: addingAll ? 0.7 : 1,
+                  }}
+                >
+                  {addingAll ? 'Adding…' : `Add all ${subtasks.length} tasks to Brain Dump`}
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </>
   )
 }

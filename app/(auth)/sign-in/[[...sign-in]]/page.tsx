@@ -140,10 +140,16 @@ export default function SignInPage() {
     if (!signIn) return
     setError(null)
     setLoading(true)
-    const { error: err } = await signIn.password({ identifier: email, password })
-    if (err) { setError(clerkMsg(err)); setLoading(false); return }
-    await signIn.finalize()
-    router.push('/today')
+    try {
+      const { error: err } = await signIn.password({ identifier: email, password })
+      if (err) { setError(clerkMsg(err)); setLoading(false); return }
+      const { error: finalErr } = await signIn.finalize()
+      if (finalErr) { setError(clerkMsg(finalErr)); setLoading(false); return }
+      router.push('/today')
+    } catch (e: unknown) {
+      setError(clerkMsg(e))
+      setLoading(false)
+    }
   }
 
   async function handleSendReset(e: FormEvent) {
@@ -168,7 +174,8 @@ export default function SignInPage() {
     if (verifyErr) { setError(clerkMsg(verifyErr)); setLoading(false); return }
     const { error: pwErr } = await signIn.resetPasswordEmailCode.submitPassword({ password: newPw })
     if (pwErr) { setError(clerkMsg(pwErr)); setLoading(false); return }
-    await signIn.finalize()
+    const { error: finalErr } = await signIn.finalize()
+    if (finalErr) { setError(clerkMsg(finalErr)); setLoading(false); return }
     router.push('/today')
   }
 

@@ -182,6 +182,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 const PLAN_LABELS: Record<string, string> = {
   free:      'Free',
+  starter:   'Starter',
   core:      'Core',
   companion: 'Companion',
 }

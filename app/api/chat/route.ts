@@ -1,5 +1,5 @@
 import { createAnthropic } from '@ai-sdk/anthropic'
-import { streamText } from 'ai'
+import { streamText, generateText } from 'ai'
 import { auth, currentUser } from '@clerk/nextjs/server'
 import { createClient } from '@supabase/supabase-js'
 import { buildLumiSystemPrompt, LumiUserContext } from '@/lib/ai/lumi-prompt'
@@ -8,6 +8,94 @@ import { detectCrisis, CRISIS_RESPONSE, DISTRESS_CONTEXT } from '@/lib/ai/crisis
 const anthropic = createAnthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 })
+
+// ── Model routing ──────────────────────────────────────────
+// Sonnet: emotional states, RSD, distress, re-entry, first message
+// Haiku: casual, short, task-oriented, wired+action messages
+
+const EMOTIONAL_KEYWORDS = [
+  'anxious', 'anxiety', 'overwhelmed', 'overwhelm', 'panic', 'shame',
+  'ashamed', 'embarrassed', 'rejected', 'rejection', 'worthless', 'failure',
+  'failing', 'hopeless', 'hopelessness', 'sad', 'depressed', 'depression',
+  'scared', 'afraid', 'alone', 'lonely', 'crying', 'cry', 'upset', 'hurt',
+  'numb', 'empty', 'exhausted', 'burned out', 'burnout', 'can\'t cope',
+  'shutdown', 'shutting down', 'rsd', 'spiral',
+]
+
+type ChatMessage = { role: string; content: string }
+
+function shouldUseSonnet(
+  mood: LumiUserContext['mood'],
+  crisisTier: 'NONE' | 'DISTRESS' | 'CRISIS',
+  messages: ChatMessage[],
+  isReturningAfterAbsence?: boolean,
+): boolean {
+  // Always Sonnet for distress or returning users
+  if (crisisTier === 'DISTRESS') return true
+  if (isReturningAfterAbsence) return true
+
+  // Sonnet for emotionally heavy moods
+  if (mood === 'drained' || mood === 'foggy') return true
+
+  // Check last user message for emotional keywords
+  const lastMsg = [...messages].reverse().find(m => m.role === 'user')
+  const text = (lastMsg?.content ?? '').toLowerCase()
+  if (EMOTIONAL_KEYWORDS.some(kw => text.includes(kw))) return true
+
+  // Longer messages (200+ chars) signal complexity — use Sonnet
+  if (text.length > 200) return true
+
+  // First message in session gets Sonnet for warmth
+  const userMsgCount = messages.filter(m => m.role === 'user').length
+  if (userMsgCount <= 1) return true
+
+  return false
+}
+
+// ── Context summarization ──────────────────────────────────
+// When history exceeds SUMMARIZE_THRESHOLD, compress old messages
+// with Haiku and inject as contextSummary — keeps tokens manageable
+
+const SUMMARIZE_THRESHOLD = 16  // total messages before summarizing
+const KEEP_RECENT = 8           // verbatim messages to always keep
+
+async function summarizeHistory(messages: ChatMessage[]): Promise<{
+  summarizedContext: string
+  trimmedMessages: ChatMessage[]
+}> {
+  const toSummarize = messages.slice(0, messages.length - KEEP_RECENT)
+  const toKeep = messages.slice(messages.length - KEEP_RECENT)
+
+  // Format old messages for Haiku to summarize
+  const convoText = toSummarize
+    .map(m => `${m.role === 'user' ? 'User' : 'Lumi'}: ${m.content}`)
+    .join('\n')
+
+  try {
+    const { text } = await generateText({
+      model: anthropic('claude-haiku-4.5-20251001'),
+      messages: [
+        {
+          role: 'user',
+          content: `You are helping compress a conversation history for an AI companion app called Lumi that supports adults with ADHD.
+
+Summarize the key emotional themes, what the user shared, how they were feeling, and any important context from this conversation excerpt. Be warm, specific, and brief (3-5 sentences max). Focus on what Lumi should remember to stay emotionally consistent.
+
+Conversation:
+${convoText}
+
+Summary:`,
+        },
+      ],
+      maxTokens: 300,
+    })
+
+    return { summarizedContext: text.trim(), trimmedMessages: toKeep }
+  } catch {
+    // If summarization fails, just trim without summary
+    return { summarizedContext: '', trimmedMessages: toKeep }
+  }
+}
 
 function getServiceClient() {
   return createClient(
@@ -202,8 +290,24 @@ export async function POST(req: Request) {
     focusTaskCompleted: serverContext.focusTaskCompleted || clientContext?.focusTaskCompleted,
   }
 
+  // ── Context summarization ─────────────────────────────────
+  // Compress old messages when history grows long to control token costs
+  let activeMessages: ChatMessage[] = messages
+  let historySummary: string | undefined
+
+  if (messages.length > SUMMARIZE_THRESHOLD) {
+    const { summarizedContext, trimmedMessages } = await summarizeHistory(messages)
+    activeMessages = trimmedMessages
+    historySummary = summarizedContext || undefined
+  }
+
+  // Inject history summary into user context if we have one
+  const contextWithSummary: LumiUserContext = historySummary
+    ? { ...userContext, contextSummary: historySummary }
+    : userContext
+
   // Build system prompt — inject distress context if needed
-  const baseSystem = buildLumiSystemPrompt(userContext)
+  const baseSystem = buildLumiSystemPrompt(contextWithSummary)
   const system =
     crisis.tier === 'DISTRESS'
       ? `${baseSystem}\n\n## CURRENT MESSAGE ALERT\n${DISTRESS_CONTEXT}`
@@ -214,11 +318,23 @@ export async function POST(req: Request) {
     flagCrisis(userId, 'DISTRESS', crisis.matched, lastContent)
   }
 
+  // ── Model routing ──────────────────────────────────────────
+  // Sonnet for emotional/companion moments, Haiku for casual exchanges
+  const useSonnet = shouldUseSonnet(
+    userContext.mood,
+    crisis.tier,
+    messages,
+    userContext.isReturningAfterAbsence,
+  )
+  const model = useSonnet
+    ? anthropic('claude-sonnet-4.6')
+    : anthropic('claude-haiku-4.5-20251001')
+
   // ── Stream Lumi's response ─────────────────────────────────
   const result = streamText({
-    model: anthropic('claude-sonnet-4.6'),
+    model,
     system,
-    messages,
+    messages: activeMessages,
     maxOutputTokens: 1024,
   })
 

@@ -11,7 +11,7 @@ import ProfileButton from '../_components/ProfileButton'
 type Mood = 'foggy' | 'okay' | 'wired' | 'drained'
 
 interface InsightsData {
-  plan: 'free' | 'core' | 'companion'
+  plan: 'free' | 'starter' | 'core' | 'companion'
   week: { start: string; end: string }
   captures: {
     total: number
@@ -106,10 +106,10 @@ function SectionLabel({ children }: { children: string }) {
 // Brain Report card
 // ─────────────────────────────────────────────────────────
 
-function BrainReportCard({ plan }: { plan: 'free' | 'core' | 'companion' }) {
+function BrainReportCard({ plan }: { plan: 'free' | 'starter' | 'core' | 'companion' }) {
   const [status,  setStatus]  = useState<'idle' | 'loading' | 'done' | 'error'>('idle')
   const [report,  setReport]  = useState<string | null>(null)
-  const isPaid = plan !== 'free'
+  const isPaid = plan === 'core' || plan === 'companion'
   const router = useRouter()
 
   async function generate() {

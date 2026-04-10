@@ -125,11 +125,13 @@ export default function SignUpPage() {
     if (!signUp) return
     setError(null)
     setLoading(true)
-    const { error: signUpErr } = await signUp.password({ emailAddress: email, password })
-    if (signUpErr) { setError(clerkMsg(signUpErr)); setLoading(false); return }
-    const { error: sendErr } = await signUp.verifications.sendEmailCode()
-    if (sendErr) { setError(clerkMsg(sendErr)); setLoading(false); return }
-    setPhase('verify')
+    try {
+      await signUp.create({ emailAddress: email, password })
+      await signUp.prepareEmailAddressVerification({ strategy: 'email_code' })
+      setPhase('verify')
+    } catch (e: unknown) {
+      setError(clerkMsg(e))
+    }
     setLoading(false)
   }
 
@@ -139,9 +141,13 @@ export default function SignUpPage() {
     setError(null)
     setLoading(true)
     try {
-      const { error: verifyErr } = await signUp.verifications.verifyEmailCode({ code })
-      if (verifyErr) { setError(clerkMsg(verifyErr)); setLoading(false); return }
-      const { error: finalErr } = await signUp.finalize()
+      const result = await signUp.attemptEmailAddressVerification({ code })
+      if (result.status !== 'complete') {
+        setError('Verification failed. Please try again.')
+        setLoading(false)
+        return
+      }
+      const { error: finalErr } = await result.finalize()
       if (finalErr) { setError(clerkMsg(finalErr)); setLoading(false); return }
       router.push('/onboarding')
     } catch (e: unknown) {
@@ -152,10 +158,13 @@ export default function SignUpPage() {
 
   async function handleResend() {
     if (!signUp) return
-    const { error: sendErr } = await signUp.verifications.sendEmailCode()
-    if (sendErr) return
-    setResent(true)
-    setTimeout(() => setResent(false), 4000)
+    try {
+      await signUp.prepareEmailAddressVerification({ strategy: 'email_code' })
+      setResent(true)
+      setTimeout(() => setResent(false), 4000)
+    } catch {
+      // silently fail
+    }
   }
 
   return (

@@ -141,9 +141,13 @@ export default function SignInPage() {
     setError(null)
     setLoading(true)
     try {
-      const { error: err } = await signIn.password({ identifier: email, password })
-      if (err) { setError(clerkMsg(err)); setLoading(false); return }
-      const { error: finalErr } = await signIn.finalize()
+      const result = await signIn.create({ strategy: 'password', identifier: email, password })
+      if (result.status !== 'complete') {
+        setError('Sign-in requires additional verification. Please contact support.')
+        setLoading(false)
+        return
+      }
+      const { error: finalErr } = await result.finalize()
       if (finalErr) { setError(clerkMsg(finalErr)); setLoading(false); return }
       router.push('/today')
     } catch (e: unknown) {
@@ -157,11 +161,12 @@ export default function SignInPage() {
     if (!signIn) return
     setError(null)
     setLoading(true)
-    const { error: createErr } = await signIn.create({ identifier: email })
-    if (createErr) { setError(clerkMsg(createErr)); setLoading(false); return }
-    const { error: sendErr } = await signIn.resetPasswordEmailCode.sendCode()
-    if (sendErr) { setError(clerkMsg(sendErr)); setLoading(false); return }
-    setPhase('forgot-code')
+    try {
+      await signIn.create({ strategy: 'reset_password_email_code', identifier: email })
+      setPhase('forgot-code')
+    } catch (e: unknown) {
+      setError(clerkMsg(e))
+    }
     setLoading(false)
   }
 
@@ -170,13 +175,24 @@ export default function SignInPage() {
     if (!signIn) return
     setError(null)
     setLoading(true)
-    const { error: verifyErr } = await signIn.resetPasswordEmailCode.verifyCode({ code })
-    if (verifyErr) { setError(clerkMsg(verifyErr)); setLoading(false); return }
-    const { error: pwErr } = await signIn.resetPasswordEmailCode.submitPassword({ password: newPw })
-    if (pwErr) { setError(clerkMsg(pwErr)); setLoading(false); return }
-    const { error: finalErr } = await signIn.finalize()
-    if (finalErr) { setError(clerkMsg(finalErr)); setLoading(false); return }
-    router.push('/today')
+    try {
+      const attemptResult = await signIn.attemptFirstFactor({
+        strategy: 'reset_password_email_code',
+        code,
+        password: newPw,
+      })
+      if (attemptResult.status !== 'complete') {
+        setError('Verification failed. Please try again.')
+        setLoading(false)
+        return
+      }
+      const { error: finalErr } = await attemptResult.finalize()
+      if (finalErr) { setError(clerkMsg(finalErr)); setLoading(false); return }
+      router.push('/today')
+    } catch (e: unknown) {
+      setError(clerkMsg(e))
+      setLoading(false)
+    }
   }
 
   return (

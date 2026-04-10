@@ -175,11 +175,11 @@ export default function PlanSelectionPage() {
           <div style={{ textAlign: 'center', marginBottom: 28, animation: 'lumiIn 0.4s ease both' }}>
             <h1 style={{
               fontFamily: 'var(--font-fraunces)',
-              fontSize: 30, fontWeight: 900,
-              color: DARKER, lineHeight: 1.15,
+              fontSize: 24, fontWeight: 900,
+              color: DARKER, lineHeight: 1.2,
               marginBottom: 8,
             }}>
-              Your brain deserves this.
+              A new day for your brain.
             </h1>
             <p style={{ fontSize: 14, fontWeight: 600, color: MUTED, lineHeight: 1.5 }}>
               7 days free. No charge today. Cancel anytime.

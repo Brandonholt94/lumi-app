@@ -163,9 +163,10 @@ export default function SignUpPage() {
       padding: '24px 20px',
     }}>
 
-      {/* Wordmark */}
-      <Link href="https://lumimind.app" style={{ marginBottom: 32, display: 'block' }}>
-        <Image src="/lumi-wordmark-dark.svg" alt="Lumi" width={90} height={35} priority />
+      {/* Stacked logo */}
+      <Link href="https://lumimind.app" style={{ marginBottom: 32, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+        <Image src="/lumi-brandmark.svg" alt="" width={64} height={52} priority />
+        <Image src="/lumi-wordmark-dark.svg" alt="Lumi" width={88} height={34} />
       </Link>
 
       {/* Card */}

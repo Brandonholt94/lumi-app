@@ -72,10 +72,12 @@ export default function UpgradePage() {
   const router = useRouter()
   const [billing, setBilling] = useState<BillingCycle>('annual')
   const [loading, setLoading] = useState<string | null>(null)
+  const [checkoutError, setCheckoutError] = useState<string | null>(null)
 
   async function handleUpgrade(planKey: string) {
     const priceKey = `${planKey}-${billing}`
     setLoading(planKey)
+    setCheckoutError(null)
     try {
       const res = await fetch('/api/stripe/checkout', {
         method: 'POST',
@@ -85,8 +87,12 @@ export default function UpgradePage() {
       const data = await res.json()
       if (data.url) {
         window.location.href = data.url
+      } else {
+        setCheckoutError(data.error ?? 'Something went wrong. Please try again.')
+        setLoading(null)
       }
     } catch {
+      setCheckoutError('Something went wrong. Please try again.')
       setLoading(null)
     }
   }
@@ -163,6 +169,17 @@ export default function UpgradePage() {
           </button>
         ))}
       </div>
+
+      {/* Error */}
+      {checkoutError && (
+        <div style={{
+          background: 'rgba(232,160,191,0.1)', border: '1px solid rgba(232,160,191,0.3)',
+          borderRadius: 12, padding: '12px 16px', marginBottom: 16,
+          fontFamily: 'var(--font-nunito-sans)', fontSize: 13, fontWeight: 600, color: '#B04E72',
+        }}>
+          {checkoutError}
+        </div>
+      )}
 
       {/* Plan cards */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>

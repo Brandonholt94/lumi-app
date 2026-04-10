@@ -179,12 +179,26 @@ export default function SignUpPage() {
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      background: 'radial-gradient(ellipse at 50% -5%, rgba(244,165,130,0.12) 0%, transparent 55%), #FBF8F5',
       padding: '24px 20px',
+      position: 'relative',
+      overflow: 'hidden',
     }}>
+      {/* Sunrise background */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/sunrise.jpg" alt="" aria-hidden="true" style={{
+        position: 'absolute', inset: 0,
+        width: '100%', height: '100%',
+        objectFit: 'cover', objectPosition: 'center 40%',
+        zIndex: 0,
+      }} />
+      {/* Warm overlay */}
+      <div style={{
+        position: 'absolute', inset: 0, zIndex: 1,
+        background: 'linear-gradient(160deg, rgba(139,170,224,0.12) 0%, rgba(251,248,245,0.06) 40%, rgba(244,165,130,0.18) 100%)',
+      }} />
 
       {/* Stacked logo */}
-      <Link href="https://lumimind.app" style={{ marginBottom: 28, display: 'block' }}>
+      <Link href="https://lumimind.app" style={{ marginBottom: 28, display: 'block', position: 'relative', zIndex: 2 }}>
         <Image src="/lumi-stacked.svg" alt="Lumi" width={118} height={118} priority />
       </Link>
 
@@ -192,11 +206,15 @@ export default function SignUpPage() {
       <div style={{
         width: '100%',
         maxWidth: 400,
-        background: '#FFFFFF',
+        background: 'rgba(251,248,245,0.82)',
+        backdropFilter: 'blur(28px) saturate(1.4)',
+        WebkitBackdropFilter: 'blur(28px) saturate(1.4)',
         borderRadius: 24,
-        border: '1px solid rgba(45,42,62,0.06)',
-        boxShadow: '0 8px 40px rgba(45,42,62,0.08), 0 1px 4px rgba(45,42,62,0.04)',
+        border: '1px solid rgba(255,255,255,0.75)',
+        boxShadow: '0 8px 40px rgba(45,42,62,0.12)',
         padding: '32px 28px',
+        position: 'relative',
+        zIndex: 2,
       }}>
 
         {/* ── Form phase ── */}
@@ -336,9 +354,9 @@ export default function SignUpPage() {
 
       {/* Footer */}
       {phase === 'form' && (
-        <p style={{ marginTop: 24, fontFamily: 'var(--font-nunito-sans)', fontSize: 13, fontWeight: 600, color: '#9895B0' }}>
+        <p style={{ marginTop: 24, fontFamily: 'var(--font-nunito-sans)', fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.85)', position: 'relative', zIndex: 2 }}>
           Already have an account?{' '}
-          <Link href="/sign-in" style={{ color: '#F4A582', fontWeight: 800, textDecoration: 'none' }}>
+          <Link href="/sign-in" style={{ color: '#F5C98A', fontWeight: 800, textDecoration: 'none' }}>
             Sign in →
           </Link>
         </p>

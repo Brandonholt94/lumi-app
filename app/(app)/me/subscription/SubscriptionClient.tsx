@@ -240,9 +240,14 @@ export default function SubscriptionClient({ currentPlan }: { currentPlan: Plan 
               </div>
               <div style={{ textAlign: 'right' }}>
                 <span style={{ fontSize: '22px', fontWeight: 900, color: DARKER }}>
-                  {billing === 'annual' ? '$42' : '$69'}
+                  {billing === 'annual' ? '$35' : '$49'}
                 </span>
                 <span style={{ fontSize: '13px', color: MUTED, fontWeight: 600 }}>/mo</span>
+                {billing === 'annual' && (
+                  <p style={{ fontSize: '11px', color: MUTED, fontWeight: 600, marginTop: 2 }}>
+                    billed $420/yr
+                  </p>
+                )}
               </div>
             </div>
             <div style={{ marginBottom: 16 }}>

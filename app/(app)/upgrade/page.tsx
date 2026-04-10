@@ -48,8 +48,8 @@ const PLANS = [
   {
     key: 'companion',
     name: 'Companion',
-    monthly: 69,
-    annual: 42,
+    monthly: 49,
+    annual: 35,
     description: 'Lumi at its fullest',
     features: [
       'Everything in Core',
@@ -219,7 +219,7 @@ export default function UpgradePage() {
                       <span style={{ fontSize: '13px', color: MUTED, fontWeight: 600 }}>/mo</span>
                       {billing === 'annual' && (
                         <p style={{ fontSize: '11px', color: MUTED, fontWeight: 600, marginTop: 2 }}>
-                          billed annually
+                          {plan.key === 'companion' ? 'billed $420/yr' : plan.key === 'core' ? 'billed $228/yr' : 'billed annually'}
                         </p>
                       )}
                     </>

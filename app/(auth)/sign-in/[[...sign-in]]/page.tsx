@@ -156,7 +156,7 @@ export default function SignInPage() {
           },
         })
       } else {
-        setError('Sign-in failed. Please try again.')
+        setError(`Debug: status="${result.status}" sessionId="${result.createdSessionId}"`)
         setLoading(false)
       }
     } catch (e: unknown) {

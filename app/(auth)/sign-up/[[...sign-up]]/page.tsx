@@ -143,7 +143,7 @@ export default function SignUpPage() {
     setLoading(true)
     try {
       const result = await signUp.attemptEmailAddressVerification({ code })
-      if (result.status === 'complete' || result.status === 'needs_client_trust') {
+      if (result.status === 'complete') {
         await setActive!({
           session: result.createdSessionId!,
           navigate: async ({ decorateUrl }) => {

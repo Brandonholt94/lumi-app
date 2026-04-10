@@ -12,7 +12,7 @@ export async function POST(req: Request) {
   if (!text) return new Response('Missing text', { status: 400 })
 
   const { text: result } = await generateText({
-    model: anthropic('claude-haiku-4.5-20251001'),
+    model: anthropic('claude-haiku-4-5-20251001'),
     messages: [
       {
         role: 'user',

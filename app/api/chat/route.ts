@@ -76,7 +76,7 @@ async function summarizeHistory(messages: ChatMessage[]): Promise<{
 
   try {
     const { text } = await generateText({
-      model: anthropic('claude-haiku-4.5-20251001'),
+      model: anthropic('claude-haiku-4-5-20251001'),
       messages: [
         {
           role: 'user',
@@ -330,8 +330,8 @@ export async function POST(req: Request) {
     userContext.isReturningAfterAbsence,
   )
   const model = useSonnet
-    ? anthropic('claude-sonnet-4.6')
-    : anthropic('claude-haiku-4.5-20251001')
+    ? anthropic('claude-sonnet-4-6')
+    : anthropic('claude-haiku-4-5-20251001')
 
   // ── Stream Lumi's response ─────────────────────────────────
   const result = streamText({

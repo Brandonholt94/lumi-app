@@ -87,7 +87,7 @@ export async function GET(req: Request) {
 
   try {
     const { text } = await generateText({
-      model: anthropic('claude-sonnet-4.6'),
+      model: anthropic('claude-sonnet-4-6'),
       prompt,
       maxOutputTokens: 300,
     })

@@ -49,12 +49,13 @@ function TypingIndicator() {
       }}>
         <LumiBrandmarkWhite size={14} />
       </div>
-      <div className="rounded-2xl px-4 py-3" style={{
-        background: 'rgba(255,255,255,0.72)',
-        backdropFilter: 'blur(16px)',
-        WebkitBackdropFilter: 'blur(16px)',
-        border: '1px solid rgba(255,255,255,0.85)',
-        boxShadow: '0 2px 14px rgba(244,165,130,0.1), inset 0 1px 0 rgba(255,255,255,0.95)',
+      <div className="px-4 py-3" style={{
+        borderRadius: 20,
+        background: 'rgba(255,255,255,0.62)',
+        backdropFilter: 'blur(24px) saturate(1.4)',
+        WebkitBackdropFilter: 'blur(24px) saturate(1.4)',
+        border: '1px solid rgba(255,255,255,0.9)',
+        boxShadow: '0 4px 20px rgba(244,165,130,0.12)',
       }}>
         <div className="flex gap-[5px] items-center" style={{ height: 16 }}>
           {[0, 1, 2].map(i => (
@@ -391,23 +392,23 @@ export default function ChatPage() {
                       gap: 4,
                     }}>
                       <div style={{
-                        borderRadius: 18,
-                        padding: '10px 14px',
+                        borderRadius: 20,
+                        padding: '11px 15px',
                         background: isUser
-                          ? 'rgba(45,42,62,0.82)'
-                          : 'rgba(255,255,255,0.72)',
-                        backdropFilter: 'blur(16px)',
-                        WebkitBackdropFilter: 'blur(16px)',
+                          ? 'rgba(30,28,46,0.86)'
+                          : 'rgba(255,255,255,0.62)',
+                        backdropFilter: 'blur(24px) saturate(1.4)',
+                        WebkitBackdropFilter: 'blur(24px) saturate(1.4)',
                         border: isUser
-                          ? '1px solid rgba(255,255,255,0.07)'
-                          : '1px solid rgba(255,255,255,0.85)',
+                          ? '1px solid rgba(255,255,255,0.09)'
+                          : '1px solid rgba(255,255,255,0.9)',
                         boxShadow: isUser
-                          ? '0 2px 14px rgba(45,42,62,0.18), inset 0 1px 0 rgba(255,255,255,0.06)'
-                          : '0 2px 14px rgba(244,165,130,0.1), inset 0 1px 0 rgba(255,255,255,0.95)',
+                          ? '0 4px 20px rgba(20,18,38,0.22)'
+                          : '0 4px 20px rgba(244,165,130,0.12)',
                         fontFamily: 'var(--font-quicksand)',
                         fontSize: '15px',
                         fontWeight: 500,
-                        color: isUser ? '#F5F3F0' : '#2D2A3E',
+                        color: isUser ? '#F0EEF8' : '#2D2A3E',
                         lineHeight: 1.55,
                         whiteSpace: 'pre-wrap',
                         wordBreak: 'break-word',

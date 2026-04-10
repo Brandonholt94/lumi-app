@@ -185,7 +185,7 @@ export default function SignInPage() {
 
       {/* Stacked logo */}
       <Link href="https://lumimind.app" style={{ marginBottom: 28, display: 'block' }}>
-        <Image src="/lumi-stacked.svg" alt="Lumi" width={148} height={148} priority />
+        <Image src="/lumi-stacked.svg" alt="Lumi" width={118} height={118} priority />
       </Link>
 
       {/* Card */}

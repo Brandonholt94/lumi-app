@@ -51,11 +51,11 @@ function TypingIndicator() {
       </div>
       <div className="px-4 py-3" style={{
         borderRadius: 20,
-        background: 'rgba(255,255,255,0.62)',
-        backdropFilter: 'blur(24px) saturate(1.4)',
-        WebkitBackdropFilter: 'blur(24px) saturate(1.4)',
-        border: '1px solid rgba(255,255,255,0.9)',
-        boxShadow: '0 4px 20px rgba(244,165,130,0.12)',
+        background: 'rgba(255,248,244,0.38)',
+        backdropFilter: 'blur(28px) saturate(1.6)',
+        WebkitBackdropFilter: 'blur(28px) saturate(1.6)',
+        border: '1px solid rgba(255,255,255,0.75)',
+        boxShadow: '0 4px 24px rgba(244,165,130,0.18)',
       }}>
         <div className="flex gap-[5px] items-center" style={{ height: 16 }}>
           {[0, 1, 2].map(i => (
@@ -395,16 +395,16 @@ export default function ChatPage() {
                         borderRadius: 20,
                         padding: '11px 15px',
                         background: isUser
-                          ? 'rgba(30,28,46,0.86)'
-                          : 'rgba(255,255,255,0.62)',
-                        backdropFilter: 'blur(24px) saturate(1.4)',
-                        WebkitBackdropFilter: 'blur(24px) saturate(1.4)',
+                          ? 'rgba(28,26,44,0.74)'
+                          : 'rgba(255,248,244,0.38)',
+                        backdropFilter: 'blur(28px) saturate(1.6)',
+                        WebkitBackdropFilter: 'blur(28px) saturate(1.6)',
                         border: isUser
-                          ? '1px solid rgba(255,255,255,0.09)'
-                          : '1px solid rgba(255,255,255,0.9)',
+                          ? '1px solid rgba(255,255,255,0.1)'
+                          : '1px solid rgba(255,255,255,0.75)',
                         boxShadow: isUser
-                          ? '0 4px 20px rgba(20,18,38,0.22)'
-                          : '0 4px 20px rgba(244,165,130,0.12)',
+                          ? '0 4px 24px rgba(20,18,38,0.2)'
+                          : '0 4px 24px rgba(244,165,130,0.18)',
                         fontFamily: 'var(--font-quicksand)',
                         fontSize: '15px',
                         fontWeight: 500,

@@ -46,6 +46,7 @@ export default function CaptureInput() {
   const [saving, setSaving] = useState(false)
   const [loading, setLoading] = useState(true)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const recognitionRef = useRef<SpeechRecognition | null>(null)
 
   // Load captures from Supabase on mount
   useEffect(() => {
@@ -56,6 +57,43 @@ export default function CaptureInput() {
       })
       .finally(() => setLoading(false))
   }, [])
+
+  function startRecording() {
+    const SpeechRecognition =
+      (window as unknown as { SpeechRecognition?: typeof window.SpeechRecognition; webkitSpeechRecognition?: typeof window.SpeechRecognition })
+        .SpeechRecognition ??
+      (window as unknown as { webkitSpeechRecognition?: typeof window.SpeechRecognition })
+        .webkitSpeechRecognition
+
+    if (!SpeechRecognition) return // browser doesn't support it
+
+    const recognition = new SpeechRecognition()
+    recognition.continuous = true
+    recognition.interimResults = false
+    recognition.lang = 'en-US'
+
+    recognition.onresult = (event: SpeechRecognitionEvent) => {
+      const transcript = Array.from(event.results)
+        .map(r => r[0].transcript)
+        .join(' ')
+        .trim()
+      if (transcript) {
+        setText(prev => prev ? `${prev} ${transcript}` : transcript)
+      }
+    }
+
+    recognition.start()
+    recognitionRef.current = recognition
+    setRecording(true)
+  }
+
+  function stopRecording() {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop()
+      recognitionRef.current = null
+    }
+    setRecording(false)
+  }
 
   async function handleCapture() {
     if (!text.trim() || saving) return
@@ -244,10 +282,12 @@ export default function CaptureInput() {
           {/* Mic */}
           <div className="flex flex-col items-center gap-[3px] flex-shrink-0">
             <button
-              onMouseDown={() => setRecording(true)}
-              onMouseUp={() => setRecording(false)}
-              onTouchStart={() => setRecording(true)}
-              onTouchEnd={() => setRecording(false)}
+              onMouseDown={startRecording}
+              onMouseUp={stopRecording}
+              onMouseLeave={stopRecording}
+              onTouchStart={e => { e.preventDefault(); startRecording() }}
+              onTouchEnd={e => { e.preventDefault(); stopRecording() }}
+              onContextMenu={e => e.preventDefault()}
               style={{
                 width: 38, height: 38,
                 borderRadius: '50%',
@@ -257,6 +297,9 @@ export default function CaptureInput() {
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 cursor: 'pointer',
                 transition: 'all 0.15s',
+                userSelect: 'none',
+                WebkitUserSelect: 'none',
+                touchAction: 'none',
               }}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -273,9 +316,11 @@ export default function CaptureInput() {
                 fontWeight: 700,
                 color: 'rgba(244,165,130,0.8)',
                 whiteSpace: 'nowrap',
+                userSelect: 'none',
+                WebkitUserSelect: 'none',
               }}
             >
-              Hold to speak
+              {recording ? 'Listening…' : 'Hold to speak'}
             </span>
           </div>
         </div>

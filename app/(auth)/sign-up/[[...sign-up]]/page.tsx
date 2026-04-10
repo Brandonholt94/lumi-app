@@ -191,10 +191,14 @@ export default function SignUpPage() {
         objectFit: 'cover', objectPosition: 'center 40%',
         zIndex: 0,
       }} />
-      {/* Warm overlay */}
+      {/* Softening + warm overlay */}
       <div style={{
         position: 'absolute', inset: 0, zIndex: 1,
-        background: 'linear-gradient(160deg, rgba(139,170,224,0.12) 0%, rgba(251,248,245,0.06) 40%, rgba(244,165,130,0.18) 100%)',
+        background: 'rgba(251,248,245,0.45)',
+      }} />
+      <div style={{
+        position: 'absolute', inset: 0, zIndex: 1,
+        background: 'linear-gradient(160deg, rgba(139,170,224,0.18) 0%, rgba(251,248,245,0.1) 40%, rgba(244,165,130,0.22) 100%)',
       }} />
 
       {/* Stacked logo */}
@@ -280,6 +284,13 @@ export default function SignUpPage() {
                 {' '}and{' '}
                 <a href="https://lumimind.app/privacy" target="_blank" rel="noopener noreferrer" style={{ color: '#9895B0', textDecoration: 'underline' }}>Privacy Policy</a>.
               </p>
+
+              <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: 13, fontWeight: 600, color: '#9895B0', textAlign: 'center', margin: 0 }}>
+                Already have an account?{' '}
+                <Link href="/sign-in" style={{ color: '#F4A582', fontWeight: 800, textDecoration: 'none' }}>
+                  Sign in →
+                </Link>
+              </p>
             </form>
           </>
         )}
@@ -351,16 +362,6 @@ export default function SignUpPage() {
         )}
 
       </div>
-
-      {/* Footer */}
-      {phase === 'form' && (
-        <p style={{ marginTop: 24, fontFamily: 'var(--font-nunito-sans)', fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.85)', position: 'relative', zIndex: 2 }}>
-          Already have an account?{' '}
-          <Link href="/sign-in" style={{ color: '#F5C98A', fontWeight: 800, textDecoration: 'none' }}>
-            Sign in →
-          </Link>
-        </p>
-      )}
 
     </div>
   )

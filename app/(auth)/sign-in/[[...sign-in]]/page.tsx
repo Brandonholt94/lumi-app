@@ -1,8 +1,8 @@
 'use client'
 
-import { useSignIn } from '@clerk/nextjs/legacy'
+import { useSignIn, useAuth } from '@clerk/nextjs/legacy'
 import { useRouter } from 'next/navigation'
-import { useState, FormEvent, CSSProperties } from 'react'
+import { useState, useEffect, FormEvent, CSSProperties } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 
@@ -125,7 +125,12 @@ type Phase = 'credentials' | 'forgot-email' | 'forgot-code'
 
 export default function SignInPage() {
   const { isLoaded, signIn, setActive } = useSignIn()
+  const { isSignedIn } = useAuth()
   const router = useRouter()
+
+  useEffect(() => {
+    if (isSignedIn) router.replace('/today')
+  }, [isSignedIn, router])
 
   const [phase, setPhase]       = useState<Phase>('credentials')
   const [email, setEmail]       = useState('')
@@ -156,7 +161,7 @@ export default function SignInPage() {
           },
         })
       } else {
-        setError(`Debug: status="${result.status}" sessionId="${result.createdSessionId}"`)
+        setError('Sign-in failed. Please try again.')
         setLoading(false)
       }
     } catch (e: unknown) {

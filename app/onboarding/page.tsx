@@ -40,7 +40,7 @@ const STEPS = [
     ],
     reaction: (v: string) => ({
       'diagnosed':       `Got it. I'll be direct with you — no tip-toeing around the ADHD stuff.`,
-      'self-identified': `That makes sense. A lot of people know before anyone else does.`,
+      'self-identified': `That self-awareness says a lot. You know yourself better than most.`,
       'exploring':       `That's okay. You don't need a diagnosis for any of this to be useful.`,
       'loved-one':       `That's a lot to carry too. I'll keep that in mind as we go.`,
     }[v] ?? `That helps me know where you're coming from.`),

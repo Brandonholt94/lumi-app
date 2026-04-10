@@ -46,7 +46,8 @@ export default function CaptureInput() {
   const [saving, setSaving] = useState(false)
   const [loading, setLoading] = useState(true)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
-  const recognitionRef = useRef<SpeechRecognition | null>(null)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const recognitionRef = useRef<any>(null)
 
   // Load captures from Supabase on mount
   useEffect(() => {
@@ -59,22 +60,21 @@ export default function CaptureInput() {
   }, [])
 
   function startRecording() {
-    const SpeechRecognition =
-      (window as unknown as { SpeechRecognition?: typeof window.SpeechRecognition; webkitSpeechRecognition?: typeof window.SpeechRecognition })
-        .SpeechRecognition ??
-      (window as unknown as { webkitSpeechRecognition?: typeof window.SpeechRecognition })
-        .webkitSpeechRecognition
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const win = window as any
+    const SR = win.SpeechRecognition ?? win.webkitSpeechRecognition
+    if (!SR) return
 
-    if (!SpeechRecognition) return // browser doesn't support it
-
-    const recognition = new SpeechRecognition()
+    const recognition = new SR()
     recognition.continuous = true
     recognition.interimResults = false
     recognition.lang = 'en-US'
 
-    recognition.onresult = (event: SpeechRecognitionEvent) => {
-      const transcript = Array.from(event.results)
-        .map(r => r[0].transcript)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    recognition.onresult = (event: any) => {
+      const transcript = Array.from(event.results as ArrayLike<SpeechRecognitionResult>)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .map((r: any) => r[0].transcript)
         .join(' ')
         .trim()
       if (transcript) {

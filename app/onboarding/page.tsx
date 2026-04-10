@@ -397,10 +397,7 @@ export default function OnboardingPage() {
         {done && (
           <button
             onClick={() => {
-              // Clear splash date so animation plays on first entry
-              localStorage.removeItem('lumi_splash_date')
-              // Hard navigation ensures layout server component gets fresh Supabase data
-              window.location.href = '/welcome'
+              window.location.href = '/plan-selection'
             }}
             disabled={submitting}
             style={{

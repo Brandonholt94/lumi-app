@@ -58,7 +58,7 @@ export async function POST(req: Request) {
     // Pass clerk_user_id so webhook can find the right profile
     client_reference_id: userId,
     success_url: `${appUrl}/welcome?upgraded=true`,
-    cancel_url:  'https://lumimind.app/pricing',
+    cancel_url:  `${appUrl}/upgrade`,
     allow_promotion_codes: true,
   }
 

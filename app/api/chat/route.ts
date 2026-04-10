@@ -1,9 +1,10 @@
 import { createAnthropic } from '@ai-sdk/anthropic'
-import { streamText, generateText, type ModelMessage } from 'ai'
+import { streamText, generateText, stepCountIs, tool, type ModelMessage } from 'ai'
 import { auth, currentUser } from '@clerk/nextjs/server'
 import { createClient } from '@supabase/supabase-js'
 import { buildLumiSystemPrompt, LumiUserContext } from '@/lib/ai/lumi-prompt'
 import { detectCrisis, CRISIS_RESPONSE, DISTRESS_CONTEXT } from '@/lib/ai/crisis-detection'
+import { z } from 'zod'
 
 const anthropic = createAnthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -339,6 +340,30 @@ export async function POST(req: Request) {
     system,
     messages: activeMessages as unknown as ModelMessage[],
     maxOutputTokens: 1024,
+    stopWhen: stepCountIs(3),
+    tools: {
+      createCaptures: tool({
+        description: "Add one or more items to the user's Brain Dump / capture list. Use this whenever the user asks to add, save, remember, or create tasks, ideas, worries, or reminders. Each item should be a separate capture.",
+        inputSchema: z.object({
+          items: z.array(z.object({
+            text: z.string().describe('The capture text, written naturally'),
+            tag: z.enum(['task', 'idea', 'worry', 'reminder']).describe('Type of capture — default to task if unclear'),
+          })),
+        }),
+        execute: async ({ items }) => {
+          const supabase = getServiceClient()
+          await supabase.from('captures').insert(
+            items.map((item: { text: string; tag: string }) => ({
+              clerk_user_id: userId,
+              text: item.text,
+              tag: item.tag,
+              completed: false,
+            }))
+          )
+          return { created: items.length, items: items.map((i: { text: string }) => i.text) }
+        },
+      }),
+    },
   })
 
   return result.toTextStreamResponse()

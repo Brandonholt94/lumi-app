@@ -81,7 +81,7 @@ export default function ChatPage() {
   const [isTyping, setIsTyping] = useState(false)
   const [isListening, setIsListening] = useState(false)
   const [focusCtx, setFocusCtx] = useState<FocusContext>({ task: null, completed: false })
-  const [started, setStarted] = useState(false) // true once first message sent
+  const [started, setStarted] = useState(false) // true once messages exist
 
   const bottomRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
@@ -100,6 +100,25 @@ export default function ChatPage() {
     }
     loadFocusContext()
   }, [mood])
+
+  // Load today's chat history on mount
+  useEffect(() => {
+    async function loadHistory() {
+      try {
+        const res = await fetch('/api/chat/history')
+        if (!res.ok) return
+        const { messages: stored } = await res.json()
+        if (stored?.length > 0) {
+          setMessages(stored.map((m: { id: string; role: 'user' | 'assistant'; content: string; timestamp: string }) => ({
+            ...m,
+            timestamp: new Date(m.timestamp),
+          })))
+          setStarted(true)
+        }
+      } catch { /* non-critical */ }
+    }
+    loadHistory()
+  }, [])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -178,6 +197,17 @@ export default function ChatPage() {
         accumulated += decoder.decode(value, { stream: true })
         setMessages(prev => prev.map(m => m.id === assistantId ? { ...m, content: accumulated } : m))
       }
+      // Persist today's conversation (fire and forget)
+      const assistantTimestamp = new Date()
+      const historyToSave = [
+        ...updatedMessages.map(m => ({ ...m, timestamp: m.timestamp.toISOString() })),
+        { id: assistantId, role: 'assistant', content: accumulated, timestamp: assistantTimestamp.toISOString() },
+      ]
+      fetch('/api/chat/history', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: historyToSave }),
+      }).catch(() => {})
     } catch (err: unknown) {
       if (err instanceof Error && err.name === 'AbortError') return
       setIsTyping(false)

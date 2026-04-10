@@ -31,7 +31,7 @@ Return ONLY a valid JSON array, no explanation, no markdown:
 [{"text": "subtask description", "minutes": 15}, ...]`,
       },
     ],
-    maxTokens: 400,
+    maxOutputTokens: 400,
   })
 
   try {

@@ -1,5 +1,5 @@
 import { createAnthropic } from '@ai-sdk/anthropic'
-import { streamText, generateText } from 'ai'
+import { streamText, generateText, type ModelMessage } from 'ai'
 import { auth, currentUser } from '@clerk/nextjs/server'
 import { createClient } from '@supabase/supabase-js'
 import { buildLumiSystemPrompt, LumiUserContext } from '@/lib/ai/lumi-prompt'
@@ -68,7 +68,10 @@ async function summarizeHistory(messages: ChatMessage[]): Promise<{
 
   // Format old messages for Haiku to summarize
   const convoText = toSummarize
-    .map(m => `${m.role === 'user' ? 'User' : 'Lumi'}: ${m.content}`)
+    .map(m => {
+      const text = typeof m.content === 'string' ? m.content : JSON.stringify(m.content)
+      return `${m.role === 'user' ? 'User' : 'Lumi'}: ${text}`
+    })
     .join('\n')
 
   try {
@@ -87,7 +90,7 @@ ${convoText}
 Summary:`,
         },
       ],
-      maxTokens: 300,
+      maxOutputTokens: 300,
     })
 
     return { summarizedContext: text.trim(), trimmedMessages: toKeep }
@@ -334,7 +337,7 @@ export async function POST(req: Request) {
   const result = streamText({
     model,
     system,
-    messages: activeMessages,
+    messages: activeMessages as unknown as ModelMessage[],
     maxOutputTokens: 1024,
   })
 

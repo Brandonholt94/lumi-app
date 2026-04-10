@@ -21,7 +21,7 @@ export default async function SubscriptionPage() {
       .eq('clerk_user_id', userId)
       .single()
 
-    if (['starter', 'core', 'companion'].includes(data?.plan)) {
+    if (data && ['starter', 'core', 'companion'].includes(data.plan)) {
       currentPlan = data.plan as Plan
     }
   }

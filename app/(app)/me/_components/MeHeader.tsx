@@ -21,16 +21,16 @@ export default function MeHeader({ title, subtitle, back = '/me' }: MeHeaderProp
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          width: 36,
-          height: 36,
+          width: 30,
+          height: 30,
           borderRadius: '50%',
           background: 'rgba(45,42,62,0.05)',
           flexShrink: 0,
-          marginTop: 2,
+          marginTop: 3,
           marginRight: 8,
         }}
       >
-        <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+        <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
           <path d="M13 4L7 10L13 16" stroke="#2D2A3E" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       </Link>

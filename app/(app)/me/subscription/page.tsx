@@ -27,9 +27,11 @@ export default async function SubscriptionPage() {
   }
 
   return (
-    <div className="flex flex-col h-full overflow-y-auto px-5">
+    <div className="flex flex-col h-full overflow-y-auto" style={{ background: '#FBF8F5' }}>
       <MeHeader title="Your plan" />
-      <SubscriptionClient currentPlan={currentPlan} />
+      <div className="px-5" style={{ flex: 1 }}>
+        <SubscriptionClient currentPlan={currentPlan} />
+      </div>
     </div>
   )
 }

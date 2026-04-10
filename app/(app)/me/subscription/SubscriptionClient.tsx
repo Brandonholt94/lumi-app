@@ -235,7 +235,7 @@ export default function SubscriptionClient({ currentPlan }: { currentPlan: Plan 
                 }}>Companion</p>
                 <p style={{
                   fontFamily: 'var(--font-nunito-sans)', fontSize: '13px',
-                  fontWeight: 600, color: MUTED,
+                  fontWeight: 600, color: '#9895B0',
                 }}>Lumi at its fullest</p>
               </div>
               <div style={{ textAlign: 'right' }}>

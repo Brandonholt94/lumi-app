@@ -771,7 +771,7 @@ export default function CaptureInput() {
             {/* Task label */}
             <p style={{
               fontFamily: 'var(--font-fraunces)', fontSize: 16, fontWeight: 900,
-              color: '#1E1C2E', lineHeight: 1.3, marginBottom: 20, paddingHorizontal: 4,
+              color: '#1E1C2E', lineHeight: 1.3, marginBottom: 20, padding: '0 4px',
             }}>
               {actionSheetFor.text}
             </p>

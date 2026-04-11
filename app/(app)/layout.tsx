@@ -32,9 +32,9 @@ export default async function AppLayout({
     <MoodProvider>
       <ActivityTracker />
       <LowBatteryOverlay />
-      <div className="min-h-screen bg-[#FBF8F5] flex flex-col max-w-md mx-auto relative">
+      <div className="h-dvh bg-[#FBF8F5] flex flex-col max-w-md mx-auto relative overflow-hidden">
         <SplashScreen />
-        <main className="flex-1 overflow-hidden flex flex-col">
+        <main className="flex-1 min-h-0 flex flex-col overflow-hidden">
           {children}
         </main>
         <NavBar />

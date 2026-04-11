@@ -206,11 +206,20 @@ export default function CaptureInput() {
     const updated = (capture.subtasks ?? []).map((st, i) =>
       i === index ? { ...st, completed: !st.completed } : st
     )
-    setCaptures(prev => prev.map(c => c.id === capture.id ? { ...c, subtasks: updated } : c))
+    const allDone = updated.every(st => st.completed)
+    setCaptures(prev => prev.map(c =>
+      c.id === capture.id ? { ...c, subtasks: updated, completed: allDone ? true : c.completed } : c
+    ))
+    if (allDone && !capture.completed) {
+      setFadingIds(prev => new Set(prev).add(capture.id))
+      setTimeout(() => {
+        setFadingIds(prev => { const s = new Set(prev); s.delete(capture.id); return s })
+      }, 1800)
+    }
     await fetch('/api/captures', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: capture.id, subtasks: updated }),
+      body: JSON.stringify({ id: capture.id, subtasks: updated, ...(allDone ? { completed: true } : {}) }),
     })
   }
 

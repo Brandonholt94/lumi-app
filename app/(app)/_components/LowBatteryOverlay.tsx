@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
-import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useMood } from './MoodContext'
 
 interface FocusTask {
@@ -13,6 +13,7 @@ interface FocusTask {
 export default function LowBatteryOverlay() {
   const { mood, dismissLowBattery, lowBatteryDismissed } = useMood()
   const [task, setTask] = useState<FocusTask | null>(null)
+  const router = useRouter()
 
   useEffect(() => {
     if (mood === 'drained' && !lowBatteryDismissed) {
@@ -28,11 +29,17 @@ export default function LowBatteryOverlay() {
   return (
     <div style={{
       position: 'fixed', inset: 0, zIndex: 200,
+      background: 'rgba(15,13,30,0.5)',
+      display: 'flex', alignItems: 'stretch', justifyContent: 'center',
+    }}>
+    <div style={{
+      width: '100%', maxWidth: '28rem',
       background: '#1E1C2E',
       display: 'flex', flexDirection: 'column',
       alignItems: 'center', justifyContent: 'center',
       padding: '48px 28px 40px',
       overflow: 'hidden',
+      position: 'relative',
     }}>
 
       {/* Ambient dots */}
@@ -63,7 +70,7 @@ export default function LowBatteryOverlay() {
       }} />
 
       {/* Logo */}
-      <Image src="/lumi-stacked.svg" alt="Lumi" width={90} height={90} priority style={{ marginBottom: 8, position: 'relative', zIndex: 1 }} />
+      <Image src="/lumi-stacked.svg" alt="Lumi" width={90} height={90} priority style={{ marginBottom: 8, position: 'relative', zIndex: 1, filter: 'brightness(0) invert(1) opacity(0.85)' }} />
 
       {/* Mode label */}
       <p style={{
@@ -125,19 +132,20 @@ export default function LowBatteryOverlay() {
       )}
 
       {/* Talk to Lumi */}
-      <Link href="/chat" style={{
-        display: 'block', width: '100%', textAlign: 'center',
-        padding: '15px',
-        background: 'linear-gradient(135deg, rgba(244,165,130,0.85), rgba(245,201,138,0.85))',
-        backdropFilter: 'blur(10px)',
-        WebkitBackdropFilter: 'blur(10px)',
-        borderRadius: 14, border: 'none',
-        fontFamily: 'var(--font-nunito-sans)', fontSize: 15, fontWeight: 800,
-        color: '#1E1C2E', textDecoration: 'none',
-        marginBottom: 12, position: 'relative', zIndex: 1,
-      }}>
+      <button
+        onClick={() => { dismissLowBattery(); router.push('/chat') }}
+        style={{
+          width: '100%', textAlign: 'center',
+          padding: '15px',
+          background: 'linear-gradient(135deg, rgba(244,165,130,0.9), rgba(245,201,138,0.9))',
+          borderRadius: 14, border: 'none', cursor: 'pointer',
+          fontFamily: 'var(--font-nunito-sans)', fontSize: 15, fontWeight: 800,
+          color: '#1E1C2E',
+          marginBottom: 12, position: 'relative', zIndex: 1,
+        }}
+      >
         Talk to Lumi
-      </Link>
+      </button>
 
       {/* Exit */}
       <button
@@ -153,6 +161,7 @@ export default function LowBatteryOverlay() {
         I&apos;m feeling better →
       </button>
 
+    </div>
     </div>
   )
 }

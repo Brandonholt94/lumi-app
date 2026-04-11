@@ -30,7 +30,7 @@ export async function GET() {
   try {
     // Fetch resources + categories in parallel
     const [itemsData, catData] = await Promise.all([
-      fetchWebflow(`/collections/${COLLECTION_ID}/items?limit=20`),
+      fetchWebflow(`/collections/${COLLECTION_ID}/items?limit=6`),
       fetchWebflow(`/collections/${CATEGORY_COLLECTION_ID}/items?limit=50`).catch(() => ({ items: [] })),
     ])
 

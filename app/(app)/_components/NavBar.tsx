@@ -11,7 +11,7 @@ export default function NavBar() {
 
   return (
     <nav
-      className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md z-50"
+      className="w-full flex-shrink-0 z-50"
       style={{
         background: '#ffffff',
         borderTop: '1px solid rgba(45,42,62,0.08)',

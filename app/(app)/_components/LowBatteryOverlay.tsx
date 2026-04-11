@@ -118,7 +118,7 @@ export default function LowBatteryOverlay() {
 
         {/* Logo */}
         <Image
-          src="/lumi-stacked.svg" alt="Lumi" width={90} height={90} priority
+          src="/lumi-stacked-white.svg" alt="Lumi" width={90} height={90} priority
           style={{ marginBottom: 8, position: 'relative', zIndex: 1 }}
         />
 

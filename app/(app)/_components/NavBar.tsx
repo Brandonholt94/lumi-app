@@ -7,6 +7,7 @@ import LumiTabIcon from './LumiTabIcon'
 export default function NavBar() {
   const pathname = usePathname()
   const is = (path: string) => pathname === path || pathname.startsWith(path + '/')
+  const today = new Date().getDate()
 
   return (
     <nav
@@ -17,7 +18,7 @@ export default function NavBar() {
         overflow: 'visible',
       }}
     >
-      <div className="relative flex items-center justify-around px-1 pt-5 pb-8">
+      <div className="relative flex items-center justify-around px-1 pt-2 pb-5" style={{ paddingBottom: 'calc(20px + env(safe-area-inset-bottom, 0px))' }}>
 
         {/* Today */}
         <Link href="/today" className="flex flex-col items-center gap-1 flex-1">
@@ -33,7 +34,14 @@ export default function NavBar() {
               />
               <line x1="8"  y1="3" x2="8"  y2="7" stroke={is('/today') ? '#F4A582' : 'rgba(45,42,62,0.28)'} strokeWidth="1.8" strokeLinecap="round"/>
               <line x1="16" y1="3" x2="16" y2="7" stroke={is('/today') ? '#F4A582' : 'rgba(45,42,62,0.28)'} strokeWidth="1.8" strokeLinecap="round"/>
-              <circle cx="12" cy="15.5" r="2" fill={is('/today') ? '#F4A582' : 'rgba(45,42,62,0.28)'} />
+              <text
+                x="12" y="19.5"
+                textAnchor="middle"
+                fontSize="7"
+                fontWeight="800"
+                fontFamily="var(--font-nunito-sans)"
+                fill={is('/today') ? '#F4A582' : 'rgba(45,42,62,0.28)'}
+              >{today}</text>
             </svg>
           </div>
           <span className="text-[10px] font-bold" style={{ fontFamily: 'var(--font-nunito-sans)', color: is('/today') ? '#F4A582' : 'rgba(45,42,62,0.28)' }}>
@@ -55,7 +63,7 @@ export default function NavBar() {
         </Link>
 
         {/* Lumi — floats above nav, Acorns-style */}
-        <Link href="/chat" className="flex flex-col items-center gap-1 flex-1 -mt-5">
+        <Link href="/chat" className="flex flex-col items-center gap-1 flex-1 -mt-4">
           <LumiTabIcon />
           <span className="text-[10px] font-bold" style={{ fontFamily: 'var(--font-nunito-sans)', color: '#F4A582' }}>
             Lumi

@@ -60,6 +60,8 @@ export default function CaptureInput() {
   const [savingSteps, setSavingSteps] = useState(false)
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set())
   const [actionSheetFor, setActionSheetFor] = useState<Capture | null>(null)
+  const [fadingIds, setFadingIds] = useState<Set<string>>(new Set())
+  const [showDone, setShowDone] = useState(false)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const recognitionRef = useRef<any>(null)
@@ -185,6 +187,13 @@ export default function CaptureInput() {
   async function toggleComplete(capture: Capture) {
     const next = !capture.completed
     setCaptures(prev => prev.map(c => c.id === capture.id ? { ...c, completed: next } : c))
+    if (next) {
+      // fade out then move to done section after 1.8s
+      setFadingIds(prev => new Set(prev).add(capture.id))
+      setTimeout(() => {
+        setFadingIds(prev => { const s = new Set(prev); s.delete(capture.id); return s })
+      }, 1800)
+    }
     await fetch('/api/captures', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -198,11 +207,13 @@ export default function CaptureInput() {
     await fetch(`/api/captures?id=${id}`, { method: 'DELETE' })
   }
 
-  const filtered = captures.filter(c => {
+  const allFiltered = captures.filter(c => {
     if (filter === 'all') return true
     if (filter === 'none') return c.tag === null
     return c.tag === filter
   })
+  const filtered = allFiltered.filter(c => !c.completed || fadingIds.has(c.id))
+  const completedToday = allFiltered.filter(c => c.completed && !fadingIds.has(c.id) && isToday(c.created_at))
 
   const activeFilter = FILTER_OPTIONS.find(o => o.value === filter)
 
@@ -534,6 +545,8 @@ export default function CaptureInput() {
                   borderRadius: '16px',
                   boxShadow: '0 2px 8px rgba(45,42,62,0.07)',
                   overflow: 'hidden',
+                  opacity: fadingIds.has(capture.id) ? 0 : 1,
+                  transition: fadingIds.has(capture.id) ? 'opacity 1.6s ease' : 'opacity 0.2s',
                 }}
               >
                 {/* Main row */}
@@ -620,6 +633,58 @@ export default function CaptureInput() {
               </div>
             )
           })}
+        </div>
+      )}
+
+      {/* ── Done today section ── */}
+      {completedToday.length > 0 && (
+        <div style={{ marginTop: 20 }}>
+          <button
+            onClick={() => setShowDone(o => !o)}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 8, width: '100%',
+              background: 'none', border: 'none', cursor: 'pointer', padding: '0 0 10px',
+            }}
+          >
+            <svg width="10" height="10" viewBox="0 0 12 12" fill="none" style={{ transition: 'transform 0.2s', transform: showDone ? 'rotate(0deg)' : 'rotate(-90deg)' }}>
+              <path d="M2 4l4 4 4-4" stroke="#9895B0" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '10px', fontWeight: 800, letterSpacing: '0.1em', color: '#9895B0' }}>
+              DONE TODAY ({completedToday.length})
+            </span>
+          </button>
+
+          {showDone && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {completedToday.map(c => {
+                const cs = c.tag ? TAG_STYLES[c.tag] : null
+                return (
+                  <div key={c.id} style={{
+                    background: 'white', borderRadius: 14,
+                    padding: '10px 14px',
+                    border: '1px solid rgba(45,42,62,0.05)',
+                    display: 'flex', alignItems: 'center', gap: 10, opacity: 0.6,
+                  }}>
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                      <circle cx="8" cy="8" r="7" fill={cs?.dot ?? 'rgba(45,42,62,0.2)'}/>
+                      <path d="M5 8l2.5 2.5 4-4" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    <p style={{
+                      fontFamily: 'var(--font-nunito-sans)', fontSize: '12px', fontWeight: 600,
+                      color: '#9895B0', flex: 1, lineHeight: 1.4,
+                      textDecoration: 'line-through',
+                    }}>{c.text}</p>
+                    <button
+                      onClick={() => toggleComplete(c)}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontSize: 10, color: '#9895B0', fontFamily: 'var(--font-nunito-sans)', fontWeight: 700 }}
+                    >
+                      Undo
+                    </button>
+                  </div>
+                )
+              })}
+            </div>
+          )}
         </div>
       )}
 

@@ -31,7 +31,7 @@ export async function GET() {
   const [capturesRes, moodsRes, focusRes, profileRes] = await Promise.all([
     supabase
       .from('captures')
-      .select('tag, created_at')
+      .select('tag, created_at, completed, text')
       .eq('clerk_user_id', userId)
       .gte('created_at', monday.toISOString())
       .lte('created_at', sunday.toISOString()),
@@ -61,6 +61,7 @@ export async function GET() {
   // Capture stats
   const byTag = { task: 0, idea: 0, worry: 0, reminder: 0, untagged: 0 }
   const byDay = [0, 0, 0, 0, 0, 0, 0] // Mon=0 … Sun=6
+  const completedTasks: { text: string; created_at: string }[] = []
 
   for (const c of captures) {
     const key = c.tag as keyof typeof byTag
@@ -68,6 +69,9 @@ export async function GET() {
     else byTag.untagged++
     const d = new Date(c.created_at).getDay()
     byDay[d === 0 ? 6 : d - 1]++
+    if (c.completed && c.tag === 'task') {
+      completedTasks.push({ text: c.text, created_at: c.created_at })
+    }
   }
 
   const maxDay      = Math.max(...byDay)
@@ -94,7 +98,7 @@ export async function GET() {
       start: monday.toISOString().slice(0, 10),
       end:   sunday.toISOString().slice(0, 10),
     },
-    captures: { total: captures.length, byTag, byDay, busiestDay },
+    captures: { total: captures.length, byTag, byDay, busiestDay, completedTasks },
     moods: moodDays,
     focus: {
       sessions: focusSessions.length,

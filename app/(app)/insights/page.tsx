@@ -18,6 +18,7 @@ interface InsightsData {
     byTag: { task: number; idea: number; worry: number; reminder: number; untagged: number }
     byDay: number[]
     busiestDay: string | null
+    completedTasks: { text: string; created_at: string }[]
   }
   moods: { date: string; mood: Mood | null }[]
   focus: { sessions: number; minutes: number }
@@ -370,6 +371,12 @@ export default function InsightsPage() {
                 value={topMood ? MOOD_META[topMood].label : '—'}
                 sub={topMood ? 'most checked-in' : 'none logged yet'}
               />
+              <StatCard
+                icon="✓"
+                label="TASKS DONE"
+                value={String(data.captures.completedTasks.length)}
+                sub={data.captures.completedTasks.length === 1 ? 'task completed' : 'tasks completed'}
+              />
             </div>
 
             {/* Weekly Brain Report */}
@@ -408,6 +415,40 @@ export default function InsightsPage() {
                       </div>
                     )
                   })}
+                </div>
+              </div>
+            )}
+
+            {/* Completed tasks */}
+            {data.captures.completedTasks.length > 0 && (
+              <div style={{ marginBottom: 28 }}>
+                <SectionLabel>COMPLETED THIS WEEK</SectionLabel>
+                <div style={{
+                  background: 'white', borderRadius: 16,
+                  border: '1px solid rgba(45,42,62,0.07)',
+                  boxShadow: '0 2px 8px rgba(45,42,62,0.06)',
+                  overflow: 'hidden',
+                }}>
+                  {data.captures.completedTasks.map((t, i) => (
+                    <div key={i} style={{
+                      display: 'flex', alignItems: 'flex-start', gap: 12,
+                      padding: '12px 16px',
+                      borderBottom: i < data.captures.completedTasks.length - 1 ? '1px solid rgba(45,42,62,0.05)' : 'none',
+                    }}>
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0, marginTop: 1 }}>
+                        <circle cx="8" cy="8" r="7" fill="rgba(94,194,105,0.15)" stroke="#5EC269" strokeWidth="1.5"/>
+                        <path d="M5 8l2.5 2.5 4-4" stroke="#5EC269" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      <div style={{ flex: 1 }}>
+                        <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 600, color: '#2D2A3E', lineHeight: 1.4, marginBottom: 2 }}>
+                          {t.text}
+                        </p>
+                        <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '10px', fontWeight: 600, color: '#9895B0' }}>
+                          {new Date(t.created_at).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}

@@ -2,7 +2,6 @@ import { currentUser } from '@clerk/nextjs/server'
 import MoodSelector from './_components/MoodSelector'
 import OneFocusCard from './_components/OneFocusCard'
 import LumiNudge from './_components/LumiNudge'
-import LowBatteryBanner from './_components/LowBatteryBanner'
 import Link from 'next/link'
 import ProfileButton from '../_components/ProfileButton'
 
@@ -79,9 +78,6 @@ export default async function TodayPage() {
         HOW&apos;S YOUR BRAIN TODAY?
       </p>
       <MoodSelector />
-
-      {/* Low Battery Mode banner — shows when Drained is selected */}
-      <LowBatteryBanner />
 
       {/* Lumi Nudge */}
       <LumiNudge />

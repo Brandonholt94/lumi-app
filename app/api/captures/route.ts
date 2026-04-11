@@ -75,3 +75,23 @@ export async function PATCH(req: Request) {
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json(data)
 }
+
+// DELETE /api/captures?id=xxx — delete a capture
+export async function DELETE(req: Request) {
+  const { userId } = await auth()
+  if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const { searchParams } = new URL(req.url)
+  const id = searchParams.get('id')
+  if (!id) return NextResponse.json({ error: 'ID is required' }, { status: 400 })
+
+  const supabase = getServiceClient()
+  const { error } = await supabase
+    .from('captures')
+    .delete()
+    .eq('id', id)
+    .eq('clerk_user_id', userId)
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json({ deleted: true })
+}

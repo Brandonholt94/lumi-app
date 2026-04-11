@@ -15,6 +15,7 @@ interface Capture {
   text: string
   tag: Tag
   created_at: string
+  completed: boolean
   subtasks?: Subtask[] | null
 }
 
@@ -58,6 +59,7 @@ export default function CaptureInput() {
   const [breakdownError, setBreakdownError] = useState(false)
   const [savingSteps, setSavingSteps] = useState(false)
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set())
+  const [actionSheetFor, setActionSheetFor] = useState<Capture | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const recognitionRef = useRef<any>(null)
@@ -178,6 +180,22 @@ export default function CaptureInput() {
     } finally {
       setSavingSteps(false)
     }
+  }
+
+  async function toggleComplete(capture: Capture) {
+    const next = !capture.completed
+    setCaptures(prev => prev.map(c => c.id === capture.id ? { ...c, completed: next } : c))
+    await fetch('/api/captures', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: capture.id, completed: next }),
+    })
+  }
+
+  async function deleteCapture(id: string) {
+    setCaptures(prev => prev.filter(c => c.id !== id))
+    setActionSheetFor(null)
+    await fetch(`/api/captures?id=${id}`, { method: 'DELETE' })
   }
 
   const filtered = captures.filter(c => {
@@ -519,23 +537,40 @@ export default function CaptureInput() {
                 }}
               >
                 {/* Main row */}
-                <div className="flex items-start gap-[10px]" style={{ padding: '12px 14px' }}>
-                  <div
+                <div
+                  className="flex items-start gap-[10px]"
+                  style={{ padding: '12px 14px', cursor: 'pointer' }}
+                  onClick={() => setActionSheetFor(capture)}
+                >
+                  {/* Checkbox */}
+                  <button
+                    onClick={e => { e.stopPropagation(); toggleComplete(capture) }}
                     style={{
-                      width: 7, height: 7, borderRadius: '50%',
-                      background: s ? s.dot : 'rgba(45,42,62,0.2)',
-                      marginTop: 5, flexShrink: 0,
+                      width: 20, height: 20, borderRadius: '50%', flexShrink: 0, marginTop: 1,
+                      border: `2px solid ${capture.completed ? (s?.dot ?? 'rgba(45,42,62,0.2)') : (s?.dot ?? 'rgba(45,42,62,0.2)')}`,
+                      background: capture.completed ? (s?.dot ?? 'rgba(45,42,62,0.2)') : 'transparent',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      cursor: 'pointer', transition: 'all 0.15s', padding: 0,
                     }}
-                  />
+                  >
+                    {capture.completed && (
+                      <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+                        <path d="M2.5 6l3 3 4-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    )}
+                  </button>
+
                   <div className="flex-1">
                     <p
                       style={{
                         fontFamily: 'var(--font-nunito-sans)',
                         fontSize: '13px',
                         fontWeight: 600,
-                        color: '#2D2A3E',
+                        color: capture.completed ? '#9895B0' : '#2D2A3E',
                         lineHeight: 1.4,
                         marginBottom: 3,
+                        textDecoration: capture.completed ? 'line-through' : 'none',
+                        transition: 'color 0.15s',
                       }}
                     >
                       {capture.text}
@@ -544,27 +579,13 @@ export default function CaptureInput() {
                       <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '10.5px', fontWeight: 600, color: '#9895B0' }}>
                         {s ? `${s.label} · ` : ''}{isToday(capture.created_at) ? 'Today' : 'Yesterday'} at {formatTime(capture.created_at)}
                       </p>
-                      {capture.tag === 'task' && !capture.subtasks?.length && (
-                        <button
-                          onClick={() => handleBreakdown(capture)}
-                          style={{
-                            background: 'none', border: 'none', cursor: 'pointer',
-                            fontFamily: 'var(--font-nunito-sans)',
-                            fontSize: '10px', fontWeight: 800,
-                            color: '#F4A582', padding: '2px 0',
-                            whiteSpace: 'nowrap', flexShrink: 0,
-                          }}
-                        >
-                          ✦ Break it down
-                        </button>
-                      )}
                       {capture.subtasks && capture.subtasks.length > 0 && (
                         <button
-                          onClick={() => setExpandedIds(prev => {
+                          onClick={e => { e.stopPropagation(); setExpandedIds(prev => {
                             const next = new Set(prev)
                             next.has(capture.id) ? next.delete(capture.id) : next.add(capture.id)
                             return next
-                          })}
+                          })}}
                           style={{
                             background: 'none', border: 'none', cursor: 'pointer',
                             fontFamily: 'var(--font-nunito-sans)',
@@ -716,6 +737,116 @@ export default function CaptureInput() {
                 </button>
               </>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* ── Action sheet (tap a card) ── */}
+      {actionSheetFor && (
+        <div
+          style={{
+            position: 'fixed', inset: 0, zIndex: 100,
+            background: 'rgba(30,28,46,0.45)',
+            backdropFilter: 'blur(4px)',
+            WebkitBackdropFilter: 'blur(4px)',
+            display: 'flex', alignItems: 'flex-end',
+          }}
+          onClick={e => { if (e.target === e.currentTarget) setActionSheetFor(null) }}
+        >
+          <div
+            style={{
+              width: '100%',
+              background: 'rgba(251,248,245,0.92)',
+              backdropFilter: 'blur(28px) saturate(1.4)',
+              WebkitBackdropFilter: 'blur(28px) saturate(1.4)',
+              borderRadius: '24px 24px 0 0',
+              border: '1px solid rgba(255,255,255,0.7)',
+              padding: '20px 20px 40px',
+              animation: 'sheetUp 0.25s cubic-bezier(0.32,0.72,0,1)',
+            }}
+          >
+            {/* Handle */}
+            <div style={{ width: 36, height: 4, borderRadius: 2, background: 'rgba(45,42,62,0.15)', margin: '0 auto 16px' }} />
+
+            {/* Task label */}
+            <p style={{
+              fontFamily: 'var(--font-fraunces)', fontSize: 16, fontWeight: 900,
+              color: '#1E1C2E', lineHeight: 1.3, marginBottom: 20, paddingHorizontal: 4,
+            }}>
+              {actionSheetFor.text}
+            </p>
+
+            {/* Actions */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              {/* Mark complete / incomplete */}
+              <button
+                onClick={() => { toggleComplete(actionSheetFor); setActionSheetFor(null) }}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 14,
+                  padding: '14px 16px', borderRadius: 14, border: 'none',
+                  background: 'white', cursor: 'pointer', width: '100%', textAlign: 'left',
+                }}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="9" stroke="#5EC269" strokeWidth="2"/>
+                  <path d="M8 12l3 3 5-5" stroke="#5EC269" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: 15, fontWeight: 700, color: '#2D2A3E' }}>
+                  {actionSheetFor.completed ? 'Mark as incomplete' : 'Mark as complete'}
+                </span>
+              </button>
+
+              {/* Break it down — only for tasks without subtasks */}
+              {actionSheetFor.tag === 'task' && !actionSheetFor.subtasks?.length && (
+                <button
+                  onClick={() => { setActionSheetFor(null); handleBreakdown(actionSheetFor) }}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 14,
+                    padding: '14px 16px', borderRadius: 14, border: 'none',
+                    background: 'white', cursor: 'pointer', width: '100%', textAlign: 'left',
+                    marginTop: 2,
+                  }}
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 3v18M3 12h18" stroke="#F4A582" strokeWidth="2" strokeLinecap="round"/>
+                  </svg>
+                  <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: 15, fontWeight: 700, color: '#2D2A3E' }}>
+                    Break it down
+                  </span>
+                </button>
+              )}
+
+              {/* Delete */}
+              <button
+                onClick={() => deleteCapture(actionSheetFor.id)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 14,
+                  padding: '14px 16px', borderRadius: 14, border: 'none',
+                  background: 'white', cursor: 'pointer', width: '100%', textAlign: 'left',
+                  marginTop: 2,
+                }}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6" stroke="#E8A0BF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: 15, fontWeight: 700, color: '#B04E72' }}>
+                  Delete
+                </span>
+              </button>
+
+              {/* Cancel */}
+              <button
+                onClick={() => setActionSheetFor(null)}
+                style={{
+                  padding: '14px 16px', borderRadius: 14, border: 'none',
+                  background: 'rgba(45,42,62,0.06)', cursor: 'pointer', width: '100%',
+                  fontFamily: 'var(--font-nunito-sans)', fontSize: 15, fontWeight: 700,
+                  color: '#9895B0', marginTop: 8,
+                }}
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}

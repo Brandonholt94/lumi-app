@@ -5,11 +5,17 @@ import ProfileButton from '../../_components/ProfileButton'
 
 type Tag = 'task' | 'idea' | 'worry' | 'reminder' | null
 
+interface Subtask {
+  text: string
+  minutes: number
+}
+
 interface Capture {
   id: string
   text: string
   tag: Tag
   created_at: string
+  subtasks?: Subtask[] | null
 }
 
 const TAG_STYLES: Record<NonNullable<Tag>, { bg: string; color: string; border: string; dot: string; label: string }> = {
@@ -47,10 +53,11 @@ export default function CaptureInput() {
   const [loading, setLoading] = useState(true)
   const [breakdownForId, setBreakdownForId] = useState<string | null>(null)
   const [breakdownTask, setBreakdownTask] = useState<string>('')
-  const [subtasks, setSubtasks] = useState<{ text: string; minutes: number }[]>([])
+  const [subtasks, setSubtasks] = useState<Subtask[]>([])
   const [breakdownLoading, setBreakdownLoading] = useState(false)
   const [breakdownError, setBreakdownError] = useState(false)
-  const [addingAll, setAddingAll] = useState(false)
+  const [savingSteps, setSavingSteps] = useState(false)
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set())
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const recognitionRef = useRef<any>(null)
@@ -152,27 +159,24 @@ export default function CaptureInput() {
     }
   }
 
-  async function handleAddAll() {
-    if (!subtasks.length || addingAll) return
-    setAddingAll(true)
+  async function handleSaveSteps() {
+    if (!subtasks.length || savingSteps || !breakdownForId) return
+    setSavingSteps(true)
     try {
-      const added: Capture[] = []
-      for (const subtask of subtasks) {
-        const res = await fetch('/api/captures', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text: subtask.text, tag: 'task' }),
-        })
-        if (res.ok) {
-          const c = await res.json()
-          added.push(c)
-        }
+      const res = await fetch('/api/captures', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: breakdownForId, subtasks }),
+      })
+      if (res.ok) {
+        const updated = await res.json()
+        setCaptures(prev => prev.map(c => c.id === breakdownForId ? { ...c, subtasks: updated.subtasks } : c))
+        setExpandedIds(prev => new Set(prev).add(breakdownForId))
       }
-      setCaptures(prev => [...added.reverse(), ...prev])
       setBreakdownForId(null)
       setSubtasks([])
     } finally {
-      setAddingAll(false)
+      setSavingSteps(false)
     }
   }
 
@@ -506,62 +510,92 @@ export default function CaptureInput() {
             return (
               <div
                 key={capture.id}
-                className="rounded-[16px] flex items-start gap-[10px]"
                 style={{
                   background: 'white',
                   border: '1px solid rgba(45,42,62,0.07)',
-                  padding: '12px 14px',
                   borderRadius: '16px',
                   boxShadow: '0 2px 8px rgba(45,42,62,0.07)',
+                  overflow: 'hidden',
                 }}
               >
-                <div
-                  style={{
-                    width: 7, height: 7, borderRadius: '50%',
-                    background: s ? s.dot : 'rgba(45,42,62,0.2)',
-                    marginTop: 5, flexShrink: 0,
-                  }}
-                />
-                <div className="flex-1">
-                  <p
+                {/* Main row */}
+                <div className="flex items-start gap-[10px]" style={{ padding: '12px 14px' }}>
+                  <div
                     style={{
-                      fontFamily: 'var(--font-nunito-sans)',
-                      fontSize: '13px',
-                      fontWeight: 600,
-                      color: '#2D2A3E',
-                      lineHeight: 1.4,
-                      marginBottom: 3,
+                      width: 7, height: 7, borderRadius: '50%',
+                      background: s ? s.dot : 'rgba(45,42,62,0.2)',
+                      marginTop: 5, flexShrink: 0,
                     }}
-                  >
-                    {capture.text}
-                  </p>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                  />
+                  <div className="flex-1">
                     <p
                       style={{
                         fontFamily: 'var(--font-nunito-sans)',
-                        fontSize: '10.5px',
+                        fontSize: '13px',
                         fontWeight: 600,
-                        color: '#9895B0',
+                        color: '#2D2A3E',
+                        lineHeight: 1.4,
+                        marginBottom: 3,
                       }}
                     >
-                      {s ? `${s.label} · ` : ''}{isToday(capture.created_at) ? 'Today' : 'Yesterday'} at {formatTime(capture.created_at)}
+                      {capture.text}
                     </p>
-                    {capture.tag === 'task' && (
-                      <button
-                        onClick={() => handleBreakdown(capture)}
-                        style={{
-                          background: 'none', border: 'none', cursor: 'pointer',
-                          fontFamily: 'var(--font-nunito-sans)',
-                          fontSize: '10px', fontWeight: 800,
-                          color: '#F4A582', padding: '2px 0',
-                          whiteSpace: 'nowrap', flexShrink: 0,
-                        }}
-                      >
-                        ✦ Break it down
-                      </button>
-                    )}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                      <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '10.5px', fontWeight: 600, color: '#9895B0' }}>
+                        {s ? `${s.label} · ` : ''}{isToday(capture.created_at) ? 'Today' : 'Yesterday'} at {formatTime(capture.created_at)}
+                      </p>
+                      {capture.tag === 'task' && !capture.subtasks?.length && (
+                        <button
+                          onClick={() => handleBreakdown(capture)}
+                          style={{
+                            background: 'none', border: 'none', cursor: 'pointer',
+                            fontFamily: 'var(--font-nunito-sans)',
+                            fontSize: '10px', fontWeight: 800,
+                            color: '#F4A582', padding: '2px 0',
+                            whiteSpace: 'nowrap', flexShrink: 0,
+                          }}
+                        >
+                          ✦ Break it down
+                        </button>
+                      )}
+                      {capture.subtasks && capture.subtasks.length > 0 && (
+                        <button
+                          onClick={() => setExpandedIds(prev => {
+                            const next = new Set(prev)
+                            next.has(capture.id) ? next.delete(capture.id) : next.add(capture.id)
+                            return next
+                          })}
+                          style={{
+                            background: 'none', border: 'none', cursor: 'pointer',
+                            fontFamily: 'var(--font-nunito-sans)',
+                            fontSize: '10px', fontWeight: 800,
+                            color: '#9895B0', padding: '2px 0',
+                            whiteSpace: 'nowrap', flexShrink: 0,
+                            display: 'flex', alignItems: 'center', gap: 3,
+                          }}
+                        >
+                          {capture.subtasks.length} steps
+                          <svg width="10" height="10" viewBox="0 0 12 12" fill="none" style={{ transition: 'transform 0.2s', transform: expandedIds.has(capture.id) ? 'rotate(180deg)' : 'none' }}>
+                            <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
+
+                {/* Subtasks inline */}
+                {capture.subtasks && capture.subtasks.length > 0 && expandedIds.has(capture.id) && (
+                  <div style={{ borderTop: '1px solid rgba(45,42,62,0.06)', padding: '8px 14px 10px 30px' }}>
+                    {capture.subtasks.map((st, i) => (
+                      <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, padding: '5px 0', borderBottom: i < capture.subtasks!.length - 1 ? '1px solid rgba(45,42,62,0.05)' : 'none' }}>
+                        <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: 10, fontWeight: 800, color: 'rgba(244,165,130,0.6)', minWidth: 14, paddingTop: 1 }}>{i + 1}</span>
+                        <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: 12, fontWeight: 600, color: '#4A4760', flex: 1, lineHeight: 1.4 }}>{st.text}</p>
+                        <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: 9, fontWeight: 800, color: '#9895B0', whiteSpace: 'nowrap', paddingTop: 2 }}>{st.minutes}m</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )
           })}
@@ -641,43 +675,44 @@ export default function CaptureInput() {
               </div>
             )}
 
-            {/* Subtasks */}
+            {/* Subtasks — clean numbered list */}
             {!breakdownLoading && !breakdownError && subtasks.length > 0 && (
               <>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
+                <div style={{ marginBottom: 24 }}>
                   {subtasks.map((s, i) => (
                     <div
                       key={i}
                       style={{
-                        background: 'white', borderRadius: 14,
-                        padding: '12px 14px',
-                        border: '1px solid rgba(45,42,62,0.07)',
-                        display: 'flex', alignItems: 'center', gap: 12,
+                        display: 'flex', alignItems: 'flex-start', gap: 12,
+                        padding: '11px 0',
+                        borderBottom: i < subtasks.length - 1 ? '1px solid rgba(45,42,62,0.07)' : 'none',
                       }}
                     >
-                      <span style={{ color: '#F4A582', fontSize: 12, flexShrink: 0 }}>✦</span>
-                      <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: 13, fontWeight: 600, color: '#2D2A3E', flex: 1, lineHeight: 1.4 }}>{s.text}</p>
+                      <span style={{
+                        fontFamily: 'var(--font-nunito-sans)', fontSize: 11, fontWeight: 800,
+                        color: '#F4A582', minWidth: 20, paddingTop: 1, textAlign: 'right',
+                      }}>{i + 1}</span>
+                      <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: 14, fontWeight: 600, color: '#2D2A3E', flex: 1, lineHeight: 1.45 }}>{s.text}</p>
                       <span style={{
                         fontFamily: 'var(--font-nunito-sans)', fontSize: 10, fontWeight: 800,
-                        color: '#9895B0', background: 'rgba(45,42,62,0.06)',
-                        borderRadius: 99, padding: '3px 8px', flexShrink: 0,
+                        color: '#9895B0', whiteSpace: 'nowrap', paddingTop: 3,
                       }}>{s.minutes}m</span>
                     </div>
                   ))}
                 </div>
 
                 <button
-                  onClick={handleAddAll}
-                  disabled={addingAll}
+                  onClick={handleSaveSteps}
+                  disabled={savingSteps}
                   style={{
                     width: '100%', padding: '15px', borderRadius: 14, border: 'none',
                     background: 'linear-gradient(135deg, #F4A582, #F5C98A)',
                     fontFamily: 'var(--font-nunito-sans)', fontSize: 15, fontWeight: 800,
-                    color: '#1E1C2E', cursor: addingAll ? 'wait' : 'pointer',
-                    opacity: addingAll ? 0.7 : 1,
+                    color: '#1E1C2E', cursor: savingSteps ? 'wait' : 'pointer',
+                    opacity: savingSteps ? 0.7 : 1,
                   }}
                 >
-                  {addingAll ? 'Adding…' : `Add all ${subtasks.length} tasks to Brain Dump`}
+                  {savingSteps ? 'Saving…' : `Save ${subtasks.length} steps`}
                 </button>
               </>
             )}

@@ -81,18 +81,18 @@ function ResourceCard({ resource }: { resource: ResourceItem }) {
         background: 'white',
         border: '1px solid rgba(45,42,62,0.07)',
         boxShadow: '0 1px 4px rgba(45,42,62,0.04)',
-        overflow: 'hidden',
         textDecoration: 'none',
         display: 'block',
         transition: 'transform 0.15s ease',
+        padding: '8px 8px 0',
       }}
       onMouseDown={e => (e.currentTarget.style.transform = 'scale(0.97)')}
       onMouseUp={e => (e.currentTarget.style.transform = 'scale(1)')}
       onTouchStart={e => (e.currentTarget.style.transform = 'scale(0.97)')}
       onTouchEnd={e => (e.currentTarget.style.transform = 'scale(1)')}
     >
-      {/* Thumbnail */}
-      <div style={{ width: '100%', height: 96, background: '#F3EFE9', position: 'relative', overflow: 'hidden' }}>
+      {/* Thumbnail — inset with matching padding on left, right, top */}
+      <div style={{ width: '100%', height: 96, background: '#F3EFE9', position: 'relative', overflow: 'hidden', borderRadius: 10 }}>
         {resource.thumbnailUrl ? (
           <Image
             src={resource.thumbnailUrl}
@@ -116,7 +116,7 @@ function ResourceCard({ resource }: { resource: ResourceItem }) {
       </div>
 
       {/* Text */}
-      <div style={{ padding: '10px 11px 12px' }}>
+      <div style={{ padding: '10px 3px 12px' }}>
         {resource.categoryName && (
           <p style={{
             fontFamily: 'var(--font-nunito-sans)',
@@ -156,9 +156,9 @@ function SkeletonCard() {
       borderRadius: 16,
       background: 'white',
       border: '1px solid rgba(45,42,62,0.07)',
-      overflow: 'hidden',
+      padding: '8px 8px 0',
     }}>
-      <div style={{ width: '100%', height: 96, background: '#F0EDE8', animation: 'pulse 1.5s ease-in-out infinite' }} />
+      <div style={{ width: '100%', height: 96, borderRadius: 10, background: '#F0EDE8', animation: 'pulse 1.5s ease-in-out infinite' }} />
       <div style={{ padding: '10px 11px 12px', display: 'flex', flexDirection: 'column', gap: 6 }}>
         <div style={{ height: 8, width: '50%', borderRadius: 4, background: '#F0EDE8', animation: 'pulse 1.5s ease-in-out infinite' }} />
         <div style={{ height: 10, width: '90%', borderRadius: 4, background: '#F0EDE8', animation: 'pulse 1.5s ease-in-out 0.1s infinite' }} />

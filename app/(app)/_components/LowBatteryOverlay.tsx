@@ -48,12 +48,7 @@ export default function LowBatteryOverlay() {
       while (true) {
         const { done, value } = await reader.read()
         if (done) break
-        const chunk = decoder.decode(value, { stream: true })
-        for (const line of chunk.split('\n')) {
-          if (line.startsWith('0:"')) {
-            try { built += JSON.parse(line.slice(2)) } catch { /* skip */ }
-          }
-        }
+        built += decoder.decode(value, { stream: true })
         setMessages(prev => prev.map(m => m.id === assistantId ? { ...m, content: built } : m))
       }
     } catch { /* aborted or network error */ }

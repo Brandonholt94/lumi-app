@@ -8,6 +8,7 @@ type Tag = 'task' | 'idea' | 'worry' | 'reminder' | null
 interface Subtask {
   text: string
   minutes: number
+  completed?: boolean
 }
 
 interface Capture {
@@ -198,6 +199,18 @@ export default function CaptureInput() {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: capture.id, completed: next }),
+    })
+  }
+
+  async function toggleSubtask(capture: Capture, index: number) {
+    const updated = (capture.subtasks ?? []).map((st, i) =>
+      i === index ? { ...st, completed: !st.completed } : st
+    )
+    setCaptures(prev => prev.map(c => c.id === capture.id ? { ...c, subtasks: updated } : c))
+    await fetch('/api/captures', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: capture.id, subtasks: updated }),
     })
   }
 
@@ -608,7 +621,7 @@ export default function CaptureInput() {
                             display: 'flex', alignItems: 'center', gap: 3,
                           }}
                         >
-                          {capture.subtasks.length} steps
+                          {capture.subtasks.filter(s => s.completed).length}/{capture.subtasks.length} steps
                           <svg width="10" height="10" viewBox="0 0 12 12" fill="none" style={{ transition: 'transform 0.2s', transform: expandedIds.has(capture.id) ? 'rotate(180deg)' : 'none' }}>
                             <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
                           </svg>
@@ -620,12 +633,32 @@ export default function CaptureInput() {
 
                 {/* Subtasks inline */}
                 {capture.subtasks && capture.subtasks.length > 0 && expandedIds.has(capture.id) && (
-                  <div style={{ borderTop: '1px solid rgba(45,42,62,0.06)', padding: '8px 14px 10px 30px' }}>
+                  <div style={{ borderTop: '1px solid rgba(45,42,62,0.06)', padding: '6px 14px 8px 14px' }}>
                     {capture.subtasks.map((st, i) => (
-                      <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, padding: '5px 0', borderBottom: i < capture.subtasks!.length - 1 ? '1px solid rgba(45,42,62,0.05)' : 'none' }}>
-                        <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: 10, fontWeight: 800, color: 'rgba(244,165,130,0.6)', minWidth: 14, paddingTop: 1 }}>{i + 1}</span>
-                        <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: 12, fontWeight: 600, color: '#4A4760', flex: 1, lineHeight: 1.4 }}>{st.text}</p>
-                        <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: 9, fontWeight: 800, color: '#9895B0', whiteSpace: 'nowrap', paddingTop: 2 }}>{st.minutes}m</span>
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0', borderBottom: i < capture.subtasks!.length - 1 ? '1px solid rgba(45,42,62,0.05)' : 'none' }}>
+                        <button
+                          onClick={e => { e.stopPropagation(); toggleSubtask(capture, i) }}
+                          style={{
+                            width: 16, height: 16, borderRadius: '50%', flexShrink: 0,
+                            border: `1.5px solid ${st.completed ? '#F4A582' : 'rgba(45,42,62,0.2)'}`,
+                            background: st.completed ? '#F4A582' : 'transparent',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            cursor: 'pointer', padding: 0, transition: 'all 0.15s',
+                          }}
+                        >
+                          {st.completed && (
+                            <svg width="8" height="8" viewBox="0 0 10 10" fill="none">
+                              <path d="M2 5l2.5 2.5 4-4" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                          )}
+                        </button>
+                        <p style={{
+                          fontFamily: 'var(--font-nunito-sans)', fontSize: 12, fontWeight: 600,
+                          color: st.completed ? '#9895B0' : '#4A4760', flex: 1, lineHeight: 1.4,
+                          textDecoration: st.completed ? 'line-through' : 'none',
+                          transition: 'color 0.15s',
+                        }}>{st.text}</p>
+                        <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: 9, fontWeight: 800, color: '#9895B0', whiteSpace: 'nowrap' }}>{st.minutes}m</span>
                       </div>
                     ))}
                   </div>

@@ -28,7 +28,7 @@ export default async function TodayPage() {
   const date = getFormattedDate()
 
   return (
-    <div className="flex flex-col h-full overflow-y-auto">
+    <div className="flex flex-col h-full overflow-y-auto" style={{ background: '#FBF8F5' }}>
 
       {/* ── White header ── */}
       <div style={{ background: '#ffffff', padding: '32px 20px 20px' }}>
@@ -63,7 +63,7 @@ export default async function TodayPage() {
       </div>
 
       {/* ── Beige body ── */}
-      <div className="flex flex-col flex-1 px-5 pb-4" style={{ background: '#FBF8F5', paddingTop: 28 }}>
+      <div className="flex flex-col px-5 pb-8" style={{ background: '#FBF8F5', paddingTop: 28 }}>
 
       {/* Mood check-in */}
       <p

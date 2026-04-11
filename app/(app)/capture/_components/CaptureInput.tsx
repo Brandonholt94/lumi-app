@@ -685,7 +685,7 @@ export default function CaptureInput() {
                   Couldn't break this down right now.
                 </p>
                 <button
-                  onClick={() => handleBreakdown({ id: breakdownForId!, text: breakdownTask, tag: 'task', created_at: '' })}
+                  onClick={() => handleBreakdown({ id: breakdownForId!, text: breakdownTask, tag: 'task', created_at: '', completed: false })}
                   style={{
                     fontFamily: 'var(--font-nunito-sans)', fontSize: 12, fontWeight: 800,
                     color: '#F4A582', background: 'none', border: 'none', cursor: 'pointer', padding: 0,

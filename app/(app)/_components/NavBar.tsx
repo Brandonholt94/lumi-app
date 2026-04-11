@@ -18,7 +18,7 @@ export default function NavBar() {
         overflow: 'visible',
       }}
     >
-      <div className="relative flex items-center justify-around px-1 pt-2 pb-5" style={{ paddingBottom: 'calc(20px + env(safe-area-inset-bottom, 0px))' }}>
+      <div className="relative flex items-center justify-around px-1 pt-2" style={{ paddingBottom: 'calc(12px + env(safe-area-inset-bottom, 0px))' }}>
 
         {/* Today */}
         <Link href="/today" className="flex flex-col items-center gap-1 flex-1">

@@ -30,3 +30,7 @@ body {
   font-family: var(--font-nunito-sans), 'Nunito Sans', sans-serif;
   -webkit-font-smoothing: antialiased;
 }
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}

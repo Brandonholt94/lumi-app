@@ -2,6 +2,7 @@ import { currentUser } from '@clerk/nextjs/server'
 import MoodSelector from './_components/MoodSelector'
 import OneFocusCard from './_components/OneFocusCard'
 import LumiNudge from './_components/LumiNudge'
+import ResourcesSection from './_components/ResourcesSection'
 import Link from 'next/link'
 import ProfileButton from '../_components/ProfileButton'
 
@@ -84,6 +85,9 @@ export default async function TodayPage() {
 
       {/* One Focus card — fetches real task from AI + Supabase */}
       <OneFocusCard />
+
+      {/* Resources */}
+      <ResourcesSection />
 
       {/* Quick Actions */}
       <p

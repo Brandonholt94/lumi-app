@@ -243,31 +243,21 @@ export default function CaptureInput() {
 
   return (
     <>
-      {/* ── White header ── */}
-      <div style={{ background: '#ffffff', padding: '32px 20px 20px' }}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-          <div>
-            <h1
-              style={{
-                fontFamily: 'var(--font-fraunces)',
-                fontSize: '34px',
-                fontWeight: 900,
-                color: '#1E1C2E',
-                lineHeight: 1.1,
-                marginBottom: 6,
-              }}
-            >
-              Brain Dump
-            </h1>
-            <p style={{
-              fontFamily: 'var(--font-nunito-sans)',
-              fontSize: '12px',
-              fontWeight: 600,
-              color: '#9895B0',
-            }}>
-              {date} · {loading ? '—' : `${captures.length} capture${captures.length !== 1 ? 's' : ''} this week`}
-            </p>
-          </div>
+      {/* ── Minimal header ── */}
+      <div style={{ background: '#ffffff', padding: '16px 20px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <h1 style={{
+          fontFamily: 'var(--font-fraunces)',
+          fontSize: '22px',
+          fontWeight: 900,
+          color: '#1E1C2E',
+          lineHeight: 1,
+        }}>
+          Brain Dump
+        </h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 600, color: '#9895B0' }}>
+            {loading ? '' : `${captures.length} this week`}
+          </span>
           <ProfileButton />
         </div>
       </div>

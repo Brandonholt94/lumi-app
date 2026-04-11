@@ -31,27 +31,27 @@ export default async function TodayPage() {
     <div className="flex flex-col h-full overflow-y-auto" style={{ background: '#FBF8F5' }}>
 
       {/* ── White header ── */}
-      <div style={{ background: '#ffffff', padding: '32px 20px 20px' }}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+      <div style={{ background: '#ffffff', padding: '20px 20px 16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
             <h1
               style={{
                 fontFamily: 'var(--font-fraunces)',
-                fontSize: '38px',
+                fontSize: '26px',
                 fontWeight: 900,
                 color: '#1E1C2E',
-                lineHeight: 1.0,
-                marginBottom: 6,
+                lineHeight: 1.1,
+                marginBottom: 3,
               }}
             >
-              {greeting},<br />
+              {greeting},{' '}
               <span style={{ background: 'linear-gradient(90deg, #F4A582, #F5C98A, #8FAAE0)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
                 {firstName}.
               </span>
             </h1>
             <p style={{
               fontFamily: 'var(--font-nunito-sans)',
-              fontSize: '12.5px',
+              fontSize: '12px',
               fontWeight: 600,
               color: '#9895B0',
             }}>

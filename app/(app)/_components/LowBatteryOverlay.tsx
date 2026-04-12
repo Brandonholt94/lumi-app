@@ -156,9 +156,14 @@ export default function LowBatteryOverlay() {
             borderRadius: 16, padding: '16px 20px',
             marginBottom: 16, width: '100%', position: 'relative', zIndex: 1,
           }}>
-            <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: 10, fontWeight: 800, letterSpacing: '0.1em', color: 'rgba(244,165,130,0.6)', marginBottom: 6 }}>
-              IF ANYTHING — JUST THIS
-            </p>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+              <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: 10, fontWeight: 800, letterSpacing: '0.1em', color: 'rgba(244,165,130,0.6)' }}>
+                IF ANYTHING — JUST THIS
+              </p>
+              <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: 9, fontWeight: 700, color: 'rgba(232,160,191,0.7)', letterSpacing: '0.06em' }}>
+                easy wins only
+              </span>
+            </div>
             <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: 15, fontWeight: 700, color: 'rgba(255,255,255,0.82)', lineHeight: 1.4 }}>
               {task.text}
             </p>

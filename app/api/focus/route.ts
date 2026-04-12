@@ -56,6 +56,23 @@ export async function GET(req: Request) {
 
   const supabase = getServiceClient()
 
+  // Check for a user-pinned focus first
+  const { data: pinned } = await supabase
+    .from('captures')
+    .select('id, text')
+    .eq('clerk_user_id', userId)
+    .eq('is_one_focus', true)
+    .eq('completed', false)
+    .maybeSingle()
+
+  if (pinned) {
+    return NextResponse.json({
+      capture_id: pinned.id,
+      task: pinned.text,
+      lumi_message: "You picked this one. Let's make it happen.",
+    })
+  }
+
   // Fetch incomplete task-tagged captures, ordered oldest first (most emotional weight)
   const { data: tasks, error } = await supabase
     .from('captures')

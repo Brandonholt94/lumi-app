@@ -18,6 +18,7 @@ interface Capture {
   created_at: string
   completed: boolean
   subtasks?: Subtask[] | null
+  is_one_focus?: boolean
 }
 
 const TAG_STYLES: Record<NonNullable<Tag>, { bg: string; color: string; border: string; dot: string; label: string }> = {
@@ -227,6 +228,17 @@ export default function CaptureInput() {
     setCaptures(prev => prev.filter(c => c.id !== id))
     setActionSheetFor(null)
     await fetch(`/api/captures?id=${id}`, { method: 'DELETE' })
+  }
+
+  async function setOneFocus(capture: Capture) {
+    // Optimistically update local state
+    setCaptures(prev => prev.map(c => ({ ...c, is_one_focus: c.id === capture.id })))
+    setActionSheetFor(null)
+    await fetch('/api/captures', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: capture.id, is_one_focus: true }),
+    })
   }
 
   const allFiltered = captures.filter(c => {
@@ -909,6 +921,26 @@ export default function CaptureInput() {
                   </svg>
                   <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: 15, fontWeight: 700, color: '#2D2A3E' }}>
                     Break it down
+                  </span>
+                </button>
+              )}
+
+              {/* Make this my One Focus — only for tasks not already pinned */}
+              {actionSheetFor.tag === 'task' && !actionSheetFor.is_one_focus && !actionSheetFor.completed && (
+                <button
+                  onClick={() => setOneFocus(actionSheetFor)}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 14,
+                    padding: '14px 16px', borderRadius: 14, border: 'none',
+                    background: 'white', cursor: 'pointer', width: '100%', textAlign: 'left',
+                    marginTop: 2,
+                  }}
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" stroke="#F5C98A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+                  </svg>
+                  <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: 15, fontWeight: 700, color: '#2D2A3E' }}>
+                    Make this my One Focus
                   </span>
                 </button>
               )}

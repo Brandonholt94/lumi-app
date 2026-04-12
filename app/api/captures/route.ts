@@ -64,6 +64,16 @@ export async function PATCH(req: Request) {
   if (!id) return NextResponse.json({ error: 'ID is required' }, { status: 400 })
 
   const supabase = getServiceClient()
+
+  // If pinning as One Focus, clear any existing pin first
+  if (updates.is_one_focus === true) {
+    await supabase
+      .from('captures')
+      .update({ is_one_focus: false })
+      .eq('clerk_user_id', userId)
+      .eq('is_one_focus', true)
+  }
+
   const { data, error } = await supabase
     .from('captures')
     .update(updates)

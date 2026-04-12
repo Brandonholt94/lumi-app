@@ -694,7 +694,7 @@ export default function FocusPage() {
         body: JSON.stringify({
           messages: next.map(m => ({ role: m.role, content: m.content })),
           mood: null,
-          context: `Body Doubling Mode: user is in a ${selectedDuration.label} focus session${taskLabelRef.current ? ` working on "${taskLabelRef.current}"` : ''}. Be very brief (1-2 sentences), warm, and encouraging. No lists.`,
+          context: `Body Doubling Mode: user is in a ${duration} min focus session${taskLabelRef.current ? ` working on "${taskLabelRef.current}"` : ''}. Be very brief (1-2 sentences), warm, and encouraging. No lists.`,
         }),
         signal: ctrl.signal,
       })

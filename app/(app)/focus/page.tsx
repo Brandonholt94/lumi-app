@@ -254,6 +254,7 @@ export default function FocusPage() {
   const [thoughtSaved,  setThoughtSaved]  = useState(false)
 
   // Body Doubling Mode
+  const [taskLabel,   setTaskLabel]   = useState<string | null>(null)
   const [bdOpen,      setBdOpen]      = useState(false)
   const [bdMessages,  setBdMessages]  = useState<{ id: string; role: 'user' | 'assistant'; content: string }[]>([])
   const [bdInput,     setBdInput]     = useState('')
@@ -390,6 +391,7 @@ export default function FocusPage() {
       taskChips.find(c => c.id === selectedChipId)?.text ||
       null
     taskLabelRef.current = label
+    setTaskLabel(label)
 
     // If they typed a new task, save it to Brain Dump as a task capture
     if (taskInput.trim()) {
@@ -426,6 +428,7 @@ export default function FocusPage() {
     setTotalSeconds(selectedDuration.seconds)
     halfwayFiredRef.current  = false
     taskLabelRef.current     = null
+    setTaskLabel(null)
     setSelectedChipId(null)
     setTaskInput('')
     setActiveSound('off')
@@ -463,7 +466,7 @@ export default function FocusPage() {
     setBdOpen(true)
     bdOpenRef.current = true
     if (bdMessages.length === 0) {
-      const task = taskLabelRef.current
+      const task = taskLabel || taskLabelRef.current
       setBdMessages([{
         id: 'init',
         role: 'assistant',

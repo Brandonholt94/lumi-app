@@ -254,7 +254,10 @@ export default function FocusPage() {
   const [thoughtSaved,  setThoughtSaved]  = useState(false)
 
   // Body Doubling Mode
-  const [taskLabel,   setTaskLabel]   = useState<string | null>(null)
+  const [taskLabel,      setTaskLabel]      = useState<string | null>(null)
+  const [sessionComplete, setSessionComplete] = useState<'natural' | 'early' | null>(null)
+  const [celebrating,     setCelebrating]     = useState(false)
+  const [ringProgress,    setRingProgress]    = useState<number | null>(null)
   const [bdOpen,      setBdOpen]      = useState(false)
   const [bdMessages,  setBdMessages]  = useState<{ id: string; role: 'user' | 'assistant'; content: string }[]>([])
   const [bdInput,     setBdInput]     = useState('')
@@ -304,6 +307,41 @@ export default function FocusPage() {
 
   useEffect(() => () => cleanup(), [cleanup])
 
+  // Confetti helper — lazy import so no SSR issues
+  function fireConfetti() {
+    import('canvas-confetti').then(m => {
+      const confetti = m.default
+      // Two bursts from sides
+      confetti({ particleCount: 60, angle: 60,  spread: 55, origin: { x: 0, y: 0.6 }, colors: ['#F4A582', '#F5C98A', '#E8A0BF', '#8FAAE0', '#ffffff'] })
+      confetti({ particleCount: 60, angle: 120, spread: 55, origin: { x: 1, y: 0.6 }, colors: ['#F4A582', '#F5C98A', '#E8A0BF', '#8FAAE0', '#ffffff'] })
+    })
+  }
+
+  // Celebration sequence
+  useEffect(() => {
+    if (!sessionComplete) return
+    const isEarly = sessionComplete === 'early'
+
+    // For early end: fill the ring first, then celebrate
+    if (isEarly) setRingProgress(1)
+
+    const celebrateTimer = setTimeout(() => {
+      setCelebrating(true)
+      fireConfetti()
+
+      const doneTimer = setTimeout(() => {
+        setCelebrating(false)
+        setRingProgress(null)
+        setSessionComplete(null)
+        setState('done')
+      }, 2400)
+
+      return () => clearTimeout(doneTimer)
+    }, isEarly ? 550 : 80) // wait for ring fill anim if early
+
+    return () => clearTimeout(celebrateTimer)
+  }, [sessionComplete])
+
   // Countdown
   useEffect(() => {
     if (state === 'active') {
@@ -312,7 +350,7 @@ export default function FocusPage() {
           if (prev <= 1) {
             clearTimer()
             saveSession(totalSeconds, totalSeconds, true)
-            setState('done')
+            setSessionComplete('natural')
             return 0
           }
           return prev - 1
@@ -419,7 +457,7 @@ export default function FocusPage() {
     clearTimer()
     const actual = totalSeconds - remaining
     saveSession(totalSeconds, actual, false)
-    setState('done')
+    setSessionComplete('early')
   }
 
   function reset() {
@@ -527,8 +565,10 @@ export default function FocusPage() {
     finally { setBdStreaming(false) }
   }
 
-  const progress  = state === 'idle' ? 0 : (totalSeconds - remaining) / totalSeconds
-  const inSession = state === 'active' || state === 'paused'
+  const progress  = ringProgress !== null ? ringProgress
+    : state === 'idle' ? 0
+    : (totalSeconds - remaining) / totalSeconds
+  const inSession = state === 'active' || state === 'paused' || !!sessionComplete
 
   const subtitle =
     state === 'idle'   ? "Pick a task and start when you're ready." :
@@ -678,7 +718,11 @@ export default function FocusPage() {
 
         {/* Timer ring */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: state === 'idle' ? 48 : 32 }}>
-          <div style={{ position: 'relative', width: 240, height: 240 }}>
+          <div style={{
+            position: 'relative', width: 240, height: 240,
+            filter: celebrating ? 'drop-shadow(0 0 18px rgba(244,165,130,0.85)) drop-shadow(0 0 36px rgba(245,201,138,0.45))' : 'none',
+            transition: 'filter 0.5s ease',
+          }}>
             <ProgressRing progress={progress} />
             <div style={{
               position: 'absolute', inset: 0,

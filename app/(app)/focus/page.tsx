@@ -203,6 +203,153 @@ function ProgressRing({ progress, size = 240 }: { progress: number; size?: numbe
   )
 }
 
+// ─────────────────────────────────────────────────────────
+// Draggable ring — idle duration picker
+// ─────────────────────────────────────────────────────────
+
+function DraggableRing({
+  minutes,
+  onChange,
+  size = 240,
+}: {
+  minutes: number
+  onChange: (m: number) => void
+  size?: number
+}) {
+  const svgRef    = useRef<SVGSVGElement>(null)
+  const dragging  = useRef(false)
+  const prevMin   = useRef(minutes)
+
+  const cx = size / 2
+  const cy = size / 2
+  const stroke = 8
+  const r    = (size - stroke) / 2        // 116
+  const circ = 2 * Math.PI * r
+
+  const progress  = minutes / 60
+  const arcOffset = circ * (1 - progress)
+
+  // Handle position (clockwise from top)
+  const handleAngle = (minutes / 60) * 2 * Math.PI - Math.PI / 2
+  const handleX = cx + r * Math.cos(handleAngle)
+  const handleY = cy + r * Math.sin(handleAngle)
+
+  function minutesFromPointer(clientX: number, clientY: number): number {
+    if (!svgRef.current) return minutes
+    const rect = svgRef.current.getBoundingClientRect()
+    const dx = clientX - (rect.left + rect.width  / 2)
+    const dy = clientY - (rect.top  + rect.height / 2)
+    let deg = Math.atan2(dx, -dy) * (180 / Math.PI) // 0 = top, CW
+    if (deg < 0) deg += 360
+    const raw = Math.round(deg / 6) // 6° per minute (360/60)
+    return Math.max(5, Math.min(60, raw || 60))
+  }
+
+  function onPointerDown(e: React.PointerEvent<SVGSVGElement>) {
+    dragging.current = true
+    svgRef.current?.setPointerCapture(e.pointerId)
+    const m = minutesFromPointer(e.clientX, e.clientY)
+    prevMin.current = m
+    onChange(m)
+  }
+  function onPointerMove(e: React.PointerEvent<SVGSVGElement>) {
+    if (!dragging.current) return
+    const m = minutesFromPointer(e.clientX, e.clientY)
+    if (m !== prevMin.current) {
+      try { navigator.vibrate(1) } catch {}
+      prevMin.current = m
+      onChange(m)
+    }
+  }
+  function onPointerUp() { dragging.current = false }
+
+  // Tick marks — 60 ticks, bigger every 5 / 15
+  const ticks = Array.from({ length: 60 }, (_, i) => {
+    const a       = (i / 60) * 2 * Math.PI - Math.PI / 2
+    const isQ     = i % 15 === 0
+    const isFive  = i % 5 === 0
+    const outerR  = r + stroke / 2 + 3
+    const len     = isQ ? 8 : isFive ? 5 : 3
+    return {
+      x1: cx + outerR * Math.cos(a),
+      y1: cy + outerR * Math.sin(a),
+      x2: cx + (outerR - len) * Math.cos(a),
+      y2: cy + (outerR - len) * Math.sin(a),
+      opacity: isQ ? 0.45 : isFive ? 0.28 : 0.14,
+      width: isQ ? 2 : 1.5,
+    }
+  })
+
+  // Inner reference labels at r=70 from center
+  const labels = [
+    { min: 60, x: cx,      y: cy - 68 },
+    { min: 15, x: cx + 68, y: cy      },
+    { min: 30, x: cx,      y: cy + 68 },
+    { min: 45, x: cx - 68, y: cy      },
+  ]
+
+  return (
+    <svg
+      ref={svgRef}
+      width={size} height={size}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={onPointerUp}
+      onPointerCancel={onPointerUp}
+      style={{ touchAction: 'none', cursor: 'grab', userSelect: 'none' }}
+    >
+      <defs>
+        <linearGradient id="focusGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%"   stopColor="#F4A582" />
+          <stop offset="100%" stopColor="#F5C98A" />
+        </linearGradient>
+      </defs>
+
+      {/* Track */}
+      <circle cx={cx} cy={cy} r={r} fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth={stroke} />
+
+      {/* Filled arc */}
+      <circle
+        cx={cx} cy={cy} r={r} fill="none"
+        stroke="url(#focusGrad)" strokeWidth={stroke} strokeLinecap="round"
+        strokeDasharray={circ} strokeDashoffset={arcOffset}
+        style={{ transform: 'rotate(-90deg)', transformOrigin: `${cx}px ${cy}px` }}
+      />
+
+      {/* Tick marks */}
+      {ticks.map((t, i) => (
+        <line key={i} x1={t.x1} y1={t.y1} x2={t.x2} y2={t.y2}
+          stroke="white" strokeOpacity={t.opacity}
+          strokeWidth={t.width} strokeLinecap="round"
+        />
+      ))}
+
+      {/* Reference labels */}
+      {labels.map(l => (
+        <text
+          key={l.min}
+          x={l.x} y={l.y}
+          textAnchor="middle" dominantBaseline="middle"
+          fontSize={10} fontWeight={700}
+          fill="rgba(245,242,238,0.28)"
+          style={{ fontFamily: 'var(--font-nunito-sans)', pointerEvents: 'none' }}
+        >
+          {l.min}
+        </text>
+      ))}
+
+      {/* Drag handle */}
+      {minutes > 0 && (
+        <circle
+          cx={handleX} cy={handleY} r={10}
+          fill="url(#focusGrad)"
+          style={{ filter: 'drop-shadow(0 2px 8px rgba(244,165,130,0.65))' }}
+        />
+      )}
+    </svg>
+  )
+}
+
 function formatTime(secs: number) {
   const m = Math.floor(secs / 60).toString().padStart(2, '0')
   const s = (secs % 60).toString().padStart(2, '0')
@@ -232,10 +379,10 @@ const ghostBtn: React.CSSProperties = {
 // ─────────────────────────────────────────────────────────
 
 export default function FocusPage() {
-  const [state,            setState]           = useState<SessionState>('idle')
-  const [selectedDuration, setSelectedDuration] = useState(DURATIONS[1])
-  const [remaining,        setRemaining]        = useState(DURATIONS[1].seconds)
-  const [totalSeconds,     setTotalSeconds]     = useState(DURATIONS[1].seconds)
+  const [state,        setState]      = useState<SessionState>('idle')
+  const [duration,     setDuration]   = useState(25) // minutes
+  const [remaining,    setRemaining]  = useState(25 * 60)
+  const [totalSeconds, setTotalSeconds] = useState(25 * 60)
 
   const [lumiMsg] = useState(() =>
     LUMI_DONE_MESSAGES[Math.floor(Math.random() * LUMI_DONE_MESSAGES.length)]
@@ -439,8 +586,8 @@ export default function FocusPage() {
         body: JSON.stringify({ text: taskInput.trim(), tag: 'task' }),
       }).catch(() => {})
     }
-    setRemaining(selectedDuration.seconds)
-    setTotalSeconds(selectedDuration.seconds)
+    setRemaining(duration * 60)
+    setTotalSeconds(duration * 60)
     halfwayFiredRef.current   = false
     pauseCountRef.current     = 0
     thoughtsCapturedRef.current = 0
@@ -462,8 +609,8 @@ export default function FocusPage() {
 
   function reset() {
     clearTimer()
-    setRemaining(selectedDuration.seconds)
-    setTotalSeconds(selectedDuration.seconds)
+    setRemaining(duration * 60)
+    setTotalSeconds(duration * 60)
     halfwayFiredRef.current  = false
     taskLabelRef.current     = null
     setTaskLabel(null)
@@ -572,7 +719,7 @@ export default function FocusPage() {
 
   const subtitle =
     state === 'idle'   ? "Pick a task and start when you're ready." :
-    state === 'active' ? (taskLabelRef.current ? `"${taskLabelRef.current}"` : `${selectedDuration.label} session · in progress`) :
+    state === 'active' ? (taskLabelRef.current ? `"${taskLabelRef.current}"` : `${duration} min session · in progress`) :
     state === 'paused' ? (taskLabelRef.current ? `Paused · "${taskLabelRef.current}"` : "Paused — resume whenever you're ready.") :
     'Session complete'
 
@@ -685,48 +832,28 @@ export default function FocusPage() {
               onBlur={e  => (e.target.style.borderColor = taskInput ? 'rgba(244,165,130,0.4)' : D.border)}
             />
 
-            {/* Duration picker */}
-            <p style={{
-              fontFamily: 'var(--font-nunito-sans)', fontSize: '10px', fontWeight: 800,
-              letterSpacing: '0.1em', color: D.textFaint, marginBottom: 12,
-            }}>
-              SESSION LENGTH
-            </p>
-            <div style={{ display: 'flex', gap: 8, marginBottom: 44 }}>
-              {DURATIONS.map(d => {
-                const sel = selectedDuration.label === d.label
-                return (
-                  <button
-                    key={d.label}
-                    onClick={() => { setSelectedDuration(d); setRemaining(d.seconds) }}
-                    style={{
-                      flex: 1, padding: '13px 4px', borderRadius: 12, cursor: 'pointer',
-                      border: `1.5px solid ${sel ? 'rgba(244,165,130,0.5)' : D.border}`,
-                      background: sel ? 'rgba(244,165,130,0.1)' : D.surface,
-                      fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 800,
-                      color: sel ? D.textPrimary : D.textMuted,
-                      transition: 'all 0.15s',
-                    }}
-                  >
-                    {d.label}
-                  </button>
-                )
-              })}
-            </div>
           </>
         )}
 
         {/* Timer ring */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: state === 'idle' ? 48 : 32 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: state === 'idle' ? 32 : 32 }}>
           <div style={{
             position: 'relative', width: 240, height: 240,
             filter: celebrating ? 'drop-shadow(0 0 18px rgba(244,165,130,0.85)) drop-shadow(0 0 36px rgba(245,201,138,0.45))' : 'none',
             transition: 'filter 0.5s ease',
           }}>
-            <ProgressRing progress={progress} />
+            {state === 'idle' ? (
+              <DraggableRing
+                minutes={duration}
+                onChange={m => { setDuration(m); setRemaining(m * 60) }}
+              />
+            ) : (
+              <ProgressRing progress={progress} />
+            )}
             <div style={{
               position: 'absolute', inset: 0,
               display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+              pointerEvents: 'none',
             }}>
               <span style={{
                 fontFamily: 'var(--font-fraunces)',
@@ -734,16 +861,14 @@ export default function FocusPage() {
                 color: state === 'done' ? D.peach : D.textPrimary,
                 lineHeight: 1, letterSpacing: '-1px',
               }}>
-                {state === 'done' ? '🎉' : formatTime(remaining)}
+                {state === 'done' ? '🎉' : state === 'idle' ? duration : formatTime(remaining)}
               </span>
-              {state !== 'done' && (
-                <span style={{
-                  fontFamily: 'var(--font-nunito-sans)', fontSize: '12px',
-                  fontWeight: 600, color: D.textMuted, marginTop: 6,
-                }}>
-                  {state === 'idle' ? selectedDuration.label : state === 'paused' ? 'paused' : 'remaining'}
-                </span>
-              )}
+              <span style={{
+                fontFamily: 'var(--font-nunito-sans)', fontSize: '12px',
+                fontWeight: 600, color: D.textMuted, marginTop: 6,
+              }}>
+                {state === 'idle' ? 'MIN' : state === 'done' ? '' : state === 'paused' ? 'paused' : 'remaining'}
+              </span>
             </div>
           </div>
         </div>

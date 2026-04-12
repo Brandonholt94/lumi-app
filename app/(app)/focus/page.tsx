@@ -253,6 +253,16 @@ export default function FocusPage() {
   const [thoughtSaving, setThoughtSaving] = useState(false)
   const [thoughtSaved,  setThoughtSaved]  = useState(false)
 
+  // Body Doubling Mode
+  const [bdOpen,      setBdOpen]      = useState(false)
+  const [bdMessages,  setBdMessages]  = useState<{ id: string; role: 'user' | 'assistant'; content: string }[]>([])
+  const [bdInput,     setBdInput]     = useState('')
+  const [bdStreaming, setBdStreaming]  = useState(false)
+  const bdOpenRef   = useRef(false)
+  const bdScrollRef = useRef<HTMLDivElement>(null)
+  const bdAbortRef  = useRef<AbortController | null>(null)
+  const bdInputRef  = useRef<HTMLInputElement>(null)
+
   // Task selection
   const [taskChips,       setTaskChips]       = useState<{ id: string; text: string }[]>([])
   const [selectedChipId,  setSelectedChipId]  = useState<string | null>(null)
@@ -331,6 +341,14 @@ export default function FocusPage() {
       halfwayFiredRef.current = true
       setNudgeVisible(false)
       setTimeout(() => { setNudgeMsg(LUMI_HALFWAY); setNudgeVisible(true) }, 400)
+      // Also send a check-in inside body double chat if open
+      if (bdOpenRef.current) {
+        setBdMessages(prev => [...prev, {
+          id: 'halfway-' + Date.now(),
+          role: 'assistant',
+          content: 'Halfway there. How are you holding up?',
+        }])
+      }
       setTimeout(() => {
         setNudgeVisible(false)
         setTimeout(() => {
@@ -439,6 +457,71 @@ export default function FocusPage() {
     } finally {
       setThoughtSaving(false)
     }
+  }
+
+  function openBodyDouble() {
+    setBdOpen(true)
+    bdOpenRef.current = true
+    if (bdMessages.length === 0) {
+      const task = taskLabelRef.current
+      setBdMessages([{
+        id: 'init',
+        role: 'assistant',
+        content: task
+          ? `I'm right here with you. Let's do this — "${task}". I'm not going anywhere.`
+          : "I'm right here with you. No pressure — just focus. What are you working on?",
+      }])
+    }
+    setTimeout(() => bdInputRef.current?.focus(), 300)
+  }
+
+  function closeBd() {
+    setBdOpen(false)
+    bdOpenRef.current = false
+    bdAbortRef.current?.abort()
+  }
+
+  // Auto-scroll bd chat to bottom
+  useEffect(() => {
+    if (bdOpen) bdScrollRef.current?.scrollTo({ top: 99999, behavior: 'smooth' })
+  }, [bdMessages, bdOpen])
+
+  async function sendBdMessage() {
+    if (!bdInput.trim() || bdStreaming) return
+    const userMsg = { id: Date.now().toString(), role: 'user' as const, content: bdInput.trim() }
+    const next = [...bdMessages, userMsg]
+    setBdMessages(next)
+    setBdInput('')
+    setBdStreaming(true)
+
+    const assistantId = (Date.now() + 1).toString()
+    setBdMessages(prev => [...prev, { id: assistantId, role: 'assistant', content: '' }])
+
+    try {
+      const ctrl = new AbortController()
+      bdAbortRef.current = ctrl
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: next.map(m => ({ role: m.role, content: m.content })),
+          mood: null,
+          context: `Body Doubling Mode: user is in a ${selectedDuration.label} focus session${taskLabelRef.current ? ` working on "${taskLabelRef.current}"` : ''}. Be very brief (1-2 sentences), warm, and encouraging. No lists.`,
+        }),
+        signal: ctrl.signal,
+      })
+      if (!res.body) return
+      const reader = res.body.getReader()
+      const decoder = new TextDecoder()
+      let built = ''
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        built += decoder.decode(value, { stream: true })
+        setBdMessages(prev => prev.map(m => m.id === assistantId ? { ...m, content: built } : m))
+      }
+    } catch { /* silent — abort or network */ }
+    finally { setBdStreaming(false) }
   }
 
   const progress  = state === 'idle' ? 0 : (totalSeconds - remaining) / totalSeconds
@@ -676,27 +759,52 @@ export default function FocusPage() {
               </div>
             </div>
 
-            {/* Drop a thought */}
+            {/* Drop a thought + Body Double row */}
             {state === 'active' && (
-              <button
-                onClick={() => setShowCapture(true)}
-                style={{
-                  width: '100%', padding: '13px 16px', marginBottom: 24,
-                  borderRadius: 14, border: `1.5px solid ${D.border}`,
-                  background: D.surface, cursor: 'pointer', transition: 'all 0.15s',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                  fontFamily: 'var(--font-nunito-sans)', fontSize: '14px', fontWeight: 700,
-                  color: D.textMuted,
-                }}
-              >
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
-                  <path d="M12 2a9 9 0 0 1 9 9c0 3.6-2.1 6.7-5.1 8.2L15 21H9l-.9-1.8A9 9 0 0 1 12 2z"
-                    stroke="rgba(245,242,238,0.35)" strokeWidth="1.8" strokeLinejoin="round" />
-                  <line x1="12" y1="8"  x2="12" y2="13" stroke="rgba(245,242,238,0.35)" strokeWidth="1.8" strokeLinecap="round" />
-                  <circle cx="12" cy="15.5" r="0.8" fill="rgba(245,242,238,0.35)" />
-                </svg>
-                Drop a thought
-              </button>
+              <div style={{ display: 'flex', gap: 8, marginBottom: 24 }}>
+                <button
+                  onClick={() => setShowCapture(true)}
+                  style={{
+                    flex: 1, padding: '13px 16px',
+                    borderRadius: 14, border: `1.5px solid ${D.border}`,
+                    background: D.surface, cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                    fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 700,
+                    color: D.textMuted,
+                  }}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 2a9 9 0 0 1 9 9c0 3.6-2.1 6.7-5.1 8.2L15 21H9l-.9-1.8A9 9 0 0 1 12 2z"
+                      stroke="rgba(245,242,238,0.35)" strokeWidth="1.8" strokeLinejoin="round" />
+                    <line x1="12" y1="8"  x2="12" y2="13" stroke="rgba(245,242,238,0.35)" strokeWidth="1.8" strokeLinecap="round" />
+                    <circle cx="12" cy="15.5" r="0.8" fill="rgba(245,242,238,0.35)" />
+                  </svg>
+                  Drop a thought
+                </button>
+
+                <button
+                  onClick={openBodyDouble}
+                  style={{
+                    flex: 1, padding: '13px 16px',
+                    borderRadius: 14,
+                    border: `1.5px solid ${bdOpen ? 'rgba(244,165,130,0.45)' : D.border}`,
+                    background: bdOpen ? 'rgba(244,165,130,0.1)' : D.surface,
+                    cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                    fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 700,
+                    color: bdOpen ? D.peach : D.textMuted,
+                    transition: 'all 0.2s',
+                  }}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <circle cx="9"  cy="8"  r="3" stroke={bdOpen ? D.peach : 'rgba(245,242,238,0.35)'} strokeWidth="1.8"/>
+                    <circle cx="15" cy="8"  r="3" stroke={bdOpen ? D.peach : 'rgba(245,242,238,0.35)'} strokeWidth="1.8"/>
+                    <path d="M3 20c0-3.314 2.686-6 6-6h6c3.314 0 6 2.686 6 6"
+                      stroke={bdOpen ? D.peach : 'rgba(245,242,238,0.35)'} strokeWidth="1.8" strokeLinecap="round"/>
+                  </svg>
+                  Body double
+                </button>
+              </div>
             )}
           </>
         )}
@@ -810,6 +918,106 @@ export default function FocusPage() {
             >
               {thoughtSaved ? '✓ Saved to Brain Dump' : thoughtSaving ? 'Saving…' : 'Save to Brain Dump'}
             </button>
+          </div>
+        </>
+      )}
+
+      {/* ── Body Double chat panel ── */}
+      {bdOpen && (
+        <>
+          <div
+            onClick={closeBd}
+            style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(10,9,20,0.5)', animation: 'lumiFadeIn 0.2s ease' }}
+          />
+          <div style={{
+            position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)',
+            width: '100%', maxWidth: '448px', height: '62%',
+            background: 'rgba(36,33,53,0.97)',
+            backdropFilter: 'blur(32px) saturate(1.4)',
+            WebkitBackdropFilter: 'blur(32px) saturate(1.4)',
+            border: '1px solid rgba(255,255,255,0.08)',
+            borderBottom: 'none',
+            borderRadius: '24px 24px 0 0',
+            display: 'flex', flexDirection: 'column',
+            zIndex: 101, animation: 'lumiSlideUp 0.28s cubic-bezier(0.32,0.72,0,1)',
+          }}>
+            {/* Handle + header */}
+            <div style={{ padding: '12px 20px 10px', flexShrink: 0, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+              <div style={{ width: 36, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.15)', margin: '0 auto 12px' }} />
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div style={{ width: 7, height: 7, borderRadius: '50%', background: D.green, boxShadow: '0 0 0 3px rgba(94,194,105,0.2)' }} />
+                  <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: 13, fontWeight: 800, color: D.textPrimary }}>
+                    Body Double — Lumi is here
+                  </span>
+                </div>
+                <button
+                  onClick={closeBd}
+                  style={{ background: 'rgba(255,255,255,0.08)', border: 'none', borderRadius: '50%', width: 28, height: 28, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', top: 10 }}
+                >
+                  <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+                    <path d="M1 1l10 10M11 1L1 11" stroke="rgba(255,255,255,0.45)" strokeWidth="1.8" strokeLinecap="round"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Messages */}
+            <div
+              ref={bdScrollRef}
+              style={{ flex: 1, overflowY: 'auto', padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 10 }}
+            >
+              {bdMessages.map(m => (
+                <div key={m.id} style={{ display: 'flex', justifyContent: m.role === 'user' ? 'flex-end' : 'flex-start' }}>
+                  <div style={{
+                    maxWidth: '82%', padding: '10px 14px', borderRadius: 16,
+                    borderBottomRightRadius: m.role === 'user' ? 4 : 16,
+                    borderBottomLeftRadius: m.role === 'assistant' ? 4 : 16,
+                    background: m.role === 'user' ? 'linear-gradient(135deg, #F4A582, #F5C98A)' : 'rgba(255,255,255,0.08)',
+                    fontFamily: 'var(--font-nunito-sans)', fontSize: 13, fontWeight: 600, lineHeight: 1.5,
+                    color: m.role === 'user' ? '#1A1828' : D.textPrimary,
+                  }}>
+                    {m.content || (bdStreaming && m.role === 'assistant' ? (
+                      <span style={{ opacity: 0.5 }}>···</span>
+                    ) : '')}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Input */}
+            <div style={{ padding: '10px 16px 20px', flexShrink: 0, display: 'flex', gap: 8, alignItems: 'center' }}>
+              <input
+                ref={bdInputRef}
+                value={bdInput}
+                onChange={e => setBdInput(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendBdMessage() } }}
+                placeholder="Check in with Lumi…"
+                style={{
+                  flex: 1, padding: '11px 14px', borderRadius: 12,
+                  background: 'rgba(255,255,255,0.08)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  color: D.textPrimary,
+                  fontFamily: 'var(--font-nunito-sans)', fontSize: 14, fontWeight: 600,
+                  outline: 'none', caretColor: D.peach,
+                }}
+              />
+              <button
+                onClick={sendBdMessage}
+                disabled={!bdInput.trim() || bdStreaming}
+                style={{
+                  width: 42, height: 42, borderRadius: 12, border: 'none', cursor: 'pointer',
+                  background: bdInput.trim() ? 'linear-gradient(135deg, #F4A582, #F5C98A)' : 'rgba(255,255,255,0.08)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  transition: 'background 0.2s', flexShrink: 0,
+                  opacity: bdInput.trim() && !bdStreaming ? 1 : 0.4,
+                }}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z" stroke={bdInput.trim() ? '#1A1828' : D.textMuted} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+            </div>
           </div>
         </>
       )}

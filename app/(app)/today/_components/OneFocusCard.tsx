@@ -157,7 +157,7 @@ export default function OneFocusCard() {
             fontFamily: 'var(--font-nunito-sans)', fontSize: '9px', fontWeight: 700,
             color: 'rgba(232,160,191,0.8)', letterSpacing: '0.06em',
           }}>
-            easy wins only ✦
+            easy wins only
           </span>
         )}
       </div>

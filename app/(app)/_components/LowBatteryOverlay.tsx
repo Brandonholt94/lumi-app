@@ -212,7 +212,7 @@ export default function LowBatteryOverlay() {
               <button
                 onClick={() => setChatOpen(false)}
                 style={{
-                  position: 'absolute', right: 16, top: '50%', transform: 'translateY(-50%)',
+                  position: 'absolute', right: 16, top: 10,
                   background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '50%',
                   width: 28, height: 28, cursor: 'pointer',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',

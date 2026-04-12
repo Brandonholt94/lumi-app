@@ -193,6 +193,12 @@ export default function LowBatteryOverlay() {
 
         {/* ── Inline chat panel ── */}
         {chatOpen && (
+          <>
+          {/* Tap outside to close */}
+          <div
+            onClick={() => setChatOpen(false)}
+            style={{ position: 'absolute', inset: 0, bottom: '72%', zIndex: 9 }}
+          />
           <div style={{
             position: 'absolute', bottom: 0, left: 0, right: 0,
             height: '72%',
@@ -307,6 +313,7 @@ export default function LowBatteryOverlay() {
               </button>
             </div>
           </div>
+          </>
         )}
 
         <style>{`

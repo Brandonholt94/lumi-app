@@ -148,9 +148,19 @@ export default function OneFocusCard() {
         style={{ top: '-40px', right: '-40px', width: '120px', height: '120px', background: 'radial-gradient(circle, rgba(244,165,130,0.14) 0%, transparent 70%)' }}
       />
 
-      <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '9.5px', fontWeight: 800, letterSpacing: '0.13em', color: '#F4A582', marginBottom: 8 }}>
-        ✦ YOUR ONE FOCUS TODAY
-      </p>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+        <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '9.5px', fontWeight: 800, letterSpacing: '0.13em', color: '#F4A582' }}>
+          ✦ YOUR ONE FOCUS TODAY
+        </p>
+        {mood === 'drained' && (
+          <span style={{
+            fontFamily: 'var(--font-nunito-sans)', fontSize: '9px', fontWeight: 700,
+            color: 'rgba(232,160,191,0.8)', letterSpacing: '0.06em',
+          }}>
+            easy wins only ✦
+          </span>
+        )}
+      </div>
 
       <p style={{ fontFamily: 'var(--font-fraunces)', fontSize: '18px', fontWeight: 700, color: '#F5F3F0', lineHeight: 1.25, marginBottom: 12 }}>
         {focus.task}

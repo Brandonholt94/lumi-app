@@ -85,6 +85,14 @@ export async function GET(req: Request) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
+  // Mood-aware pre-filtering — for low-energy moods, only send shortest tasks to Claude
+  let filteredTasks = tasks ?? []
+  if (mood === 'drained' || mood === 'foggy') {
+    filteredTasks = [...filteredTasks]
+      .sort((a, b) => a.text.length - b.text.length)
+      .slice(0, 8)
+  }
+
   // No tasks — return empty state
   if (!tasks || tasks.length === 0) {
     return NextResponse.json({
@@ -98,7 +106,7 @@ export async function GET(req: Request) {
 
   const prompt = buildFocusSelectionPrompt({
     mood,
-    tasks,
+    tasks: filteredTasks,
     hour: new Date().getHours(),
   })
 

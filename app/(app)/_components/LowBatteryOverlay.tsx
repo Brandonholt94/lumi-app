@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { useMood } from './MoodContext'
 
 interface FocusTask { text: string; id?: string }
@@ -183,6 +184,31 @@ export default function LowBatteryOverlay() {
         >
           Talk to Lumi
         </button>
+
+        {/* Low-friction shortcuts */}
+        <div style={{ display: 'flex', gap: 8, width: '100%', marginBottom: 16, position: 'relative', zIndex: 1 }}>
+          {[
+            { label: 'Focus session', href: '/focus' },
+            { label: 'Brain dump', href: '/capture' },
+            { label: 'Profile', href: '/me' },
+          ].map(({ label, href }) => (
+            <Link
+              key={href}
+              href={href}
+              onClick={dismissLowBattery}
+              style={{
+                flex: 1, padding: '10px 4px', borderRadius: 12, textAlign: 'center',
+                border: '1px solid rgba(255,255,255,0.1)',
+                background: 'rgba(255,255,255,0.05)',
+                fontFamily: 'var(--font-nunito-sans)', fontSize: 11, fontWeight: 700,
+                color: 'rgba(255,255,255,0.45)',
+                textDecoration: 'none', display: 'block',
+              }}
+            >
+              {label}
+            </Link>
+          ))}
+        </div>
 
         {/* Exit */}
         <button

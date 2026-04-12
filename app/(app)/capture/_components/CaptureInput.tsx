@@ -64,6 +64,8 @@ export default function CaptureInput() {
   const [actionSheetFor, setActionSheetFor] = useState<Capture | null>(null)
   const [fadingIds, setFadingIds] = useState<Set<string>>(new Set())
   const [showDone, setShowDone] = useState(false)
+  const [suggestedTag, setSuggestedTag] = useState<Tag>(null)
+  const classifyTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const recognitionRef = useRef<any>(null)
@@ -77,6 +79,29 @@ export default function CaptureInput() {
       })
       .finally(() => setLoading(false))
   }, [])
+
+  // Debounced tag classification — fires 700ms after user stops typing
+  useEffect(() => {
+    if (classifyTimer.current) clearTimeout(classifyTimer.current)
+    // Clear suggestion if user manually picked a tag or cleared text
+    if (!text.trim() || text.trim().length < 8 || selectedTag) {
+      setSuggestedTag(null)
+      return
+    }
+    classifyTimer.current = setTimeout(async () => {
+      try {
+        const res = await fetch('/api/classify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text }),
+        })
+        const { tag } = await res.json()
+        // Only suggest if user still hasn't picked a tag
+        if (tag && !selectedTag) setSuggestedTag(tag as Tag)
+      } catch { /* silent */ }
+    }, 700)
+    return () => { if (classifyTimer.current) clearTimeout(classifyTimer.current) }
+  }, [text, selectedTag])
 
   function startRecording() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -128,6 +153,7 @@ export default function CaptureInput() {
         setCaptures(prev => [newCapture, ...prev])
         setText('')
         setSelectedTag(null)
+        setSuggestedTag(null)
         textareaRef.current?.focus()
       }
     } finally {
@@ -353,6 +379,52 @@ export default function CaptureInput() {
               minHeight: '100px',
             }}
           />
+        )}
+
+        {/* Lumi tag suggestion */}
+        {suggestedTag && !selectedTag && (
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 8,
+            padding: '7px 12px',
+            borderRadius: 12,
+            background: 'rgba(244,165,130,0.07)',
+            border: '1px solid rgba(244,165,130,0.18)',
+            marginBottom: 6,
+            animation: 'fadeIn 0.2s ease',
+          }}>
+            <span style={{ fontSize: 13 }}>✦</span>
+            <span style={{
+              fontFamily: 'var(--font-nunito-sans)',
+              fontSize: 12,
+              fontWeight: 600,
+              color: '#9895B0',
+              flex: 1,
+            }}>
+              Lumi thinks this is a <strong style={{ color: TAG_STYLES[suggestedTag].color }}>{TAG_STYLES[suggestedTag].label}</strong>
+            </span>
+            <button
+              onClick={() => { setSelectedTag(suggestedTag); setSuggestedTag(null) }}
+              style={{
+                fontFamily: 'var(--font-nunito-sans)',
+                fontSize: 11,
+                fontWeight: 800,
+                padding: '3px 10px',
+                borderRadius: 99,
+                border: `1.5px solid ${TAG_STYLES[suggestedTag].color}`,
+                background: TAG_STYLES[suggestedTag].bg,
+                color: TAG_STYLES[suggestedTag].color,
+                cursor: 'pointer',
+              }}
+            >
+              Apply
+            </button>
+            <button
+              onClick={() => setSuggestedTag(null)}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0 2px', color: '#9895B0', fontSize: 16, lineHeight: 1 }}
+            >
+              ×
+            </button>
+          </div>
         )}
 
         {/* Footer: tags + mic */}

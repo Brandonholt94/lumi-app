@@ -215,9 +215,9 @@ export default function DaySceneHeader({ firstName }: Props) {
       {/* ── Greeting — domes up into the sky as a hill shape ── */}
       <div style={{
         background: '#FBF8F5',
-        borderRadius: '50% 50% 0 0 / 60px 60px 0 0',
-        marginTop: -60,
-        paddingTop: 78,
+        borderRadius: '50% 50% 0 0 / 28px 28px 0 0',
+        marginTop: -28,
+        paddingTop: 46,
         paddingLeft: 20,
         paddingRight: 20,
         position: 'relative',

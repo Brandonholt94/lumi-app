@@ -64,7 +64,9 @@ export default function DaySceneHeader({ firstName }: Props) {
 
   // Hill path — smooth single bump, peaks at centre
   // ViewBox 390×260. Hill starts at y=195, peaks at y=168 centre.
-  const hill = 'M 0 260 L 0 200 C 85 193, 158 172, 195 168 C 232 172, 305 193, 390 200 L 390 260 Z'
+  // Wide dome arc — both control points pulled high so the bezier
+  // forms a smooth round dome (crest ≈ y 138 in a 280px viewBox)
+  const hill = 'M -5 280 C -5 90, 395 90, 395 280 Z'
 
   return (
     // overflow-hidden clips the SVG at the container edge — the hill
@@ -72,7 +74,7 @@ export default function DaySceneHeader({ firstName }: Props) {
     <div style={{ position: 'relative', width: '100%', flexShrink: 0, overflow: 'hidden' }}>
 
       <svg
-        viewBox="0 0 390 260"
+        viewBox="0 0 390 280"
         width="100%"
         preserveAspectRatio="xMidYMid slice"
         style={{ display: 'block' }}
@@ -138,49 +140,51 @@ export default function DaySceneHeader({ firstName }: Props) {
         </defs>
 
         {/* Sky fill */}
-        <rect width="390" height="260" fill={scene ? 'url(#skyGrad)' : '#1E1C2E'} />
+        <rect width="390" height="280" fill={scene ? 'url(#skyGrad)' : '#1E1C2E'} />
 
         {/* ── Stars (night) ── */}
         {scene === 'night' && STARS.map((s, i) => (
           <circle key={i} cx={s.x} cy={s.y} r={s.r} fill="white" fillOpacity={s.o} />
         ))}
 
-        {/* ── Morning: sun peeking over the hill crest ── */}
+        {/* ── Morning: sun rising just above the dome crest ── */}
         {scene === 'morning' && <>
-          <circle cx={195} cy={260} r={110} fill="url(#sunGlow)" />
-          <circle cx={195} cy={172} r={36} fill="#F5C98A" />
-          <circle cx={195} cy={172} r={27} fill="#FFE58A" />
+          {/* Wide glow halo radiating from crest */}
+          <circle cx={195} cy={145} r={100} fill="url(#sunGlow)" opacity={0.6} />
+          {/* Sun body — sits just above the dome peak */}
+          <circle cx={195} cy={118} r={34} fill="#F5C98A" />
+          <circle cx={195} cy={118} r={25} fill="#FFE58A" />
         </>}
 
         {/* ── Afternoon: sun high and bright ── */}
         {scene === 'afternoon' && <>
-          <circle cx={310} cy={60} r={52} fill="url(#sunGlow)" />
-          <circle cx={310} cy={60} r={22} fill="#FFE896" />
-          <circle cx={310} cy={60} r={14} fill="#FFFBD0" />
+          <circle cx={310} cy={58} r={52} fill="url(#sunGlow)" />
+          <circle cx={310} cy={58} r={22} fill="#FFE896" />
+          <circle cx={310} cy={58} r={14} fill="#FFFBD0" />
         </>}
 
-        {/* ── Evening: sun setting on horizon ── */}
+        {/* ── Evening: sun setting at the dome crest ── */}
         {scene === 'evening' && <>
-          <circle cx={195} cy={260} r={105} fill="url(#sunGlow)" />
-          <circle cx={195} cy={174} r={32} fill="#F4A582" />
-          <circle cx={195} cy={174} r={23} fill="#F5C98A" />
+          <circle cx={195} cy={145} r={95} fill="url(#sunGlow)" opacity={0.6} />
+          <circle cx={195} cy={120} r={30} fill="#F4A582" />
+          <circle cx={195} cy={120} r={21} fill="#F5C98A" />
         </>}
 
-        {/* ── Night: crescent moon ── */}
+        {/* ── Night: crescent moon, high in sky ── */}
         {scene === 'night' && <>
-          <circle cx={305} cy={64} r={46} fill="url(#moonGlow)" />
-          <circle cx={305} cy={64} r={20} fill="#EAE2FA" />
-          <circle cx={315} cy={58} r={16} fill="#1E1C2E" fillOpacity={0.9} />
+          <circle cx={295} cy={62} r={46} fill="url(#moonGlow)" />
+          <circle cx={295} cy={62} r={20} fill="#EAE2FA" />
+          <circle cx={306} cy={56} r={16} fill="#1E1C2E" fillOpacity={0.9} />
         </>}
 
-        {/* ── Hill silhouette ── */}
+        {/* ── Hill silhouette — single smooth dome arc ── */}
         <path d={hill} fill="url(#hillGrad)" />
 
-        {/* Subtle highlight line along the crest */}
+        {/* Subtle highlight arc along the crest */}
         <path
-          d="M 0 200 C 85 193, 158 172, 195 168 C 232 172, 305 193, 390 200"
+          d="M -5 280 C -5 88, 395 88, 395 280"
           fill="none"
-          stroke="rgba(255,255,255,0.06)"
+          stroke="rgba(255,255,255,0.07)"
           strokeWidth="1.5"
         />
       </svg>

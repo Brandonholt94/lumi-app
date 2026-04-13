@@ -296,7 +296,7 @@ function DraggableRing({
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
       onPointerCancel={onPointerUp}
-      style={{ touchAction: 'none', cursor: 'grab', userSelect: 'none' }}
+      style={{ touchAction: 'none', cursor: 'grab', userSelect: 'none', overflow: 'visible' }}
     >
       <defs>
         <linearGradient id="focusGrad" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -838,7 +838,7 @@ export default function FocusPage() {
         {/* Timer ring */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: state === 'idle' ? 32 : 32 }}>
           <div style={{
-            position: 'relative', width: 240, height: 240,
+            position: 'relative', width: 240, height: 260,
             filter: celebrating ? 'drop-shadow(0 0 18px rgba(244,165,130,0.85)) drop-shadow(0 0 36px rgba(245,201,138,0.45))' : 'none',
             transition: 'filter 0.5s ease',
           }}>

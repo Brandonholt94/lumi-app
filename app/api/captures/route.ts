@@ -65,14 +65,13 @@ export async function PATCH(req: Request) {
 
   const supabase = getServiceClient()
 
-  // If pinning as One Focus, clear any existing pin first then stamp pinned_at
+  // If pinning as One Focus, clear any existing pin first
   if (updates.is_one_focus === true) {
     await supabase
       .from('captures')
-      .update({ is_one_focus: false, one_focus_pinned_at: null })
+      .update({ is_one_focus: false })
       .eq('clerk_user_id', userId)
       .eq('is_one_focus', true)
-    updates.one_focus_pinned_at = new Date().toISOString()
   }
 
   const { data, error } = await supabase
@@ -82,6 +81,15 @@ export async function PATCH(req: Request) {
     .eq('clerk_user_id', userId)
     .select()
     .single()
+
+  // Stamp pinned_at separately — tolerates column not existing yet (migration 009)
+  if (!error && updates.is_one_focus === true) {
+    await supabase
+      .from('captures')
+      .update({ one_focus_pinned_at: new Date().toISOString() })
+      .eq('id', id)
+      .eq('clerk_user_id', userId)
+  }
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json(data)

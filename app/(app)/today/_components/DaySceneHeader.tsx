@@ -86,12 +86,12 @@ function Cloud({ x, y, s, o, fill }: { x: number; y: number; s: number; o: numbe
 
 // ── Sun rays ──────────────────────────────────────────────────
 const MORNING_RAYS = [
-  { a: -75, len: 36, w: 1.2, o: 0.12 }, { a: -58, len: 55, w: 1.5, o: 0.18 },
-  { a: -42, len: 50, w: 1.5, o: 0.16 }, { a: -27, len: 68, w: 2.0, o: 0.22 },
-  { a: -13, len: 74, w: 2.0, o: 0.27 }, { a:   0, len: 78, w: 2.5, o: 0.30 },
-  { a:  13, len: 74, w: 2.0, o: 0.27 }, { a:  27, len: 68, w: 2.0, o: 0.22 },
-  { a:  42, len: 50, w: 1.5, o: 0.16 }, { a:  58, len: 55, w: 1.5, o: 0.18 },
-  { a:  75, len: 36, w: 1.2, o: 0.12 },
+  { a: -75, len: 52,  w: 2.0, o: 0.14 }, { a: -58, len: 80,  w: 2.5, o: 0.22 },
+  { a: -42, len: 76,  w: 2.8, o: 0.20 }, { a: -27, len: 100, w: 3.5, o: 0.28 },
+  { a: -13, len: 110, w: 4.0, o: 0.34 }, { a:   0, len: 115, w: 4.5, o: 0.38 },
+  { a:  13, len: 110, w: 4.0, o: 0.34 }, { a:  27, len: 100, w: 3.5, o: 0.28 },
+  { a:  42, len: 76,  w: 2.8, o: 0.20 }, { a:  58, len: 80,  w: 2.5, o: 0.22 },
+  { a:  75, len: 52,  w: 2.0, o: 0.14 },
 ]
 
 const AFTERNOON_RAYS = [
@@ -135,9 +135,8 @@ export default function DaySceneHeader({ firstName }: Props) {
       <div style={{ position: 'relative' }}>
         <svg
           viewBox="0 0 390 180"
-          width="100%"
-          preserveAspectRatio="xMidYMid slice"
-          style={{ display: 'block' }}
+          preserveAspectRatio="xMidYMin slice"
+          style={{ display: 'block', width: '100%', height: '138px' }}
         >
           <defs>
             <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
@@ -222,9 +221,11 @@ export default function DaySceneHeader({ firstName }: Props) {
             <circle cx={MOON.x + 4} cy={MOON.y - 2} r={1.2} fill="#E8D8A0" fillOpacity={0.15} />
           </>}
 
-          {/* ── Morning: horizon glow + rising sun rays ── */}
+          {/* ── Morning: horizon glow + rising sun disc + rays ── */}
           {scene === 'morning' && <>
-            <ellipse cx={CREST.x} cy={CREST.y + 10} rx={160} ry={80} fill="url(#horizonGlow)" />
+            {/* Wide horizon glow */}
+            <ellipse cx={CREST.x} cy={CREST.y + 10} rx={180} ry={95} fill="url(#horizonGlow)" />
+            {/* Rays behind disc */}
             {MORNING_RAYS.map((r, i) => {
               const end = ray(CREST.x, CREST.y, r.a, r.len)
               return (
@@ -232,6 +233,13 @@ export default function DaySceneHeader({ firstName }: Props) {
                   stroke="#F5C98A" strokeWidth={r.w} strokeOpacity={r.o} strokeLinecap="round" />
               )
             })}
+            {/* Rising sun disc — half circle peeking at horizon */}
+            <path d={`M ${CREST.x - 34} ${CREST.y} A 34 34 0 0 1 ${CREST.x + 34} ${CREST.y}`}
+              fill="#F5C98A" fillOpacity={0.82} />
+            <path d={`M ${CREST.x - 22} ${CREST.y} A 22 22 0 0 1 ${CREST.x + 22} ${CREST.y}`}
+              fill="#FFE07A" fillOpacity={0.90} />
+            <path d={`M ${CREST.x - 12} ${CREST.y} A 12 12 0 0 1 ${CREST.x + 12} ${CREST.y}`}
+              fill="#FFF5D0" fillOpacity={0.98} />
           </>}
 
           {/* ── Afternoon: sun disc + rays ── */}

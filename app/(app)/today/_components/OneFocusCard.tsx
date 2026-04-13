@@ -176,15 +176,15 @@ export default function OneFocusCard() {
         </p>
       </div>
 
-      {/* Paralysis nudge — TEMP: always show for preview, restore days_pinned >= 3 check */}
-      {true && (
+      {/* Paralysis nudge — shows if same task pinned 3+ days */}
+      {(focus.days_pinned ?? 0) >= 3 && (
         <div style={{
           background: 'rgba(232,160,191,0.1)',
           border: '1px solid rgba(232,160,191,0.2)',
           borderRadius: 11, padding: '10px 12px', marginBottom: 12,
         }}>
           <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11.5px', fontWeight: 600, color: 'rgba(232,160,191,0.9)', lineHeight: 1.55 }}>
-            This one&apos;s been here {focus.days_pinned ?? 3} days. No pressure — want to try just the very first step, or pick something else for today?
+            This one&apos;s been here {focus.days_pinned} days. No pressure — want to try just the very first step, or pick something else for today?
           </p>
           <button
             onClick={() => fetchFocus(true)}

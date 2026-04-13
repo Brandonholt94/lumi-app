@@ -7,12 +7,17 @@ export default function WelcomeBack() {
   const [visible, setVisible] = useState(false)
 
   useEffect(() => {
-    // TEMP: always show for preview — restore 24h check before launch
-    setShow(true)
-    setTimeout(() => setVisible(true), 100)
-
-    // Stamp last_seen_at in the background
-    fetch('/api/seen').catch(() => {})
+    fetch('/api/seen')
+      .then(r => r.json())
+      .then(({ last_seen_at }) => {
+        if (!last_seen_at) return // First ever visit — onboarding handles the welcome
+        const hoursSince = (Date.now() - new Date(last_seen_at).getTime()) / 3_600_000
+        if (hoursSince >= 24) {
+          setShow(true)
+          setTimeout(() => setVisible(true), 100)
+        }
+      })
+      .catch(() => {})
   }, [])
 
   function dismiss() {

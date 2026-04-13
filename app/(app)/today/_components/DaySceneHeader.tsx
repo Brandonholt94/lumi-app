@@ -236,9 +236,9 @@ export default function DaySceneHeader({ firstName }: Props) {
           })}
         </svg>
 
-        {/* Profile button */}
+        {/* Profile button — white so it reads against the sky */}
         <div style={{ position: 'absolute', top: 16, right: 16 }}>
-          <ProfileButton />
+          <ProfileButton color="white" />
         </div>
       </div>
 

@@ -9,7 +9,10 @@ import Link from 'next/link'
 
 export default async function TodayPage() {
   const user = await currentUser()
-  const firstName = user?.firstName ?? 'Friend'
+  // Prefer Clerk firstName → email prefix → 'Friend'
+  const emailPrefix = user?.emailAddresses?.[0]?.emailAddress?.split('@')[0] ?? ''
+  const firstName = user?.firstName
+    ?? (emailPrefix ? emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1) : 'Friend')
 
   return (
     <div className="flex flex-col h-full overflow-y-auto" style={{ background: '#FBF8F5' }}>

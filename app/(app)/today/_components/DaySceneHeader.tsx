@@ -112,12 +112,8 @@ export default function DaySceneHeader({ firstName }: Props) {
   return (
     <div style={{ width: '100%', flexShrink: 0 }}>
 
-      {/* ── Scene — border-radius clips sky into a dome (no straight edge) ── */}
-      <div style={{
-        position: 'relative',
-        overflow: 'hidden',
-        borderRadius: '0 0 50% 50% / 0 0 52px 52px',
-      }}>
+      {/* ── Scene — plain rectangle, no clipping ── */}
+      <div style={{ position: 'relative' }}>
         <svg
           viewBox="0 0 390 180"
           width="100%"
@@ -216,8 +212,17 @@ export default function DaySceneHeader({ firstName }: Props) {
         </div>
       </div>
 
-      {/* ── Greeting — sits below the hill in the content area ── */}
-      <div style={{ background: '#FBF8F5', padding: '18px 20px 0' }}>
+      {/* ── Greeting — domes up into the sky as a hill shape ── */}
+      <div style={{
+        background: '#FBF8F5',
+        borderRadius: '50% 50% 0 0 / 60px 60px 0 0',
+        marginTop: -60,
+        paddingTop: 78,
+        paddingLeft: 20,
+        paddingRight: 20,
+        position: 'relative',
+        zIndex: 2,
+      }}>
         <h1 style={{
           fontFamily: 'var(--font-fraunces)',
           fontSize: 26, fontWeight: 900,

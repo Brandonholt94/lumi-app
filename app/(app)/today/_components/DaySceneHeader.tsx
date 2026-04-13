@@ -73,11 +73,13 @@ const STARS = [
 ]
 
 // ── Clouds per scene ──────────────────────────────────────────
+// Afternoon clouds sit LOW (y≈100-108) so the beige dome clips their
+// bottoms — they look like they're rising over the hill.
 const CLOUDS: Record<Scene, { x: number; y: number; s: number; o: number }[]> = {
-  morning:   [{ x: 68,  y: 72, s: 1.0,  o: 0.72 }, { x: 292, y: 80, s: 0.82, o: 0.58 }],
-  afternoon: [{ x: 65,  y: 55, s: 1.1,  o: 0.92 }, { x: 258, y: 44, s: 0.88, o: 0.82 }, { x: 155, y: 30, s: 0.65, o: 0.70 }],
-  evening:   [{ x: 72,  y: 78, s: 0.95, o: 0.65 }, { x: 295, y: 66, s: 0.78, o: 0.52 }],
-  night:     [{ x: 105, y: 92, s: 0.82, o: 0.30 }, { x: 288, y: 96, s: 0.65, o: 0.22 }],
+  morning:   [{ x: 30,  y: 80,  s: 0.90, o: 0.70 }, { x: 268, y: 86,  s: 0.75, o: 0.55 }],
+  afternoon: [{ x: -8,  y: 100, s: 1.30, o: 0.96 }, { x: 210, y: 103, s: 1.10, o: 0.93 }, { x: 112, y: 62,  s: 0.70, o: 0.78 }],
+  evening:   [{ x: 25,  y: 84,  s: 0.90, o: 0.62 }, { x: 268, y: 78,  s: 0.75, o: 0.50 }],
+  night:     [{ x: 80,  y: 95,  s: 0.78, o: 0.28 }, { x: 268, y: 98,  s: 0.62, o: 0.20 }],
 }
 
 const CLOUD_COLOR: Record<Scene, string> = {
@@ -214,15 +216,23 @@ export default function DaySceneHeader({ firstName }: Props) {
             />
           </>}
 
-          {/* Blurred atmospheric clouds */}
-          {scene && CLOUDS[scene].map((c, i) => (
-            <g key={i} transform={`translate(${c.x},${c.y}) scale(${c.s})`} filter="url(#cloudBlur)" opacity={c.o}>
-              <ellipse cx={0}   cy={0}   rx={52} ry={17} fill={CLOUD_COLOR[scene]}/>
-              <ellipse cx={-22} cy={-11} rx={33} ry={16} fill={CLOUD_COLOR[scene]}/>
-              <ellipse cx={20}  cy={-14} rx={38} ry={17} fill={CLOUD_COLOR[scene]}/>
-              <ellipse cx={46}  cy={-5}  rx={25} ry={14} fill={CLOUD_COLOR[scene]}/>
-            </g>
-          ))}
+          {/* Circle-cluster clouds — natural puffy shape */}
+          {scene && CLOUDS[scene].map((c, i) => {
+            const f = CLOUD_COLOR[scene]
+            return (
+              <g key={i} transform={`translate(${c.x},${c.y}) scale(${c.s})`} filter="url(#cloudBlur)" opacity={c.o}>
+                {/* Puff circles — varying sizes for organic shape */}
+                <circle cx={0}   cy={0}   r={22} fill={f}/>
+                <circle cx={26}  cy={-14} r={28} fill={f}/>
+                <circle cx={60}  cy={-10} r={24} fill={f}/>
+                <circle cx={88}  cy={-4}  r={19} fill={f}/>
+                <circle cx={-18} cy={6}   r={18} fill={f}/>
+                <circle cx={112} cy={4}   r={16} fill={f}/>
+                {/* Flat base fills gaps between circles */}
+                <rect x={-18} y={0} width={130} height={30} fill={f} rx={4}/>
+              </g>
+            )
+          })}
         </svg>
 
         {/* Profile button */}

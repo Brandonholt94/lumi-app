@@ -74,10 +74,10 @@ const STARS = [
 
 // ── Clouds per scene ──────────────────────────────────────────
 const CLOUDS: Record<Scene, { x: number; y: number; s: number; o: number }[]> = {
-  morning:   [{ x: 68,  y: 72, s: 1.0,  o: 0.42 }, { x: 292, y: 80, s: 0.82, o: 0.32 }],
-  afternoon: [{ x: 65,  y: 55, s: 1.1,  o: 0.80 }, { x: 258, y: 44, s: 0.88, o: 0.65 }, { x: 155, y: 30, s: 0.65, o: 0.52 }],
-  evening:   [{ x: 72,  y: 78, s: 0.95, o: 0.38 }, { x: 295, y: 66, s: 0.78, o: 0.28 }],
-  night:     [{ x: 105, y: 92, s: 0.82, o: 0.20 }, { x: 288, y: 96, s: 0.65, o: 0.15 }],
+  morning:   [{ x: 68,  y: 72, s: 1.0,  o: 0.72 }, { x: 292, y: 80, s: 0.82, o: 0.58 }],
+  afternoon: [{ x: 65,  y: 55, s: 1.1,  o: 0.92 }, { x: 258, y: 44, s: 0.88, o: 0.82 }, { x: 155, y: 30, s: 0.65, o: 0.70 }],
+  evening:   [{ x: 72,  y: 78, s: 0.95, o: 0.65 }, { x: 295, y: 66, s: 0.78, o: 0.52 }],
+  night:     [{ x: 105, y: 92, s: 0.82, o: 0.30 }, { x: 288, y: 96, s: 0.65, o: 0.22 }],
 }
 
 const CLOUD_COLOR: Record<Scene, string> = {
@@ -154,7 +154,7 @@ export default function DaySceneHeader({ firstName }: Props) {
 
             {/* Cloud softening blur */}
             <filter id="cloudBlur" x="-40%" y="-80%" width="180%" height="260%">
-              <feGaussianBlur stdDeviation="1.6"/>
+              <feGaussianBlur stdDeviation="0.7"/>
             </filter>
 
             {/* Evening crescent mask */}

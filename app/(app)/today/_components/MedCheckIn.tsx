@@ -6,12 +6,13 @@ type Medication = {
   id: string
   name: string
   dose: string | null
-  scheduled_time: string // "HH:MM:SS"
+  scheduled_time: string | null
 }
 
 const WINDOW_MINUTES = 30
 
-function isInWindow(scheduledTime: string): boolean {
+function isInWindow(scheduledTime: string | null): boolean {
+  if (!scheduledTime) return false
   const [h, m] = scheduledTime.split(':').map(Number)
   const now = new Date()
   const nowMins = now.getHours() * 60 + now.getMinutes()
@@ -19,7 +20,8 @@ function isInWindow(scheduledTime: string): boolean {
   return Math.abs(nowMins - schedMins) <= WINDOW_MINUTES
 }
 
-function formatTime(t: string) {
+function formatTime(t: string | null) {
+  if (!t) return ''
   const [h, m] = t.split(':').map(Number)
   const ampm = h >= 12 ? 'PM' : 'AM'
   const hour = h % 12 || 12

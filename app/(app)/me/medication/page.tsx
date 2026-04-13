@@ -7,11 +7,11 @@ type Medication = {
   id: string
   name: string
   dose: string | null
-  scheduled_time: string // "HH:MM:SS" from postgres time type
+  scheduled_time: string | null
 }
 
-function formatTime(t: string) {
-  // t is "HH:MM:SS" or "HH:MM"
+function formatTime(t: string | null) {
+  if (!t) return ''
   const [h, m] = t.split(':').map(Number)
   const ampm = h >= 12 ? 'PM' : 'AM'
   const hour = h % 12 || 12

@@ -53,24 +53,31 @@ export async function GET(req: Request) {
 
   const { searchParams } = new URL(req.url)
   const mood = (searchParams.get('mood') ?? null) as 'foggy' | 'okay' | 'wired' | 'drained' | null
+  const bypassPin = searchParams.get('bypass_pin') === '1'
 
   const supabase = getServiceClient()
 
-  // Check for a user-pinned focus first
-  const { data: pinned } = await supabase
-    .from('captures')
-    .select('id, text')
-    .eq('clerk_user_id', userId)
-    .eq('is_one_focus', true)
-    .eq('completed', false)
-    .maybeSingle()
+  // Check for a user-pinned focus first (skip if user asked for something else today)
+  if (!bypassPin) {
+    const { data: pinned } = await supabase
+      .from('captures')
+      .select('id, text, one_focus_pinned_at')
+      .eq('clerk_user_id', userId)
+      .eq('is_one_focus', true)
+      .eq('completed', false)
+      .maybeSingle()
 
-  if (pinned) {
-    return NextResponse.json({
-      capture_id: pinned.id,
-      task: pinned.text,
-      lumi_message: "You picked this one. Let's make it happen.",
-    })
+    if (pinned) {
+      const daysPinned = pinned.one_focus_pinned_at
+        ? Math.floor((Date.now() - new Date(pinned.one_focus_pinned_at).getTime()) / 86_400_000)
+        : 0
+      return NextResponse.json({
+        capture_id: pinned.id,
+        task: pinned.text,
+        lumi_message: "You picked this one. Let's make it happen.",
+        days_pinned: daysPinned,
+      })
+    }
   }
 
   // Fetch incomplete task-tagged captures, ordered oldest first (most emotional weight)
@@ -117,7 +124,6 @@ export async function GET(req: Request) {
       maxOutputTokens: 300,
     })
 
-    // Parse the JSON response from Claude
     const result = JSON.parse(text.trim())
     return NextResponse.json(result)
   } catch {

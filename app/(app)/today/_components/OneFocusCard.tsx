@@ -8,6 +8,7 @@ interface FocusResult {
   capture_id: string | null
   task: string | null
   lumi_message: string
+  days_pinned?: number
 }
 
 export default function OneFocusCard() {
@@ -16,12 +17,14 @@ export default function OneFocusCard() {
   const [loading, setLoading] = useState(true)
   const [done, setDone] = useState(false)
 
-  const fetchFocus = useCallback(async () => {
+  const fetchFocus = useCallback(async (bypass = false) => {
     setLoading(true)
     setDone(false)
     try {
-      const params = mood ? `?mood=${mood}` : ''
-      const res = await fetch(`/api/focus${params}`)
+      const params = new URLSearchParams()
+      if (mood) params.set('mood', mood)
+      if (bypass) params.set('bypass_pin', '1')
+      const res = await fetch(`/api/focus?${params}`)
       const data = await res.json()
       setFocus(data)
     } finally {
@@ -85,7 +88,7 @@ export default function OneFocusCard() {
           You did it. That&apos;s not nothing — that&apos;s the whole thing.
         </p>
         <button
-          onClick={fetchFocus}
+          onClick={() => fetchFocus()}
           style={{
             marginTop: 4,
             fontFamily: 'var(--font-nunito-sans)',
@@ -172,6 +175,29 @@ export default function OneFocusCard() {
           {focus.lumi_message}
         </p>
       </div>
+
+      {/* Paralysis nudge — shows if same task pinned 3+ days */}
+      {(focus.days_pinned ?? 0) >= 3 && (
+        <div style={{
+          background: 'rgba(232,160,191,0.1)',
+          border: '1px solid rgba(232,160,191,0.2)',
+          borderRadius: 11, padding: '10px 12px', marginBottom: 12,
+        }}>
+          <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11.5px', fontWeight: 600, color: 'rgba(232,160,191,0.9)', lineHeight: 1.55 }}>
+            This one&apos;s been here {focus.days_pinned} days. No pressure — want to try just the very first step, or pick something else for today?
+          </p>
+          <button
+            onClick={() => fetchFocus(true)}
+            style={{
+              marginTop: 6, background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+              fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 700,
+              color: 'rgba(232,160,191,0.7)', textDecoration: 'underline',
+            }}
+          >
+            Show me something else today →
+          </button>
+        </div>
+      )}
 
       <div className="flex gap-2">
         <Link

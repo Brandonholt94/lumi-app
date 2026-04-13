@@ -6,6 +6,7 @@ import LumiNudge from './_components/LumiNudge'
 import ResourcesSection from './_components/ResourcesSection'
 import EveningBrainClear from './_components/EveningBrainClear'
 import GreetingHeader from './_components/GreetingHeader'
+import WelcomeBack from './_components/WelcomeBack'
 import Link from 'next/link'
 
 function getServiceClient() {
@@ -38,6 +39,9 @@ export default async function TodayPage() {
 
       {/* ── Beige body ── */}
       <div className="flex flex-col px-5 pb-8" style={{ background: '#FBF8F5', paddingTop: 28 }}>
+
+      {/* Re-entry banner — shows after 24h away */}
+      <WelcomeBack />
 
       {/* Mood check-in */}
       <p

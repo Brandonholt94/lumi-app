@@ -465,6 +465,12 @@ export default function InsightsPage() {
               </div>
             </div>
 
+            {/* ── Weekly Brain Report ── */}
+            <div>
+              <SectionLabel>WEEKLY BRAIN REPORT</SectionLabel>
+              <BrainReportCard plan={data.plan} />
+            </div>
+
             {/* ── Daily activity chart ── */}
             <div>
               <SectionLabel>DAILY ACTIVITY</SectionLabel>
@@ -484,12 +490,6 @@ export default function InsightsPage() {
                 <FocusCard sessions={data.focus.sessions} minutes={data.focus.minutes} />
               </div>
             )}
-
-            {/* ── Weekly Brain Report ── */}
-            <div>
-              <SectionLabel>WEEKLY BRAIN REPORT</SectionLabel>
-              <BrainReportCard plan={data.plan} />
-            </div>
 
             {/* ── Captures by type ── */}
             {data.captures.total > 0 && (

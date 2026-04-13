@@ -67,9 +67,6 @@ export default async function TodayPage() {
       {/* Evening wind-down — shows after 8pm */}
       <EveningBrainClear />
 
-      {/* Resources */}
-      <ResourcesSection />
-
       {/* Quick Actions */}
       <p
         className="mb-3"
@@ -184,6 +181,9 @@ export default async function TodayPage() {
           </span>
         </Link>
       </div>
+
+      {/* Resources */}
+      <ResourcesSection />
 
       </div>{/* end beige body */}
     </div>

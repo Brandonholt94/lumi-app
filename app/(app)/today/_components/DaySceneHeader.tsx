@@ -35,10 +35,11 @@ const SKY_STOPS: Record<Scene, { color: string; offset: string }[]> = {
   ],
   afternoon: [
     { color: '#1473C8', offset: '0%'  },
-    { color: '#3D9BE0', offset: '40%' },
-    { color: '#86C8F0', offset: '68%' },
-    { color: '#C2E8FA', offset: '78%' },
-    { color: '#DAF0FC', offset: '100%'},
+    { color: '#3D9BE0', offset: '35%' },
+    { color: '#7EC5F0', offset: '58%' },
+    { color: '#C8E8F5', offset: '70%' },
+    { color: '#EEF2D8', offset: '76%' },
+    { color: '#F5F0C8', offset: '100%'},
   ],
   evening: [
     { color: '#0C0D28', offset: '0%'  },
@@ -77,14 +78,14 @@ const STARS = [
 // bottoms — they look like they're rising over the hill.
 const CLOUDS: Record<Scene, { x: number; y: number; s: number; o: number }[]> = {
   morning:   [{ x: 30,  y: 80,  s: 0.90, o: 0.70 }, { x: 268, y: 86,  s: 0.75, o: 0.55 }],
-  afternoon: [{ x: -8,  y: 100, s: 1.30, o: 0.96 }, { x: 210, y: 103, s: 1.10, o: 0.93 }, { x: 112, y: 62,  s: 0.70, o: 0.78 }],
+  afternoon: [{ x: -8,  y: 100, s: 1.30, o: 0.96 }, { x: 312, y: 103, s: 1.10, o: 0.93 }, { x: 112, y: 62,  s: 0.70, o: 0.78 }],
   evening:   [{ x: 25,  y: 84,  s: 0.90, o: 0.62 }, { x: 268, y: 78,  s: 0.75, o: 0.50 }],
   night:     [{ x: 80,  y: 95,  s: 0.78, o: 0.28 }, { x: 268, y: 98,  s: 0.62, o: 0.20 }],
 }
 
 const CLOUD_COLOR: Record<Scene, string> = {
   morning:   '#FFCCA0',
-  afternoon: '#FFFFFF',
+  afternoon: '#DCF0FF', // cool blue-white so clouds read clearly against warm beige
   evening:   '#FF9050',
   night:     '#1A2850',
 }

@@ -8,16 +8,16 @@ interface Props { firstName: string }
 type Scene = 'morning' | 'afternoon' | 'evening' | 'night'
 
 function getScene(hour: number): Scene {
-  if (hour >= 5  && hour < 12) return 'morning'
-  if (hour >= 12 && hour < 17) return 'afternoon'
-  if (hour >= 17 && hour < 21) return 'evening'
+  if (hour >= 5  && hour < 11) return 'morning'
+  if (hour >= 11 && hour < 18) return 'afternoon'
+  if (hour >= 18 && hour < 21) return 'evening'
   return 'night'
 }
 
 function getGreeting(hour: number) {
-  if (hour >= 5  && hour < 12) return { text: 'Morning',   emoji: '🌅' }
-  if (hour >= 12 && hour < 17) return { text: 'Afternoon', emoji: '☀️' }
-  if (hour >= 17 && hour < 21) return { text: 'Evening',   emoji: '🌆' }
+  if (hour >= 5  && hour < 11) return { text: 'Morning',   emoji: '🌅' }
+  if (hour >= 11 && hour < 18) return { text: 'Afternoon', emoji: '☀️' }
+  if (hour >= 18 && hour < 21) return { text: 'Evening',   emoji: '🌆' }
   return                               { text: 'Night',     emoji: '🌙' }
 }
 
@@ -26,12 +26,12 @@ function getGreeting(hour: number) {
 // Bottom-most visible stop should land near the horizon warmth.
 const SKY_STOPS: Record<Scene, { color: string; offset: string }[]> = {
   morning: [
-    { color: '#07111F', offset: '0%'  },
-    { color: '#112347', offset: '28%' },
-    { color: '#7B3020', offset: '52%' },
-    { color: '#D4621A', offset: '68%' },
-    { color: '#F4934A', offset: '78%' },
-    { color: '#FFBA4D', offset: '100%'},
+    { color: '#0D1E38', offset: '0%'  },
+    { color: '#1C3A6E', offset: '25%' },
+    { color: '#6B3525', offset: '50%' },
+    { color: '#C85A20', offset: '66%' },
+    { color: '#F08A3A', offset: '78%' },
+    { color: '#FFBB4A', offset: '100%'},
   ],
   afternoon: [
     { color: '#1473C8', offset: '0%'  },
@@ -122,13 +122,20 @@ export default function DaySceneHeader({ firstName }: Props) {
             </linearGradient>
 
             {/* Warm horizon glow — morning + evening */}
-            {scene === 'morning' && (
+            {scene === 'morning' && (<>
               <radialGradient id="horizonGlow" cx="50%" cy="100%" r="72%">
-                <stop offset="0%"   stopColor="#FFBA4D" stopOpacity="0.72"/>
-                <stop offset="32%"  stopColor="#F07030" stopOpacity="0.38"/>
+                <stop offset="0%"   stopColor="#FFBA4D" stopOpacity="0.70"/>
+                <stop offset="32%"  stopColor="#F07030" stopOpacity="0.35"/>
                 <stop offset="100%" stopColor="#C84010" stopOpacity="0"/>
               </radialGradient>
-            )}
+              {/* Soft sun orb — low on horizon, slightly off-centre */}
+              <radialGradient id="sunOrb" cx="50%" cy="50%" r="50%">
+                <stop offset="0%"   stopColor="#FFF4B0" stopOpacity="0.95"/>
+                <stop offset="18%"  stopColor="#FFD84A" stopOpacity="0.70"/>
+                <stop offset="45%"  stopColor="#FF8C20" stopOpacity="0.32"/>
+                <stop offset="100%" stopColor="#FF5500" stopOpacity="0"/>
+              </radialGradient>
+            </>)}
             {scene === 'evening' && (
               <radialGradient id="horizonGlow" cx="50%" cy="100%" r="68%">
                 <stop offset="0%"   stopColor="#FFAA30" stopOpacity="0.65"/>
@@ -147,7 +154,7 @@ export default function DaySceneHeader({ firstName }: Props) {
 
             {/* Cloud softening blur */}
             <filter id="cloudBlur" x="-40%" y="-80%" width="180%" height="260%">
-              <feGaussianBlur stdDeviation="5"/>
+              <feGaussianBlur stdDeviation="2.8"/>
             </filter>
 
             {/* Evening crescent mask */}
@@ -172,6 +179,11 @@ export default function DaySceneHeader({ firstName }: Props) {
           {/* Horizon glow */}
           {(scene === 'morning' || scene === 'evening') && (
             <ellipse cx="195" cy="145" rx="240" ry="105" fill="url(#horizonGlow)"/>
+          )}
+
+          {/* Morning sun orb — soft radial bloom, low and slightly right of centre */}
+          {scene === 'morning' && (
+            <circle cx="210" cy="130" r="90" fill="url(#sunOrb)"/>
           )}
 
           {/* Stars — evening (dim) + night (bright), all twinkling */}

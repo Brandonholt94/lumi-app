@@ -293,7 +293,9 @@ export default function InsightsPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch('/api/insights')
+    // Pass the user's UTC offset so the server calculates week bounds in local time
+    const tzOffset = new Date().getTimezoneOffset() // minutes behind UTC (EST = 240)
+    fetch(`/api/insights?tzOffset=${tzOffset}`)
       .then(r => r.json())
       .then(d => setData(d))
       .finally(() => setLoading(false))

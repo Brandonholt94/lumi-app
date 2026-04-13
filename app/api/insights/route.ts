@@ -9,24 +9,35 @@ function getServiceClient() {
   )
 }
 
-function getWeekBounds() {
+// tzOffset = result of JS getTimezoneOffset() — minutes BEHIND UTC (EST = 240)
+function getWeekBounds(tzOffset = 0) {
   const now = new Date()
-  const dow = now.getDay() // 0=Sun
-  const monday = new Date(now)
-  monday.setDate(now.getDate() - (dow === 0 ? 6 : dow - 1))
-  monday.setHours(0, 0, 0, 0)
-  const sunday = new Date(monday)
-  sunday.setDate(monday.getDate() + 6)
-  sunday.setHours(23, 59, 59, 999)
+  // Shift UTC time by the user's offset to simulate local time in UTC arithmetic
+  const local = new Date(now.getTime() - tzOffset * 60 * 1000)
+  const dow = local.getUTCDay() // 0=Sun
+  const daysFromMon = dow === 0 ? 6 : dow - 1
+
+  const mondayLocal = new Date(local)
+  mondayLocal.setUTCDate(local.getUTCDate() - daysFromMon)
+  mondayLocal.setUTCHours(0, 0, 0, 0)
+
+  const sundayLocal = new Date(mondayLocal)
+  sundayLocal.setUTCDate(mondayLocal.getUTCDate() + 6)
+  sundayLocal.setUTCHours(23, 59, 59, 999)
+
+  // Shift back to real UTC for DB queries
+  const monday = new Date(mondayLocal.getTime() + tzOffset * 60 * 1000)
+  const sunday = new Date(sundayLocal.getTime() + tzOffset * 60 * 1000)
   return { monday, sunday }
 }
 
-export async function GET() {
+export async function GET(req: Request) {
   const { userId } = await auth()
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
+  const tzOffset = parseInt(new URL(req.url).searchParams.get('tzOffset') ?? '0', 10)
   const supabase = getServiceClient()
-  const { monday, sunday } = getWeekBounds()
+  const { monday, sunday } = getWeekBounds(isNaN(tzOffset) ? 0 : tzOffset)
 
   const [capturesRes, moodsRes, focusRes, profileRes, completedRes] = await Promise.all([
     supabase

@@ -5,7 +5,7 @@ import OneFocusCard from './_components/OneFocusCard'
 import LumiNudge from './_components/LumiNudge'
 import ResourcesSection from './_components/ResourcesSection'
 import EveningBrainClear from './_components/EveningBrainClear'
-import GreetingHeader from './_components/GreetingHeader'
+import DaySceneHeader from './_components/DaySceneHeader'
 import WelcomeBack from './_components/WelcomeBack'
 import Link from 'next/link'
 
@@ -34,8 +34,8 @@ export default async function TodayPage() {
   return (
     <div className="flex flex-col h-full overflow-y-auto" style={{ background: '#FBF8F5' }}>
 
-      {/* ── White header ── */}
-      <GreetingHeader firstName={firstName} />
+      {/* ── Day scene header ── */}
+      <DaySceneHeader firstName={firstName} />
 
       {/* ── Beige body ── */}
       <div className="flex flex-col px-5 pb-8" style={{ background: '#FBF8F5', paddingTop: 28 }}>

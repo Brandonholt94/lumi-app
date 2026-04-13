@@ -58,6 +58,7 @@ export async function GET(req: Request) {
   const supabase = getServiceClient()
 
   // Check for a user-pinned focus first (skip if user asked for something else today)
+  let pinnedId: string | null = null
   if (!bypassPin) {
     const { data: pinned } = await supabase
       .from('captures')
@@ -78,10 +79,20 @@ export async function GET(req: Request) {
         days_pinned: daysPinned,
       })
     }
+  } else {
+    // Get the pinned task id so we can exclude it from the bypass results
+    const { data: pinned } = await supabase
+      .from('captures')
+      .select('id')
+      .eq('clerk_user_id', userId)
+      .eq('is_one_focus', true)
+      .maybeSingle()
+    pinnedId = pinned?.id ?? null
   }
 
   // Fetch incomplete task-tagged captures, ordered oldest first (most emotional weight)
-  const { data: tasks, error } = await supabase
+  // Exclude the pinned task if bypassing so Claude picks something genuinely different
+  let query = supabase
     .from('captures')
     .select('id, text, tag, created_at')
     .eq('clerk_user_id', userId)
@@ -89,6 +100,10 @@ export async function GET(req: Request) {
     .eq('completed', false)
     .order('created_at', { ascending: true })
     .limit(20)
+
+  if (pinnedId) query = query.neq('id', pinnedId)
+
+  const { data: tasks, error } = await query
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 

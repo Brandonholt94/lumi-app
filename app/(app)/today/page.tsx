@@ -85,14 +85,14 @@ export default async function TodayPage() {
       </p>
 
       <div className="grid grid-cols-3 gap-2">
-        {/* Focus Session — Gold */}
+        {/* Focus Session — Gold wash */}
         <Link
           href="/focus"
           className="flex flex-col items-start rounded-[18px] transition-all active:scale-95"
           style={{
-            background: 'linear-gradient(150deg, #FFFAEE 0%, #FDF0CC 100%)',
-            border: '1px solid rgba(245,201,138,0.50)',
-            boxShadow: '0 2px 8px rgba(200,155,40,0.10)',
+            background: 'rgba(245,201,138,0.14)',
+            border: '1px solid rgba(245,201,138,0.32)',
+            boxShadow: '0 1px 4px rgba(45,42,62,0.05)',
             padding: '13px 11px 12px',
             gap: 0,
           }}
@@ -119,14 +119,14 @@ export default async function TodayPage() {
           </span>
         </Link>
 
-        {/* Brain Dump — Rose */}
+        {/* Brain Dump — Dawn Rose wash */}
         <Link
           href="/capture"
           className="flex flex-col items-start rounded-[18px] transition-all active:scale-95"
           style={{
-            background: 'linear-gradient(150deg, #FFF2F7 0%, #FBDAEC 100%)',
-            border: '1px solid rgba(232,160,191,0.50)',
-            boxShadow: '0 2px 8px rgba(180,90,140,0.09)',
+            background: 'rgba(232,160,191,0.14)',
+            border: '1px solid rgba(232,160,191,0.32)',
+            boxShadow: '0 1px 4px rgba(45,42,62,0.05)',
             padding: '13px 11px 12px',
             gap: 0,
           }}
@@ -150,14 +150,14 @@ export default async function TodayPage() {
           </span>
         </Link>
 
-        {/* Talk to Lumi — Peach */}
+        {/* Talk to Lumi — Peach wash */}
         <Link
           href="/chat"
           className="flex flex-col items-start rounded-[18px] transition-all active:scale-95"
           style={{
-            background: 'linear-gradient(150deg, #FFF5F0 0%, #FDE0D2 100%)',
-            border: '1px solid rgba(244,165,130,0.50)',
-            boxShadow: '0 2px 8px rgba(200,100,60,0.09)',
+            background: 'rgba(244,165,130,0.14)',
+            border: '1px solid rgba(244,165,130,0.32)',
+            boxShadow: '0 1px 4px rgba(45,42,62,0.05)',
             padding: '13px 11px 12px',
             gap: 0,
           }}

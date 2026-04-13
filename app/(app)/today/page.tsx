@@ -3,64 +3,19 @@ import MoodSelector from './_components/MoodSelector'
 import OneFocusCard from './_components/OneFocusCard'
 import LumiNudge from './_components/LumiNudge'
 import ResourcesSection from './_components/ResourcesSection'
+import EveningBrainClear from './_components/EveningBrainClear'
+import GreetingHeader from './_components/GreetingHeader'
 import Link from 'next/link'
-import ProfileButton from '../_components/ProfileButton'
-
-function getGreeting() {
-  const hour = new Date().getHours()
-  if (hour < 12) return 'Morning'
-  if (hour < 17) return 'Afternoon'
-  return 'Evening'
-}
-
-function getFormattedDate() {
-  return new Date().toLocaleDateString('en-US', {
-    weekday: 'long',
-    month: 'long',
-    day: 'numeric',
-  })
-}
 
 export default async function TodayPage() {
   const user = await currentUser()
   const firstName = user?.firstName ?? 'Friend'
-  const greeting = getGreeting()
-  const date = getFormattedDate()
 
   return (
     <div className="flex flex-col h-full overflow-y-auto" style={{ background: '#FBF8F5' }}>
 
       {/* ── White header ── */}
-      <div style={{ background: '#ffffff', padding: '20px 20px 16px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div>
-            <h1
-              style={{
-                fontFamily: 'var(--font-fraunces)',
-                fontSize: '26px',
-                fontWeight: 900,
-                color: '#1E1C2E',
-                lineHeight: 1.1,
-                marginBottom: 3,
-              }}
-            >
-              {greeting},{' '}
-              <span style={{ background: 'linear-gradient(90deg, #F4A582, #F5C98A, #8FAAE0)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-                {firstName}.
-              </span>
-            </h1>
-            <p style={{
-              fontFamily: 'var(--font-nunito-sans)',
-              fontSize: '12px',
-              fontWeight: 600,
-              color: '#9895B0',
-            }}>
-              {date} · Let&apos;s find your one thing.
-            </p>
-          </div>
-          <ProfileButton />
-        </div>
-      </div>
+      <GreetingHeader firstName={firstName} />
 
       {/* ── Beige body ── */}
       <div className="flex flex-col px-5 pb-8" style={{ background: '#FBF8F5', paddingTop: 28 }}>
@@ -85,6 +40,9 @@ export default async function TodayPage() {
 
       {/* One Focus card — fetches real task from AI + Supabase */}
       <OneFocusCard />
+
+      {/* Evening wind-down — shows after 8pm */}
+      <EveningBrainClear />
 
       {/* Resources */}
       <ResourcesSection />

@@ -21,90 +21,70 @@ function getGreeting(hour: number) {
   return                               { text: 'Night',     emoji: '🌙' }
 }
 
-// ── Sky gradients ──────────────────────────────────────────────
-const SKY: Record<Scene, string[]> = {
-  morning:   ['#1E1C2E', '#4A2260', '#E8A0BF', '#F4A582', '#F5C98A'],
-  afternoon: ['#4A7AB8', '#8FAAE0', '#C0D8F0'],
-  evening:   ['#1A1228', '#5E2D5E', '#E8A0BF', '#F4A582'],
-  night:     ['#09071A', '#1E1C2E', '#2D2A3E', '#3A3660'],
-}
-const SKY_STOPS: Record<Scene, string[]> = {
-  morning:   ['0%', '20%', '50%', '75%', '100%'],
-  afternoon: ['0%', '55%', '100%'],
-  evening:   ['0%', '22%', '60%', '100%'],
-  night:     ['0%', '38%', '74%', '100%'],
+// ── Sky gradients ─────────────────────────────────────────────
+// Stops tuned for 138px rendered height (76% of 180px viewBox).
+// Bottom-most visible stop should land near the horizon warmth.
+const SKY_STOPS: Record<Scene, { color: string; offset: string }[]> = {
+  morning: [
+    { color: '#07111F', offset: '0%'  },
+    { color: '#112347', offset: '28%' },
+    { color: '#7B3020', offset: '52%' },
+    { color: '#D4621A', offset: '68%' },
+    { color: '#F4934A', offset: '78%' },
+    { color: '#FFBA4D', offset: '100%'},
+  ],
+  afternoon: [
+    { color: '#1473C8', offset: '0%'  },
+    { color: '#3D9BE0', offset: '40%' },
+    { color: '#86C8F0', offset: '68%' },
+    { color: '#C2E8FA', offset: '78%' },
+    { color: '#DAF0FC', offset: '100%'},
+  ],
+  evening: [
+    { color: '#0C0D28', offset: '0%'  },
+    { color: '#3A1A5E', offset: '25%' },
+    { color: '#9C3020', offset: '50%' },
+    { color: '#E05818', offset: '66%' },
+    { color: '#F59030', offset: '78%' },
+    { color: '#FFAA40', offset: '100%'},
+  ],
+  night: [
+    { color: '#01020A', offset: '0%'  },
+    { color: '#050D20', offset: '35%' },
+    { color: '#0B1535', offset: '68%' },
+    { color: '#111840', offset: '100%'},
+  ],
 }
 
-// ── Stars — pre-set, y < 80 to stay above dome crest ──────────
+// ── Stars — pre-set y < 80, keep them in upper sky ────────────
 const STARS = [
-  { x: 22,  y: 14, r: 1.1, o: 0.80, d: 2.1 }, { x: 68,  y: 9,  r: 0.8, o: 0.60, d: 3.4 },
-  { x: 118, y: 24, r: 1.3, o: 0.85, d: 1.8 }, { x: 172, y: 7,  r: 0.9, o: 0.65, d: 2.7 },
-  { x: 238, y: 19, r: 1.2, o: 0.80, d: 3.1 }, { x: 300, y: 12, r: 0.8, o: 0.55, d: 2.4 },
-  { x: 355, y: 22, r: 1.1, o: 0.75, d: 1.6 }, { x: 42,  y: 44, r: 0.9, o: 0.60, d: 3.8 },
-  { x: 98,  y: 52, r: 1.2, o: 0.70, d: 2.2 }, { x: 158, y: 38, r: 0.8, o: 0.55, d: 3.0 },
-  { x: 215, y: 48, r: 1.1, o: 0.75, d: 1.4 }, { x: 272, y: 34, r: 0.9, o: 0.65, d: 2.9 },
-  { x: 332, y: 42, r: 1.0, o: 0.70, d: 3.5 }, { x: 14,  y: 70, r: 0.8, o: 0.50, d: 2.0 },
-  { x: 148, y: 74, r: 0.9, o: 0.55, d: 3.3 }, { x: 228, y: 66, r: 1.1, o: 0.65, d: 1.9 },
-  { x: 295, y: 72, r: 0.8, o: 0.50, d: 2.6 }, { x: 368, y: 60, r: 1.0, o: 0.60, d: 3.7 },
-  { x: 55,  y: 28, r: 0.7, o: 0.45, d: 4.1 }, { x: 185, y: 58, r: 0.7, o: 0.45, d: 2.3 },
-  { x: 318, y: 56, r: 0.7, o: 0.50, d: 3.9 }, { x: 82,  y: 62, r: 0.7, o: 0.45, d: 1.7 },
-  // Additional stars
-  { x: 130, y: 11, r: 0.9, o: 0.70, d: 2.8 }, { x: 200, y: 30, r: 0.7, o: 0.50, d: 4.2 },
-  { x: 258, y: 52, r: 1.0, o: 0.65, d: 1.5 }, { x: 346, y: 38, r: 0.8, o: 0.55, d: 3.2 },
-  { x: 8,   y: 42, r: 0.9, o: 0.60, d: 2.5 }, { x: 380, y: 28, r: 0.7, o: 0.50, d: 3.6 },
-  { x: 72,  y: 75, r: 0.8, o: 0.45, d: 4.0 }, { x: 310, y: 74, r: 0.7, o: 0.48, d: 1.3 },
-  { x: 178, y: 18, r: 0.6, o: 0.42, d: 2.1 }, { x: 340, y: 18, r: 0.6, o: 0.40, d: 3.8 },
-  { x: 28,  y: 58, r: 0.6, o: 0.38, d: 4.3 }, { x: 248, y: 76, r: 0.6, o: 0.40, d: 2.0 },
-  { x: 134, y: 60, r: 0.6, o: 0.38, d: 3.1 }, { x: 372, y: 75, r: 0.6, o: 0.42, d: 1.8 },
+  { x: 22,  y: 14, r: 1.0, o: 0.75, d: 2.3 }, { x: 52,  y: 8,  r: 1.2, o: 0.85, d: 3.1 },
+  { x: 90,  y: 18, r: 0.9, o: 0.65, d: 2.7 }, { x: 128, y: 7,  r: 1.1, o: 0.80, d: 1.9 },
+  { x: 165, y: 20, r: 0.8, o: 0.60, d: 3.4 }, { x: 35,  y: 38, r: 1.0, o: 0.70, d: 2.5 },
+  { x: 74,  y: 44, r: 1.3, o: 0.90, d: 1.7 }, { x: 110, y: 35, r: 0.8, o: 0.55, d: 3.8 },
+  { x: 148, y: 46, r: 1.1, o: 0.78, d: 2.2 }, { x: 188, y: 14, r: 0.9, o: 0.68, d: 2.9 },
+  { x: 205, y: 40, r: 0.7, o: 0.50, d: 4.1 }, { x: 268, y: 50, r: 1.0, o: 0.72, d: 3.0 },
+  { x: 285, y: 20, r: 0.8, o: 0.58, d: 2.4 }, { x: 14,  y: 60, r: 0.7, o: 0.45, d: 3.6 },
+  { x: 56,  y: 68, r: 0.9, o: 0.62, d: 2.8 }, { x: 96,  y: 72, r: 0.7, o: 0.48, d: 3.3 },
+  { x: 142, y: 64, r: 1.0, o: 0.70, d: 2.1 }, { x: 175, y: 58, r: 0.8, o: 0.55, d: 4.0 },
+  { x: 220, y: 66, r: 0.7, o: 0.48, d: 2.6 }, { x: 255, y: 72, r: 0.9, o: 0.60, d: 3.2 },
+  { x: 290, y: 60, r: 0.7, o: 0.45, d: 2.0 }, { x: 330, y: 42, r: 0.8, o: 0.55, d: 3.5 },
+  { x: 355, y: 22, r: 1.1, o: 0.75, d: 1.6 }, { x: 368, y: 60, r: 0.9, o: 0.60, d: 3.7 },
 ]
 
-// ── Clouds per scene: x, y, scale (s), opacity (o) ───────────
+// ── Clouds per scene ──────────────────────────────────────────
 const CLOUDS: Record<Scene, { x: number; y: number; s: number; o: number }[]> = {
-  morning:   [{ x: 58, y: 116, s: 1.0, o: 0.18 }, { x: 298, y: 126, s: 0.82, o: 0.14 }],
-  afternoon: [{ x: 58, y: 102, s: 1.1, o: 0.30 }, { x: 255, y: 114, s: 0.88, o: 0.25 }, { x: 336, y: 97, s: 0.72, o: 0.22 }],
-  evening:   [{ x: 76, y: 112, s: 0.95, o: 0.22 }, { x: 300, y: 122, s: 0.78, o: 0.18 }],
-  night:     [{ x: 194, y: 118, s: 0.82, o: 0.13 }, { x: 326, y: 116, s: 0.65, o: 0.11 }],
+  morning:   [{ x: 68,  y: 72, s: 1.0,  o: 0.42 }, { x: 292, y: 80, s: 0.82, o: 0.32 }],
+  afternoon: [{ x: 65,  y: 55, s: 1.1,  o: 0.80 }, { x: 258, y: 44, s: 0.88, o: 0.65 }, { x: 155, y: 30, s: 0.65, o: 0.52 }],
+  evening:   [{ x: 72,  y: 78, s: 0.95, o: 0.38 }, { x: 295, y: 66, s: 0.78, o: 0.28 }],
+  night:     [{ x: 105, y: 92, s: 0.82, o: 0.20 }, { x: 288, y: 96, s: 0.65, o: 0.15 }],
 }
 
-const CLOUD_FILL: Record<Scene, string> = {
-  morning:   '#FFE4D0',
+const CLOUD_COLOR: Record<Scene, string> = {
+  morning:   '#FFCCA0',
   afternoon: '#FFFFFF',
-  evening:   '#C4A8D8',
-  night:     '#9490B8',
-}
-
-function Cloud({ x, y, s, o, fill }: { x: number; y: number; s: number; o: number; fill: string }) {
-  return (
-    <g transform={`translate(${x},${y}) scale(${s})`} opacity={o}>
-      <ellipse cx={0}   cy={0}   rx={34} ry={13} fill={fill} />
-      <ellipse cx={-17} cy={-9}  rx={21} ry={13} fill={fill} />
-      <ellipse cx={13}  cy={-12} rx={25} ry={14} fill={fill} />
-      <ellipse cx={32}  cy={-4}  rx={17} ry={11} fill={fill} />
-    </g>
-  )
-}
-
-// ── Sun rays ──────────────────────────────────────────────────
-const MORNING_RAYS = [
-  { a: -75, len: 52,  w: 2.0, o: 0.14 }, { a: -58, len: 80,  w: 2.5, o: 0.22 },
-  { a: -42, len: 76,  w: 2.8, o: 0.20 }, { a: -27, len: 100, w: 3.5, o: 0.28 },
-  { a: -13, len: 110, w: 4.0, o: 0.34 }, { a:   0, len: 115, w: 4.5, o: 0.38 },
-  { a:  13, len: 110, w: 4.0, o: 0.34 }, { a:  27, len: 100, w: 3.5, o: 0.28 },
-  { a:  42, len: 76,  w: 2.8, o: 0.20 }, { a:  58, len: 80,  w: 2.5, o: 0.22 },
-  { a:  75, len: 52,  w: 2.0, o: 0.14 },
-]
-
-const AFTERNOON_RAYS = [
-  { a: -80, len: 38, w: 1.2, o: 0.18 }, { a: -55, len: 52, w: 1.5, o: 0.24 },
-  { a: -30, len: 58, w: 1.8, o: 0.28 }, { a:  -8, len: 62, w: 2.0, o: 0.32 },
-  { a:  15, len: 62, w: 2.0, o: 0.32 }, { a:  38, len: 58, w: 1.8, o: 0.28 },
-  { a:  62, len: 52, w: 1.5, o: 0.24 }, { a:  85, len: 38, w: 1.2, o: 0.18 },
-  { a: -110, len: 30, w: 1.0, o: 0.12 }, { a: 110, len: 30, w: 1.0, o: 0.12 },
-]
-
-function ray(ox: number, oy: number, angleDeg: number, len: number) {
-  const rad = (angleDeg * Math.PI) / 180
-  return { x2: ox + Math.sin(rad) * len, y2: oy - Math.cos(rad) * len }
+  evening:   '#FF9050',
+  night:     '#1A2850',
 }
 
 export default function DaySceneHeader({ firstName }: Props) {
@@ -121,19 +101,12 @@ export default function DaySceneHeader({ firstName }: Props) {
     }))
   }, [])
 
-  // Sun sits below dome overlap so it peeks over the hill
-  // Dome covers from y≈110 up (138px render - 28px overlap = 110px = viewBox y 110)
-  const CREST = { x: 195, y: 118 }
-  const SUN   = { x: 195, y: 30 }
-  // Moon: upper-left, clear of profile button (upper-right)
-  const MOON  = { x: 70, y: 40 }
-
   const isNightish = scene === 'evening' || scene === 'night'
 
   return (
     <div style={{ width: '100%', flexShrink: 0 }}>
 
-      {/* ── Scene ── */}
+      {/* ── Sky scene ── */}
       <div style={{ position: 'relative' }}>
         <svg
           viewBox="0 0 390 180"
@@ -141,66 +114,74 @@ export default function DaySceneHeader({ firstName }: Props) {
           style={{ display: 'block', width: '100%', height: '138px' }}
         >
           <defs>
+            {/* Sky gradient */}
             <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
               {scene
-                ? SKY[scene].map((c, i) => <stop key={i} offset={SKY_STOPS[scene][i]} stopColor={c} />)
-                : <stop offset="0%" stopColor="#09071A" />}
+                ? SKY_STOPS[scene].map((s, i) => <stop key={i} offset={s.offset} stopColor={s.color} />)
+                : <stop offset="0%" stopColor="#01020A" />}
             </linearGradient>
 
-            {/* Morning horizon glow */}
+            {/* Warm horizon glow — morning + evening */}
             {scene === 'morning' && (
-              <radialGradient id="horizonGlow" cx="50%" cy="100%" r="60%">
-                <stop offset="0%"   stopColor="#F5C98A" stopOpacity="0.55" />
-                <stop offset="55%"  stopColor="#F4A582" stopOpacity="0.20" />
-                <stop offset="100%" stopColor="#F4A582" stopOpacity="0"    />
+              <radialGradient id="horizonGlow" cx="50%" cy="100%" r="72%">
+                <stop offset="0%"   stopColor="#FFBA4D" stopOpacity="0.72"/>
+                <stop offset="32%"  stopColor="#F07030" stopOpacity="0.38"/>
+                <stop offset="100%" stopColor="#C84010" stopOpacity="0"/>
               </radialGradient>
             )}
-
-            {/* Afternoon sun glow */}
-            {scene === 'afternoon' && (
-              <radialGradient id="sunGlow" cx="50%" cy="50%" r="50%">
-                <stop offset="0%"   stopColor="#FFF5CC" stopOpacity="0.90" />
-                <stop offset="40%"  stopColor="#F5C98A" stopOpacity="0.40" />
-                <stop offset="100%" stopColor="#F5C98A" stopOpacity="0"    />
-              </radialGradient>
-            )}
-
-            {/* Moon glow */}
-            {isNightish && (
-              <radialGradient id="moonGlow" cx="50%" cy="50%" r="50%">
-                <stop offset="0%"   stopColor="#FFF8DC" stopOpacity={scene === 'night' ? '0.35' : '0.22'} />
-                <stop offset="100%" stopColor="#FFF8DC" stopOpacity="0" />
-              </radialGradient>
-            )}
-
-            {/* Crescent moon mask (evening) */}
             {scene === 'evening' && (
-              <mask id="crescentMask">
-                <circle cx={MOON.x}     cy={MOON.y}     r={10} fill="white" />
-                <circle cx={MOON.x + 7} cy={MOON.y - 5} r={8}  fill="black" />
+              <radialGradient id="horizonGlow" cx="50%" cy="100%" r="68%">
+                <stop offset="0%"   stopColor="#FFAA30" stopOpacity="0.65"/>
+                <stop offset="35%"  stopColor="#E05020" stopOpacity="0.30"/>
+                <stop offset="100%" stopColor="#E05020" stopOpacity="0"/>
+              </radialGradient>
+            )}
+
+            {/* Moon glow (night only) */}
+            {scene === 'night' && (
+              <radialGradient id="moonGlow" cx="50%" cy="50%" r="50%">
+                <stop offset="0%"   stopColor="#FFF8DC" stopOpacity="0.28"/>
+                <stop offset="100%" stopColor="#FFF8DC" stopOpacity="0"/>
+              </radialGradient>
+            )}
+
+            {/* Cloud softening blur */}
+            <filter id="cloudBlur" x="-40%" y="-80%" width="180%" height="260%">
+              <feGaussianBlur stdDeviation="5"/>
+            </filter>
+
+            {/* Evening crescent mask */}
+            {scene === 'evening' && (
+              <mask id="moonMask">
+                <circle cx="72" cy="36" r="10" fill="white"/>
+                <circle cx="79" cy="32" r="8"  fill="black"/>
               </mask>
             )}
-
-            {/* Near-full moon mask (night) */}
+            {/* Night crescent mask */}
             {scene === 'night' && (
-              <mask id="fullMoonMask">
-                <circle cx={MOON.x}     cy={MOON.y}     r={13} fill="white" />
-                <circle cx={MOON.x + 4} cy={MOON.y - 3} r={10} fill="black" />
+              <mask id="moonMask">
+                <circle cx="72" cy="36" r="13" fill="white"/>
+                <circle cx="77" cy="32" r="10" fill="black"/>
               </mask>
             )}
           </defs>
 
-          {/* Sky */}
-          <rect width="390" height="180" fill="url(#skyGrad)" />
+          {/* Sky fill */}
+          <rect width="390" height="180" fill="url(#skyGrad)"/>
 
-          {/* ── Stars: evening + night — with twinkle ── */}
+          {/* Horizon glow */}
+          {(scene === 'morning' || scene === 'evening') && (
+            <ellipse cx="195" cy="145" rx="240" ry="105" fill="url(#horizonGlow)"/>
+          )}
+
+          {/* Stars — evening (dim) + night (bright), all twinkling */}
           {isNightish && STARS.map((s, i) => {
-            const baseO = scene === 'evening' ? s.o * 0.55 : s.o
+            const baseO = scene === 'evening' ? +(s.o * 0.48).toFixed(2) : s.o
             return (
               <circle key={i} cx={s.x} cy={s.y} r={s.r} fill="white" fillOpacity={baseO}>
                 <animate
                   attributeName="fill-opacity"
-                  values={`${baseO};${+(baseO * 0.22).toFixed(2)};${baseO}`}
+                  values={`${baseO};${+(baseO * 0.18).toFixed(2)};${baseO}`}
                   dur={`${s.d}s`}
                   repeatCount="indefinite"
                   begin={`-${((i * 0.61) % s.d).toFixed(2)}s`}
@@ -209,68 +190,36 @@ export default function DaySceneHeader({ firstName }: Props) {
             )
           })}
 
-          {/* ── Moon: evening = crescent, night = near-full ── */}
-          {scene === 'evening' && <>
-            <circle cx={MOON.x} cy={MOON.y} r={26} fill="url(#moonGlow)" />
-            <circle cx={MOON.x} cy={MOON.y} r={10} fill="#EEE4C0" fillOpacity={0.72} mask="url(#crescentMask)" />
+          {/* Moon — evening: dim crescent, night: fuller with glow */}
+          {(scene === 'evening' || scene === 'night') && <>
+            {scene === 'night' && <circle cx="72" cy="36" r="34" fill="url(#moonGlow)"/>}
+            <circle
+              cx="72" cy="36"
+              r={scene === 'night' ? 13 : 10}
+              fill={scene === 'night' ? '#FFF6DC' : '#EEE4C0'}
+              fillOpacity={scene === 'night' ? 0.90 : 0.62}
+              mask="url(#moonMask)"
+            />
           </>}
 
-          {scene === 'night' && <>
-            <circle cx={MOON.x} cy={MOON.y} r={34} fill="url(#moonGlow)" />
-            <circle cx={MOON.x} cy={MOON.y} r={13} fill="#FFF6DC" fillOpacity={0.92} mask="url(#fullMoonMask)" />
-            {/* Subtle surface texture dots */}
-            <circle cx={MOON.x - 3} cy={MOON.y + 3} r={1.8} fill="#E8D8A0" fillOpacity={0.20} />
-            <circle cx={MOON.x + 4} cy={MOON.y - 2} r={1.2} fill="#E8D8A0" fillOpacity={0.15} />
-          </>}
-
-          {/* ── Morning: horizon glow + rising sun disc + rays ── */}
-          {scene === 'morning' && <>
-            {/* Wide horizon glow */}
-            <ellipse cx={CREST.x} cy={CREST.y + 10} rx={180} ry={95} fill="url(#horizonGlow)" />
-            {/* Rays behind disc */}
-            {MORNING_RAYS.map((r, i) => {
-              const end = ray(CREST.x, CREST.y, r.a, r.len)
-              return (
-                <line key={i} x1={CREST.x} y1={CREST.y} x2={end.x2} y2={end.y2}
-                  stroke="#F5C98A" strokeWidth={r.w} strokeOpacity={r.o} strokeLinecap="round" />
-              )
-            })}
-            {/* Rising sun disc — half circle peeking at horizon */}
-            <path d={`M ${CREST.x - 34} ${CREST.y} A 34 34 0 0 1 ${CREST.x + 34} ${CREST.y}`}
-              fill="#F5C98A" fillOpacity={0.82} />
-            <path d={`M ${CREST.x - 22} ${CREST.y} A 22 22 0 0 1 ${CREST.x + 22} ${CREST.y}`}
-              fill="#FFE07A" fillOpacity={0.90} />
-            <path d={`M ${CREST.x - 12} ${CREST.y} A 12 12 0 0 1 ${CREST.x + 12} ${CREST.y}`}
-              fill="#FFF5D0" fillOpacity={0.98} />
-          </>}
-
-          {/* ── Afternoon: sun disc + rays ── */}
-          {scene === 'afternoon' && <>
-            <circle cx={SUN.x} cy={SUN.y} r={52} fill="url(#sunGlow)" />
-            {AFTERNOON_RAYS.map((r, i) => {
-              const end = ray(SUN.x, SUN.y, r.a, r.len)
-              return (
-                <line key={i} x1={SUN.x} y1={SUN.y} x2={end.x2} y2={end.y2}
-                  stroke="#FFE896" strokeWidth={r.w} strokeOpacity={r.o} strokeLinecap="round" />
-              )
-            })}
-            <circle cx={SUN.x} cy={SUN.y} r={14} fill="#FFE896" fillOpacity={0.9} />
-            <circle cx={SUN.x} cy={SUN.y} r={9}  fill="#FFFBD0" />
-          </>}
-
-          {/* ── Clouds ── */}
+          {/* Blurred atmospheric clouds */}
           {scene && CLOUDS[scene].map((c, i) => (
-            <Cloud key={i} x={c.x} y={c.y} s={c.s} o={c.o} fill={CLOUD_FILL[scene]} />
+            <g key={i} transform={`translate(${c.x},${c.y}) scale(${c.s})`} filter="url(#cloudBlur)" opacity={c.o}>
+              <ellipse cx={0}   cy={0}   rx={52} ry={17} fill={CLOUD_COLOR[scene]}/>
+              <ellipse cx={-22} cy={-11} rx={33} ry={16} fill={CLOUD_COLOR[scene]}/>
+              <ellipse cx={20}  cy={-14} rx={38} ry={17} fill={CLOUD_COLOR[scene]}/>
+              <ellipse cx={46}  cy={-5}  rx={25} ry={14} fill={CLOUD_COLOR[scene]}/>
+            </g>
           ))}
         </svg>
 
-        {/* Profile button floats top-right in the sky */}
+        {/* Profile button */}
         <div style={{ position: 'absolute', top: 16, right: 16 }}>
           <ProfileButton />
         </div>
       </div>
 
-      {/* ── Greeting — domes up into the sky as a hill shape ── */}
+      {/* ── Beige dome — curved shape divider ── */}
       <div style={{
         background: '#FBF8F5',
         borderRadius: '50% 50% 0 0 / 28px 28px 0 0',

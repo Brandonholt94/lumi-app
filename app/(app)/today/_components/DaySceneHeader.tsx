@@ -7,21 +7,6 @@ interface Props { firstName: string }
 
 type Scene = 'morning' | 'afternoon' | 'evening' | 'night'
 
-const STARS = [
-  { x: 25,  y: 18, r: 1.2, o: 0.85 }, { x: 72,  y: 10, r: 0.8, o: 0.65 },
-  { x: 128, y: 30, r: 1.4, o: 0.9  }, { x: 183, y:  8, r: 0.9, o: 0.7  },
-  { x: 248, y: 22, r: 1.3, o: 0.85 }, { x: 312, y: 14, r: 0.8, o: 0.6  },
-  { x: 366, y: 26, r: 1.2, o: 0.8  }, { x: 45,  y: 52, r: 0.9, o: 0.65 },
-  { x: 103, y: 62, r: 1.3, o: 0.75 }, { x: 162, y: 44, r: 0.8, o: 0.6  },
-  { x: 220, y: 56, r: 1.2, o: 0.8  }, { x: 282, y: 40, r: 0.9, o: 0.7  },
-  { x: 345, y: 48, r: 1.1, o: 0.75 }, { x: 16,  y: 82, r: 0.8, o: 0.55 },
-  { x: 155, y: 92, r: 0.9, o: 0.65 }, { x: 235, y: 76, r: 1.3, o: 0.8  },
-  { x: 305, y: 86, r: 0.8, o: 0.6  }, { x: 375, y: 70, r: 1.1, o: 0.75 },
-  { x: 68,  y: 115, r: 0.8, o: 0.5 }, { x: 190, y: 120, r: 0.9, o: 0.55 },
-  { x: 335, y: 108, r: 0.8, o: 0.5 }, { x: 52,  y: 32,  r: 0.7, o: 0.5 },
-  { x: 288, y: 64,  r: 0.7, o: 0.55 },{ x: 142, y: 100, r: 0.7, o: 0.45 },
-]
-
 function getScene(hour: number): Scene {
   if (hour >= 5  && hour < 12) return 'morning'
   if (hour >= 12 && hour < 17) return 'afternoon'
@@ -36,12 +21,27 @@ function getGreeting(hour: number) {
   return                               { text: 'Evening',   emoji: '🌙' }
 }
 
-// Hill colours — dark silhouette, varies subtly per scene
-const HILL_COLOR: Record<Scene, string> = {
-  morning:   '#1A1428',
-  afternoon: '#1C2640',
-  evening:   '#18112A',
-  night:     '#0C0A1A',
+// Sky gradients — top to bottom per scene
+const SKY: Record<Scene, string[]> = {
+  morning:   ['#1E1C2E', '#4A2260', '#E8A0BF', '#F4A582', '#F5C98A'],
+  afternoon: ['#4A7AB8', '#8FAAE0', '#C0D8F0'],
+  evening:   ['#1A1228', '#5E2D5E', '#E8A0BF', '#F4A582'],
+  night:     ['#09071A', '#1E1C2E', '#2D2A3E', '#3A3660'],
+}
+
+const SKY_STOPS: Record<Scene, string[]> = {
+  morning:   ['0%', '20%', '50%', '75%', '100%'],
+  afternoon: ['0%', '55%', '100%'],
+  evening:   ['0%', '22%', '60%', '100%'],
+  night:     ['0%', '38%', '74%', '100%'],
+}
+
+// Dark hill tint per scene
+const HILL: Record<Scene, string> = {
+  morning:   '#15101F',
+  afternoon: '#121B2E',
+  evening:   '#110D1E',
+  night:     '#08061A',
 }
 
 export default function DaySceneHeader({ firstName }: Props) {
@@ -53,168 +53,67 @@ export default function DaySceneHeader({ firstName }: Props) {
     const hour = new Date().getHours()
     setScene(getScene(hour))
     setGreeting(getGreeting(hour))
-    setDate(new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }))
+    setDate(new Date().toLocaleDateString('en-US', {
+      weekday: 'long', month: 'long', day: 'numeric',
+    }))
   }, [])
 
-  // Afternoon sky is lighter — use dark text, all others use light text
-  const lightText  = scene !== 'afternoon'
-  const textColor  = lightText ? '#F5F3F0' : '#1E1C2E'
-  const textMuted  = lightText ? 'rgba(245,243,240,0.68)' : 'rgba(30,28,46,0.55)'
-  const hillColor  = scene ? HILL_COLOR[scene] : '#1A1428'
+  const hillColor = scene ? HILL[scene] : '#08061A'
 
-  // Hill path — smooth single bump, peaks at centre
-  // ViewBox 390×260. Hill starts at y=195, peaks at y=168 centre.
-  // Wide dome arc — both control points pulled high so the bezier
-  // forms a smooth round dome (crest ≈ y 138 in a 280px viewBox)
-  const hill = 'M -5 280 C -5 90, 395 90, 395 280 Z'
+  // Wide dome bezier — both control points pulled high, crest ≈ y 75 in 180px viewBox
+  const dome = 'M -5 180 C -5 38, 395 38, 395 180 Z'
 
   return (
-    // overflow-hidden clips the SVG at the container edge — the hill
-    // sits flush so the beige content below has a clean curve above it
-    <div style={{ position: 'relative', width: '100%', flexShrink: 0, overflow: 'hidden' }}>
+    <div style={{ width: '100%', flexShrink: 0 }}>
 
-      <svg
-        viewBox="0 0 390 280"
-        width="100%"
-        preserveAspectRatio="xMidYMid slice"
-        style={{ display: 'block' }}
-      >
-        <defs>
-          {/* ── Sky gradients ── */}
-          {scene === 'morning' && (
+      {/* ── Scene ── */}
+      <div style={{ position: 'relative', overflow: 'hidden' }}>
+        <svg
+          viewBox="0 0 390 180"
+          width="100%"
+          preserveAspectRatio="xMidYMid slice"
+          style={{ display: 'block' }}
+        >
+          <defs>
             <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%"   stopColor="#1E1C2E" />
-              <stop offset="20%"  stopColor="#4A2260" />
-              <stop offset="48%"  stopColor="#E8A0BF" />
-              <stop offset="72%"  stopColor="#F4A582" />
-              <stop offset="100%" stopColor="#F5C98A" />
+              {scene
+                ? SKY[scene].map((color, i) => (
+                    <stop key={i} offset={SKY_STOPS[scene][i]} stopColor={color} />
+                  ))
+                : <stop offset="0%" stopColor="#09071A" />}
             </linearGradient>
-          )}
-          {scene === 'afternoon' && (
-            <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%"   stopColor="#4A7AB8" />
-              <stop offset="50%"  stopColor="#8FAAE0" />
-              <stop offset="100%" stopColor="#C0D8F0" />
-            </linearGradient>
-          )}
-          {scene === 'evening' && (
-            <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%"   stopColor="#1A1228" />
-              <stop offset="22%"  stopColor="#5E2D5E" />
-              <stop offset="58%"  stopColor="#E8A0BF" />
-              <stop offset="100%" stopColor="#F4A582" />
-            </linearGradient>
-          )}
-          {scene === 'night' && (
-            <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%"   stopColor="#09071A" />
-              <stop offset="38%"  stopColor="#1E1C2E" />
-              <stop offset="74%"  stopColor="#2D2A3E" />
-              <stop offset="100%" stopColor="#3A3660" />
-            </linearGradient>
-          )}
+          </defs>
 
-          {/* Sun glow */}
-          {(scene === 'morning' || scene === 'afternoon' || scene === 'evening') && (
-            <radialGradient id="sunGlow" cx="50%" cy="50%" r="50%">
-              <stop offset="0%"   stopColor="#F5C98A" stopOpacity="0.95" />
-              <stop offset="40%"  stopColor="#F4A582" stopOpacity="0.5"  />
-              <stop offset="100%" stopColor="#F4A582" stopOpacity="0"    />
-            </radialGradient>
-          )}
+          {/* Sky */}
+          <rect width="390" height="180" fill="url(#skyGrad)" />
 
-          {/* Moon glow */}
-          {scene === 'night' && (
-            <radialGradient id="moonGlow" cx="50%" cy="50%" r="50%">
-              <stop offset="0%"   stopColor="#E0D8F8" stopOpacity="0.75" />
-              <stop offset="55%"  stopColor="#B8A8E0" stopOpacity="0.2"  />
-              <stop offset="100%" stopColor="#B8A8E0" stopOpacity="0"    />
-            </radialGradient>
-          )}
+          {/* Dome hill — nothing inside, purely the silhouette */}
+          <path d={dome} fill={hillColor} />
+        </svg>
 
-          {/* Hill gradient — adds depth: slightly lighter at the crest */}
-          <linearGradient id="hillGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%"   stopColor={hillColor} stopOpacity="0.85" />
-            <stop offset="100%" stopColor={hillColor} stopOpacity="1"    />
-          </linearGradient>
-        </defs>
+        {/* Profile button floats top-right in the sky */}
+        <div style={{ position: 'absolute', top: 16, right: 16 }}>
+          <ProfileButton />
+        </div>
+      </div>
 
-        {/* Sky fill */}
-        <rect width="390" height="280" fill={scene ? 'url(#skyGrad)' : '#1E1C2E'} />
-
-        {/* ── Stars (night) ── */}
-        {scene === 'night' && STARS.map((s, i) => (
-          <circle key={i} cx={s.x} cy={s.y} r={s.r} fill="white" fillOpacity={s.o} />
-        ))}
-
-        {/* ── Morning: sun rising just above the dome crest ── */}
-        {scene === 'morning' && <>
-          {/* Wide glow halo radiating from crest */}
-          <circle cx={195} cy={145} r={100} fill="url(#sunGlow)" opacity={0.6} />
-          {/* Sun body — sits just above the dome peak */}
-          <circle cx={195} cy={118} r={34} fill="#F5C98A" />
-          <circle cx={195} cy={118} r={25} fill="#FFE58A" />
-        </>}
-
-        {/* ── Afternoon: sun high and bright ── */}
-        {scene === 'afternoon' && <>
-          <circle cx={310} cy={58} r={52} fill="url(#sunGlow)" />
-          <circle cx={310} cy={58} r={22} fill="#FFE896" />
-          <circle cx={310} cy={58} r={14} fill="#FFFBD0" />
-        </>}
-
-        {/* ── Evening: sun setting at the dome crest ── */}
-        {scene === 'evening' && <>
-          <circle cx={195} cy={145} r={95} fill="url(#sunGlow)" opacity={0.6} />
-          <circle cx={195} cy={120} r={30} fill="#F4A582" />
-          <circle cx={195} cy={120} r={21} fill="#F5C98A" />
-        </>}
-
-        {/* ── Night: crescent moon, high in sky ── */}
-        {scene === 'night' && <>
-          <circle cx={295} cy={62} r={46} fill="url(#moonGlow)" />
-          <circle cx={295} cy={62} r={20} fill="#EAE2FA" />
-          <circle cx={306} cy={56} r={16} fill="#1E1C2E" fillOpacity={0.9} />
-        </>}
-
-        {/* ── Hill silhouette — single smooth dome arc ── */}
-        <path d={hill} fill="url(#hillGrad)" />
-
-        {/* Subtle highlight arc along the crest */}
-        <path
-          d="M -5 280 C -5 88, 395 88, 395 280"
-          fill="none"
-          stroke="rgba(255,255,255,0.07)"
-          strokeWidth="1.5"
-        />
-      </svg>
-
-      {/* ── Greeting overlay ── */}
+      {/* ── Greeting — sits below the hill in the content area ── */}
       <div style={{
-        position: 'absolute', inset: 0,
-        padding: '22px 20px 0',
-        pointerEvents: 'none',
+        background: '#FBF8F5',
+        padding: '18px 20px 0',
       }}>
-        <div style={{
-          display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between',
-          pointerEvents: 'auto',
-        }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
           <div>
             <h1 style={{
               fontFamily: 'var(--font-fraunces)',
               fontSize: 26, fontWeight: 900,
-              color: textColor,
+              color: '#1E1C2E',
               lineHeight: 1.1, marginBottom: 3,
-              textShadow: lightText ? '0 1px 12px rgba(0,0,0,0.22)' : 'none',
             }}>
-              {greeting
-                ? `${greeting.emoji} ${greeting.text}, `
-                : <span style={{ opacity: 0 }}>·</span>}
+              {greeting ? `${greeting.emoji} ${greeting.text}, ` : <span style={{ opacity: 0 }}>·</span>}
               {greeting && (
                 <span style={{
-                  background: scene === 'afternoon'
-                    ? 'linear-gradient(90deg, #F4A582, #F5C98A, #8FAAE0)'
-                    : 'linear-gradient(90deg, #F5C98A, #E8A0BF)',
+                  background: 'linear-gradient(90deg, #F4A582, #F5C98A, #8FAAE0)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
                   backgroundClip: 'text',
@@ -226,13 +125,11 @@ export default function DaySceneHeader({ firstName }: Props) {
             <p style={{
               fontFamily: 'var(--font-nunito-sans)',
               fontSize: 12, fontWeight: 600,
-              color: textMuted,
-              textShadow: lightText ? '0 1px 6px rgba(0,0,0,0.15)' : 'none',
+              color: '#9895B0',
             }}>
               {date || '\u00A0'} · Let&apos;s find your one thing.
             </p>
           </div>
-          <ProfileButton />
         </div>
       </div>
 

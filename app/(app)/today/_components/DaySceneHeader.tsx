@@ -121,7 +121,9 @@ export default function DaySceneHeader({ firstName }: Props) {
     }))
   }, [])
 
-  const CREST = { x: 195, y: 95 }
+  // Sun sits below dome overlap so it peeks over the hill
+  // Dome covers from y≈110 up (138px render - 28px overlap = 110px = viewBox y 110)
+  const CREST = { x: 195, y: 118 }
   const SUN   = { x: 195, y: 30 }
   // Moon: upper-left, clear of profile button (upper-right)
   const MOON  = { x: 70, y: 40 }

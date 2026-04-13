@@ -1,6 +1,6 @@
 import { auth } from '@clerk/nextjs/server'
 import { createClient } from '@supabase/supabase-js'
-import { NextResponse } from 'next/server'
+import { NextResponse, type NextRequest } from 'next/server'
 
 // Use service role to bypass RLS — we filter by clerk_user_id manually
 function getServiceClient() {
@@ -91,17 +91,25 @@ export async function PATCH(req: Request) {
       .eq('clerk_user_id', userId)
   }
 
+  // Stamp completed_at when marking done — tolerates column not existing yet
+  if (!error && updates.completed === true) {
+    await supabase
+      .from('captures')
+      .update({ completed_at: new Date().toISOString() })
+      .eq('id', id)
+      .eq('clerk_user_id', userId)
+  }
+
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json(data)
 }
 
 // DELETE /api/captures?id=xxx — delete a capture
-export async function DELETE(req: Request) {
+export async function DELETE(req: NextRequest) {
   const { userId } = await auth()
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { searchParams } = new URL(req.url)
-  const id = searchParams.get('id')
+  const id = req.nextUrl.searchParams.get('id')
   if (!id) return NextResponse.json({ error: 'ID is required' }, { status: 400 })
 
   const supabase = getServiceClient()

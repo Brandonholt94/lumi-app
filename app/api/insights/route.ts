@@ -28,10 +28,10 @@ export async function GET() {
   const supabase = getServiceClient()
   const { monday, sunday } = getWeekBounds()
 
-  const [capturesRes, moodsRes, focusRes, profileRes] = await Promise.all([
+  const [capturesRes, moodsRes, focusRes, profileRes, completedRes] = await Promise.all([
     supabase
       .from('captures')
-      .select('tag, created_at, completed, text')
+      .select('tag, created_at, text')
       .eq('clerk_user_id', userId)
       .gte('created_at', monday.toISOString())
       .lte('created_at', sunday.toISOString()),
@@ -51,17 +51,29 @@ export async function GET() {
       .select('plan')
       .eq('clerk_user_id', userId)
       .single(),
+    // Completed tasks: keyed off completed_at so tasks from prior weeks count
+    supabase
+      .from('captures')
+      .select('text, completed_at')
+      .eq('clerk_user_id', userId)
+      .eq('completed', true)
+      .eq('tag', 'task')
+      .gte('completed_at', monday.toISOString())
+      .lte('completed_at', sunday.toISOString()),
   ])
 
-  const captures     = capturesRes.data  ?? []
-  const moods        = moodsRes.data     ?? []
-  const focusSessions = focusRes.data    ?? []
-  const plan         = profileRes.data?.plan ?? 'free'
+  const captures      = capturesRes.data  ?? []
+  const moods         = moodsRes.data     ?? []
+  const focusSessions = focusRes.data     ?? []
+  const plan          = profileRes.data?.plan ?? 'free'
+  const completedTasks = (completedRes.data ?? []).map(c => ({
+    text: c.text,
+    created_at: c.completed_at as string,
+  }))
 
-  // Capture stats
+  // Capture stats — week captures only (for byTag / byDay activity)
   const byTag = { task: 0, idea: 0, worry: 0, reminder: 0, untagged: 0 }
   const byDay = [0, 0, 0, 0, 0, 0, 0] // Mon=0 … Sun=6
-  const completedTasks: { text: string; created_at: string }[] = []
 
   for (const c of captures) {
     const key = c.tag as keyof typeof byTag
@@ -69,9 +81,6 @@ export async function GET() {
     else byTag.untagged++
     const d = new Date(c.created_at).getDay()
     byDay[d === 0 ? 6 : d - 1]++
-    if (c.completed && c.tag === 'task') {
-      completedTasks.push({ text: c.text, created_at: c.created_at })
-    }
   }
 
   const maxDay      = Math.max(...byDay)

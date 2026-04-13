@@ -1,4 +1,5 @@
-import { currentUser } from '@clerk/nextjs/server'
+import { auth } from '@clerk/nextjs/server'
+import { createClient } from '@supabase/supabase-js'
 import MoodSelector from './_components/MoodSelector'
 import OneFocusCard from './_components/OneFocusCard'
 import LumiNudge from './_components/LumiNudge'
@@ -7,12 +8,27 @@ import EveningBrainClear from './_components/EveningBrainClear'
 import GreetingHeader from './_components/GreetingHeader'
 import Link from 'next/link'
 
+function getServiceClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+}
+
 export default async function TodayPage() {
-  const user = await currentUser()
-  // Prefer Clerk firstName → email prefix → 'Friend'
-  const emailPrefix = user?.emailAddresses?.[0]?.emailAddress?.split('@')[0] ?? ''
-  const firstName = user?.firstName
-    ?? (emailPrefix ? emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1) : 'Friend')
+  const { userId } = await auth()
+
+  // Read display_name from profiles (set during onboarding)
+  let firstName = 'Friend'
+  if (userId) {
+    const supabase = getServiceClient()
+    const { data } = await supabase
+      .from('profiles')
+      .select('display_name')
+      .eq('clerk_user_id', userId)
+      .maybeSingle()
+    if (data?.display_name) firstName = data.display_name
+  }
 
   return (
     <div className="flex flex-col h-full overflow-y-auto" style={{ background: '#FBF8F5' }}>

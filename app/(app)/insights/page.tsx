@@ -206,7 +206,7 @@ function FocusCard({ sessions, minutes }: { sessions: number; minutes: number })
 }
 
 // ── Brain Report card ─────────────────────────────────────
-function BrainReportCard({ plan }: { plan: 'free' | 'starter' | 'core' | 'companion' }) {
+function BrainReportCard({ plan, daysWithData }: { plan: 'free' | 'starter' | 'core' | 'companion'; daysWithData: number }) {
   const [status,  setStatus]  = useState<'idle' | 'loading' | 'done' | 'error'>('idle')
   const [report,  setReport]  = useState<string | null>(null)
   const isPaid = plan === 'core' || plan === 'companion'
@@ -296,7 +296,51 @@ function BrainReportCard({ plan }: { plan: 'free' | 'starter' | 'core' | 'compan
           </p>
         </div>
 
-        {status === 'idle' && (
+        {status === 'idle' && daysWithData < 3 && (
+          <>
+            <p style={{ fontFamily: 'var(--font-fraunces)', fontSize: '20px', fontWeight: 900, color: '#F5F2EE', lineHeight: 1.2, marginBottom: 10 }}>
+              Your week, through Lumi&apos;s eyes.
+            </p>
+            <div style={{ background: 'rgba(255,255,255,0.06)', borderRadius: 12, padding: '14px 16px', marginBottom: 4 }}>
+              <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 600, color: 'rgba(245,242,238,0.55)', lineHeight: 1.6 }}>
+                Come back in a few days. Lumi needs more of your week to write something meaningful.
+              </p>
+            </div>
+          </>
+        )}
+
+        {status === 'idle' && daysWithData >= 3 && daysWithData < 7 && (
+          <>
+            <p style={{ fontFamily: 'var(--font-fraunces)', fontSize: '20px', fontWeight: 900, color: '#F5F2EE', lineHeight: 1.2, marginBottom: 8 }}>
+              Your week, through Lumi&apos;s eyes.
+            </p>
+            <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 600, color: 'rgba(245,242,238,0.5)', lineHeight: 1.5, marginBottom: 16 }}>
+              Your week isn&apos;t over yet — you can generate an early report or wait until Sunday for the full picture.
+            </p>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button onClick={generate} style={{
+                flex: 1, padding: '13px',
+                background: 'linear-gradient(135deg, #F4A582, #F5C98A)',
+                border: 'none', borderRadius: 12, cursor: 'pointer',
+                fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 800, color: '#1E1C2E',
+              }}>
+                Generate early
+              </button>
+              <div style={{
+                flex: 1, padding: '13px',
+                background: 'rgba(255,255,255,0.06)',
+                borderRadius: 12,
+                fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 700,
+                color: 'rgba(245,242,238,0.35)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                Wait for Sunday
+              </div>
+            </div>
+          </>
+        )}
+
+        {status === 'idle' && daysWithData >= 7 && (
           <>
             <p style={{ fontFamily: 'var(--font-fraunces)', fontSize: '20px', fontWeight: 900, color: '#F5F2EE', lineHeight: 1.2, marginBottom: 8 }}>
               Your week, through Lumi&apos;s eyes.
@@ -371,8 +415,12 @@ export default function InsightsPage() {
       .finally(() => setLoading(false))
   }, [])
 
-  const weekLabel = data ? formatWeekRange(data.week.start, data.week.end) : '—'
-  const topMood   = data ? dominantMood(data.moods) : null
+  const weekLabel    = data ? formatWeekRange(data.week.start, data.week.end) : '—'
+  const topMood      = data ? dominantMood(data.moods) : null
+  // Days with at least one capture OR a mood logged
+  const daysWithData = data
+    ? data.captures.byDay.filter((n, i) => n > 0 || data.moods[i]?.mood != null).length
+    : 0
 
   return (
     <div className="flex flex-col h-full overflow-y-auto">
@@ -468,7 +516,7 @@ export default function InsightsPage() {
             {/* ── Weekly Brain Report ── */}
             <div>
               <SectionLabel>WEEKLY BRAIN REPORT</SectionLabel>
-              <BrainReportCard plan={data.plan} />
+              <BrainReportCard plan={data.plan} daysWithData={daysWithData} />
             </div>
 
             {/* ── Daily activity chart ── */}

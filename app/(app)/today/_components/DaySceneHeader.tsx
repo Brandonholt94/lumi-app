@@ -35,14 +35,6 @@ const SKY_STOPS: Record<Scene, string[]> = {
   night:     ['0%', '38%', '74%', '100%'],
 }
 
-// ── Hill tint ──────────────────────────────────────────────────
-const HILL: Record<Scene, string> = {
-  morning:   '#15101F',
-  afternoon: '#121B2E',
-  evening:   '#110D1E',
-  night:     '#08061A',
-}
-
 // ── Stars — pre-set so they never shift on re-render ──────────
 // Kept in the upper sky area (y < 80) so they clear the dome crest
 const STARS = [
@@ -112,9 +104,6 @@ export default function DaySceneHeader({ firstName }: Props) {
     }))
   }, [])
 
-  const hillColor = scene ? HILL[scene] : '#08061A'
-  // Dome extends far off both sides so only the smooth arc is visible
-  const dome = 'M -300 260 C -300 40, 690 40, 690 260 Z'
   // Dome crest ≈ (195, 95) in 180px viewBox — rays start here
   const CREST = { x: 195, y: 95 }
   // Afternoon sun sits high in the sky
@@ -123,8 +112,12 @@ export default function DaySceneHeader({ firstName }: Props) {
   return (
     <div style={{ width: '100%', flexShrink: 0 }}>
 
-      {/* ── Scene ── */}
-      <div style={{ position: 'relative', overflow: 'hidden' }}>
+      {/* ── Scene — border-radius clips sky into a dome (no straight edge) ── */}
+      <div style={{
+        position: 'relative',
+        overflow: 'hidden',
+        borderRadius: '0 0 50% 50% / 0 0 52px 52px',
+      }}>
         <svg
           viewBox="0 0 390 180"
           width="100%"
@@ -214,8 +207,7 @@ export default function DaySceneHeader({ firstName }: Props) {
             <circle cx={SUN.x} cy={SUN.y} r={9}  fill="#FFFBD0" />
           </>}
 
-          {/* ── Dome hill silhouette ── */}
-          <path d={dome} fill={hillColor} />
+          {/* No dome path — border-radius on container is the shape divider */}
         </svg>
 
         {/* Profile button floats top-right in the sky */}

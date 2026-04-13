@@ -60,8 +60,10 @@ export default function DaySceneHeader({ firstName }: Props) {
 
   const hillColor = scene ? HILL[scene] : '#08061A'
 
-  // Wide dome bezier — both control points pulled high, crest ≈ y 75 in 180px viewBox
-  const dome = 'M -5 180 C -5 38, 395 38, 395 180 Z'
+  // Dome extends FAR off both sides (-300 and 690) so the visible portion
+  // (x 0–390) shows only the gentle top arc — no edges ever appear.
+  // Path bottom (y=260) extends below the 180px viewBox, clipped by overflow:hidden.
+  const dome = 'M -300 260 C -300 40, 690 40, 690 260 Z'
 
   return (
     <div style={{ width: '100%', flexShrink: 0 }}>

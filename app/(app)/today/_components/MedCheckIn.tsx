@@ -90,7 +90,7 @@ export default function MedCheckIn() {
 
   // Label: "8:00 AM meds" using the earliest scheduled time in window
   const earliest = meds.reduce((a, b) =>
-    a.scheduled_time < b.scheduled_time ? a : b
+    (a.scheduled_time ?? '') < (b.scheduled_time ?? '') ? a : b
   )
 
   return (

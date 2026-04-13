@@ -1,51 +1,82 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import MeHeader from '../_components/MeHeader'
 
 type Medication = {
   id: string
   name: string
-  dose: string
-  time: string
-  taken: boolean
+  dose: string | null
+  time_of_day: string
 }
 
 const TIMES = ['Morning', 'Midday', 'Afternoon', 'Evening', 'Bedtime']
 
-export default function MedicationPage() {
-  const [meds, setMeds] = useState<Medication[]>([
-    { id: '1', name: 'Adderall XR', dose: '20mg', time: 'Morning', taken: false },
-  ])
-  const [showAdd, setShowAdd] = useState(false)
-  const [newName, setNewName] = useState('')
-  const [newDose, setNewDose] = useState('')
-  const [newTime, setNewTime] = useState('Morning')
+function todayDate() {
+  return new Date().toISOString().split('T')[0]
+}
 
-  function toggleTaken(id: string) {
-    setMeds(prev => prev.map(m => m.id === id ? { ...m, taken: !m.taken } : m))
+export default function MedicationPage() {
+  const [meds, setMeds]           = useState<Medication[]>([])
+  const [takenIds, setTakenIds]   = useState<Set<string>>(new Set())
+  const [loading, setLoading]     = useState(true)
+  const [showAdd, setShowAdd]     = useState(false)
+  const [newName, setNewName]     = useState('')
+  const [newDose, setNewDose]     = useState('')
+  const [newTime, setNewTime]     = useState('Morning')
+  const [saving, setSaving]       = useState(false)
+
+  const fetchMeds = useCallback(async () => {
+    const [medsRes, logRes] = await Promise.all([
+      fetch('/api/medications'),
+      fetch(`/api/medications/log?date=${todayDate()}`),
+    ])
+    if (medsRes.ok) setMeds(await medsRes.json())
+    if (logRes.ok) setTakenIds(new Set(await logRes.json()))
+    setLoading(false)
+  }, [])
+
+  useEffect(() => { fetchMeds() }, [fetchMeds])
+
+  async function toggleTaken(id: string) {
+    const taken = !takenIds.has(id)
+    setTakenIds(prev => {
+      const next = new Set(prev)
+      taken ? next.add(id) : next.delete(id)
+      return next
+    })
+    await fetch('/api/medications/log', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ medication_id: id, date: todayDate(), taken }),
+    })
   }
 
-  function addMed() {
-    if (!newName.trim()) return
-    setMeds(prev => [...prev, {
-      id: Date.now().toString(),
-      name: newName.trim(),
-      dose: newDose.trim(),
-      time: newTime,
-      taken: false,
-    }])
+  async function addMed() {
+    if (!newName.trim() || saving) return
+    setSaving(true)
+    const res = await fetch('/api/medications', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: newName.trim(), dose: newDose.trim(), time_of_day: newTime }),
+    })
+    if (res.ok) {
+      const med = await res.json()
+      setMeds(prev => [...prev, med])
+    }
     setNewName('')
     setNewDose('')
     setNewTime('Morning')
     setShowAdd(false)
+    setSaving(false)
   }
 
-  function removeMed(id: string) {
+  async function removeMed(id: string) {
     setMeds(prev => prev.filter(m => m.id !== id))
+    await fetch(`/api/medications?id=${id}`, { method: 'DELETE' })
   }
 
-  const takenCount = meds.filter(m => m.taken).length
+  const takenCount = meds.filter(m => takenIds.has(m.id)).length
 
   return (
     <div className="flex flex-col h-full overflow-y-auto" style={{ paddingBottom: 48 }}>
@@ -53,7 +84,7 @@ export default function MedicationPage() {
       <MeHeader title="Medication log" />
 
       {/* Today summary */}
-      {meds.length > 0 && (
+      {!loading && meds.length > 0 && (
         <div className="px-5 py-3">
           <div style={{
             background: takenCount === meds.length
@@ -72,7 +103,7 @@ export default function MedicationPage() {
               fontWeight: 700,
               color: '#2D2A3E',
             }}>
-              {takenCount === meds.length && meds.length > 0
+              {takenCount === meds.length
                 ? 'All done for today!'
                 : `${takenCount} of ${meds.length} taken today`}
             </p>
@@ -82,7 +113,6 @@ export default function MedicationPage() {
 
       <div className="px-5 pt-2">
 
-        {/* Section label */}
         <p style={{
           fontFamily: 'var(--font-nunito-sans)',
           fontSize: '10px',
@@ -95,7 +125,6 @@ export default function MedicationPage() {
           TODAY
         </p>
 
-        {/* Meds list */}
         <div style={{
           background: 'white',
           borderRadius: 16,
@@ -103,7 +132,19 @@ export default function MedicationPage() {
           overflow: 'hidden',
           marginBottom: 16,
         }}>
-          {meds.length === 0 ? (
+          {loading ? (
+            <div style={{ padding: '20px 16px' }}>
+              {[1,2].map(i => (
+                <div key={i} style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: i === 1 ? 14 : 0 }}>
+                  <div style={{ width: 24, height: 24, borderRadius: 6, background: '#F0EDE8' }}/>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ height: 10, width: '55%', borderRadius: 4, background: '#F0EDE8', marginBottom: 6 }}/>
+                    <div style={{ height: 8, width: '35%', borderRadius: 4, background: '#F0EDE8' }}/>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : meds.length === 0 ? (
             <div style={{ padding: '24px 20px', textAlign: 'center' }}>
               <p style={{
                 fontFamily: 'var(--font-nunito-sans)',
@@ -115,75 +156,77 @@ export default function MedicationPage() {
               </p>
             </div>
           ) : (
-            meds.map((med, i) => (
-              <div key={med.id} style={{
-                display: 'flex',
-                alignItems: 'center',
-                padding: '14px 16px',
-                borderBottom: i < meds.length - 1 ? '1px solid rgba(45,42,62,0.06)' : 'none',
-                gap: 12,
-              }}>
-                {/* Checkbox */}
-                <button
-                  onClick={() => toggleTaken(med.id)}
-                  style={{
-                    width: 24,
-                    height: 24,
-                    borderRadius: 6,
-                    border: med.taken ? 'none' : '2px solid rgba(45,42,62,0.15)',
-                    background: med.taken ? 'linear-gradient(135deg, #F4A582, #F5C98A)' : 'transparent',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0,
-                    cursor: 'pointer',
-                    transition: 'all 0.15s',
-                  }}
-                >
-                  {med.taken && (
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                      <path d="M2.5 6L5 8.5L9.5 3.5" stroke="#1E1C2E" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+            meds.map((med, i) => {
+              const taken = takenIds.has(med.id)
+              return (
+                <div key={med.id} style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  padding: '14px 16px',
+                  borderBottom: i < meds.length - 1 ? '1px solid rgba(45,42,62,0.06)' : 'none',
+                  gap: 12,
+                }}>
+                  <button
+                    onClick={() => toggleTaken(med.id)}
+                    style={{
+                      width: 24,
+                      height: 24,
+                      borderRadius: 6,
+                      border: taken ? 'none' : '2px solid rgba(45,42,62,0.15)',
+                      background: taken ? 'linear-gradient(135deg, #F4A582, #F5C98A)' : 'transparent',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0,
+                      cursor: 'pointer',
+                      transition: 'all 0.15s',
+                    }}
+                  >
+                    {taken && (
+                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                        <path d="M2.5 6L5 8.5L9.5 3.5" stroke="#1E1C2E" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    )}
+                  </button>
+
+                  <div style={{ flex: 1 }}>
+                    <p style={{
+                      fontFamily: 'var(--font-nunito-sans)',
+                      fontSize: '14px',
+                      fontWeight: 700,
+                      color: taken ? '#9895B0' : '#2D2A3E',
+                      textDecoration: taken ? 'line-through' : 'none',
+                      marginBottom: 1,
+                    }}>
+                      {med.name}
+                    </p>
+                    <p style={{
+                      fontFamily: 'var(--font-nunito-sans)',
+                      fontSize: '12px',
+                      fontWeight: 600,
+                      color: '#9895B0',
+                    }}>
+                      {med.dose ? `${med.dose} · ` : ''}{med.time_of_day}
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={() => removeMed(med.id)}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      padding: 4,
+                      color: '#C4C0D4',
+                    }}
+                  >
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                      <path d="M4 4L12 12M12 4L4 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
                     </svg>
-                  )}
-                </button>
-
-                <div style={{ flex: 1 }}>
-                  <p style={{
-                    fontFamily: 'var(--font-nunito-sans)',
-                    fontSize: '14px',
-                    fontWeight: 700,
-                    color: med.taken ? '#9895B0' : '#2D2A3E',
-                    textDecoration: med.taken ? 'line-through' : 'none',
-                    marginBottom: 1,
-                  }}>
-                    {med.name}
-                  </p>
-                  <p style={{
-                    fontFamily: 'var(--font-nunito-sans)',
-                    fontSize: '12px',
-                    fontWeight: 600,
-                    color: '#9895B0',
-                  }}>
-                    {med.dose && `${med.dose} · `}{med.time}
-                  </p>
+                  </button>
                 </div>
-
-                <button
-                  onClick={() => removeMed(med.id)}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    padding: 4,
-                    color: '#C4C0D4',
-                  }}
-                >
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <path d="M4 4L12 12M12 4L4 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                  </svg>
-                </button>
-              </div>
-            ))
+              )
+            })
           )}
         </div>
 
@@ -300,7 +343,7 @@ export default function MedicationPage() {
               </button>
               <button
                 onClick={addMed}
-                disabled={!newName.trim()}
+                disabled={!newName.trim() || saving}
                 style={{
                   flex: 2,
                   padding: '12px',
@@ -314,7 +357,7 @@ export default function MedicationPage() {
                   cursor: newName.trim() ? 'pointer' : 'not-allowed',
                 }}
               >
-                Add
+                {saving ? 'Saving…' : 'Add'}
               </button>
             </div>
           </div>

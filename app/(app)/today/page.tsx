@@ -7,6 +7,7 @@ import ResourcesSection from './_components/ResourcesSection'
 import EveningBrainClear from './_components/EveningBrainClear'
 import DaySceneHeader from './_components/DaySceneHeader'
 import WelcomeBack from './_components/WelcomeBack'
+import MedCheckIn from './_components/MedCheckIn'
 import Link from 'next/link'
 
 function getServiceClient() {
@@ -42,6 +43,9 @@ export default async function TodayPage() {
 
       {/* Re-entry banner — shows after 24h away */}
       <WelcomeBack />
+
+      {/* Medication check-in — time-aware, disappears when all taken */}
+      <MedCheckIn />
 
       {/* Mood check-in */}
       <p

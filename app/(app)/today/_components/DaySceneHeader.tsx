@@ -154,7 +154,7 @@ export default function DaySceneHeader({ firstName }: Props) {
 
             {/* Cloud softening blur */}
             <filter id="cloudBlur" x="-40%" y="-80%" width="180%" height="260%">
-              <feGaussianBlur stdDeviation="2.8"/>
+              <feGaussianBlur stdDeviation="1.6"/>
             </filter>
 
             {/* Evening crescent mask */}
@@ -181,9 +181,9 @@ export default function DaySceneHeader({ firstName }: Props) {
             <ellipse cx="195" cy="145" rx="240" ry="105" fill="url(#horizonGlow)"/>
           )}
 
-          {/* Morning sun orb — soft radial bloom, low and slightly right of centre */}
+          {/* Morning sun orb — soft radial bloom, raised to sit visibly in the sky */}
           {scene === 'morning' && (
-            <circle cx="210" cy="130" r="90" fill="url(#sunOrb)"/>
+            <circle cx="210" cy="100" r="90" fill="url(#sunOrb)"/>
           )}
 
           {/* Stars — evening (dim) + night (bright), all twinkling */}

@@ -28,15 +28,15 @@ export async function POST(req: NextRequest) {
   const { userId } = await auth()
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { name, dose, time_of_day } = await req.json()
-  if (!name?.trim() || !time_of_day) {
-    return NextResponse.json({ error: 'name and time_of_day required' }, { status: 400 })
+  const { name, dose, scheduled_time } = await req.json()
+  if (!name?.trim() || !scheduled_time) {
+    return NextResponse.json({ error: 'name and scheduled_time required' }, { status: 400 })
   }
 
   const supabase = getServiceClient()
   const { data, error } = await supabase
     .from('medications')
-    .insert({ clerk_user_id: userId, name: name.trim(), dose: dose?.trim() || null, time_of_day })
+    .insert({ clerk_user_id: userId, name: name.trim(), dose: dose?.trim() || null, scheduled_time })
     .select()
     .single()
 

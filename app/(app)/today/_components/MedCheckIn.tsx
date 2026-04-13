@@ -6,18 +6,24 @@ type Medication = {
   id: string
   name: string
   dose: string | null
-  time_of_day: string
+  scheduled_time: string // "HH:MM:SS"
 }
 
-// Which time-of-day slots are active at a given hour
-function getActiveSlots(hour: number): string[] {
-  const slots: string[] = []
-  if (hour >= 5  && hour < 12) slots.push('Morning')
-  if (hour >= 11 && hour < 14) slots.push('Midday')
-  if (hour >= 13 && hour < 18) slots.push('Afternoon')
-  if (hour >= 17 && hour < 22) slots.push('Evening')
-  if (hour >= 20)              slots.push('Bedtime')
-  return slots
+const WINDOW_MINUTES = 30
+
+function isInWindow(scheduledTime: string): boolean {
+  const [h, m] = scheduledTime.split(':').map(Number)
+  const now = new Date()
+  const nowMins = now.getHours() * 60 + now.getMinutes()
+  const schedMins = h * 60 + m
+  return Math.abs(nowMins - schedMins) <= WINDOW_MINUTES
+}
+
+function formatTime(t: string) {
+  const [h, m] = t.split(':').map(Number)
+  const ampm = h >= 12 ? 'PM' : 'AM'
+  const hour = h % 12 || 12
+  return `${hour}:${String(m).padStart(2, '0')} ${ampm}`
 }
 
 function todayDate() {
@@ -27,16 +33,10 @@ function todayDate() {
 export default function MedCheckIn() {
   const [meds, setMeds]         = useState<Medication[]>([])
   const [takenIds, setTakenIds] = useState<Set<string>>(new Set())
-  const [slots, setSlots]       = useState<string[]>([])
   const [visible, setVisible]   = useState(false)
   const [allDone, setAllDone]   = useState(false)
 
   const load = useCallback(async () => {
-    const hour = new Date().getHours()
-    const activeSlots = getActiveSlots(hour)
-    setSlots(activeSlots)
-    if (activeSlots.length === 0) return
-
     const [medsRes, logRes] = await Promise.all([
       fetch('/api/medications'),
       fetch(`/api/medications/log?date=${todayDate()}`),
@@ -47,8 +47,8 @@ export default function MedCheckIn() {
     const taken: string[]       = await logRes.json()
     const takenSet              = new Set(taken)
 
-    // Only show meds for active time slots
-    const dueMeds = allMeds.filter(m => activeSlots.includes(m.time_of_day))
+    // Only show meds within ±30 min of their scheduled time
+    const dueMeds = allMeds.filter(m => isInWindow(m.scheduled_time))
     if (dueMeds.length === 0) return
 
     setMeds(dueMeds)
@@ -56,7 +56,6 @@ export default function MedCheckIn() {
 
     const allChecked = dueMeds.every(m => takenSet.has(m.id))
     if (allChecked) {
-      // All already taken — show briefly then hide
       setAllDone(true)
       setVisible(true)
       setTimeout(() => setVisible(false), 3000)
@@ -79,8 +78,7 @@ export default function MedCheckIn() {
       body: JSON.stringify({ medication_id: id, date: todayDate(), taken }),
     })
 
-    // If all checked after this toggle, show done state then fade out
-    if (taken && meds.every(m => m.id === id ? true : next.has(m.id))) {
+    if (taken && meds.every(m => (m.id === id ? true : next.has(m.id)))) {
       setAllDone(true)
       setTimeout(() => setVisible(false), 2500)
     }
@@ -88,7 +86,10 @@ export default function MedCheckIn() {
 
   if (!visible || meds.length === 0) return null
 
-  const slotLabel = slots.length === 1 ? slots[0] : slots[0]
+  // Label: "8:00 AM meds" using the earliest scheduled time in window
+  const earliest = meds.reduce((a, b) =>
+    a.scheduled_time < b.scheduled_time ? a : b
+  )
 
   return (
     <div style={{
@@ -119,14 +120,12 @@ export default function MedCheckIn() {
           color: '#2D2A3E',
           flex: 1,
         }}>
-          {allDone ? 'Meds taken ✓' : `${slotLabel} meds`}
+          {allDone ? 'Meds taken ✓' : `${formatTime(earliest.scheduled_time)} meds`}
         </p>
-        {allDone && (
-          <span style={{ fontSize: 16 }}>🎉</span>
-        )}
+        {allDone && <span style={{ fontSize: 16 }}>🎉</span>}
       </div>
 
-      {/* Med checklist */}
+      {/* Checklist */}
       {!allDone && (
         <div>
           {meds.map((med, i) => {
@@ -144,9 +143,6 @@ export default function MedCheckIn() {
                   borderBottom: i < meds.length - 1 ? '1px solid rgba(45,42,62,0.06)' : 'none',
                   background: 'none',
                   border: 'none',
-                  borderTop: 'none',
-                  borderLeft: 'none',
-                  borderRight: 'none',
                   borderBottomColor: i < meds.length - 1 ? 'rgba(45,42,62,0.06)' : 'transparent',
                   borderBottomWidth: i < meds.length - 1 ? 1 : 0,
                   borderBottomStyle: 'solid',
@@ -154,7 +150,6 @@ export default function MedCheckIn() {
                   textAlign: 'left',
                 }}
               >
-                {/* Checkbox */}
                 <div style={{
                   width: 22,
                   height: 22,

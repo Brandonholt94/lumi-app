@@ -7,24 +7,30 @@ type Medication = {
   id: string
   name: string
   dose: string | null
-  time_of_day: string
+  scheduled_time: string // "HH:MM:SS" from postgres time type
 }
 
-const TIMES = ['Morning', 'Midday', 'Afternoon', 'Evening', 'Bedtime']
+function formatTime(t: string) {
+  // t is "HH:MM:SS" or "HH:MM"
+  const [h, m] = t.split(':').map(Number)
+  const ampm = h >= 12 ? 'PM' : 'AM'
+  const hour = h % 12 || 12
+  return `${hour}:${String(m).padStart(2, '0')} ${ampm}`
+}
 
 function todayDate() {
   return new Date().toISOString().split('T')[0]
 }
 
 export default function MedicationPage() {
-  const [meds, setMeds]           = useState<Medication[]>([])
-  const [takenIds, setTakenIds]   = useState<Set<string>>(new Set())
-  const [loading, setLoading]     = useState(true)
-  const [showAdd, setShowAdd]     = useState(false)
-  const [newName, setNewName]     = useState('')
-  const [newDose, setNewDose]     = useState('')
-  const [newTime, setNewTime]     = useState('Morning')
-  const [saving, setSaving]       = useState(false)
+  const [meds, setMeds]         = useState<Medication[]>([])
+  const [takenIds, setTakenIds] = useState<Set<string>>(new Set())
+  const [loading, setLoading]   = useState(true)
+  const [showAdd, setShowAdd]   = useState(false)
+  const [newName, setNewName]   = useState('')
+  const [newDose, setNewDose]   = useState('')
+  const [newTime, setNewTime]   = useState('08:00')
+  const [saving, setSaving]     = useState(false)
 
   const fetchMeds = useCallback(async () => {
     const [medsRes, logRes] = await Promise.all([
@@ -58,7 +64,7 @@ export default function MedicationPage() {
     const res = await fetch('/api/medications', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: newName.trim(), dose: newDose.trim(), time_of_day: newTime }),
+      body: JSON.stringify({ name: newName.trim(), dose: newDose.trim(), scheduled_time: newTime }),
     })
     if (res.ok) {
       const med = await res.json()
@@ -66,7 +72,7 @@ export default function MedicationPage() {
     }
     setNewName('')
     setNewDose('')
-    setNewTime('Morning')
+    setNewTime('08:00')
     setShowAdd(false)
     setSaving(false)
   }
@@ -83,7 +89,6 @@ export default function MedicationPage() {
 
       <MeHeader title="Medication log" />
 
-      {/* Today summary */}
       {!loading && meds.length > 0 && (
         <div className="px-5 py-3">
           <div style={{
@@ -134,12 +139,12 @@ export default function MedicationPage() {
         }}>
           {loading ? (
             <div style={{ padding: '20px 16px' }}>
-              {[1,2].map(i => (
+              {[1, 2].map(i => (
                 <div key={i} style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: i === 1 ? 14 : 0 }}>
-                  <div style={{ width: 24, height: 24, borderRadius: 6, background: '#F0EDE8' }}/>
+                  <div style={{ width: 24, height: 24, borderRadius: 6, background: '#F0EDE8' }} />
                   <div style={{ flex: 1 }}>
-                    <div style={{ height: 10, width: '55%', borderRadius: 4, background: '#F0EDE8', marginBottom: 6 }}/>
-                    <div style={{ height: 8, width: '35%', borderRadius: 4, background: '#F0EDE8' }}/>
+                    <div style={{ height: 10, width: '55%', borderRadius: 4, background: '#F0EDE8', marginBottom: 6 }} />
+                    <div style={{ height: 8, width: '35%', borderRadius: 4, background: '#F0EDE8' }} />
                   </div>
                 </div>
               ))}
@@ -206,7 +211,7 @@ export default function MedicationPage() {
                       fontWeight: 600,
                       color: '#9895B0',
                     }}>
-                      {med.dose ? `${med.dose} · ` : ''}{med.time_of_day}
+                      {med.dose ? `${med.dose} · ` : ''}{formatTime(med.scheduled_time)}
                     </p>
                   </div>
 
@@ -297,30 +302,26 @@ export default function MedicationPage() {
                 color: '#9895B0',
                 marginBottom: 6,
               }}>
-                TIME OF DAY
+                TIME
               </p>
-              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                {TIMES.map(t => (
-                  <button
-                    key={t}
-                    onClick={() => setNewTime(t)}
-                    style={{
-                      padding: '6px 12px',
-                      borderRadius: 100,
-                      border: '1px solid',
-                      borderColor: newTime === t ? '#F4A582' : 'rgba(45,42,62,0.12)',
-                      background: newTime === t ? 'linear-gradient(135deg, rgba(244,165,130,0.15), rgba(245,201,138,0.15))' : 'transparent',
-                      fontFamily: 'var(--font-nunito-sans)',
-                      fontSize: '12px',
-                      fontWeight: 700,
-                      color: newTime === t ? '#2D2A3E' : '#9895B0',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    {t}
-                  </button>
-                ))}
-              </div>
+              <input
+                type="time"
+                value={newTime}
+                onChange={e => setNewTime(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '11px 14px',
+                  borderRadius: 10,
+                  border: '1px solid rgba(45,42,62,0.12)',
+                  fontFamily: 'var(--font-nunito-sans)',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  color: '#2D2A3E',
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                  background: 'white',
+                }}
+              />
             </div>
 
             <div style={{ display: 'flex', gap: 8 }}>

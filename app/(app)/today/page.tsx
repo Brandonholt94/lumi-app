@@ -183,7 +183,7 @@ export default async function TodayPage() {
       </div>
 
       {/* Resources */}
-      <div style={{ marginTop: 28 }}>
+      <div style={{ marginTop: 44 }}>
         <ResourcesSection />
       </div>
 

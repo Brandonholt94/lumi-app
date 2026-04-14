@@ -1,18 +1,12 @@
 import type { Metadata, Viewport } from 'next'
 import { ClerkProvider } from '@clerk/nextjs'
-import { Nunito_Sans, Quicksand, Fraunces } from 'next/font/google'
+import { Nunito_Sans, Fraunces } from 'next/font/google'
 import './globals.css'
 
 const nunitoSans = Nunito_Sans({
   variable: '--font-nunito-sans',
   subsets: ['latin'],
-  weight: ['400', '600', '700', '800'],
-})
-
-const quicksand = Quicksand({
-  variable: '--font-quicksand',
-  subsets: ['latin'],
-  weight: ['500', '600', '700'],
+  weight: ['400', '500', '600', '700', '800'],
 })
 
 const fraunces = Fraunces({
@@ -38,7 +32,7 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <html lang="en" className={`${nunitoSans.variable} ${quicksand.variable} ${fraunces.variable} h-full`}>
+      <html lang="en" className={`${nunitoSans.variable} ${fraunces.variable} h-full`}>
         <body className="min-h-full bg-[#FBF8F5]">{children}</body>
       </html>
     </ClerkProvider>

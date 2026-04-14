@@ -306,7 +306,7 @@ export default function ChatPage() {
                 Hey, {firstName}.
               </p>
               <p style={{
-                fontFamily: 'var(--font-quicksand)',
+                fontFamily: 'var(--font-nunito-sans)',
                 fontSize: '15px',
                 fontWeight: 500,
                 color: '#9895B0',
@@ -380,7 +380,7 @@ export default function ChatPage() {
                         boxShadow: isUser
                           ? '0 4px 24px rgba(20,18,38,0.2)'
                           : '0 4px 24px rgba(244,165,130,0.18)',
-                        fontFamily: 'var(--font-quicksand)',
+                        fontFamily: 'var(--font-nunito-sans)',
                         fontSize: '15px',
                         fontWeight: 500,
                         color: isUser ? '#F0EEF8' : '#2D2A3E',
@@ -438,7 +438,7 @@ export default function ChatPage() {
               rows={1}
               className="flex-1 bg-transparent outline-none resize-none lumi-input"
               style={{
-                fontFamily: 'var(--font-quicksand)',
+                fontFamily: 'var(--font-nunito-sans)',
                 fontSize: '15px',
                 fontWeight: 500,
                 color: '#2D2A3E',

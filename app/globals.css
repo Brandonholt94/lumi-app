@@ -17,7 +17,6 @@
   --color-background: var(--bg);
   --color-foreground: var(--dark);
   --font-nunito: var(--font-nunito-sans);
-  --font-quicksand: var(--font-quicksand);
 }
 
 * {

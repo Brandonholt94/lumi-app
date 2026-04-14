@@ -134,7 +134,7 @@ export default function EditProfilePage() {
           textAlign: 'center',
           fontFamily: 'var(--font-nunito-sans)',
           fontSize: '12px',
-          fontWeight: 600,
+          fontWeight: 500,
           color: '#9895B0',
         }}>
           This is how Lumi will greet you

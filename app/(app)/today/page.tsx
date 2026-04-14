@@ -114,7 +114,7 @@ export default async function TodayPage() {
           </span>
           <span
             className="text-[9.5px]"
-            style={{ fontFamily: 'var(--font-nunito-sans)', fontWeight: 600, color: '#9895B0' }}
+            style={{ fontFamily: 'var(--font-nunito-sans)', fontWeight: 500, color: '#9895B0' }}
           >
             Start a timer
           </span>
@@ -145,7 +145,7 @@ export default async function TodayPage() {
           </span>
           <span
             className="text-[9.5px]"
-            style={{ fontFamily: 'var(--font-nunito-sans)', fontWeight: 600, color: '#9895B0' }}
+            style={{ fontFamily: 'var(--font-nunito-sans)', fontWeight: 500, color: '#9895B0' }}
           >
             Clear your head
           </span>
@@ -179,7 +179,7 @@ export default async function TodayPage() {
           </span>
           <span
             className="text-[9.5px]"
-            style={{ fontFamily: 'var(--font-nunito-sans)', fontWeight: 600, color: '#9895B0' }}
+            style={{ fontFamily: 'var(--font-nunito-sans)', fontWeight: 500, color: '#9895B0' }}
           >
             Whatever&apos;s up
           </span>

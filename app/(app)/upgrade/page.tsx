@@ -124,7 +124,7 @@ export default function UpgradePage() {
         }}>
           Upgrade Lumi
         </h1>
-        <p style={{ fontSize: '15px', color: MUTED, fontWeight: 600, lineHeight: 1.5 }}>
+        <p style={{ fontSize: '15px', color: MUTED, fontWeight: 500, lineHeight: 1.5 }}>
           7-day free trial on all plans. Cancel anytime.
         </p>
       </div>
@@ -226,15 +226,15 @@ export default function UpgradePage() {
                   }}>
                     {plan.name}
                   </h2>
-                  <p style={{ fontSize: '13px', color: MUTED, fontWeight: 600 }}>
+                  <p style={{ fontSize: '13px', color: MUTED, fontWeight: 500 }}>
                     {plan.description}
                   </p>
                 </div>
                 <div style={{ textAlign: 'right', flexShrink: 0 }}>
                   <span style={{ fontSize: '26px', fontWeight: 900, color: DARKER }}>${price}</span>
-                  <span style={{ fontSize: '13px', color: MUTED, fontWeight: 600 }}>/mo</span>
+                  <span style={{ fontSize: '13px', color: MUTED, fontWeight: 500 }}>/mo</span>
                   {billing === 'annual' && (
-                    <p style={{ fontSize: '11px', color: MUTED, fontWeight: 600, marginTop: 2 }}>
+                    <p style={{ fontSize: '11px', color: MUTED, fontWeight: 500, marginTop: 2 }}>
                       billed ${plan.annualTotal}/yr
                     </p>
                   )}
@@ -246,7 +246,7 @@ export default function UpgradePage() {
                 {plan.features.map((f, i) => (
                   <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
                     <span style={{ color: PEACH, fontSize: '14px', flexShrink: 0, marginTop: 1 }}>✦</span>
-                    <span style={{ fontSize: '13px', fontWeight: 600, color: '#4A4760', lineHeight: 1.4 }}>{f}</span>
+                    <span style={{ fontSize: '13px', fontWeight: 500, color: '#4A4760', lineHeight: 1.4 }}>{f}</span>
                   </li>
                 ))}
               </ul>
@@ -278,7 +278,7 @@ export default function UpgradePage() {
 
       {/* Footer note */}
       <p style={{
-        fontSize: '12px', color: MUTED, fontWeight: 600,
+        fontSize: '12px', color: MUTED, fontWeight: 500,
         textAlign: 'center', marginTop: 24, lineHeight: 1.6,
       }}>
         Secure checkout via Stripe. Cancel anytime from your account settings.

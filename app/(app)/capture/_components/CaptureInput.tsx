@@ -293,7 +293,7 @@ export default function CaptureInput() {
           Brain Dump
         </h1>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 600, color: '#9895B0' }}>
+          <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 500, color: '#9895B0' }}>
             {loading ? '' : `${captures.length} this week`}
           </span>
           <ProfileButton />
@@ -316,7 +316,7 @@ export default function CaptureInput() {
           style={{
             fontFamily: 'var(--font-nunito-sans)',
             fontSize: '12px',
-            fontWeight: 600,
+            fontWeight: 500,
             color: '#2D2A3E',
             lineHeight: 1.5,
           }}
@@ -396,7 +396,7 @@ export default function CaptureInput() {
             <span style={{
               fontFamily: 'var(--font-nunito-sans)',
               fontSize: 12,
-              fontWeight: 600,
+              fontWeight: 500,
               color: '#9895B0',
               flex: 1,
             }}>
@@ -620,7 +620,7 @@ export default function CaptureInput() {
           style={{
             fontFamily: 'var(--font-nunito-sans)',
             fontSize: '13px',
-            fontWeight: 600,
+            fontWeight: 500,
             color: 'rgba(45,42,62,0.3)',
             textAlign: 'center',
             paddingTop: '24px',
@@ -685,7 +685,7 @@ export default function CaptureInput() {
                       {capture.text}
                     </p>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-                      <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '10.5px', fontWeight: 600, color: '#9895B0' }}>
+                      <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '10.5px', fontWeight: 500, color: '#9895B0' }}>
                         {s ? `${s.label} · ` : ''}{isToday(capture.created_at) ? 'Today' : 'Yesterday'} at {formatTime(capture.created_at)}
                       </p>
                       {capture.subtasks && capture.subtasks.length > 0 && (
@@ -786,7 +786,7 @@ export default function CaptureInput() {
                       <path d="M5 8l2.5 2.5 4-4" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                     <p style={{
-                      fontFamily: 'var(--font-nunito-sans)', fontSize: '12px', fontWeight: 600,
+                      fontFamily: 'var(--font-nunito-sans)', fontSize: '12px', fontWeight: 500,
                       color: '#9895B0', flex: 1, lineHeight: 1.4,
                       textDecoration: 'line-through',
                     }}>{c.text}</p>

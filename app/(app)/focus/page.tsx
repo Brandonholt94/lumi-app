@@ -799,7 +799,7 @@ export default function FocusPage() {
               </span>
               <span style={{
                 fontFamily: 'var(--font-nunito-sans)', fontSize: '12px',
-                fontWeight: 600, color: D.textMuted, marginTop: 6,
+                fontWeight: 500, color: D.textMuted, marginTop: 6,
               }}>
                 {state === 'idle' ? 'MIN' : state === 'done' ? '' : state === 'paused' ? 'paused' : 'remaining'}
               </span>
@@ -880,7 +880,7 @@ export default function FocusPage() {
             <span style={{ fontSize: 13, flexShrink: 0, marginTop: 1, color: D.peach }}>✦</span>
             <p style={{
               fontFamily: 'var(--font-nunito-sans)', fontSize: '14px',
-              fontWeight: 600, color: D.textPrimary, lineHeight: 1.5,
+              fontWeight: 500, color: D.textPrimary, lineHeight: 1.5,
             }}>
               <span style={{ color: D.peach, fontWeight: 800 }}>Lumi: </span>
               {lumiMsg}
@@ -932,7 +932,7 @@ export default function FocusPage() {
                       ? 'linear-gradient(135deg, #F4A582, #F5C98A)'
                       : 'rgba(255,255,255,0.07)',
                     fontFamily: 'var(--font-nunito-sans)', fontSize: '13px',
-                    fontWeight: 600, lineHeight: 1.5,
+                    fontWeight: 500, lineHeight: 1.5,
                     color: m.role === 'user' ? '#1A1828' : D.textPrimary,
                   }}>
                     {m.content || (bdStreaming && m.role === 'assistant'
@@ -1017,7 +1017,7 @@ export default function FocusPage() {
             </p>
             <p style={{
               fontFamily: 'var(--font-nunito-sans)', fontSize: '12px',
-              fontWeight: 600, color: D.textMuted, marginBottom: 16, lineHeight: 1.5,
+              fontWeight: 500, color: D.textMuted, marginBottom: 16, lineHeight: 1.5,
             }}>
               Saved to Brain Dump. You can deal with it after your session.
             </p>

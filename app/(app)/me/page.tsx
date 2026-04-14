@@ -276,7 +276,7 @@ export default async function MePage() {
           <p style={{
             fontFamily: 'var(--font-nunito-sans)',
             fontSize: '13px',
-            fontWeight: 600,
+            fontWeight: 500,
             color: '#9895B0',
             whiteSpace: 'nowrap',
             overflow: 'hidden',
@@ -335,7 +335,7 @@ export default async function MePage() {
           textAlign: 'center',
           fontFamily: 'var(--font-nunito-sans)',
           fontSize: '11px',
-          fontWeight: 600,
+          fontWeight: 500,
           color: 'rgba(45,42,62,0.25)',
           marginTop: 4,
         }}>

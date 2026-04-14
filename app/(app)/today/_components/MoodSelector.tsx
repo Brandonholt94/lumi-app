@@ -178,7 +178,7 @@ export default function MoodSelector() {
           <span style={{
             fontFamily: 'var(--font-nunito-sans)',
             fontSize: '11px',
-            fontWeight: 600,
+            fontWeight: 500,
             color: current.color,
             opacity: 0.5,
           }}>

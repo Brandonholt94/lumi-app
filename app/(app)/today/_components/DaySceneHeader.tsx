@@ -302,7 +302,7 @@ export default function DaySceneHeader({ firstName }: Props) {
         </h1>
         <p style={{
           fontFamily: 'var(--font-nunito-sans)',
-          fontSize: 12, fontWeight: 600,
+          fontSize: 12, fontWeight: 500,
           color: '#9895B0',
         }}>
           {date || '\u00A0'} · Let&apos;s find your one thing.

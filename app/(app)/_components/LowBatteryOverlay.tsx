@@ -143,7 +143,7 @@ export default function LowBatteryOverlay() {
           <p style={{ fontFamily: 'var(--font-fraunces)', fontSize: 20, fontWeight: 900, color: 'rgba(255,255,255,0.92)', lineHeight: 1.35 }}>
             You don&apos;t have to do everything today.
           </p>
-          <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.45)', marginTop: 8, lineHeight: 1.5 }}>
+          <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.45)', marginTop: 8, lineHeight: 1.5 }}>
             Rest is part of the work. Lumi is here.
           </p>
         </div>
@@ -279,7 +279,7 @@ export default function LowBatteryOverlay() {
                     WebkitBackdropFilter: 'blur(10px)',
                   }}>
                     <p style={{
-                      fontFamily: 'var(--font-nunito-sans)', fontSize: 13, fontWeight: 600,
+                      fontFamily: 'var(--font-nunito-sans)', fontSize: 13, fontWeight: 500,
                       color: m.role === 'user' ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.8)',
                       lineHeight: 1.5, margin: 0,
                     }}>

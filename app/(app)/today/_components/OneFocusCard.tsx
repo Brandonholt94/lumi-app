@@ -83,7 +83,7 @@ export default function OneFocusCard() {
         <p style={{ fontFamily: 'var(--font-fraunces)', fontSize: '18px', fontWeight: 700, color: '#F5F3F0', lineHeight: 1.3 }}>
           That&apos;s the one.
         </p>
-        <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '12.5px', fontWeight: 600, color: 'rgba(245,243,240,0.55)', lineHeight: 1.5 }}>
+        <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '12.5px', fontWeight: 500, color: 'rgba(245,243,240,0.55)', lineHeight: 1.5 }}>
           <span style={{ color: '#F4A582', fontWeight: 700 }}>Lumi: </span>
           You did it. That&apos;s not nothing — that&apos;s the whole thing.
         </p>
@@ -124,7 +124,7 @@ export default function OneFocusCard() {
           Nothing in the queue yet.
         </p>
         <div className="rounded-[11px] p-[10px_12px] mb-3" style={{ background: 'rgba(255,255,255,0.06)' }}>
-          <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11.5px', fontWeight: 600, color: 'rgba(245,243,240,0.62)', lineHeight: 1.55 }}>
+          <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11.5px', fontWeight: 500, color: 'rgba(245,243,240,0.62)', lineHeight: 1.55 }}>
             <span style={{ color: '#F4A582', fontWeight: 700 }}>Lumi: </span>
             {focus?.lumi_message ?? "Add something to Brain Dump and I'll pick your one thing."}
           </p>
@@ -170,7 +170,7 @@ export default function OneFocusCard() {
       </p>
 
       <div className="rounded-[11px] p-[10px_12px] mb-3" style={{ background: 'rgba(255,255,255,0.06)' }}>
-        <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11.5px', fontWeight: 600, color: 'rgba(245,243,240,0.62)', lineHeight: 1.55 }}>
+        <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11.5px', fontWeight: 500, color: 'rgba(245,243,240,0.62)', lineHeight: 1.55 }}>
           <span style={{ color: '#F4A582', fontWeight: 700 }}>Lumi: </span>
           {focus.lumi_message}
         </p>
@@ -183,7 +183,7 @@ export default function OneFocusCard() {
           border: '1px solid rgba(232,160,191,0.2)',
           borderRadius: 11, padding: '10px 12px', marginBottom: 12,
         }}>
-          <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11.5px', fontWeight: 600, color: 'rgba(232,160,191,0.9)', lineHeight: 1.55 }}>
+          <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11.5px', fontWeight: 500, color: 'rgba(232,160,191,0.9)', lineHeight: 1.55 }}>
             This one&apos;s been here {focus.days_pinned} days. No pressure — want to try just the very first step, or pick something else for today?
           </p>
           <button

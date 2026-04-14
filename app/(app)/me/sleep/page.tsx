@@ -114,7 +114,7 @@ export default function SleepPage() {
                 <p style={{
                   fontFamily: 'var(--font-nunito-sans)',
                   fontSize: '12px',
-                  fontWeight: 600,
+                  fontWeight: 500,
                   color: '#9895B0',
                 }}>
                   {q.desc}
@@ -164,7 +164,7 @@ export default function SleepPage() {
           textAlign: 'center',
           fontFamily: 'var(--font-nunito-sans)',
           fontSize: '11px',
-          fontWeight: 600,
+          fontWeight: 500,
           color: 'rgba(45,42,62,0.3)',
           lineHeight: 1.5,
         }}>

@@ -103,7 +103,7 @@ export default function LumiPreferencesPage() {
                 <p style={{
                   fontFamily: 'var(--font-nunito-sans)',
                   fontSize: '12px',
-                  fontWeight: 600,
+                  fontWeight: 500,
                   color: '#9895B0',
                 }}>
                   {n.example}
@@ -198,7 +198,7 @@ export default function LumiPreferencesPage() {
                 <p style={{
                   fontFamily: 'var(--font-nunito-sans)',
                   fontSize: '12px',
-                  fontWeight: 600,
+                  fontWeight: 500,
                   color: '#9895B0',
                 }}>
                   {s.desc}

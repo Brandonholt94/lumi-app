@@ -393,7 +393,7 @@ export default function ChatPage() {
                       <span style={{
                         fontFamily: 'var(--font-nunito-sans)',
                         fontSize: '10px',
-                        fontWeight: 600,
+                        fontWeight: 500,
                         color: '#B0ADBE',
                       }}>
                         {formatTime(msg.timestamp)}

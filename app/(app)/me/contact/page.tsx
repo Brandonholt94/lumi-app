@@ -31,7 +31,7 @@ export default function ContactPage() {
           <p style={{ fontFamily: 'var(--font-fraunces)', fontSize: '22px', fontWeight: 900, color: '#1E1C2E', marginBottom: 10 }}>
             Message sent!
           </p>
-          <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '14px', fontWeight: 600, color: '#9895B0', lineHeight: 1.5 }}>
+          <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '14px', fontWeight: 500, color: '#9895B0', lineHeight: 1.5 }}>
             We read every message and usually reply within 24 hours. Thank you for helping make Lumi better.
           </p>
         </div>
@@ -143,7 +143,7 @@ export default function ContactPage() {
           textAlign: 'center',
           fontFamily: 'var(--font-nunito-sans)',
           fontSize: '11px',
-          fontWeight: 600,
+          fontWeight: 500,
           color: 'rgba(45,42,62,0.3)',
         }}>
           We reply to every message. Built by Craft + Code LLC.

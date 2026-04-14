@@ -127,7 +127,7 @@ function LumiHighlightCard({ highlight }: { highlight: string }) {
       <p style={{
         fontFamily: 'var(--font-nunito-sans)',
         fontSize: '14px',
-        fontWeight: 600,
+        fontWeight: 500,
         color: '#2D2A3E',
         lineHeight: 1.55,
       }}>
@@ -207,7 +207,7 @@ function ActivityCalendar({ activeDays, moods }: { activeDays: boolean[]; moods:
       <p style={{
         fontFamily: 'var(--font-nunito-sans)',
         fontSize: '11px',
-        fontWeight: 600,
+        fontWeight: 500,
         color: '#9895B0',
         marginTop: 12,
         paddingLeft: 2,
@@ -270,7 +270,7 @@ function ActivityChart({ byDay, busiestDay }: { byDay: number[]; busiestDay: str
         })}
       </div>
       {busiestDay && (
-        <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 600, color: '#9895B0' }}>
+        <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 500, color: '#9895B0' }}>
           Most active on <span style={{ color: '#2D2A3E', fontWeight: 800 }}>{busiestDay}</span>
         </p>
       )}
@@ -310,7 +310,7 @@ function FocusCard({ sessions, minutes }: { sessions: number; minutes: number })
           transition: 'width 0.6s ease',
         }} />
       </div>
-      <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 600, color: '#9895B0' }}>
+      <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 500, color: '#9895B0' }}>
         {Math.round(pct)}% of a 2-hour weekly goal
       </p>
     </div>
@@ -357,7 +357,7 @@ function BrainReportCard({ plan, daysWithData }: { plan: 'free' | 'starter' | 'c
           </p>
           <div style={{ position: 'relative', marginBottom: 20 }}>
             <p style={{
-              fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 600,
+              fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 500,
               color: 'rgba(245,242,238,0.7)', lineHeight: 1.6,
               filter: 'blur(5px)', userSelect: 'none', pointerEvents: 'none',
             }}>
@@ -373,7 +373,7 @@ function BrainReportCard({ plan, daysWithData }: { plan: 'free' | 'starter' | 'c
             border: '1px solid rgba(244,165,130,0.2)',
             borderRadius: 12, padding: '12px 14px', marginBottom: 16,
           }}>
-            <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '12px', fontWeight: 600, color: 'rgba(245,242,238,0.7)', lineHeight: 1.5 }}>
+            <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '12px', fontWeight: 500, color: 'rgba(245,242,238,0.7)', lineHeight: 1.5 }}>
               <span style={{ color: '#F4A582', fontWeight: 800 }}>Lumi noticed a pattern</span> in your week. Upgrade to Core to read your full report.
             </p>
           </div>
@@ -385,7 +385,7 @@ function BrainReportCard({ plan, daysWithData }: { plan: 'free' | 'starter' | 'c
           }}>
             Unlock with Core — $14/mo
           </button>
-          <p style={{ textAlign: 'center', marginTop: 8, fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 600, color: 'rgba(245,242,238,0.3)' }}>
+          <p style={{ textAlign: 'center', marginTop: 8, fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 500, color: 'rgba(245,242,238,0.3)' }}>
             7-day free trial
           </p>
         </div>
@@ -414,7 +414,7 @@ function BrainReportCard({ plan, daysWithData }: { plan: 'free' | 'starter' | 'c
               Your week, through Lumi&apos;s eyes.
             </p>
             <div style={{ background: 'rgba(255,255,255,0.06)', borderRadius: 12, padding: '14px 16px', marginBottom: 4 }}>
-              <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 600, color: 'rgba(245,242,238,0.55)', lineHeight: 1.6 }}>
+              <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 500, color: 'rgba(245,242,238,0.55)', lineHeight: 1.6 }}>
                 Come back in a few days. Lumi needs more of your week to write something meaningful.
               </p>
             </div>
@@ -426,7 +426,7 @@ function BrainReportCard({ plan, daysWithData }: { plan: 'free' | 'starter' | 'c
             <p style={{ fontFamily: 'var(--font-fraunces)', fontSize: '20px', fontWeight: 900, color: '#F5F2EE', lineHeight: 1.2, marginBottom: 8 }}>
               Your week, through Lumi&apos;s eyes.
             </p>
-            <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 600, color: 'rgba(245,242,238,0.5)', lineHeight: 1.5, marginBottom: 16 }}>
+            <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 500, color: 'rgba(245,242,238,0.5)', lineHeight: 1.5, marginBottom: 16 }}>
               Your week isn&apos;t over yet — you can generate an early report or wait until Sunday for the full picture.
             </p>
             <div style={{ display: 'flex', gap: 8 }}>
@@ -457,7 +457,7 @@ function BrainReportCard({ plan, daysWithData }: { plan: 'free' | 'starter' | 'c
             <p style={{ fontFamily: 'var(--font-fraunces)', fontSize: '20px', fontWeight: 900, color: '#F5F2EE', lineHeight: 1.2, marginBottom: 8 }}>
               Your week, through Lumi&apos;s eyes.
             </p>
-            <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 600, color: 'rgba(245,242,238,0.5)', lineHeight: 1.5, marginBottom: 18 }}>
+            <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 500, color: 'rgba(245,242,238,0.5)', lineHeight: 1.5, marginBottom: 18 }}>
               Lumi will read your week — captures, moods, focus sessions — and write a personal summary just for you.
             </p>
             <button onClick={generate} style={{
@@ -474,21 +474,21 @@ function BrainReportCard({ plan, daysWithData }: { plan: 'free' | 'starter' | 'c
         {status === 'loading' && (
           <div style={{ padding: '12px 0', display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#F4A582', animation: 'lumiPulse 1s ease-in-out infinite' }} />
-            <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 600, color: 'rgba(245,242,238,0.6)' }}>
+            <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 500, color: 'rgba(245,242,238,0.6)' }}>
               Lumi is reading your week…
             </p>
           </div>
         )}
 
         {status === 'done' && report && (
-          <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '14px', fontWeight: 600, color: 'rgba(245,242,238,0.85)', lineHeight: 1.7 }}>
+          <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '14px', fontWeight: 500, color: 'rgba(245,242,238,0.85)', lineHeight: 1.7 }}>
             {report}
           </p>
         )}
 
         {status === 'error' && (
           <div>
-            <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 600, color: 'rgba(245,242,238,0.5)', marginBottom: 12 }}>
+            <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 500, color: 'rgba(245,242,238,0.5)', marginBottom: 12 }}>
               Something went wrong. Try again?
             </p>
             <button onClick={generate} style={{
@@ -542,7 +542,7 @@ export default function InsightsPage() {
 
         {/* Week label */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', marginBottom: -8 }}>
-          <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 600, color: '#9895B0' }}>
+          <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 500, color: '#9895B0' }}>
             {weekLabel}
           </span>
         </div>
@@ -550,7 +550,7 @@ export default function InsightsPage() {
         {loading ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, paddingTop: 16 }}>
             <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#F4A582', animation: 'lumiPulse 1s ease-in-out infinite' }} />
-            <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 600, color: '#9895B0' }}>
+            <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 500, color: '#9895B0' }}>
               Loading your week…
             </p>
             <style>{`
@@ -572,9 +572,9 @@ export default function InsightsPage() {
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ marginBottom: 2 }}>
                     <path d="M13 3.5L5.5 13H11.5L10.5 20.5L18.5 11H12.5L13 3.5Z" stroke="#E8A0BF" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
-                  <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '10px', fontWeight: 700, color: '#9895B0', letterSpacing: '0.04em' }}>CAPTURES</p>
+                  <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '10px', fontWeight: 800, color: '#9895B0', letterSpacing: '0.04em' }}>CAPTURES</p>
                   <p style={{ fontFamily: 'var(--font-fraunces)', fontSize: '26px', fontWeight: 900, color: '#1E1C2E', lineHeight: 1 }}>{data.captures.total}</p>
-                  <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 600, color: '#9895B0' }}>thoughts this week</p>
+                  <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 500, color: '#9895B0' }}>thoughts this week</p>
                 </div>
 
                 {/* Focus */}
@@ -585,11 +585,11 @@ export default function InsightsPage() {
                     <path d="M9.5 3H14.5" stroke="#F5C98A" strokeWidth="1.8" strokeLinecap="round"/>
                     <path d="M12 3V5.5" stroke="#F5C98A" strokeWidth="1.8" strokeLinecap="round"/>
                   </svg>
-                  <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '10px', fontWeight: 700, color: '#9895B0', letterSpacing: '0.04em' }}>FOCUS TIME</p>
+                  <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '10px', fontWeight: 800, color: '#9895B0', letterSpacing: '0.04em' }}>FOCUS TIME</p>
                   <p style={{ fontFamily: 'var(--font-fraunces)', fontSize: '26px', fontWeight: 900, color: '#1E1C2E', lineHeight: 1 }}>
                     {data.focus.minutes}<span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 700, color: '#9895B0' }}> min</span>
                   </p>
-                  <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 600, color: '#9895B0' }}>{data.focus.sessions} {data.focus.sessions === 1 ? 'session' : 'sessions'}</p>
+                  <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 500, color: '#9895B0' }}>{data.focus.sessions} {data.focus.sessions === 1 ? 'session' : 'sessions'}</p>
                 </div>
 
                 {/* Tasks done */}
@@ -598,9 +598,9 @@ export default function InsightsPage() {
                     <circle cx="12" cy="12" r="8.5" stroke="#8FAAE0" strokeWidth="1.8"/>
                     <path d="M8.5 12L11 14.5L15.5 9.5" stroke="#8FAAE0" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
-                  <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '10px', fontWeight: 700, color: '#9895B0', letterSpacing: '0.04em' }}>TASKS DONE</p>
+                  <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '10px', fontWeight: 800, color: '#9895B0', letterSpacing: '0.04em' }}>TASKS DONE</p>
                   <p style={{ fontFamily: 'var(--font-fraunces)', fontSize: '26px', fontWeight: 900, color: '#1E1C2E', lineHeight: 1 }}>{data.captures.completedTasks.length}</p>
-                  <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 600, color: '#9895B0' }}>completed</p>
+                  <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 500, color: '#9895B0' }}>completed</p>
                 </div>
 
                 {/* Top mood */}
@@ -611,9 +611,9 @@ export default function InsightsPage() {
                     <circle cx="9.5" cy="10.5" r="1" fill="#F4A582"/>
                     <circle cx="14.5" cy="10.5" r="1" fill="#F4A582"/>
                   </svg>
-                  <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '10px', fontWeight: 700, color: '#9895B0', letterSpacing: '0.04em' }}>TOP MOOD</p>
+                  <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '10px', fontWeight: 800, color: '#9895B0', letterSpacing: '0.04em' }}>TOP MOOD</p>
                   <p style={{ fontFamily: 'var(--font-fraunces)', fontSize: '22px', fontWeight: 900, color: topMood ? MOOD_META[topMood].color : '#1E1C2E', lineHeight: 1 }}>{topMood ? MOOD_META[topMood].label : '—'}</p>
-                  <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 600, color: '#9895B0' }}>most logged</p>
+                  <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 500, color: '#9895B0' }}>most logged</p>
                 </div>
 
               </div>
@@ -688,7 +688,7 @@ export default function InsightsPage() {
                       </svg>
                       <div style={{ flex: 1 }}>
                         <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 600, color: '#2D2A3E', lineHeight: 1.4, marginBottom: 2 }}>{t.text}</p>
-                        <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '10px', fontWeight: 600, color: '#9895B0' }}>
+                        <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '10px', fontWeight: 500, color: '#9895B0' }}>
                           {new Date(t.created_at).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
                         </p>
                       </div>
@@ -699,7 +699,7 @@ export default function InsightsPage() {
             )}
           </>
         ) : (
-          <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 600, color: '#9895B0' }}>
+          <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 500, color: '#9895B0' }}>
             Couldn&apos;t load insights. Try refreshing.
           </p>
         )}

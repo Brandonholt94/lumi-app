@@ -110,7 +110,7 @@ export default function EveningBrainClear() {
         borderRadius: 12, padding: '10px 12px', marginBottom: 14,
       }}>
         <p style={{
-          fontFamily: 'var(--font-nunito-sans)', fontSize: 12, fontWeight: 600,
+          fontFamily: 'var(--font-nunito-sans)', fontSize: 12, fontWeight: 500,
           color: 'rgba(255,255,255,0.6)', lineHeight: 1.55,
         }}>
           <span style={{ color: '#F4A582', fontWeight: 700 }}>Lumi: </span>

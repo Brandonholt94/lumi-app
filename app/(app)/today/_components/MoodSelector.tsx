@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useRef, useState } from 'react'
 import { useMood, type Mood } from '../../_components/MoodContext'
 
 const MOODS: { key: Mood; label: string; color: string; bg: string; icon: React.ReactNode }[] = [
@@ -69,15 +70,31 @@ const MOOD_KEYS = MOODS.map(m => m.key) as NonNullable<Mood>[]
 export default function MoodSelector() {
   const { mood, setMood } = useMood()
 
-  const currentIdx = mood ? MOOD_KEYS.indexOf(mood) : -1
-  const current    = currentIdx >= 0 ? MOODS[currentIdx] : null
+  // Local "preview" index — updates on every slider tick for instant visual feedback
+  const committedIdx = mood ? MOOD_KEYS.indexOf(mood) : -1
+  const [previewIdx, setPreviewIdx] = useState<number>(committedIdx >= 0 ? committedIdx : 2)
+  const commitTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Keep preview in sync if mood changes externally (e.g. page load)
+  useEffect(() => {
+    if (committedIdx >= 0) setPreviewIdx(committedIdx)
+  }, [committedIdx])
+
+  const current = MOODS[previewIdx] ?? null
 
   function handleSlider(e: React.ChangeEvent<HTMLInputElement>) {
     const idx = parseInt(e.target.value)
-    setMood(MOOD_KEYS[idx])
+    setPreviewIdx(idx)
+
     if (typeof navigator !== 'undefined' && navigator.vibrate) {
       navigator.vibrate(8)
     }
+
+    // Debounce the actual commit — only fires 650ms after user stops sliding
+    if (commitTimer.current) clearTimeout(commitTimer.current)
+    commitTimer.current = setTimeout(() => {
+      setMood(MOOD_KEYS[idx])
+    }, 650)
   }
 
   return (
@@ -120,7 +137,7 @@ export default function MoodSelector() {
                 width: 6,
                 height: 6,
                 borderRadius: '50%',
-                background: currentIdx >= i ? (current?.color ?? '#C4C0D4') : 'rgba(45,42,62,0.12)',
+                background: previewIdx >= i ? (current?.color ?? '#C4C0D4') : 'rgba(45,42,62,0.12)',
                 transition: 'background 0.2s',
               }} />
             ))}
@@ -131,7 +148,7 @@ export default function MoodSelector() {
             min={0}
             max={4}
             step={1}
-            value={currentIdx >= 0 ? currentIdx : 2}
+            value={previewIdx}
             onChange={handleSlider}
             style={{ width: '100%', cursor: 'pointer' }}
           />

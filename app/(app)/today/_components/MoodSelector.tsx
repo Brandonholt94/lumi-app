@@ -73,7 +73,11 @@ export default function MoodSelector() {
   const current    = currentIdx >= 0 ? MOODS[currentIdx] : null
 
   function handleSlider(e: React.ChangeEvent<HTMLInputElement>) {
-    setMood(MOOD_KEYS[parseInt(e.target.value)])
+    const idx = parseInt(e.target.value)
+    setMood(MOOD_KEYS[idx])
+    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+      navigator.vibrate(8)
+    }
   }
 
   return (

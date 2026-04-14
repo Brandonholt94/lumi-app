@@ -98,10 +98,34 @@ export async function GET(req: Request) {
   const DAY_NAMES   = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
   const busiestDay  = maxDay > 0 ? DAY_NAMES[byDay.indexOf(maxDay)] : null
 
-  // Mood: last logged mood per calendar day
-  const moodByDate: Record<string, string> = {}
+  // Mood: pick the mood held longest each calendar day
+  // Group all logs by local date, then sum durations per mood value
+  const logsByDate: Record<string, { mood: string; created_at: string }[]> = {}
   for (const m of moods) {
-    moodByDate[m.created_at.slice(0, 10)] = m.mood
+    const date = m.created_at.slice(0, 10)
+    if (!logsByDate[date]) logsByDate[date] = []
+    logsByDate[date].push(m)
+  }
+
+  const moodByDate: Record<string, string> = {}
+  for (const [date, logs] of Object.entries(logsByDate)) {
+    if (logs.length === 1) {
+      moodByDate[date] = logs[0].mood
+      continue
+    }
+    // logs are ascending by created_at (query order)
+    const durations: Record<string, number> = {}
+    for (let i = 0; i < logs.length; i++) {
+      const start = new Date(logs[i].created_at).getTime()
+      // Last log in the day: duration extends to end of that day (midnight)
+      const endOfDay = new Date(date + 'T23:59:59.999Z').getTime()
+      const end = i < logs.length - 1
+        ? new Date(logs[i + 1].created_at).getTime()
+        : endOfDay
+      const held = end - start
+      durations[logs[i].mood] = (durations[logs[i].mood] ?? 0) + held
+    }
+    moodByDate[date] = Object.entries(durations).sort((a, b) => b[1] - a[1])[0][0]
   }
 
   // Build 7-day mood strip starting Monday

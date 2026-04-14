@@ -571,16 +571,19 @@ export default function FocusPage() {
     pauseCountRef.current     = 0
     thoughtsCapturedRef.current = 0
     startedAtRef.current      = new Date().toISOString()
-    // Kick off the inline body-double thread
-    setBdMessages([{
-      id: 'init',
-      role: 'assistant',
-      content: label
-        ? `I'm right here with you. Let's do this — "${label}". You've got this.`
-        : "I'm right here with you. No pressure — just start. What are you working on?",
-    }])
-    playChime()
-    try { navigator.vibrate(10) } catch {}
+    // Kick off the inline body-double thread — brief delay so the
+    // session start animation lands before Lumi's message appears
+    setTimeout(() => {
+      setBdMessages([{
+        id: 'init',
+        role: 'assistant',
+        content: label
+          ? `I'm right here with you. Let's do this — "${label}". You've got this.`
+          : "I'm right here with you. No pressure — just start. What are you working on?",
+      }])
+      playChime()
+      try { navigator.vibrate(10) } catch {}
+    }, 550)
 
     setState('active')
   }

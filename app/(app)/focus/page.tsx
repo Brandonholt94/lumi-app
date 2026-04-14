@@ -497,6 +497,7 @@ export default function FocusPage() {
         setRemaining(prev => {
           if (prev <= 1) {
             clearTimer()
+            play('off')
             saveSession(totalSeconds, totalSeconds, true)
             setSessionComplete('natural')
             return 0
@@ -593,6 +594,7 @@ export default function FocusPage() {
 
   function end() {
     clearTimer()
+    play('off')
     const actual = totalSeconds - remaining
     saveSession(totalSeconds, actual, false)
     setSessionComplete('early')

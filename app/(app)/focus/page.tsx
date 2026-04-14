@@ -43,20 +43,6 @@ const LUMI_DONE_MESSAGES = [
   "One session at a time. You're doing it.",
 ]
 
-const LUMI_NUDGES = [
-  "Lumi is with you. No pressure — just focus.",
-  "You don't have to be perfect. Just present.",
-  "One thing at a time. You're already doing it.",
-  "Your brain is working. Trust it.",
-  "It's okay if it's hard. Hard means real.",
-  "You started. That was already the hard part.",
-  "Breathe. You've got this.",
-  "Every minute counts. Keep going.",
-  "No guilt, no rush. Just this moment.",
-  "You're not behind. You're right here.",
-]
-
-const LUMI_HALFWAY = "Halfway there. Take a breath — you're doing great."
 
 const SOUNDS: { key: SoundType; label: string }[] = [
   { key: 'off',   label: 'Off'   },
@@ -407,9 +393,7 @@ export default function FocusPage() {
     LUMI_DONE_MESSAGES[Math.floor(Math.random() * LUMI_DONE_MESSAGES.length)]
   )
 
-  const [nudgeMsg,     setNudgeMsg]     = useState(LUMI_NUDGES[0])
-  const [nudgeVisible, setNudgeVisible] = useState(true)
-  const halfwayFiredRef                 = useRef(false)
+  const halfwayFiredRef = useRef(false)
 
   const [activeSound, setActiveSound] = useState<SoundType>('off')
   const { play, cleanup }             = useAmbientSound()
@@ -524,26 +508,11 @@ export default function FocusPage() {
     return clearTimer
   }, [state, clearTimer])
 
-  // Nudge rotation — every 22 s
-  useEffect(() => {
-    if (state !== 'active') return
-    const id = setInterval(() => {
-      setNudgeVisible(false)
-      setTimeout(() => {
-        setNudgeMsg(LUMI_NUDGES[Math.floor(Math.random() * LUMI_NUDGES.length)])
-        setNudgeVisible(true)
-      }, 400)
-    }, 22000)
-    return () => clearInterval(id)
-  }, [state])
-
   // Halfway check-in
   useEffect(() => {
     if (state !== 'active' || halfwayFiredRef.current) return
     if (remaining === Math.round(totalSeconds / 2)) {
       halfwayFiredRef.current = true
-      setNudgeVisible(false)
-      setTimeout(() => { setNudgeMsg(LUMI_HALFWAY); setNudgeVisible(true) }, 400)
       // Push into inline chat thread + haptic + chime
       setBdMessages(prev => [...prev, {
         id: 'halfway-' + Date.now(),
@@ -552,13 +521,6 @@ export default function FocusPage() {
       }])
       playChime()
       try { navigator.vibrate([10, 60, 10]) } catch {}
-      setTimeout(() => {
-        setNudgeVisible(false)
-        setTimeout(() => {
-          setNudgeMsg(LUMI_NUDGES[Math.floor(Math.random() * LUMI_NUDGES.length)])
-          setNudgeVisible(true)
-        }, 400)
-      }, 9000)
     }
   }, [remaining, state, totalSeconds])
 
@@ -609,9 +571,6 @@ export default function FocusPage() {
     pauseCountRef.current     = 0
     thoughtsCapturedRef.current = 0
     startedAtRef.current      = new Date().toISOString()
-    setNudgeMsg(LUMI_NUDGES[0])
-    setNudgeVisible(true)
-
     // Kick off the inline body-double thread
     setBdMessages([{
       id: 'init',
@@ -846,28 +805,6 @@ export default function FocusPage() {
         {/* ── In-session content ── */}
         {inSession && (
           <>
-            {/* Lumi nudge */}
-            <div style={{
-              background: D.accentBg, border: `1.5px solid ${D.accentBorder}`,
-              borderRadius: 16, padding: '13px 16px', marginBottom: 16,
-              display: 'flex', gap: 10, alignItems: 'flex-start',
-            }}>
-              <div style={{
-                width: 7, height: 7, borderRadius: '50%', marginTop: 5, flexShrink: 0,
-                background: state === 'active' ? D.green : D.textFaint,
-                boxShadow: state === 'active' ? `0 0 0 3px rgba(94,194,105,0.2)` : 'none',
-                transition: 'background 0.4s, box-shadow 0.4s',
-              }} />
-              <p style={{
-                fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 600,
-                color: D.textPrimary, lineHeight: 1.5,
-                opacity: nudgeVisible ? 1 : 0,
-                transition: 'opacity 0.4s ease',
-              }}>
-                {nudgeMsg}
-              </p>
-            </div>
-
             {/* Ambient sound */}
             <div style={{ marginBottom: 16 }}>
               <p style={{

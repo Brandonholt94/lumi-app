@@ -909,7 +909,16 @@ export default function FocusPage() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
               <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.06)' }} />
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <div style={{ width: 6, height: 6, borderRadius: '50%', background: D.green, boxShadow: '0 0 0 2px rgba(94,194,105,0.2)' }} />
+                <svg width="10" height="10" viewBox="0 0 10 10" style={{ flexShrink: 0 }}>
+                  <defs>
+                    <radialGradient id="lumiDot" cx="35%" cy="35%" r="65%">
+                      <stop offset="0%"   stopColor="#F5C98A"/>
+                      <stop offset="50%"  stopColor="#F4A582"/>
+                      <stop offset="100%" stopColor="#E8A0BF"/>
+                    </radialGradient>
+                  </defs>
+                  <circle cx="5" cy="5" r="4" fill="url(#lumiDot)"/>
+                </svg>
                 <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '10px', fontWeight: 800, letterSpacing: '0.1em', color: D.textFaint }}>
                   LUMI IS HERE
                 </span>

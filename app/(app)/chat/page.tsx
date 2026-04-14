@@ -434,7 +434,7 @@ export default function ChatPage() {
               value={input}
               onChange={handleInputChange}
               onKeyDown={handleKeyDown}
-              placeholder="Say anything…"
+              placeholder="What's on your mind? Lumi's here…"
               rows={1}
               className="flex-1 bg-transparent outline-none resize-none lumi-input"
               style={{

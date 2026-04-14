@@ -112,6 +112,32 @@ export async function GET(req: Request) {
     return { date, mood: moodByDate[date] ?? null }
   })
 
+  // Active days — true if any capture OR mood logged that day
+  const activeDays = Array.from({ length: 7 }, (_, i) =>
+    byDay[i] > 0 || moodDays[i].mood != null
+  )
+
+  // Highlight — single warm sentence derived from the week's data
+  const totalMinutes = Math.round(focusSessions.reduce((s, f) => s + (f.actual_duration ?? 0), 0) / 60)
+  const totalSessions = focusSessions.length
+  let highlight: string
+
+  if (completedTasks.length >= 3) {
+    highlight = `You completed ${completedTasks.length} tasks this week. That's a strong week.`
+  } else if (completedTasks.length > 0) {
+    highlight = `You completed ${completedTasks.length} task${completedTasks.length > 1 ? 's' : ''} this week. Every one counts.`
+  } else if (busiestDay && captures.length >= 5) {
+    highlight = `${busiestDay} was your most active day — your brain had a lot to say.`
+  } else if (totalMinutes >= 60) {
+    highlight = `You focused for ${totalMinutes} minutes this week. That's real, intentional work.`
+  } else if (totalSessions > 0) {
+    highlight = `You showed up for ${totalSessions} focus session${totalSessions > 1 ? 's' : ''} this week. That matters.`
+  } else if (captures.length > 0) {
+    highlight = `You captured ${captures.length} thought${captures.length > 1 ? 's' : ''} this week. Your brain is working.`
+  } else {
+    highlight = `Your week is just getting started. Lumi is here whenever you need it.`
+  }
+
   return NextResponse.json({
     plan,
     week: {
@@ -121,8 +147,10 @@ export async function GET(req: Request) {
     captures: { total: captures.length, byTag, byDay, busiestDay, completedTasks },
     moods: moodDays,
     focus: {
-      sessions: focusSessions.length,
-      minutes:  Math.round(focusSessions.reduce((s, f) => s + (f.actual_duration ?? 0), 0) / 60),
+      sessions: totalSessions,
+      minutes:  totalMinutes,
     },
+    activeDays,
+    highlight,
   })
 }

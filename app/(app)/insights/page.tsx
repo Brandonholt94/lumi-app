@@ -22,6 +22,8 @@ interface InsightsData {
   }
   moods: { date: string; mood: Mood | null }[]
   focus: { sessions: number; minutes: number }
+  activeDays: boolean[]
+  highlight: string
 }
 
 // ─────────────────────────────────────────────────────────
@@ -67,6 +69,115 @@ function dominantMood(moods: { mood: Mood | null }[]): Mood | null {
 // ─────────────────────────────────────────────────────────
 // Sub-components
 // ─────────────────────────────────────────────────────────
+
+// ── Lumi Highlight Card ──────────────────────────────────
+function LumiHighlightCard({ highlight }: { highlight: string }) {
+  return (
+    <div style={{
+      background: 'white',
+      borderRadius: 16,
+      padding: '14px 16px',
+      border: '1px solid rgba(45,42,62,0.07)',
+      boxShadow: '0 2px 8px rgba(45,42,62,0.06)',
+      display: 'flex',
+      alignItems: 'flex-start',
+      gap: 10,
+    }}>
+      <span style={{ fontSize: 16, flexShrink: 0, marginTop: 1 }}>✦</span>
+      <p style={{
+        fontFamily: 'var(--font-nunito-sans)',
+        fontSize: '14px',
+        fontWeight: 600,
+        color: '#2D2A3E',
+        lineHeight: 1.55,
+      }}>
+        {highlight}
+      </p>
+    </div>
+  )
+}
+
+// ── Activity Calendar ────────────────────────────────────
+function ActivityCalendar({ activeDays, moods }: { activeDays: boolean[]; moods: { date: string; mood: Mood | null }[] }) {
+  const today = new Date().toISOString().slice(0, 10)
+  const todayIdx = (new Date().getDay() + 6) % 7 // Mon=0
+
+  return (
+    <div style={{
+      background: 'white',
+      borderRadius: 16,
+      padding: '16px 12px 14px',
+      border: '1px solid rgba(45,42,62,0.07)',
+      boxShadow: '0 2px 8px rgba(45,42,62,0.06)',
+    }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+        {activeDays.map((active, i) => {
+          const mood      = moods[i]?.mood
+          const meta      = mood ? MOOD_META[mood] : null
+          const isToday   = moods[i]?.date === today
+          const isFuture  = i > todayIdx
+          return (
+            <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+              <p style={{
+                fontFamily: 'var(--font-nunito-sans)',
+                fontSize: '10px',
+                fontWeight: 800,
+                color: isToday ? '#F4A582' : '#9895B0',
+              }}>
+                {DAY_SHORT[i]}
+              </p>
+              <div style={{
+                width: 34,
+                height: 34,
+                borderRadius: '50%',
+                background: isFuture
+                  ? 'transparent'
+                  : meta
+                    ? `${meta.color}22`
+                    : active
+                      ? 'rgba(244,165,130,0.12)'
+                      : 'rgba(45,42,62,0.04)',
+                border: `2px solid ${
+                  isFuture
+                    ? 'rgba(45,42,62,0.06)'
+                    : meta
+                      ? meta.color
+                      : active
+                        ? 'rgba(244,165,130,0.35)'
+                        : 'rgba(45,42,62,0.10)'
+                }`,
+                borderStyle: isFuture ? 'dashed' : 'solid',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 15,
+                boxShadow: meta ? `0 0 0 3px ${meta.color}18` : 'none',
+              }}>
+                {/* mood emoji if logged, dot if active but no mood, nothing if future */}
+                {!isFuture && (meta
+                  ? meta.emoji
+                  : active
+                    ? <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'rgba(244,165,130,0.6)' }} />
+                    : null
+                )}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+      <p style={{
+        fontFamily: 'var(--font-nunito-sans)',
+        fontSize: '11px',
+        fontWeight: 600,
+        color: '#9895B0',
+        marginTop: 12,
+        paddingLeft: 2,
+      }}>
+        {activeDays.filter((a, i) => a && i <= todayIdx).length} of {todayIdx + 1} days active this week
+      </p>
+    </div>
+  )
+}
 
 function SectionLabel({ children }: { children: string }) {
   return (
@@ -128,44 +239,6 @@ function ActivityChart({ byDay, busiestDay }: { byDay: number[]; busiestDay: str
   )
 }
 
-// ── Mood Strip ───────────────────────────────────────────
-function MoodStrip({ moods }: { moods: { date: string; mood: Mood | null }[] }) {
-  const today = new Date().toISOString().slice(0, 10)
-  return (
-    <div style={{
-      background: 'white', borderRadius: 16, padding: '16px 12px 14px',
-      border: '1px solid rgba(45,42,62,0.07)',
-      boxShadow: '0 2px 8px rgba(45,42,62,0.06)',
-    }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-        {moods.map((d, i) => {
-          const isToday = d.date === today
-          const meta    = d.mood ? MOOD_META[d.mood] : null
-          return (
-            <div key={d.date} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-              <p style={{
-                fontFamily: 'var(--font-nunito-sans)', fontSize: '10px', fontWeight: 800,
-                color: isToday ? '#F4A582' : '#9895B0',
-              }}>
-                {DAY_SHORT[i]}
-              </p>
-              <div style={{
-                width: 34, height: 34, borderRadius: '50%',
-                background: meta ? `${meta.color}22` : 'rgba(45,42,62,0.05)',
-                border: `2px solid ${meta ? meta.color : 'rgba(45,42,62,0.08)'}`,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 15,
-                boxShadow: meta ? `0 0 0 3px ${meta.color}18` : 'none',
-              }}>
-                {meta ? meta.emoji : ''}
-              </div>
-            </div>
-          )
-        })}
-      </div>
-    </div>
-  )
-}
 
 // ── Focus Card ───────────────────────────────────────────
 function FocusCard({ sessions, minutes }: { sessions: number; minutes: number }) {
@@ -513,6 +586,9 @@ export default function InsightsPage() {
               </div>
             </div>
 
+            {/* ── Lumi highlight ── */}
+            <LumiHighlightCard highlight={data.highlight} />
+
             {/* ── Weekly Brain Report ── */}
             <div>
               <SectionLabel>WEEKLY BRAIN REPORT</SectionLabel>
@@ -525,10 +601,10 @@ export default function InsightsPage() {
               <ActivityChart byDay={data.captures.byDay} busiestDay={data.captures.busiestDay} />
             </div>
 
-            {/* ── Mood strip ── */}
+            {/* ── Activity calendar + mood ── */}
             <div>
-              <SectionLabel>MOOD THIS WEEK</SectionLabel>
-              <MoodStrip moods={data.moods} />
+              <SectionLabel>YOUR WEEK</SectionLabel>
+              <ActivityCalendar activeDays={data.activeDays} moods={data.moods} />
             </div>
 
             {/* ── Focus time ── */}

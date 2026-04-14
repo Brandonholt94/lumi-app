@@ -155,7 +155,7 @@ export default function OneFocusCard() {
         <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '9.5px', fontWeight: 800, letterSpacing: '0.13em', color: '#F4A582' }}>
           ✦ YOUR ONE FOCUS TODAY
         </p>
-        {(mood === 'drained' || mood === 'foggy') && (
+        {(mood === 'drained' || mood === 'low') && (
           <span style={{
             fontFamily: 'var(--font-nunito-sans)', fontSize: '9px', fontWeight: 700,
             color: 'rgba(232,160,191,0.8)', letterSpacing: '0.06em',

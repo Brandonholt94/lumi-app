@@ -38,7 +38,7 @@ export async function POST(req: Request) {
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { mood } = await req.json()
-  const validMoods = ['foggy', 'okay', 'wired', 'drained']
+  const validMoods = ['drained', 'low', 'okay', 'bright', 'wired']
   if (!mood || !validMoods.includes(mood)) {
     return NextResponse.json({ error: 'Invalid mood' }, { status: 400 })
   }

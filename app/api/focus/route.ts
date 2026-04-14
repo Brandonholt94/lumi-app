@@ -52,7 +52,7 @@ export async function GET(req: Request) {
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { searchParams } = new URL(req.url)
-  const mood = (searchParams.get('mood') ?? null) as 'foggy' | 'okay' | 'wired' | 'drained' | null
+  const mood = (searchParams.get('mood') ?? null) as 'drained' | 'low' | 'okay' | 'bright' | 'wired' | null
   const bypassPin = searchParams.get('bypass_pin') === '1'
 
   const supabase = getServiceClient()
@@ -109,7 +109,7 @@ export async function GET(req: Request) {
 
   // Mood-aware pre-filtering — for low-energy moods, only send shortest tasks to Claude
   let filteredTasks = tasks ?? []
-  if (mood === 'drained' || mood === 'foggy') {
+  if (mood === 'drained' || mood === 'low') {
     filteredTasks = [...filteredTasks]
       .sort((a, b) => a.text.length - b.text.length)
       .slice(0, 8)

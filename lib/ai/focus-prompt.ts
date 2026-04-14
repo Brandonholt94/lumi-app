@@ -12,7 +12,7 @@ export interface FocusTask {
 }
 
 export interface FocusPromptContext {
-  mood: 'foggy' | 'okay' | 'wired' | 'drained' | null
+  mood: 'drained' | 'low' | 'okay' | 'bright' | 'wired' | null
   tasks: FocusTask[]
   hour: number       // 0–23, time of day
   name?: string
@@ -20,10 +20,11 @@ export interface FocusPromptContext {
 
 export function buildFocusSelectionPrompt(ctx: FocusPromptContext): string {
   const moodGuidance = {
-    foggy: `The user is feeling foggy today. Prioritize the LOWEST friction task — the one that requires the fewest decisions and the least cognitive load to start. A small, clear, bounded task is better than an important one right now. Their energy is limited; protect it.`,
-    okay: `The user is feeling okay today. Normal selection logic applies — balance importance, age, and effort. Lean toward the task with the most real-world impact that feels approachable.`,
-    wired: `The user is feeling wired today. They have energy — use it. Select a task that benefits from focus and momentum. Higher-effort tasks are appropriate right now. Avoid tasks that require patience or waiting.`,
     drained: `The user is feeling drained. They are in Low Battery Mode. Select the ABSOLUTE smallest, lowest-stakes task possible — something that could be completed in under 10 minutes and would create a tiny sense of forward motion. Do not select anything emotionally heavy, complex, or high-stakes. The goal is not output, it's a tiny thread of momentum. If every task is heavy, say so — don't pretend the list is okay when it isn't.`,
+    low: `The user is feeling low today. Prioritize the LOWEST friction task — the one that requires the fewest decisions and the least cognitive load to start. A small, clear, bounded task is better than an important one right now. Their energy is limited; protect it.`,
+    okay: `The user is feeling okay today. Normal selection logic applies — balance importance, age, and effort. Lean toward the task with the most real-world impact that feels approachable.`,
+    bright: `The user is feeling bright today — present and engaged. This is a good moment for a task with real impact. Pick something meaningful that they'll feel good completing. Not the hardest thing on the list, but not the smallest either.`,
+    wired: `The user is feeling wired today. They have energy — use it. Select a task that benefits from focus and momentum. Higher-effort tasks are appropriate right now. Avoid tasks that require patience or waiting.`,
     null: `No mood reported. Use balanced selection logic — prioritize older tasks and tasks with clear real-world consequences.`,
   }
 

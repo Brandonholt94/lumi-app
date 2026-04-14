@@ -8,7 +8,7 @@ import ProfileButton from '../_components/ProfileButton'
 // Types
 // ─────────────────────────────────────────────────────────
 
-type Mood = 'foggy' | 'okay' | 'wired' | 'drained'
+type Mood = 'drained' | 'low' | 'okay' | 'bright' | 'wired'
 
 interface InsightsData {
   plan: 'free' | 'starter' | 'core' | 'companion'
@@ -30,11 +30,51 @@ interface InsightsData {
 // Constants
 // ─────────────────────────────────────────────────────────
 
-const MOOD_META: Record<Mood, { emoji: string; label: string; color: string }> = {
-  foggy:   { emoji: '🌫️', label: 'Foggy',   color: '#8FAAE0' },
-  okay:    { emoji: '😌', label: 'Okay',    color: '#5EC269' },
-  wired:   { emoji: '⚡', label: 'Wired',   color: '#F5C98A' },
-  drained: { emoji: '🪫', label: 'Drained', color: '#E8A0BF' },
+const MOOD_META: Record<Mood, { label: string; color: string; icon: React.ReactNode }> = {
+  drained: {
+    label: 'Drained', color: '#8FAAE0',
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <rect x="1" y="6.5" width="18" height="11" rx="2" stroke="currentColor" strokeWidth="1.9"/>
+        <path d="M19 10v4" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/>
+        <rect x="3" y="8.5" width="4" height="7" rx="1" fill="currentColor" opacity="0.5"/>
+      </svg>
+    ),
+  },
+  low: {
+    label: 'Low', color: '#B8AECC',
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <path d="M20 17H4a4 4 0 010-8h.5A6.5 6.5 0 0120 12.5V17z" stroke="currentColor" strokeWidth="1.9" strokeLinejoin="round"/>
+        <path d="M4 17h16" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round"/>
+      </svg>
+    ),
+  },
+  okay: {
+    label: 'Okay', color: '#C8A030',
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="1.9"/>
+        <path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M17.66 6.34l-1.41 1.41M6.34 17.66l-1.41 1.41" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round"/>
+      </svg>
+    ),
+  },
+  bright: {
+    label: 'Bright', color: '#C86040',
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <path d="M12 3l2.2 6.2H21l-5.6 4.1 2.1 6.4L12 16l-5.5 3.7 2.1-6.4L3 9.2h6.8z" stroke="currentColor" strokeWidth="1.9" strokeLinejoin="round" strokeLinecap="round"/>
+      </svg>
+    ),
+  },
+  wired: {
+    label: 'Wired', color: '#B86090',
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <path d="M13 3L5.5 13H11.5L10.5 21L18.5 11H12.5L13 3Z" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    ),
+  },
 }
 
 const TAG_META = {
@@ -150,12 +190,11 @@ function ActivityCalendar({ activeDays, moods }: { activeDays: boolean[]; moods:
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: 15,
                 boxShadow: meta ? `0 0 0 3px ${meta.color}18` : 'none',
               }}>
-                {/* mood emoji if logged, dot if active but no mood, nothing if future */}
+                {/* mood icon if logged, dot if active but no mood, nothing if future */}
                 {!isFuture && (meta
-                  ? meta.emoji
+                  ? <span style={{ color: meta.color, display: 'flex' }}>{meta.icon}</span>
                   : active
                     ? <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'rgba(244,165,130,0.6)' }} />
                     : null
@@ -579,7 +618,7 @@ export default function InsightsPage() {
                     <circle cx="14.5" cy="10.5" r="1" fill="#F4A582"/>
                   </svg>
                   <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '10px', fontWeight: 700, color: '#9895B0', letterSpacing: '0.04em' }}>TOP MOOD</p>
-                  <p style={{ fontFamily: 'var(--font-fraunces)', fontSize: '22px', fontWeight: 900, color: '#1E1C2E', lineHeight: 1 }}>{topMood ? MOOD_META[topMood].label : '—'}</p>
+                  <p style={{ fontFamily: 'var(--font-fraunces)', fontSize: '22px', fontWeight: 900, color: topMood ? MOOD_META[topMood].color : '#1E1C2E', lineHeight: 1 }}>{topMood ? MOOD_META[topMood].label : '—'}</p>
                   <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 600, color: '#9895B0' }}>most logged</p>
                 </div>
 

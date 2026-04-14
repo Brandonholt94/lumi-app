@@ -36,7 +36,7 @@ function shouldUseSonnet(
   if (isReturningAfterAbsence) return true
 
   // Sonnet for emotionally heavy moods
-  if (mood === 'drained' || mood === 'foggy') return true
+  if (mood === 'drained' || mood === 'low') return true
 
   // Check last user message for emotional keywords
   const lastMsg = [...messages].reverse().find(m => m.role === 'user')

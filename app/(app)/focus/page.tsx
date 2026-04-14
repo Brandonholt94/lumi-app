@@ -728,46 +728,8 @@ export default function FocusPage() {
       className="flex flex-col flex-1 overflow-y-auto"
       style={{ background: D.bg }}
     >
-      {/* ── Header ── */}
-      <div style={{ padding: '48px 24px 24px' }}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-          <div>
-            <p style={{
-              fontFamily: 'var(--font-nunito-sans)', fontSize: '10px', fontWeight: 800,
-              letterSpacing: '0.12em', color: D.peach, marginBottom: 6, opacity: 0.8,
-            }}>
-              FOCUS SESSION
-            </p>
-            <h1 style={{
-              fontFamily: 'var(--font-fraunces)', fontSize: '32px',
-              fontWeight: 900, color: D.textPrimary, lineHeight: 1.1, marginBottom: 4,
-            }}>
-              Focus
-            </h1>
-            <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '12px', fontWeight: 600, color: D.textMuted }}>
-              {subtitle}
-            </p>
-          </div>
-
-          {/* Profile button — dark variant */}
-          <Link href="/me" aria-label="Profile" style={{ display: 'block', borderRadius: '50%', flexShrink: 0 }}>
-            <div style={{
-              width: 36, height: 36, borderRadius: '50%',
-              background: 'rgba(255,255,255,0.1)',
-              border: '1px solid rgba(255,255,255,0.12)',
-              display: 'flex', alignItems: 'flex-end', justifyContent: 'center', overflow: 'hidden',
-            }}>
-              <svg width="26" height="26" viewBox="0 0 28 28" fill="none" style={{ marginBottom: -2 }}>
-                <circle cx="14" cy="10" r="5" fill="rgba(245,242,238,0.7)" />
-                <path d="M4 26c0-5.523 4.477-10 10-10s10 4.477 10 10" fill="rgba(245,242,238,0.7)" />
-              </svg>
-            </div>
-          </Link>
-        </div>
-      </div>
-
       {/* ── Body ── */}
-      <div className="flex flex-col flex-1 px-6 pb-8">
+      <div className="flex flex-col flex-1 px-6 pb-8" style={{ paddingTop: 48 }}>
 
         {/* IDLE — task picker + duration */}
         {state === 'idle' && (

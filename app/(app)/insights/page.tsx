@@ -537,21 +537,15 @@ export default function InsightsPage() {
   return (
     <div className="flex flex-col h-full overflow-y-auto">
 
-      {/* Header */}
-      <div style={{ background: '#ffffff', padding: '16px 20px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(45,42,62,0.06)' }}>
-        <h1 style={{ fontFamily: 'var(--font-fraunces)', fontSize: '22px', fontWeight: 900, color: '#1E1C2E', lineHeight: 1 }}>
-          Insights
-        </h1>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      {/* Body */}
+      <div className="flex flex-col flex-1 px-5 pb-8" style={{ background: '#FBF8F5', paddingTop: 24, gap: 24, display: 'flex', flexDirection: 'column' }}>
+
+        {/* Week label */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', marginBottom: -8 }}>
           <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 600, color: '#9895B0' }}>
             {weekLabel}
           </span>
-          <ProfileButton />
         </div>
-      </div>
-
-      {/* Body */}
-      <div className="flex flex-col flex-1 px-5 pb-8" style={{ background: '#FBF8F5', paddingTop: 24, gap: 24, display: 'flex', flexDirection: 'column' }}>
 
         {loading ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, paddingTop: 16 }}>

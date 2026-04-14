@@ -278,31 +278,6 @@ export default function ChatPage() {
         }}
       >
 
-        {/* ── HEADER ── */}
-        <div
-          className="flex-shrink-0 flex flex-col px-5"
-          style={{
-            paddingTop: 56,
-            paddingBottom: 14,
-            background: '#FBF8F5',
-            borderBottom: '1px solid rgba(45,42,62,0.07)',
-          }}
-        >
-          {/* Wordmark — sun + lumi */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/lumi-wordmark-dark.svg" alt="Lumi" style={{ height: 36, width: 'auto', alignSelf: 'flex-start' }} />
-          {/* Subtitle stacked below */}
-          <span style={{
-            fontFamily: 'var(--font-nunito-sans)',
-            fontSize: '12px',
-            fontWeight: 600,
-            color: '#9895B0',
-            marginTop: 2,
-          }}>
-            Always here · No judgment
-          </span>
-        </div>
-
         {/* ── CHAT AREA ── */}
         <div
           className="flex-1 lumi-scroll relative"

@@ -147,6 +147,15 @@ export default function DaySceneHeader({ firstName }: Props) {
               </radialGradient>
             )}
 
+            {/* Afternoon sun glow */}
+            {scene === 'afternoon' && (
+              <radialGradient id="sunGlow" cx="50%" cy="50%" r="50%">
+                <stop offset="0%"   stopColor="#FFFDE7" stopOpacity="1"/>
+                <stop offset="30%"  stopColor="#FFE082" stopOpacity="0.55"/>
+                <stop offset="100%" stopColor="#FFC107" stopOpacity="0"/>
+              </radialGradient>
+            )}
+
             {/* Moon glow (night only) */}
             {scene === 'night' && (
               <radialGradient id="moonGlow" cx="50%" cy="50%" r="50%">
@@ -188,6 +197,26 @@ export default function DaySceneHeader({ firstName }: Props) {
           {scene === 'morning' && (
             <circle cx="210" cy="100" r="90" fill="url(#sunOrb)"/>
           )}
+
+          {/* Afternoon sun — crisp disk + rays + soft glow, upper right */}
+          {scene === 'afternoon' && (() => {
+            const cx = 308, cy = 34
+            const rays = Array.from({ length: 8 }, (_, i) => {
+              const a = (i * 45) * Math.PI / 180
+              return { x1: Math.cos(a) * 19, y1: Math.sin(a) * 19, x2: Math.cos(a) * 27, y2: Math.sin(a) * 27 }
+            })
+            return (
+              <g transform={`translate(${cx},${cy})`}>
+                <circle cx={0} cy={0} r={36} fill="url(#sunGlow)"/>
+                {rays.map((r, i) => (
+                  <line key={i} x1={r.x1} y1={r.y1} x2={r.x2} y2={r.y2}
+                    stroke="#FFD600" strokeWidth="2.5" strokeLinecap="round" strokeOpacity="0.85"/>
+                ))}
+                <circle cx={0} cy={0} r={13} fill="#FFF9C4"/>
+                <circle cx={0} cy={0} r={10} fill="#FFE040"/>
+              </g>
+            )
+          })()}
 
           {/* Stars — evening (dim) + night (bright), all twinkling */}
           {isNightish && STARS.map((s, i) => {

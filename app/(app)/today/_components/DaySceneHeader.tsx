@@ -15,10 +15,10 @@ function getScene(hour: number): Scene {
 }
 
 function getGreeting(hour: number) {
-  if (hour >= 5  && hour < 11) return { text: 'Morning',   emoji: '🌅' }
-  if (hour >= 11 && hour < 18) return { text: 'Afternoon', emoji: '☀️' }
-  if (hour >= 18 && hour < 21) return { text: 'Evening',   emoji: '🌆' }
-  return                               { text: 'Night',     emoji: '🌙' }
+  if (hour >= 5  && hour < 11) return 'Morning'
+  if (hour >= 11 && hour < 18) return 'Afternoon'
+  if (hour >= 18 && hour < 21) return 'Evening'
+  return 'Night'
 }
 
 // ── Sky gradients ─────────────────────────────────────────────
@@ -92,7 +92,7 @@ const CLOUD_COLOR: Record<Scene, string> = {
 
 export default function DaySceneHeader({ firstName }: Props) {
   const [scene,    setScene]    = useState<Scene | null>(null)
-  const [greeting, setGreeting] = useState<{ text: string; emoji: string } | null>(null)
+  const [greeting, setGreeting] = useState<string | null>(null)
   const [date,     setDate]     = useState('')
 
   useEffect(() => {
@@ -288,7 +288,7 @@ export default function DaySceneHeader({ firstName }: Props) {
           color: '#1E1C2E',
           lineHeight: 1.1, marginBottom: 3,
         }}>
-          {greeting ? `${greeting.emoji} ${greeting.text}, ` : <span style={{ opacity: 0 }}>·</span>}
+          {greeting ? `${greeting}, ` : <span style={{ opacity: 0 }}>·</span>}
           {greeting && (
             <span style={{
               background: 'linear-gradient(90deg, #F4A582, #F5C98A, #8FAAE0)',

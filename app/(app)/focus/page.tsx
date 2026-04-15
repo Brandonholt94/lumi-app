@@ -7,18 +7,18 @@ type SessionState = 'idle' | 'active' | 'paused' | 'done'
 type SoundType    = 'off' | 'rain' | 'white' | 'brown'
 
 // ─────────────────────────────────────────────────────────
-// Design tokens — warm gradient focus mode
+// Design tokens — dark focus mode
 // ─────────────────────────────────────────────────────────
 
 const D = {
-  bg:          '#F5EDE6',   // warm cream base (body bg fallback)
-  surface:     'rgba(255,255,255,0.52)',
-  border:      'rgba(45,42,62,0.10)',
-  textPrimary: '#1E1C2E',
-  textMuted:   'rgba(45,42,62,0.50)',
-  textFaint:   'rgba(45,42,62,0.32)',
+  bg:          '#1A1728',   // deep dark base (body bg fallback)
+  surface:     'rgba(255,255,255,0.06)',
+  border:      'rgba(255,255,255,0.09)',
+  textPrimary: 'rgba(245,242,238,0.95)',
+  textMuted:   'rgba(245,242,238,0.45)',
+  textFaint:   'rgba(245,242,238,0.28)',
   accentBg:    'rgba(244,165,130,0.12)',
-  accentBorder:'rgba(244,165,130,0.40)',
+  accentBorder:'rgba(244,165,130,0.35)',
   peach:       '#F4A582',
   gold:        '#F5C98A',
   green:       '#5EC269',
@@ -172,7 +172,7 @@ function ProgressRing({ progress, size = 240 }: { progress: number; size?: numbe
   const offset = circ * (1 - progress)
   return (
     <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
-      <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="rgba(45,42,62,0.12)" strokeWidth={stroke} />
+      <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth={stroke} />
       <circle
         cx={size/2} cy={size/2} r={r} fill="none"
         stroke="url(#focusGrad)" strokeWidth={stroke} strokeLinecap="round"
@@ -292,7 +292,7 @@ function DraggableRing({
       </defs>
 
       {/* Track */}
-      <circle cx={cx} cy={cy} r={r} fill="none" stroke="rgba(45,42,62,0.12)" strokeWidth={stroke} />
+      <circle cx={cx} cy={cy} r={r} fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth={stroke} />
 
       {/* Filled arc */}
       <circle
@@ -305,7 +305,7 @@ function DraggableRing({
       {/* Tick marks */}
       {ticks.map((t, i) => (
         <line key={i} x1={t.x1} y1={t.y1} x2={t.x2} y2={t.y2}
-          stroke="#2D2A3E" strokeOpacity={t.opacity}
+          stroke="white" strokeOpacity={t.opacity}
           strokeWidth={t.width} strokeLinecap="round"
         />
       ))}
@@ -317,7 +317,7 @@ function DraggableRing({
           x={l.x} y={l.y}
           textAnchor="middle" dominantBaseline="middle"
           fontSize={10} fontWeight={700}
-          fill="rgba(45,42,62,0.30)"
+          fill="rgba(245,242,238,0.28)"
           style={{ fontFamily: 'var(--font-nunito-sans)', pointerEvents: 'none' }}
         >
           {l.min}
@@ -374,9 +374,9 @@ const primaryBtn: React.CSSProperties = {
 
 const ghostBtn: React.CSSProperties = {
   width: '100%', padding: '14px', borderRadius: 16,
-  border: '1.5px solid rgba(45,42,62,0.15)', background: 'rgba(255,255,255,0.35)',
+  border: '1.5px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.06)',
   fontFamily: 'var(--font-nunito-sans)', fontSize: '14px', fontWeight: 700,
-  color: 'rgba(45,42,62,0.45)', cursor: 'pointer',
+  color: 'rgba(245,242,238,0.45)', cursor: 'pointer',
 }
 
 // ─────────────────────────────────────────────────────────
@@ -699,37 +699,35 @@ export default function FocusPage() {
     <div
       className="flex flex-col flex-1 overflow-y-auto"
       style={{
-        background: '#E8D4C8',
+        background: '#1A1728',
         position: 'relative',
       }}
     >
-      {/* ── Sun radial glow — breathing orb ── */}
+      {/* ── Sun radial glow — breathing orb on dark ── */}
       <div style={{
         position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
       }}>
         <div style={{
           width: '100%', height: '100%', position: 'absolute',
           background: [
-            'radial-gradient(circle 300px at 50% 42%,',
-            '  rgba(255,248,210,0.88) 0%,',
-            '  rgba(245,201,138,0.68) 20%,',
-            '  rgba(244,165,130,0.48) 42%,',
-            '  rgba(232,160,191,0.24) 62%,',
-            '  rgba(143,170,224,0.10) 78%,',
-            '  transparent 100%)',
+            'radial-gradient(circle 280px at 50% 38%,',
+            '  rgba(255,248,210,0.14) 0%,',
+            '  rgba(245,201,138,0.18) 18%,',
+            '  rgba(244,165,130,0.13) 38%,',
+            '  rgba(232,160,191,0.07) 58%,',
+            '  transparent 80%)',
           ].join(''),
           animation: 'sunBreathe 5s ease-in-out infinite',
-          transformOrigin: '50% 42%',
+          transformOrigin: '50% 38%',
         }} />
       </div>
 
       {/* ── Grain overlay ── */}
       <div style={{
-        position: 'fixed', inset: 0, zIndex: 1, pointerEvents: 'none', opacity: 0.52,
+        position: 'fixed', inset: 0, zIndex: 1, pointerEvents: 'none', opacity: 0.38,
         backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.80' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E")`,
         backgroundRepeat: 'repeat',
-        mixBlendMode: 'multiply',
+        mixBlendMode: 'soft-light',
       }} />
 
       {/* ── All content sits above grain ── */}
@@ -764,17 +762,17 @@ export default function FocusPage() {
                   color: selectedChipId ? D.textPrimary : D.textMuted,
                   outline: 'none', cursor: 'pointer', marginBottom: 10,
                   appearance: 'none', WebkitAppearance: 'none',
-                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='rgba(45,42,62,0.35)' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E")`,
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='rgba(245,242,238,0.40)' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E")`,
                   backgroundRepeat: 'no-repeat',
                   backgroundPosition: 'right 14px center',
                   paddingRight: 36,
                 }}
               >
-                <option value="" style={{ background: '#F5EDE6', color: 'rgba(45,42,62,0.45)' }}>
+                <option value="" style={{ background: '#1A1728', color: 'rgba(245,242,238,0.45)' }}>
                   Pick from Brain Dump…
                 </option>
                 {taskChips.slice(0, 5).map(chip => (
-                  <option key={chip.id} value={chip.id} style={{ background: '#F5EDE6', color: '#1E1C2E' }}>
+                  <option key={chip.id} value={chip.id} style={{ background: '#1A1728', color: 'rgba(245,242,238,0.95)' }}>
                     {chip.text}
                   </option>
                 ))}
@@ -941,7 +939,7 @@ export default function FocusPage() {
           <div style={{ marginTop: 28 }}>
             {/* Divider */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-              <div style={{ flex: 1, height: 1, background: 'rgba(45,42,62,0.08)' }} />
+              <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.06)' }} />
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <svg width="10" height="10" viewBox="0 0 10 10" style={{ flexShrink: 0 }}>
                   <defs>
@@ -957,7 +955,7 @@ export default function FocusPage() {
                   LUMI IS HERE
                 </span>
               </div>
-              <div style={{ flex: 1, height: 1, background: 'rgba(45,42,62,0.08)' }} />
+              <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.06)' }} />
             </div>
 
             {/* Messages */}
@@ -997,8 +995,8 @@ export default function FocusPage() {
                 placeholder="Reply to Lumi…"
                 style={{
                   flex: 1, padding: '11px 14px', borderRadius: 12,
-                  background: 'rgba(255,255,255,0.50)',
-                  border: '1px solid rgba(45,42,62,0.10)',
+                  background: 'rgba(255,255,255,0.07)',
+                  border: '1px solid rgba(255,255,255,0.10)',
                   color: D.textPrimary,
                   fontFamily: 'var(--font-nunito-sans)', fontSize: '14px', fontWeight: 600,
                   outline: 'none', caretColor: D.peach,

@@ -7,18 +7,18 @@ type SessionState = 'idle' | 'active' | 'paused' | 'done'
 type SoundType    = 'off' | 'rain' | 'white' | 'brown'
 
 // ─────────────────────────────────────────────────────────
-// Design tokens — dark focus mode
+// Design tokens — warm gradient focus mode
 // ─────────────────────────────────────────────────────────
 
 const D = {
-  bg:          '#1A1828',
-  surface:     'rgba(255,255,255,0.05)',
-  border:      'rgba(255,255,255,0.08)',
-  textPrimary: '#F5F2EE',
-  textMuted:   'rgba(245,242,238,0.45)',
-  textFaint:   'rgba(245,242,238,0.25)',
-  accentBg:    'rgba(244,165,130,0.1)',
-  accentBorder:'rgba(244,165,130,0.22)',
+  bg:          '#F5EDE6',   // warm cream base (body bg fallback)
+  surface:     'rgba(255,255,255,0.52)',
+  border:      'rgba(45,42,62,0.10)',
+  textPrimary: '#1E1C2E',
+  textMuted:   'rgba(45,42,62,0.50)',
+  textFaint:   'rgba(45,42,62,0.32)',
+  accentBg:    'rgba(244,165,130,0.12)',
+  accentBorder:'rgba(244,165,130,0.40)',
   peach:       '#F4A582',
   gold:        '#F5C98A',
   green:       '#5EC269',
@@ -374,9 +374,9 @@ const primaryBtn: React.CSSProperties = {
 
 const ghostBtn: React.CSSProperties = {
   width: '100%', padding: '14px', borderRadius: 16,
-  border: '1.5px solid rgba(255,255,255,0.1)', background: 'transparent',
+  border: '1.5px solid rgba(45,42,62,0.15)', background: 'rgba(255,255,255,0.35)',
   fontFamily: 'var(--font-nunito-sans)', fontSize: '14px', fontWeight: 700,
-  color: 'rgba(245,242,238,0.4)', cursor: 'pointer',
+  color: 'rgba(45,42,62,0.45)', cursor: 'pointer',
 }
 
 // ─────────────────────────────────────────────────────────
@@ -425,7 +425,7 @@ export default function FocusPage() {
   const pauseCountRef       = useRef(0)
   const thoughtsCapturedRef = useRef(0)
 
-  // Paint the page background dark so any gap below the content blends in
+  // Paint the body background so gaps below content blend in
   useEffect(() => {
     const prev = document.body.style.background
     document.body.style.background = D.bg
@@ -698,8 +698,27 @@ export default function FocusPage() {
   return (
     <div
       className="flex flex-col flex-1 overflow-y-auto"
-      style={{ background: D.bg }}
+      style={{
+        background: '#F5EDE6',
+        position: 'relative',
+      }}
     >
+      {/* ── Gradient glow layer ── */}
+      <div style={{
+        position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none',
+        background: 'radial-gradient(ellipse 90% 65% at 50% 38%, rgba(245,201,138,0.55) 0%, rgba(244,165,130,0.40) 35%, rgba(232,160,191,0.25) 62%, rgba(143,170,224,0.12) 82%, transparent 100%)',
+      }} />
+
+      {/* ── Grain overlay ── */}
+      <div style={{
+        position: 'fixed', inset: 0, zIndex: 1, pointerEvents: 'none', opacity: 0.38,
+        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E")`,
+        backgroundRepeat: 'repeat',
+        mixBlendMode: 'overlay',
+      }} />
+
+      {/* ── All content sits above grain ── */}
+      <div className="flex flex-col flex-1" style={{ position: 'relative', zIndex: 2 }}>
       {/* ── Body ── */}
       <div className="flex flex-col flex-1 px-6 pb-8" style={{ paddingTop: 48 }}>
 
@@ -730,17 +749,17 @@ export default function FocusPage() {
                   color: selectedChipId ? D.textPrimary : D.textMuted,
                   outline: 'none', cursor: 'pointer', marginBottom: 10,
                   appearance: 'none', WebkitAppearance: 'none',
-                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='rgba(245,242,238,0.3)' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E")`,
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='rgba(45,42,62,0.35)' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E")`,
                   backgroundRepeat: 'no-repeat',
                   backgroundPosition: 'right 14px center',
                   paddingRight: 36,
                 }}
               >
-                <option value="" style={{ background: '#1A1828', color: 'rgba(245,242,238,0.45)' }}>
+                <option value="" style={{ background: '#F5EDE6', color: 'rgba(45,42,62,0.45)' }}>
                   Pick from Brain Dump…
                 </option>
                 {taskChips.slice(0, 5).map(chip => (
-                  <option key={chip.id} value={chip.id} style={{ background: '#1A1828', color: '#F5F2EE' }}>
+                  <option key={chip.id} value={chip.id} style={{ background: '#F5EDE6', color: '#1E1C2E' }}>
                     {chip.text}
                   </option>
                 ))}
@@ -907,7 +926,7 @@ export default function FocusPage() {
           <div style={{ marginTop: 28 }}>
             {/* Divider */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-              <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.06)' }} />
+              <div style={{ flex: 1, height: 1, background: 'rgba(45,42,62,0.08)' }} />
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <svg width="10" height="10" viewBox="0 0 10 10" style={{ flexShrink: 0 }}>
                   <defs>
@@ -923,7 +942,7 @@ export default function FocusPage() {
                   LUMI IS HERE
                 </span>
               </div>
-              <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.06)' }} />
+              <div style={{ flex: 1, height: 1, background: 'rgba(45,42,62,0.08)' }} />
             </div>
 
             {/* Messages */}
@@ -939,7 +958,7 @@ export default function FocusPage() {
                     borderBottomLeftRadius:  m.role === 'assistant' ? 4 : 14,
                     background: m.role === 'user'
                       ? 'linear-gradient(135deg, #F4A582, #F5C98A)'
-                      : 'rgba(255,255,255,0.07)',
+                      : 'rgba(255,255,255,0.55)',
                     fontFamily: 'var(--font-nunito-sans)', fontSize: '13px',
                     fontWeight: 500, lineHeight: 1.5,
                     color: m.role === 'user' ? '#1A1828' : D.textPrimary,
@@ -963,8 +982,8 @@ export default function FocusPage() {
                 placeholder="Reply to Lumi…"
                 style={{
                   flex: 1, padding: '11px 14px', borderRadius: 12,
-                  background: 'rgba(255,255,255,0.06)',
-                  border: '1px solid rgba(255,255,255,0.08)',
+                  background: 'rgba(255,255,255,0.50)',
+                  border: '1px solid rgba(45,42,62,0.10)',
                   color: D.textPrimary,
                   fontFamily: 'var(--font-nunito-sans)', fontSize: '14px', fontWeight: 600,
                   outline: 'none', caretColor: D.peach,
@@ -975,7 +994,7 @@ export default function FocusPage() {
                 disabled={!bdInput.trim() || bdStreaming}
                 style={{
                   width: 40, height: 40, borderRadius: 11, border: 'none', cursor: 'pointer',
-                  background: bdInput.trim() ? 'linear-gradient(135deg, #F4A582, #F5C98A)' : 'rgba(255,255,255,0.07)',
+                  background: bdInput.trim() ? 'linear-gradient(135deg, #F4A582, #F5C98A)' : 'rgba(45,42,62,0.08)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   transition: 'background 0.2s', flexShrink: 0,
                   opacity: bdInput.trim() && !bdStreaming ? 1 : 0.35,
@@ -1080,6 +1099,7 @@ export default function FocusPage() {
         .chip-scroll::-webkit-scrollbar { display: none; }
       `}</style>
 
+      </div> {/* end content z-index wrapper */}
     </div>
   )
 }

@@ -10,6 +10,17 @@ import ProfileButton from '../_components/ProfileButton'
 
 type Mood = 'drained' | 'low' | 'okay' | 'bright' | 'wired'
 
+interface DayDetail {
+  date: string
+  mood: { value: string; label: string; color: string } | null
+  tasks: { completed: number; list: string[] }
+  captures: { total: number }
+  focus: { sessions: number; minutes: number; taskLabel: string | null }
+  meds: { taken: boolean }
+  oneFocus: { task: string; completed: boolean } | null
+  reflection: string
+}
+
 interface InsightsData {
   plan: 'free' | 'starter' | 'core' | 'companion'
   week: { start: string; end: string }
@@ -226,6 +237,336 @@ function SectionLabel({ children }: { children: string }) {
     }}>
       {children}
     </p>
+  )
+}
+
+// ── Date Strip ───────────────────────────────────────────
+function DateStrip({
+  moodDays,
+  selectedDate,
+  onSelect,
+}: {
+  moodDays: { date: string; mood: Mood | null }[]
+  selectedDate: string | null
+  onSelect: (date: string) => void
+}) {
+  const today = new Date().toISOString().slice(0, 10)
+
+  return (
+    <div style={{
+      display: 'flex',
+      justifyContent: 'space-between',
+      gap: 4,
+    }}>
+      {moodDays.map(({ date, mood }) => {
+        const dayNum   = parseInt(date.slice(8), 10)
+        const isToday  = date === today
+        const isSelected = date === selectedDate
+        const meta     = mood ? MOOD_META[mood] : null
+        const dotColor = meta ? meta.color : 'transparent'
+
+        // Derive day letter index from date
+        const dow = new Date(date + 'T12:00:00').getDay() // 0=Sun
+        const dayLetterIdx = dow === 0 ? 6 : dow - 1
+        const dayLetter = DAY_SHORT[dayLetterIdx]
+
+        return (
+          <button
+            key={date}
+            onClick={() => onSelect(date)}
+            style={{
+              flex: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 4,
+              padding: '8px 4px 10px',
+              borderRadius: 14,
+              border: isSelected
+                ? '1.5px solid rgba(244,165,130,0.35)'
+                : '1.5px solid transparent',
+              background: isSelected
+                ? 'linear-gradient(135deg, rgba(245,201,138,0.15), rgba(244,165,130,0.15), rgba(232,160,191,0.10))'
+                : 'transparent',
+              cursor: 'pointer',
+              WebkitTapHighlightColor: 'transparent',
+              outline: 'none',
+              transition: 'background 0.15s, border-color 0.15s',
+            }}
+          >
+            {/* Day letter */}
+            <span style={{
+              fontFamily: 'var(--font-nunito-sans)',
+              fontSize: '10px',
+              fontWeight: 800,
+              color: '#9895B0',
+              letterSpacing: '0.03em',
+            }}>
+              {dayLetter}
+            </span>
+
+            {/* Date number */}
+            <span style={{
+              fontFamily: 'var(--font-fraunces)',
+              fontSize: '16px',
+              fontWeight: 700,
+              lineHeight: 1,
+              color: isToday ? '#F4A582' : '#1E1C2E',
+            }}>
+              {dayNum}
+            </span>
+
+            {/* Mood dot */}
+            <div style={{
+              width: 5,
+              height: 5,
+              borderRadius: '50%',
+              background: meta ? dotColor : 'rgba(45,42,62,0.12)',
+              opacity: meta ? 1 : 0.4,
+            }} />
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
+// ── Day Detail Panel ──────────────────────────────────────
+function DayDetailPanel({
+  date,
+  data,
+  loading,
+  onClose,
+}: {
+  date: string
+  data: DayDetail | null
+  loading: boolean
+  onClose: () => void
+}) {
+  const formatted = (() => {
+    const d = new Date(date + 'T12:00:00')
+    return d.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })
+  })()
+
+  return (
+    <div style={{
+      background: 'white',
+      borderRadius: 18,
+      border: '1.5px solid rgba(45,42,62,0.07)',
+      padding: '20px',
+      position: 'relative',
+    }}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+        <span style={{
+          fontFamily: 'var(--font-fraunces)',
+          fontSize: '18px',
+          fontWeight: 700,
+          color: '#1E1C2E',
+        }}>
+          {formatted}
+        </span>
+        <button
+          onClick={onClose}
+          style={{
+            width: 28,
+            height: 28,
+            borderRadius: '50%',
+            background: 'rgba(45,42,62,0.06)',
+            border: 'none',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: '#9895B0',
+            fontFamily: 'var(--font-nunito-sans)',
+            fontSize: '14px',
+            fontWeight: 700,
+            flexShrink: 0,
+          }}
+          aria-label="Close"
+        >
+          ×
+        </button>
+      </div>
+
+      {loading ? (
+        /* Shimmer skeleton */
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {[80, 60, 90].map((w, i) => (
+            <div key={i} style={{
+              height: 14,
+              width: `${w}%`,
+              borderRadius: 8,
+              background: 'linear-gradient(90deg, rgba(45,42,62,0.06) 25%, rgba(45,42,62,0.10) 50%, rgba(45,42,62,0.06) 75%)',
+              backgroundSize: '200% 100%',
+              animation: 'shimmer 1.4s ease-in-out infinite',
+            }} />
+          ))}
+          <style>{`
+            @keyframes shimmer {
+              0%   { background-position: 200% 0; }
+              100% { background-position: -200% 0; }
+            }
+          `}</style>
+        </div>
+      ) : data ? (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+
+          {/* Mood row */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            {data.mood ? (
+              <>
+                <span style={{ color: data.mood.color, display: 'flex', flexShrink: 0 }}>
+                  {MOOD_META[data.mood.value as Mood]?.icon ?? null}
+                </span>
+                <span style={{
+                  fontFamily: 'var(--font-nunito-sans)',
+                  fontSize: '13px',
+                  fontWeight: 700,
+                  color: data.mood.color,
+                }}>
+                  {data.mood.label}
+                </span>
+              </>
+            ) : (
+              <span style={{
+                fontFamily: 'var(--font-nunito-sans)',
+                fontSize: '13px',
+                fontWeight: 500,
+                color: '#9895B0',
+              }}>
+                No mood logged
+              </span>
+            )}
+          </div>
+
+          {/* One Focus row */}
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+            {data.oneFocus ? (
+              <>
+                <span style={{ flexShrink: 0, marginTop: 1 }}>
+                  {data.oneFocus.completed ? (
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                      <circle cx="8" cy="8" r="7" fill="rgba(94,194,105,0.15)" stroke="#5EC269" strokeWidth="1.5"/>
+                      <path d="M5 8l2.5 2.5 4-4" stroke="#5EC269" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  ) : (
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                      <circle cx="8" cy="8" r="7" stroke="rgba(45,42,62,0.2)" strokeWidth="1.5"/>
+                    </svg>
+                  )}
+                </span>
+                <span style={{
+                  fontFamily: 'var(--font-nunito-sans)',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  color: '#2D2A3E',
+                  lineHeight: 1.4,
+                }}>
+                  {data.oneFocus.task}
+                </span>
+              </>
+            ) : (
+              <span style={{
+                fontFamily: 'var(--font-nunito-sans)',
+                fontSize: '13px',
+                fontWeight: 500,
+                color: '#9895B0',
+              }}>
+                No focus set
+              </span>
+            )}
+          </div>
+
+          {/* Stats chips */}
+          <div style={{ display: 'flex', gap: 8 }}>
+            {/* Focus minutes */}
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 5,
+              background: 'rgba(45,42,62,0.04)',
+              borderRadius: 99, padding: '5px 10px',
+            }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="13.5" r="7.5" stroke="#F5C98A" strokeWidth="1.8"/>
+                <path d="M12 10V13.8L14.2 15.2" stroke="#F5C98A" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 700, color: '#2D2A3E' }}>
+                {data.focus.minutes} min
+              </span>
+            </div>
+
+            {/* Tasks */}
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 5,
+              background: 'rgba(45,42,62,0.04)',
+              borderRadius: 99, padding: '5px 10px',
+            }}>
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+                <circle cx="8" cy="8" r="6.5" stroke="#8FAAE0" strokeWidth="1.4"/>
+                <path d="M5.5 8l2 2 3-3" stroke="#8FAAE0" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 700, color: '#2D2A3E' }}>
+                {data.tasks.completed} tasks
+              </span>
+            </div>
+
+            {/* Captures */}
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 5,
+              background: 'rgba(45,42,62,0.04)',
+              borderRadius: 99, padding: '5px 10px',
+            }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                <path d="M13 3.5L5.5 13H11.5L10.5 20.5L18.5 11H12.5L13 3.5Z" stroke="#E8A0BF" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 700, color: '#2D2A3E' }}>
+                {data.captures.total} captures
+              </span>
+            </div>
+          </div>
+
+          {/* Meds row */}
+          {data.meds.taken && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+                <rect x="1" y="6.5" width="18" height="11" rx="2" stroke="#8FAAE0" strokeWidth="1.8"/>
+                <path d="M19 10v4" stroke="#8FAAE0" strokeWidth="2" strokeLinecap="round"/>
+                <rect x="3" y="8.5" width="4" height="7" rx="1" fill="#8FAAE0" opacity="0.5"/>
+              </svg>
+              <span style={{
+                fontFamily: 'var(--font-nunito-sans)',
+                fontSize: '12px',
+                fontWeight: 500,
+                color: '#9895B0',
+              }}>
+                Meds logged
+              </span>
+            </div>
+          )}
+
+          {/* Reflection */}
+          {data.reflection ? (
+            <div style={{
+              borderLeft: '3px solid #F4A582',
+              paddingLeft: 12,
+            }}>
+              <p style={{
+                fontFamily: 'var(--font-nunito-sans)',
+                fontSize: '13px',
+                fontWeight: 500,
+                color: '#2D2A3E',
+                lineHeight: 1.55,
+                fontStyle: 'italic',
+              }}>
+                {data.reflection}
+              </p>
+            </div>
+          ) : null}
+
+        </div>
+      ) : null}
+    </div>
   )
 }
 
@@ -516,8 +857,11 @@ function BrainReportCard({ plan, daysWithData }: { plan: 'free' | 'starter' | 'c
 // ─────────────────────────────────────────────────────────
 
 export default function InsightsPage() {
-  const [data,    setData]    = useState<InsightsData | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [data,         setData]         = useState<InsightsData | null>(null)
+  const [loading,      setLoading]      = useState(true)
+  const [selectedDate, setSelectedDate] = useState<string | null>(null)
+  const [dayData,      setDayData]      = useState<DayDetail | null>(null)
+  const [dayLoading,   setDayLoading]   = useState(false)
 
   useEffect(() => {
     const tzOffset = new Date().getTimezoneOffset()
@@ -526,6 +870,28 @@ export default function InsightsPage() {
       .then(d => setData(d))
       .finally(() => setLoading(false))
   }, [])
+
+  async function handleSelectDate(date: string) {
+    // Toggle off if already selected
+    if (date === selectedDate) {
+      setSelectedDate(null)
+      setDayData(null)
+      return
+    }
+    setSelectedDate(date)
+    setDayData(null)
+    setDayLoading(true)
+    try {
+      const tzOffset = new Date().getTimezoneOffset()
+      const res = await fetch(`/api/insights/day?date=${date}&tzOffset=${tzOffset}`)
+      const json = await res.json()
+      setDayData(json)
+    } catch {
+      setDayData(null)
+    } finally {
+      setDayLoading(false)
+    }
+  }
 
   const weekLabel    = data ? formatWeekRange(data.week.start, data.week.end) : '—'
   const topMood      = data ? dominantMood(data.moods) : null
@@ -539,6 +905,27 @@ export default function InsightsPage() {
 
       {/* Body */}
       <div className="flex flex-col flex-1 px-5 pb-8" style={{ background: '#FBF8F5', paddingTop: 24, gap: 24, display: 'flex', flexDirection: 'column' }}>
+
+        {/* Date strip — always render once data loaded */}
+        {!loading && data && (
+          <>
+            <DateStrip
+              moodDays={data.moods as { date: string; mood: Mood | null }[]}
+              selectedDate={selectedDate}
+              onSelect={handleSelectDate}
+            />
+
+            {/* Day detail panel */}
+            {selectedDate && (
+              <DayDetailPanel
+                date={selectedDate}
+                data={dayData}
+                loading={dayLoading}
+                onClose={() => { setSelectedDate(null); setDayData(null) }}
+              />
+            )}
+          </>
+        )}
 
         {/* Week label */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', marginBottom: -8 }}>

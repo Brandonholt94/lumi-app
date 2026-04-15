@@ -259,11 +259,12 @@ function DateStrip({
       gap: 4,
     }}>
       {moodDays.map(({ date, mood }) => {
-        const dayNum   = parseInt(date.slice(8), 10)
-        const isToday  = date === today
-        const isSelected = date === selectedDate
-        const meta     = mood ? MOOD_META[mood] : null
-        const dotColor = meta ? meta.color : 'transparent'
+        const dayNum     = parseInt(date.slice(8), 10)
+        const isToday    = date === today
+        const isFuture   = date > today
+        const isSelected = date === selectedDate && !isFuture
+        const meta       = mood ? MOOD_META[mood] : null
+        const dotColor   = meta ? meta.color : 'transparent'
 
         // Derive day letter index from date
         const dow = new Date(date + 'T12:00:00').getDay() // 0=Sun
@@ -273,7 +274,8 @@ function DateStrip({
         return (
           <button
             key={date}
-            onClick={() => onSelect(date)}
+            onClick={() => !isFuture && onSelect(date)}
+            disabled={isFuture}
             style={{
               flex: 1,
               display: 'flex',
@@ -288,7 +290,8 @@ function DateStrip({
               background: isSelected
                 ? 'linear-gradient(135deg, rgba(245,201,138,0.15), rgba(244,165,130,0.15), rgba(232,160,191,0.10))'
                 : 'transparent',
-              cursor: 'pointer',
+              cursor: isFuture ? 'default' : 'pointer',
+              opacity: isFuture ? 0.3 : 1,
               WebkitTapHighlightColor: 'transparent',
               outline: 'none',
               transition: 'background 0.15s, border-color 0.15s',
@@ -305,24 +308,34 @@ function DateStrip({
               {dayLetter}
             </span>
 
-            {/* Date number */}
+            {/* Date number — today gets a peach/gold circle */}
             <span style={{
               fontFamily: 'var(--font-fraunces)',
               fontSize: '16px',
               fontWeight: 700,
               lineHeight: 1,
-              color: isToday ? '#F4A582' : '#1E1C2E',
+              width: 28,
+              height: 28,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: '50%',
+              background: isToday
+                ? 'linear-gradient(135deg, #F5C98A, #F4A582)'
+                : 'transparent',
+              color: isToday ? '#fff' : '#1E1C2E',
+              boxShadow: isToday ? '0 2px 8px rgba(244,165,130,0.40)' : 'none',
             }}>
               {dayNum}
             </span>
 
-            {/* Mood dot */}
+            {/* Mood dot — hide on today (circle is enough) */}
             <div style={{
               width: 5,
               height: 5,
               borderRadius: '50%',
-              background: meta ? dotColor : 'rgba(45,42,62,0.12)',
-              opacity: meta ? 1 : 0.4,
+              background: meta && !isToday ? dotColor : 'rgba(45,42,62,0.12)',
+              opacity: meta && !isToday ? 1 : 0.4,
             }} />
           </button>
         )

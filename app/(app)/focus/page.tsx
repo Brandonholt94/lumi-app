@@ -428,7 +428,7 @@ export default function FocusPage() {
   // Paint the body background so gaps below content blend in
   useEffect(() => {
     const prev = document.body.style.background
-    document.body.style.background = D.bg
+    document.body.style.background = '#D4A898'
     return () => { document.body.style.background = prev }
   }, [])
 
@@ -699,22 +699,30 @@ export default function FocusPage() {
     <div
       className="flex flex-col flex-1 overflow-y-auto"
       style={{
-        background: '#F5EDE6',
+        background: '#D4A898',
         position: 'relative',
       }}
     >
-      {/* ── Gradient glow layer ── */}
+      {/* ── Sun radial glow — bright core fading to deep warm edges ── */}
       <div style={{
         position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none',
-        background: 'radial-gradient(ellipse 90% 65% at 50% 38%, rgba(245,201,138,0.55) 0%, rgba(244,165,130,0.40) 35%, rgba(232,160,191,0.25) 62%, rgba(143,170,224,0.12) 82%, transparent 100%)',
+        background: [
+          'radial-gradient(circle 340px at 50% 42%,',
+          '  rgba(255,245,200,0.95) 0%,',
+          '  rgba(245,201,138,0.82) 18%,',
+          '  rgba(244,165,130,0.62) 38%,',
+          '  rgba(232,160,191,0.35) 58%,',
+          '  rgba(143,170,224,0.15) 76%,',
+          '  rgba(180,140,160,0.25) 100%)',
+        ].join(''),
       }} />
 
-      {/* ── Grain overlay ── */}
+      {/* ── Grain overlay — heavier for warmth and texture ── */}
       <div style={{
-        position: 'fixed', inset: 0, zIndex: 1, pointerEvents: 'none', opacity: 0.38,
-        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E")`,
+        position: 'fixed', inset: 0, zIndex: 1, pointerEvents: 'none', opacity: 0.68,
+        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.80' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E")`,
         backgroundRepeat: 'repeat',
-        mixBlendMode: 'overlay',
+        mixBlendMode: 'multiply',
       }} />
 
       {/* ── All content sits above grain ── */}

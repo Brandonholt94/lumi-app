@@ -428,7 +428,7 @@ export default function FocusPage() {
   // Paint the body background so gaps below content blend in
   useEffect(() => {
     const prev = document.body.style.background
-    document.body.style.background = '#D4A898'
+    document.body.style.background = '#E8D4C8'
     return () => { document.body.style.background = prev }
   }, [])
 
@@ -699,27 +699,34 @@ export default function FocusPage() {
     <div
       className="flex flex-col flex-1 overflow-y-auto"
       style={{
-        background: '#D4A898',
+        background: '#E8D4C8',
         position: 'relative',
       }}
     >
-      {/* ── Sun radial glow — bright core fading to deep warm edges ── */}
+      {/* ── Sun radial glow — breathing orb ── */}
       <div style={{
         position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none',
-        background: [
-          'radial-gradient(circle 340px at 50% 42%,',
-          '  rgba(255,245,200,0.95) 0%,',
-          '  rgba(245,201,138,0.82) 18%,',
-          '  rgba(244,165,130,0.62) 38%,',
-          '  rgba(232,160,191,0.35) 58%,',
-          '  rgba(143,170,224,0.15) 76%,',
-          '  rgba(180,140,160,0.25) 100%)',
-        ].join(''),
-      }} />
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}>
+        <div style={{
+          width: '100%', height: '100%', position: 'absolute',
+          background: [
+            'radial-gradient(circle 300px at 50% 42%,',
+            '  rgba(255,248,210,0.88) 0%,',
+            '  rgba(245,201,138,0.68) 20%,',
+            '  rgba(244,165,130,0.48) 42%,',
+            '  rgba(232,160,191,0.24) 62%,',
+            '  rgba(143,170,224,0.10) 78%,',
+            '  transparent 100%)',
+          ].join(''),
+          animation: 'sunBreathe 5s ease-in-out infinite',
+          transformOrigin: '50% 42%',
+        }} />
+      </div>
 
-      {/* ── Grain overlay — heavier for warmth and texture ── */}
+      {/* ── Grain overlay ── */}
       <div style={{
-        position: 'fixed', inset: 0, zIndex: 1, pointerEvents: 'none', opacity: 0.68,
+        position: 'fixed', inset: 0, zIndex: 1, pointerEvents: 'none', opacity: 0.52,
         backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.80' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E")`,
         backgroundRepeat: 'repeat',
         mixBlendMode: 'multiply',
@@ -1099,6 +1106,10 @@ export default function FocusPage() {
 
 
       <style>{`
+        @keyframes sunBreathe {
+          0%, 100% { transform: scale(1);    opacity: 1;    }
+          50%       { transform: scale(1.12); opacity: 0.82; }
+        }
         @keyframes lumiFadeIn  { from { opacity: 0 } to { opacity: 1 } }
         @keyframes lumiSlideUp {
           from { transform: translateX(-50%) translateY(100%) }

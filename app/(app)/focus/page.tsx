@@ -172,7 +172,7 @@ function ProgressRing({ progress, size = 240 }: { progress: number; size?: numbe
   const offset = circ * (1 - progress)
   return (
     <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
-      <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth={stroke} />
+      <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="rgba(45,42,62,0.12)" strokeWidth={stroke} />
       <circle
         cx={size/2} cy={size/2} r={r} fill="none"
         stroke="url(#focusGrad)" strokeWidth={stroke} strokeLinecap="round"
@@ -292,7 +292,7 @@ function DraggableRing({
       </defs>
 
       {/* Track */}
-      <circle cx={cx} cy={cy} r={r} fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth={stroke} />
+      <circle cx={cx} cy={cy} r={r} fill="none" stroke="rgba(45,42,62,0.12)" strokeWidth={stroke} />
 
       {/* Filled arc */}
       <circle
@@ -305,7 +305,7 @@ function DraggableRing({
       {/* Tick marks */}
       {ticks.map((t, i) => (
         <line key={i} x1={t.x1} y1={t.y1} x2={t.x2} y2={t.y2}
-          stroke="white" strokeOpacity={t.opacity}
+          stroke="#2D2A3E" strokeOpacity={t.opacity}
           strokeWidth={t.width} strokeLinecap="round"
         />
       ))}
@@ -317,7 +317,7 @@ function DraggableRing({
           x={l.x} y={l.y}
           textAnchor="middle" dominantBaseline="middle"
           fontSize={10} fontWeight={700}
-          fill="rgba(245,242,238,0.28)"
+          fill="rgba(45,42,62,0.30)"
           style={{ fontFamily: 'var(--font-nunito-sans)', pointerEvents: 'none' }}
         >
           {l.min}
@@ -893,9 +893,9 @@ export default function FocusPage() {
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                     <path d="M12 2a9 9 0 0 1 9 9c0 3.6-2.1 6.7-5.1 8.2L15 21H9l-.9-1.8A9 9 0 0 1 12 2z"
-                      stroke="rgba(245,242,238,0.35)" strokeWidth="1.8" strokeLinejoin="round" />
-                    <line x1="12" y1="8"  x2="12" y2="13" stroke="rgba(245,242,238,0.35)" strokeWidth="1.8" strokeLinecap="round" />
-                    <circle cx="12" cy="15.5" r="0.8" fill="rgba(245,242,238,0.35)" />
+                      stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+                    <line x1="12" y1="8"  x2="12" y2="13" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                    <circle cx="12" cy="15.5" r="0.8" fill="currentColor" />
                   </svg>
                   Drop a thought
                 </button>

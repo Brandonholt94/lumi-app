@@ -1,6 +1,6 @@
 'use client'
 
-import { useSignUp } from '@clerk/nextjs'
+import { useSignUp } from '@clerk/nextjs/legacy'
 import { useRouter } from 'next/navigation'
 import { useState, FormEvent, CSSProperties } from 'react'
 import Image from 'next/image'

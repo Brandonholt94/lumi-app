@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 
 // ─── Types ───────────────────────────────────────────────────
 interface Message {
@@ -238,15 +239,9 @@ export default function OnboardingPage() {
         </div>
       </div>
 
-      {/* Lumi avatar */}
+      {/* Lumi logo */}
       <div style={{ display: 'flex', justifyContent: 'center', padding: '20px 24px 0', flexShrink: 0 }}>
-        <div style={{
-          width: 44, height: 44, borderRadius: '50%',
-          background: `linear-gradient(135deg, ${PEACH}, ${GOLD})`,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          boxShadow: '0 4px 16px rgba(244,165,130,0.3)',
-          fontSize: 18,
-        }}>✦</div>
+        <Image src="/lumi-stacked.svg" alt="Lumi" width={80} height={80} priority />
       </div>
 
       {/* Message thread — natural flow, no flex-1, so options follow messages */}

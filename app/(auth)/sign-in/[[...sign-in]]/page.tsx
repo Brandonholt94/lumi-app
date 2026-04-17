@@ -1,6 +1,6 @@
 'use client'
 
-import { useSignIn } from '@clerk/nextjs/legacy'
+import { useSignIn } from '@clerk/nextjs'
 import { useAuth } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 import { useState, useEffect, FormEvent, CSSProperties } from 'react'
@@ -154,13 +154,8 @@ export default function SignInPage() {
         password,
       })
       if (result.status === 'complete' || result.status === 'needs_client_trust') {
-        await setActive!({
-          session: result.createdSessionId!,
-          navigate: async ({ decorateUrl }) => {
-            const url = decorateUrl('/today')
-            if (url.startsWith('https')) { window.location.href = url } else { router.push(url) }
-          },
-        })
+        await setActive!({ session: result.createdSessionId! })
+        router.push('/today')
       } else {
         setError('Sign-in failed. Please try again.')
         setLoading(false)
@@ -203,13 +198,8 @@ export default function SignInPage() {
         password: newPw,
       })
       if (result.status === 'complete' || result.status === 'needs_client_trust') {
-        await setActive!({
-          session: result.createdSessionId!,
-          navigate: async ({ decorateUrl }) => {
-            const url = decorateUrl('/today')
-            if (url.startsWith('https')) { window.location.href = url } else { router.push(url) }
-          },
-        })
+        await setActive!({ session: result.createdSessionId! })
+        router.push('/today')
       } else {
         setError('Reset failed. Please try again.')
         setLoading(false)

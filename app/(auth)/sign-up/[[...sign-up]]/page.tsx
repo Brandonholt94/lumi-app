@@ -1,6 +1,6 @@
 'use client'
 
-import { useSignUp } from '@clerk/nextjs/legacy'
+import { useSignUp } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 import { useState, FormEvent, CSSProperties } from 'react'
 import Image from 'next/image'
@@ -144,13 +144,8 @@ export default function SignUpPage() {
     try {
       const result = await signUp.attemptEmailAddressVerification({ code })
       if (result.status === 'complete') {
-        await setActive!({
-          session: result.createdSessionId!,
-          navigate: async ({ decorateUrl }) => {
-            const url = decorateUrl('/onboarding')
-            if (url.startsWith('https')) { window.location.href = url } else { router.push(url) }
-          },
-        })
+        await setActive!({ session: result.createdSessionId! })
+        router.push('/onboarding')
       } else {
         setError('Verification failed. Please try again.')
         setLoading(false)

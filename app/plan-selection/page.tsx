@@ -59,7 +59,7 @@ const PLANS: Record<PlanKey, {
     monthly: 24,
     annual: 16,
     annualTotal: 192,
-    tagline: 'Lumi at its fullest',
+    tagline: 'For when you need more than a tool — you need support.',
     features: [
       'Everything in Core',
       'Proactive nudges & check-ins',
@@ -114,7 +114,7 @@ function Check() {
 
 // ── Page ─────────────────────────────────────────────────────
 export default function PlanSelectionPage() {
-  const [plan, setPlan]       = useState<PlanKey>('core')
+  const [plan, setPlan]       = useState<PlanKey>('companion')
   const [billing, setBilling] = useState<Billing>('annual')
   const [loading, setLoading] = useState(false)
   const [error, setError]     = useState<string | null>(null)
@@ -230,6 +230,18 @@ export default function PlanSelectionPage() {
                     ★
                   </span>
                 )}
+                {p === 'companion' && plan !== 'companion' && (
+                  <span style={{
+                    position: 'absolute', top: -7, right: 4,
+                    background: `linear-gradient(135deg, ${PEACH}, ${ROSE})`,
+                    color: 'white',
+                    fontSize: 8, fontWeight: 800,
+                    padding: '2px 5px', borderRadius: 6,
+                    letterSpacing: '0.03em',
+                  }}>
+                    ✦
+                  </span>
+                )}
               </button>
             ))}
           </div>
@@ -311,6 +323,16 @@ export default function PlanSelectionPage() {
                     letterSpacing: '0.04em',
                   }}>
                     MOST POPULAR
+                  </span>
+                )}
+                {plan === 'companion' && (
+                  <span style={{
+                    background: `linear-gradient(135deg, ${PEACH}, ${ROSE})`,
+                    color: 'white', fontSize: 10, fontWeight: 800,
+                    padding: '3px 9px', borderRadius: 20,
+                    letterSpacing: '0.04em',
+                  }}>
+                    RECOMMENDED
                   </span>
                 )}
               </div>

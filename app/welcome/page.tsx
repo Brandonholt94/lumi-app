@@ -14,11 +14,11 @@ export default async function WelcomePage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('display_name, biggest_struggle, tone_preference')
+    .select('display_name, biggest_struggle, tone_preference, plan')
     .eq('clerk_user_id', userId)
     .single()
 
   if (!profile) redirect('/onboarding')
 
-  return <WelcomeScreen name={profile.display_name ?? 'there'} />
+  return <WelcomeScreen name={profile.display_name ?? 'there'} plan={profile.plan ?? 'starter'} />
 }

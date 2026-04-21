@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
+import Image from 'next/image'
 
 const PEACH  = '#F4A582'
 const GOLD   = '#F5C98A'
@@ -17,7 +18,13 @@ const FEATURES = [
   { emoji: '🎯', text: 'Picks your one thing when everything feels like too much' },
 ]
 
-export default function WelcomeScreen({ name }: { name: string }) {
+const PLAN_BANNER: Record<string, string> = {
+  starter:   "Your trial starts now. Everything you need to get started.",
+  core:      "Your trial starts now. Unlimited Lumi, full context, every day.",
+  companion: "Your trial starts now. You've got the full Lumi experience.",
+}
+
+export default function WelcomeScreen({ name, plan }: { name: string; plan: string }) {
   const [phase, setPhase] = useState(0)
   // 0 = nothing, 1 = greeting, 2 = subtitle, 3 = features, 4 = cta
   const searchParams = useSearchParams()
@@ -42,17 +49,15 @@ export default function WelcomeScreen({ name }: { name: string }) {
       fontFamily: 'var(--font-nunito-sans)',
     }}>
 
-      {/* Lumi avatar */}
+      {/* Lumi logo */}
       <div style={{
-        width: 72, height: 72, borderRadius: '50%',
-        background: `linear-gradient(135deg, ${PEACH}, ${GOLD})`,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        boxShadow: `0 8px 32px rgba(244,165,130,0.35)`,
-        fontSize: 28, marginBottom: 32,
+        marginBottom: 32,
         opacity: phase >= 1 ? 1 : 0,
         transform: phase >= 1 ? 'scale(1)' : 'scale(0.7)',
         transition: 'opacity 0.5s ease, transform 0.5s cubic-bezier(0.34,1.56,0.64,1)',
-      }}>✦</div>
+      }}>
+        <Image src="/lumi-stacked.svg" alt="Lumi" width={80} height={80} priority />
+      </div>
 
       {/* Greeting */}
       <h1 style={{
@@ -98,7 +103,7 @@ export default function WelcomeScreen({ name }: { name: string }) {
             fontSize: '13px', fontWeight: 700,
             color: DARK, margin: 0, lineHeight: 1.4,
           }}>
-            You&apos;re all set! Your trial starts now. Welcome to the full Lumi experience.
+            You&apos;re all set! {PLAN_BANNER[plan] ?? PLAN_BANNER.starter}
           </p>
         </div>
       )}

@@ -608,19 +608,58 @@ export default function CaptureInput() {
       </div>
 
       {/* Captures list */}
-      {captures.length === 0 ? (
-        <p
-          style={{
-            fontFamily: 'var(--font-nunito-sans)',
-            fontSize: '13px',
-            fontWeight: 500,
-            color: 'rgba(45,42,62,0.3)',
-            textAlign: 'center',
-            paddingTop: '24px',
-          }}
-        >
-          Your head is clear. Add something above.
-        </p>
+      {loading ? (
+        // Skeleton shimmer — 3 placeholder cards
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {[88, 65, 76].map((w, i) => (
+            <div key={i} style={{
+              background: 'white', borderRadius: 20, padding: '16px 14px',
+              border: '1px solid rgba(45,42,62,0.06)',
+              display: 'flex', alignItems: 'center', gap: 10,
+            }}>
+              <div style={{ width: 20, height: 20, borderRadius: '50%', background: 'rgba(45,42,62,0.07)', flexShrink: 0 }} />
+              <div style={{
+                height: 13, width: `${w}%`, borderRadius: 6,
+                background: 'linear-gradient(90deg, rgba(45,42,62,0.05) 25%, rgba(45,42,62,0.10) 50%, rgba(45,42,62,0.05) 75%)',
+                backgroundSize: '200% 100%',
+                animation: 'shimmer 1.4s ease-in-out infinite',
+              }} />
+            </div>
+          ))}
+          <style>{`@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }`}</style>
+        </div>
+      ) : captures.length === 0 ? (
+        // Empty state card
+        <div style={{
+          display: 'flex', flexDirection: 'column', alignItems: 'center',
+          padding: '36px 24px 32px',
+          background: 'white', borderRadius: 20,
+          border: '1px solid rgba(45,42,62,0.07)',
+          textAlign: 'center',
+        }}>
+          <div style={{
+            width: 56, height: 56, borderRadius: 16,
+            background: 'rgba(232,160,191,0.12)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            marginBottom: 16,
+          }}>
+            <svg width="28" height="28" viewBox="0 0 256 256" fill="rgba(184,96,144,0.65)">
+              <path d="M248,124a56.11,56.11,0,0,0-32-50.61V72a48,48,0,0,0-88-26.49A48,48,0,0,0,40,72v1.39a56,56,0,0,0,0,101.2V176a48,48,0,0,0,88,26.49A48,48,0,0,0,216,176v-1.41A56.09,56.09,0,0,0,248,124ZM88,208a32,32,0,0,1-31.81-28.56A55.87,55.87,0,0,0,64,180h8a8,8,0,0,0,0-16H64A40,40,0,0,1,50.67,86.27,8,8,0,0,0,56,78.73V72a32,32,0,0,1,64,0v68.26A47.8,47.8,0,0,0,88,128a8,8,0,0,0,0,16,32,32,0,0,1,0,64Zm104-44h-8a8,8,0,0,0,0,16h8a55.87,55.87,0,0,0,7.81-.56A32,32,0,1,1,168,144a8,8,0,0,0,0-16,47.8,47.8,0,0,0-32,12.26V72a32,32,0,0,1,64,0v6.73a8,8,0,0,0,5.33,7.54A40,40,0,0,1,192,164Zm16-52a8,8,0,0,1-8,8h-4a36,36,0,0,1-36-36V80a8,8,0,0,1,16,0v4a20,20,0,0,0,20,20h4A8,8,0,0,1,208,112ZM60,120H56a8,8,0,0,1,0-16h4A20,20,0,0,0,80,84V80a8,8,0,0,1,16,0v4A36,36,0,0,1,60,120Z"/>
+            </svg>
+          </div>
+          <p style={{
+            fontFamily: 'var(--font-fraunces)', fontSize: '18px', fontWeight: 700,
+            color: '#1E1C2E', marginBottom: 8,
+          }}>
+            Head&apos;s clear
+          </p>
+          <p style={{
+            fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 500,
+            color: '#9895B0', lineHeight: 1.6, maxWidth: '220px',
+          }}>
+            Nothing rattling around yet. Type something above — tasks, worries, random thoughts. All of it counts.
+          </p>
+        </div>
       ) : (
         <div className="flex flex-col gap-[8px]">
           {filtered.map(capture => {

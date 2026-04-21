@@ -912,6 +912,9 @@ export default function InsightsPage() {
   const daysWithData = data
     ? data.captures.byDay.filter((n, i) => n > 0 || data.moods[i]?.mood != null).length
     : 0
+  const hasNoData = data
+    ? data.captures.total === 0 && data.focus.sessions === 0 && data.moods.every(m => !m.mood)
+    : false
 
   return (
     <div className="flex flex-col h-full overflow-y-auto" style={{ background: 'radial-gradient(ellipse 100% 55% at 100% 0%, rgba(244,165,130,0.28) 0%, transparent 62%), radial-gradient(ellipse 100% 55% at 0% 0%, rgba(245,201,138,0.20) 0%, transparent 62%), #FBF8F5' }}>
@@ -962,6 +965,48 @@ export default function InsightsPage() {
           </div>
         ) : data ? (
           <>
+            {hasNoData ? (
+              <div style={{
+                display: 'flex', flexDirection: 'column', alignItems: 'center',
+                padding: '40px 20px 36px',
+                background: 'white', borderRadius: 20,
+                border: '1px solid rgba(45,42,62,0.07)',
+                textAlign: 'center',
+                marginTop: 8,
+              }}>
+                {/* Lumi brandmark sun — inline */}
+                <div style={{
+                  width: 60, height: 60, borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #F4A582, #F5C98A)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  marginBottom: 20,
+                  boxShadow: '0 4px 20px rgba(244,165,130,0.35)',
+                }}>
+                  <svg width="34" height="31" viewBox="0 0 166.9 151.3" fill="none">
+                    <circle cx="83.8" cy="91" r="37.5" fill="white" />
+                    <rect x="37.7" y="30.8" width="12.3" height="27.8" rx="4.9" ry="4.9" transform="translate(-18.5 38.7) rotate(-40)" fill="white" />
+                    <rect x="77.6" y="10.4" width="12.3" height="33.9" rx="4.9" ry="4.9" fill="white" />
+                    <rect x="14.9" y="61.5" width="13.2" height="24.7" rx="5.2" ry="5.2" transform="translate(-55.4 74.1) rotate(-74)" fill="white" />
+                    <rect x="132.6" y="67.3" width="24.7" height="13.2" rx="5.2" ry="5.2" transform="translate(-14.7 42.8) rotate(-16)" fill="white" />
+                    <rect x="108.6" y="38.6" width="27.8" height="12.3" rx="4.9" ry="4.9" transform="translate(9.5 109.8) rotate(-50)" fill="white" />
+                    <rect x="10" y="133.4" width="147.6" height="7.9" rx="3.1" ry="3.1" fill="white" opacity="0.72" />
+                  </svg>
+                </div>
+                <p style={{
+                  fontFamily: 'var(--font-fraunces)', fontSize: '20px', fontWeight: 700,
+                  color: '#1E1C2E', marginBottom: 10, lineHeight: 1.2,
+                }}>
+                  Your insights are on their way
+                </p>
+                <p style={{
+                  fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 500,
+                  color: '#9895B0', lineHeight: 1.65, maxWidth: '240px',
+                }}>
+                  Log a mood, dump some thoughts, run a focus session. Come back in a few days and Lumi will start seeing patterns.
+                </p>
+              </div>
+            ) : (
+            <>
             {/* ── Stat cards ── */}
             <div>
               <SectionLabel>THIS WEEK</SectionLabel>
@@ -1096,6 +1141,8 @@ export default function InsightsPage() {
                   ))}
                 </div>
               </div>
+            )}
+            </>
             )}
           </>
         ) : (

@@ -17,7 +17,7 @@ export interface LumiUserContext {
   mood?: 'drained' | 'low' | 'okay' | 'bright' | 'wired' | null
   focusTask?: string
   focusTaskCompleted?: boolean
-  recentCaptures?: Array<{ text: string; tag: string | null }>
+  recentCaptures?: Array<{ text: string; tag: string | null; completed?: boolean }>
   recentWorries?: string[]
   openWorryCount?: number
   captureCount?: number
@@ -651,13 +651,23 @@ ${ctx.focusTask
       ? 'STATUS: Completed ✓. They did it. Reference this warmly if the moment calls for it — once is enough.'
       : 'STATUS: Not yet done. Do not bring it up unless they do.'}`
   : '**One focus today:** Not set — no task in queue yet.'}
-${ctx.captureCount !== undefined && ctx.captureCount > 0
-  ? `**Brain dumps today:** ${ctx.captureCount} capture${ctx.captureCount !== 1 ? 's' : ''} — their brain has been active.`
-  : ''}
-${ctx.recentCaptures && ctx.recentCaptures.length > 0 ? `
-**Recent captures (use as context, don't recite back):**
-${ctx.recentCaptures.slice(0, 10).map(c => `- [${c.tag ?? 'untagged'}] ${c.text}`).join('\n')}
-` : ''}
+${(() => {
+  const all = ctx.recentCaptures ?? []
+  const done = all.filter(c => c.completed)
+  const open = all.filter(c => !c.completed)
+  const lines: string[] = []
+
+  if (all.length > 0) {
+    lines.push(`**Brain Dump today:** ${all.length} capture${all.length !== 1 ? 's' : ''} — their brain has been active.`)
+  }
+  if (done.length > 0) {
+    lines.push(`\n**Completed today (YOU KNOW THESE — name them when the user references completing something, never ask):**\n${done.map(c => `- ✓ [${c.tag ?? 'task'}] ${c.text}`).join('\n')}`)
+  }
+  if (open.length > 0) {
+    lines.push(`\n**Open captures (context only — do not recite unprompted):**\n${open.map(c => `- [${c.tag ?? 'untagged'}] ${c.text}`).join('\n')}`)
+  }
+  return lines.join('\n')
+})()}
 ${ctx.recentWorries && ctx.recentWorries.length > 0 ? `
 **Unaddressed worries — ${ctx.openWorryCount ?? ctx.recentWorries.length} open (surface gently, one at a time, only if the moment is right):**
 ${ctx.recentWorries.map(w => `- ${w}`).join('\n')}

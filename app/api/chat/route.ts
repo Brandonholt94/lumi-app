@@ -77,7 +77,7 @@ async function summarizeHistory(messages: ChatMessage[]): Promise<{
 
   try {
     const { text } = await generateText({
-      model: anthropic('claude-haiku-4-5-20251001'),
+      model: anthropic('claude-haiku-4-5'),
       messages: [
         {
           role: 'user',
@@ -216,7 +216,7 @@ async function fetchPlatformContext(userId: string): Promise<Partial<LumiUserCon
   }
 
   return {
-    recentCaptures: captures.slice(0, 10).map(c => ({ text: c.text, tag: c.tag })),
+    recentCaptures: captures.slice(0, 10).map(c => ({ text: c.text, tag: c.tag, completed: c.completed ?? false })),
     captureCount: captures.length,
     focusTaskCompleted: completedTaskToday,
     recentWorries: worryCaptures.map(w => w.text),
@@ -331,8 +331,8 @@ export async function POST(req: Request) {
     userContext.isReturningAfterAbsence,
   )
   const model = useSonnet
-    ? anthropic('claude-sonnet-4-6')
-    : anthropic('claude-haiku-4-5-20251001')
+    ? anthropic('claude-sonnet-4-5')
+    : anthropic('claude-haiku-4-5')
 
   // ── Stream Lumi's response ─────────────────────────────────
   const result = streamText({

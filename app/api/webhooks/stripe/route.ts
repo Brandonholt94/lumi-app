@@ -1,6 +1,5 @@
 import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
-import { headers } from 'next/headers'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
@@ -25,8 +24,7 @@ function planFromPriceId(priceId: string): string {
 
 export async function POST(req: Request) {
   const body = await req.text()
-  const headersList = await headers()
-  const sig = headersList.get('stripe-signature')
+  const sig = req.headers.get('stripe-signature')
 
   if (!sig) return new Response('No signature', { status: 400 })
 

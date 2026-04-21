@@ -281,7 +281,7 @@ export default function CaptureInput() {
   return (
     <>
       {/* ── Beige body ── */}
-      <div style={{ background: 'radial-gradient(ellipse 160% 42% at 50% 0%, rgba(244,165,130,0.22) 0%, rgba(232,160,191,0.13) 38%, #FBF8F5 66%)', padding: '44px 20px 0' }}>
+      <div style={{ background: 'radial-gradient(ellipse 100% 55% at 100% 0%, rgba(244,165,130,0.28) 0%, transparent 62%), radial-gradient(ellipse 100% 55% at 0% 0%, rgba(245,201,138,0.20) 0%, transparent 62%), #FBF8F5', padding: '44px 20px 0' }}>
 
       {/* Lumi hint */}
       <div
@@ -547,7 +547,7 @@ export default function CaptureInput() {
               className="absolute left-0 bottom-[calc(100%+6px)] z-50 overflow-hidden"
               style={{
                 background: 'white',
-                borderRadius: '16px',
+                borderRadius: '20px',
                 border: '1px solid rgba(45,42,62,0.1)',
                 boxShadow: '0 8px 24px rgba(45,42,62,0.12)',
                 minWidth: '150px',
@@ -631,7 +631,7 @@ export default function CaptureInput() {
                 style={{
                   background: 'white',
                   border: '1px solid rgba(45,42,62,0.07)',
-                  borderRadius: '16px',
+                  borderRadius: '20px',
                   boxShadow: '0 2px 8px rgba(45,42,62,0.07)',
                   overflow: 'hidden',
                   opacity: fadingIds.has(capture.id) ? 0 : 1,
@@ -769,7 +769,7 @@ export default function CaptureInput() {
                 const cs = c.tag ? TAG_STYLES[c.tag] : null
                 return (
                   <div key={c.id} style={{
-                    background: 'white', borderRadius: 14,
+                    background: 'white', borderRadius: 12,
                     padding: '10px 14px',
                     border: '1px solid rgba(45,42,62,0.05)',
                     display: 'flex', alignItems: 'center', gap: 10, opacity: 0.6,
@@ -900,7 +900,7 @@ export default function CaptureInput() {
                   onClick={handleSaveSteps}
                   disabled={savingSteps}
                   style={{
-                    width: '100%', padding: '15px', borderRadius: 14, border: 'none',
+                    width: '100%', padding: '15px', borderRadius: 12, border: 'none',
                     background: 'linear-gradient(135deg, #F4A582, #F5C98A)',
                     fontFamily: 'var(--font-nunito-sans)', fontSize: 15, fontWeight: 800,
                     color: '#1E1C2E', cursor: savingSteps ? 'wait' : 'pointer',
@@ -976,7 +976,7 @@ export default function CaptureInput() {
                   onClick={() => { setActionSheetFor(null); handleBreakdown(actionSheetFor) }}
                   style={{
                     display: 'flex', alignItems: 'center', gap: 14,
-                    padding: '14px 16px', borderRadius: 14, border: 'none',
+                    padding: '14px 16px', borderRadius: 12, border: 'none',
                     background: 'white', cursor: 'pointer', width: '100%', textAlign: 'left',
                     marginTop: 2,
                   }}
@@ -996,7 +996,7 @@ export default function CaptureInput() {
                   onClick={() => setOneFocus(actionSheetFor)}
                   style={{
                     display: 'flex', alignItems: 'center', gap: 14,
-                    padding: '14px 16px', borderRadius: 14, border: 'none',
+                    padding: '14px 16px', borderRadius: 12, border: 'none',
                     background: 'white', cursor: 'pointer', width: '100%', textAlign: 'left',
                     marginTop: 2,
                   }}

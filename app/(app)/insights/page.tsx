@@ -914,7 +914,7 @@ export default function InsightsPage() {
     : 0
 
   return (
-    <div className="flex flex-col h-full overflow-y-auto" style={{ background: 'radial-gradient(ellipse 160% 42% at 50% 0%, rgba(244,165,130,0.22) 0%, rgba(232,160,191,0.13) 38%, #FBF8F5 66%)' }}>
+    <div className="flex flex-col h-full overflow-y-auto" style={{ background: 'radial-gradient(ellipse 100% 55% at 100% 0%, rgba(244,165,130,0.28) 0%, transparent 62%), radial-gradient(ellipse 100% 55% at 0% 0%, rgba(245,201,138,0.20) 0%, transparent 62%), #FBF8F5' }}>
 
       {/* Body */}
       <div className="flex flex-col flex-1 px-5 pb-8" style={{ paddingTop: 24, gap: 24, display: 'flex', flexDirection: 'column' }}>

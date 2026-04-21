@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import ProfileButton from '../../_components/ProfileButton'
 
 type Tag = 'task' | 'idea' | 'worry' | 'reminder' | null
 
@@ -281,27 +280,8 @@ export default function CaptureInput() {
 
   return (
     <>
-      {/* ── Minimal header ── */}
-      <div style={{ background: '#ffffff', padding: '16px 20px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <h1 style={{
-          fontFamily: 'var(--font-fraunces)',
-          fontSize: '22px',
-          fontWeight: 900,
-          color: '#1E1C2E',
-          lineHeight: 1,
-        }}>
-          Brain Dump
-        </h1>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 500, color: '#9895B0' }}>
-            {loading ? '' : `${captures.length} this week`}
-          </span>
-          <ProfileButton />
-        </div>
-      </div>
-
       {/* ── Beige body ── */}
-      <div style={{ background: '#FBF8F5', padding: '28px 20px 0' }}>
+      <div style={{ background: '#FBF8F5', padding: '44px 20px 0' }}>
 
       {/* Lumi hint */}
       <div
@@ -367,6 +347,7 @@ export default function CaptureInput() {
             value={text}
             onChange={e => setText(e.target.value)}
             onKeyDown={handleKeyDown}
+            autoFocus
             placeholder="What's in your head? Dump it all here — tasks, worries, ideas, reminders. Anything."
             className="w-full border-none outline-none resize-none"
             style={{
@@ -608,10 +589,22 @@ export default function CaptureInput() {
             letterSpacing: '0.1em',
             color: '#9895B0',
             marginLeft: 2,
+            flex: 1,
           }}
         >
           RECENT CAPTURES
         </p>
+
+        {!loading && captures.length > 0 && (
+          <span style={{
+            fontFamily: 'var(--font-nunito-sans)',
+            fontSize: '10px',
+            fontWeight: 600,
+            color: 'rgba(45,42,62,0.3)',
+          }}>
+            {captures.length} this week
+          </span>
+        )}
       </div>
 
       {/* Captures list */}

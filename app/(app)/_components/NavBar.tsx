@@ -2,12 +2,28 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useState } from 'react'
 import LumiTabIcon from './LumiTabIcon'
+
+function haptic() {
+  if (typeof navigator !== 'undefined' && navigator.vibrate) {
+    navigator.vibrate(8)
+  }
+}
+
+type TabKey = 'today' | 'focus' | 'chat' | 'capture' | 'insights'
 
 export default function NavBar() {
   const pathname = usePathname()
   const is = (path: string) => pathname === path || pathname.startsWith(path + '/')
   const today = new Date().getDate()
+  const [tapped, setTapped] = useState<TabKey | null>(null)
+
+  function tap(key: TabKey) {
+    haptic()
+    setTapped(key)
+    setTimeout(() => setTapped(null), 350)
+  }
 
   return (
     <nav
@@ -18,12 +34,29 @@ export default function NavBar() {
         overflow: 'visible',
       }}
     >
+      <style>{`
+        @keyframes tabPop {
+          0%   { transform: scale(1); }
+          40%  { transform: scale(0.88); }
+          70%  { transform: scale(1.12); }
+          100% { transform: scale(1); }
+        }
+        .tab-pop { animation: tabPop 0.32s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+      `}</style>
+
       <div className="relative flex items-center justify-around px-1 pt-2" style={{ paddingBottom: 'calc(12px + env(safe-area-inset-bottom, 0px))' }}>
 
         {/* Today */}
-        <Link href="/today" className="flex flex-col items-center gap-1 flex-1">
-          <div className={`flex items-center justify-center w-11 h-8 rounded-2xl transition-colors ${is('/today') ? 'bg-[rgba(244,165,130,0.15)]' : ''}`}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+        <Link href="/today" className="flex flex-col items-center gap-1 flex-1" onClick={() => tap('today')}>
+          <div
+            className={`flex items-center justify-center w-11 h-8 rounded-2xl ${tapped === 'today' ? 'tab-pop' : ''}`}
+            style={{
+              background: is('/today') ? 'rgba(244,165,130,0.15)' : 'transparent',
+              transition: 'background 0.2s ease',
+            }}
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+              style={{ transition: 'transform 0.2s ease', transform: is('/today') ? 'scale(1.08)' : 'scale(1)' }}>
               <rect x="3" y="5" width="18" height="16" rx="2.5"
                 stroke={is('/today') ? '#F4A582' : 'rgba(45,42,62,0.28)'}
                 strokeWidth="1.8" fill="none"
@@ -44,36 +77,66 @@ export default function NavBar() {
               >{today}</text>
             </svg>
           </div>
-          <span className="text-[10px] font-bold" style={{ fontFamily: 'var(--font-nunito-sans)', color: is('/today') ? '#F4A582' : 'rgba(45,42,62,0.28)' }}>
+          <span
+            className="text-[10px] font-bold"
+            style={{
+              fontFamily: 'var(--font-nunito-sans)',
+              color: is('/today') ? '#F4A582' : 'rgba(45,42,62,0.28)',
+              transition: 'color 0.2s ease',
+            }}
+          >
             Today
           </span>
         </Link>
 
         {/* Focus */}
-        <Link href="/focus" className="flex flex-col items-center gap-1 flex-1">
-          <div className={`flex items-center justify-center w-11 h-8 rounded-2xl transition-colors ${is('/focus') ? 'bg-[rgba(244,165,130,0.15)]' : ''}`}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+        <Link href="/focus" className="flex flex-col items-center gap-1 flex-1" onClick={() => tap('focus')}>
+          <div
+            className={`flex items-center justify-center w-11 h-8 rounded-2xl ${tapped === 'focus' ? 'tab-pop' : ''}`}
+            style={{
+              background: is('/focus') ? 'rgba(244,165,130,0.15)' : 'transparent',
+              transition: 'background 0.2s ease',
+            }}
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+              style={{ transition: 'transform 0.2s ease', transform: is('/focus') ? 'scale(1.08)' : 'scale(1)' }}>
               <circle cx="12" cy="12" r="9" stroke={is('/focus') ? '#F4A582' : 'rgba(45,42,62,0.28)'} strokeWidth="2" />
               <path d="M12 7V12L15 15" stroke={is('/focus') ? '#F4A582' : 'rgba(45,42,62,0.28)'} strokeWidth="2" strokeLinecap="round" />
             </svg>
           </div>
-          <span className="text-[10px] font-bold" style={{ fontFamily: 'var(--font-nunito-sans)', color: is('/focus') ? '#F4A582' : 'rgba(45,42,62,0.28)' }}>
+          <span
+            className="text-[10px] font-bold"
+            style={{
+              fontFamily: 'var(--font-nunito-sans)',
+              color: is('/focus') ? '#F4A582' : 'rgba(45,42,62,0.28)',
+              transition: 'color 0.2s ease',
+            }}
+          >
             Focus
           </span>
         </Link>
 
-        {/* Lumi — floats above nav, Acorns-style */}
-        <Link href="/chat" className="flex flex-col items-center gap-1 flex-1 -mt-4">
-          <LumiTabIcon />
+        {/* Lumi — floats above nav */}
+        <Link href="/chat" className="flex flex-col items-center gap-1 flex-1 -mt-4" onClick={() => tap('chat')}>
+          <div className={tapped === 'chat' ? 'tab-pop' : ''}>
+            <LumiTabIcon />
+          </div>
           <span className="text-[10px] font-bold" style={{ fontFamily: 'var(--font-nunito-sans)', color: '#F4A582' }}>
             Lumi
           </span>
         </Link>
 
         {/* Brain Dump */}
-        <Link href="/capture" className="flex flex-col items-center gap-1 flex-1">
-          <div className={`flex items-center justify-center w-11 h-8 rounded-2xl transition-colors ${is('/capture') ? 'bg-[rgba(244,165,130,0.15)]' : ''}`}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+        <Link href="/capture" className="flex flex-col items-center gap-1 flex-1" onClick={() => tap('capture')}>
+          <div
+            className={`flex items-center justify-center w-11 h-8 rounded-2xl ${tapped === 'capture' ? 'tab-pop' : ''}`}
+            style={{
+              background: is('/capture') ? 'rgba(244,165,130,0.15)' : 'transparent',
+              transition: 'background 0.2s ease',
+            }}
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+              style={{ transition: 'transform 0.2s ease', transform: is('/capture') ? 'scale(1.08)' : 'scale(1)' }}>
               <path
                 d="M9.5 2C7 2 5 4 5 6.5c0 .98.32 1.88.85 2.62C4.73 9.9 4 11.1 4 12.5 4 14.43 5.3 16.05 7 16.5V19a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-2.5c1.7-.45 3-2.07 3-4 0-1.4-.73-2.6-1.85-3.38C18.68 8.38 19 7.48 19 6.5 19 4 17 2 14.5 2c-.93 0-1.8.28-2.5.75A4.47 4.47 0 0 0 9.5 2Z"
                 stroke={is('/capture') ? '#F4A582' : 'rgba(45,42,62,0.28)'}
@@ -84,21 +147,42 @@ export default function NavBar() {
               <line x1="15" y1="12" x2="15" y2="16" stroke={is('/capture') ? '#F4A582' : 'rgba(45,42,62,0.28)'} strokeWidth="1.8" strokeLinecap="round"/>
             </svg>
           </div>
-          <span className="text-[10px] font-bold" style={{ fontFamily: 'var(--font-nunito-sans)', color: is('/capture') ? '#F4A582' : 'rgba(45,42,62,0.28)' }}>
+          <span
+            className="text-[10px] font-bold"
+            style={{
+              fontFamily: 'var(--font-nunito-sans)',
+              color: is('/capture') ? '#F4A582' : 'rgba(45,42,62,0.28)',
+              transition: 'color 0.2s ease',
+            }}
+          >
             Brain Dump
           </span>
         </Link>
 
         {/* Insights */}
-        <Link href="/insights" className="flex flex-col items-center gap-1 flex-1">
-          <div className={`flex items-center justify-center w-11 h-8 rounded-2xl transition-colors ${is('/insights') ? 'bg-[rgba(244,165,130,0.15)]' : ''}`}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-              <rect x="4"  y="14" width="3" height="7" rx="1" fill={is('/insights') ? '#F4A582' : 'rgba(45,42,62,0.28)'} />
-              <rect x="10" y="9"  width="3" height="12" rx="1" fill={is('/insights') ? '#F4A582' : 'rgba(45,42,62,0.28)'} />
-              <rect x="16" y="4"  width="3" height="17" rx="1" fill={is('/insights') ? '#F4A582' : 'rgba(45,42,62,0.28)'} />
+        <Link href="/insights" className="flex flex-col items-center gap-1 flex-1" onClick={() => tap('insights')}>
+          <div
+            className={`flex items-center justify-center w-11 h-8 rounded-2xl ${tapped === 'insights' ? 'tab-pop' : ''}`}
+            style={{
+              background: is('/insights') ? 'rgba(244,165,130,0.15)' : 'transparent',
+              transition: 'background 0.2s ease',
+            }}
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+              style={{ transition: 'transform 0.2s ease', transform: is('/insights') ? 'scale(1.08)' : 'scale(1)' }}>
+              <rect x="4"  y="14" width="3" height="7" rx="1" fill={is('/insights') ? '#F4A582' : 'rgba(45,42,62,0.28)'} style={{ transition: 'fill 0.2s ease' }} />
+              <rect x="10" y="9"  width="3" height="12" rx="1" fill={is('/insights') ? '#F4A582' : 'rgba(45,42,62,0.28)'} style={{ transition: 'fill 0.2s ease' }} />
+              <rect x="16" y="4"  width="3" height="17" rx="1" fill={is('/insights') ? '#F4A582' : 'rgba(45,42,62,0.28)'} style={{ transition: 'fill 0.2s ease' }} />
             </svg>
           </div>
-          <span className="text-[10px] font-bold" style={{ fontFamily: 'var(--font-nunito-sans)', color: is('/insights') ? '#F4A582' : 'rgba(45,42,62,0.28)' }}>
+          <span
+            className="text-[10px] font-bold"
+            style={{
+              fontFamily: 'var(--font-nunito-sans)',
+              color: is('/insights') ? '#F4A582' : 'rgba(45,42,62,0.28)',
+              transition: 'color 0.2s ease',
+            }}
+          >
             Insights
           </span>
         </Link>

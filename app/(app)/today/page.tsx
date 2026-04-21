@@ -85,106 +85,120 @@ export default async function TodayPage() {
         QUICK ACTIONS
       </p>
 
-      <div className="grid grid-cols-3 gap-2">
-        {/* Focus Session — Gold wash */}
+      {/* Top row — Focus + Brain Dump */}
+      <div className="grid grid-cols-2 gap-3 mb-3">
+        {/* Focus Session */}
         <Link
           href="/focus"
-          className="flex flex-col items-start rounded-[18px] transition-all active:scale-95"
+          className="flex flex-col items-start active:scale-[0.97] transition-transform"
           style={{
-            background: 'rgba(245,201,138,0.14)',
-            border: '1px solid rgba(245,201,138,0.32)',
-            boxShadow: '0 1px 4px rgba(45,42,62,0.05)',
-            padding: '13px 11px 12px',
+            background: 'rgba(245,201,138,0.16)',
+            border: '1.5px solid rgba(245,201,138,0.36)',
+            borderRadius: 20,
+            boxShadow: '0 2px 8px rgba(245,201,138,0.12)',
+            padding: '16px 14px 14px',
             gap: 0,
           }}
         >
-          <div style={{ marginBottom: 10 }}>
+          <div style={{
+            width: 44, height: 44,
+            borderRadius: 14,
+            background: 'rgba(245,201,138,0.22)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            marginBottom: 12,
+          }}>
             <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="13.5" r="7.5" stroke="#C49820" strokeWidth="1.65"/>
-              <path d="M12 10V13.8L14.2 15.2" stroke="#C49820" strokeWidth="1.65" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M9.5 3H14.5" stroke="#C49820" strokeWidth="1.65" strokeLinecap="round"/>
-              <path d="M12 3V5.5" stroke="#C49820" strokeWidth="1.65" strokeLinecap="round"/>
+              <circle cx="12" cy="13.5" r="7.5" stroke="#C49820" strokeWidth="1.8"/>
+              <path d="M12 10V13.8L14.2 15.2" stroke="#C49820" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M9.5 3H14.5" stroke="#C49820" strokeWidth="1.8" strokeLinecap="round"/>
+              <path d="M12 3V5.5" stroke="#C49820" strokeWidth="1.8" strokeLinecap="round"/>
             </svg>
           </div>
-          <span
-            className="text-[11px] font-extrabold leading-tight mb-[3px]"
-            style={{ fontFamily: 'var(--font-nunito-sans)', color: '#2D2A3E' }}
-          >
+          <span style={{ fontFamily: 'var(--font-fraunces)', fontSize: '16px', fontWeight: 700, color: '#1E1C2E', marginBottom: 3, lineHeight: 1.2 }}>
             Focus
           </span>
-          <span
-            className="text-[9.5px]"
-            style={{ fontFamily: 'var(--font-nunito-sans)', fontWeight: 500, color: '#9895B0' }}
-          >
-            Start a timer
+          <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 500, color: '#9895B0' }}>
+            Start a session
           </span>
         </Link>
 
-        {/* Brain Dump — Dawn Rose wash */}
+        {/* Brain Dump */}
         <Link
           href="/capture"
-          className="flex flex-col items-start rounded-[18px] transition-all active:scale-95"
+          className="flex flex-col items-start active:scale-[0.97] transition-transform"
           style={{
             background: 'rgba(232,160,191,0.14)',
-            border: '1px solid rgba(232,160,191,0.32)',
-            boxShadow: '0 1px 4px rgba(45,42,62,0.05)',
-            padding: '13px 11px 12px',
+            border: '1.5px solid rgba(232,160,191,0.34)',
+            borderRadius: 20,
+            boxShadow: '0 2px 8px rgba(232,160,191,0.10)',
+            padding: '16px 14px 14px',
             gap: 0,
           }}
         >
-          <div style={{ marginBottom: 10 }}>
+          <div style={{
+            width: 44, height: 44,
+            borderRadius: 14,
+            background: 'rgba(232,160,191,0.20)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            marginBottom: 12,
+          }}>
             <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-              <path d="M13 3.5L5.5 13H11.5L10.5 20.5L18.5 11H12.5L13 3.5Z" stroke="#B86090" strokeWidth="1.65" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M9.5 2C7 2 5 4 5 6.5c0 .98.32 1.88.85 2.62C4.73 9.9 4 11.1 4 12.5 4 14.43 5.3 16.05 7 16.5V19a1 1 0 001 1h8a1 1 0 001-1v-2.5c1.7-.45 3-2.07 3-4 0-1.4-.73-2.6-1.85-3.38C18.68 8.38 19 7.48 19 6.5 19 4 17 2 14.5 2c-.93 0-1.8.28-2.5.75A4.47 4.47 0 009.5 2Z"
+                stroke="#B86090" strokeWidth="1.8" strokeLinejoin="round" fill="none"/>
+              <line x1="9" y1="12" x2="9" y2="16" stroke="#B86090" strokeWidth="1.8" strokeLinecap="round"/>
+              <line x1="12" y1="11" x2="12" y2="16" stroke="#B86090" strokeWidth="1.8" strokeLinecap="round"/>
+              <line x1="15" y1="12" x2="15" y2="16" stroke="#B86090" strokeWidth="1.8" strokeLinecap="round"/>
             </svg>
           </div>
-          <span
-            className="text-[11px] font-extrabold leading-tight mb-[3px]"
-            style={{ fontFamily: 'var(--font-nunito-sans)', color: '#2D2A3E' }}
-          >
-            Brain dump
+          <span style={{ fontFamily: 'var(--font-fraunces)', fontSize: '16px', fontWeight: 700, color: '#1E1C2E', marginBottom: 3, lineHeight: 1.2 }}>
+            Brain Dump
           </span>
-          <span
-            className="text-[9.5px]"
-            style={{ fontFamily: 'var(--font-nunito-sans)', fontWeight: 500, color: '#9895B0' }}
-          >
+          <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 500, color: '#9895B0' }}>
             Clear your head
           </span>
         </Link>
-
-        {/* Talk to Lumi — Peach wash */}
-        <Link
-          href="/chat"
-          className="flex flex-col items-start rounded-[18px] transition-all active:scale-95"
-          style={{
-            background: 'rgba(244,165,130,0.14)',
-            border: '1px solid rgba(244,165,130,0.32)',
-            boxShadow: '0 1px 4px rgba(45,42,62,0.05)',
-            padding: '13px 11px 12px',
-            gap: 0,
-          }}
-        >
-          <div style={{ marginBottom: 10 }}>
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-              <path d="M12 3.5C7.31 3.5 3.5 6.92 3.5 11.1C3.5 13.26 4.55 15.2 6.25 16.57L5.5 20.5L9.62 18.55C10.38 18.73 11.18 18.82 12 18.82C16.69 18.82 20.5 15.4 20.5 11.22C20.5 7.04 16.69 3.5 12 3.5Z" stroke="#C86040" strokeWidth="1.65" strokeLinejoin="round"/>
-              <circle cx="9" cy="11.1" r="1" fill="#C86040"/>
-              <circle cx="12" cy="11.1" r="1" fill="#C86040"/>
-              <circle cx="15" cy="11.1" r="1" fill="#C86040"/>
-            </svg>
-          </div>
-          <span
-            className="text-[11px] font-extrabold leading-tight mb-[3px]"
-            style={{ fontFamily: 'var(--font-nunito-sans)', color: '#2D2A3E' }}
-          >
-            Talk to Lumi
-          </span>
-          <span
-            className="text-[9.5px]"
-            style={{ fontFamily: 'var(--font-nunito-sans)', fontWeight: 500, color: '#9895B0' }}
-          >
-            Whatever&apos;s up
-          </span>
-        </Link>
       </div>
+
+      {/* Talk to Lumi — full width, horizontal */}
+      <Link
+        href="/chat"
+        className="flex items-center active:scale-[0.98] transition-transform"
+        style={{
+          background: 'linear-gradient(135deg, rgba(244,165,130,0.18) 0%, rgba(245,201,138,0.14) 100%)',
+          border: '1.5px solid rgba(244,165,130,0.30)',
+          borderRadius: 20,
+          boxShadow: '0 2px 10px rgba(244,165,130,0.14)',
+          padding: '16px 18px',
+          gap: 16,
+          textDecoration: 'none',
+        }}
+      >
+        <div style={{
+          width: 48, height: 48,
+          borderRadius: 16,
+          background: 'linear-gradient(135deg, rgba(244,165,130,0.28), rgba(245,201,138,0.22))',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          flexShrink: 0,
+        }}>
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+            <path d="M12 3.5C7.31 3.5 3.5 6.92 3.5 11.1 3.5 13.26 4.55 15.2 6.25 16.57L5.5 20.5 9.62 18.55C10.38 18.73 11.18 18.82 12 18.82c4.69 0 8.5-3.42 8.5-7.6C20.5 7.04 16.69 3.5 12 3.5Z" stroke="#C86040" strokeWidth="1.8" strokeLinejoin="round"/>
+            <circle cx="9"  cy="11.1" r="1.1" fill="#C86040"/>
+            <circle cx="12" cy="11.1" r="1.1" fill="#C86040"/>
+            <circle cx="15" cy="11.1" r="1.1" fill="#C86040"/>
+          </svg>
+        </div>
+        <div style={{ flex: 1 }}>
+          <p style={{ fontFamily: 'var(--font-fraunces)', fontSize: '17px', fontWeight: 700, color: '#1E1C2E', marginBottom: 2, lineHeight: 1.2 }}>
+            Talk to Lumi
+          </p>
+          <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '12px', fontWeight: 500, color: '#9895B0' }}>
+            167 hours a week — whenever you need
+          </p>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
+          <path d="M9 18l6-6-6-6" stroke="rgba(244,165,130,0.7)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </Link>
 
       {/* Resources */}
       <div style={{ marginTop: 44 }}>

@@ -216,11 +216,11 @@ export default async function MePage() {
   }
 
   return (
-    <div className="flex flex-col h-full overflow-y-auto" style={{ background: '#ffffff', paddingBottom: 40 }}>
+    <div className="flex flex-col h-full overflow-y-auto" style={{ background: 'radial-gradient(ellipse 160% 42% at 50% 0%, rgba(244,165,130,0.22) 0%, rgba(232,160,191,0.13) 38%, #FBF8F5 66%)', paddingBottom: 40 }}>
 
       {/* Avatar + name hero */}
       <div style={{
-        background: 'white',
+        background: 'transparent',
         borderBottom: '1px solid rgba(45,42,62,0.07)',
         padding: '28px 20px 24px',
         display: 'flex',

@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@supabase/supabase-js'
 import NavBar from './_components/NavBar'
 import SplashScreen from './_components/SplashScreen'
+import PageTransition from './_components/PageTransition'
 import { MoodProvider } from './_components/MoodContext'
 import ActivityTracker from './_components/ActivityTracker'
 import LowBatteryOverlay from './_components/LowBatteryOverlay'
@@ -35,7 +36,7 @@ export default async function AppLayout({
       <div className="h-dvh bg-[#FBF8F5] flex flex-col max-w-md mx-auto relative overflow-hidden">
         <SplashScreen />
         <main className="flex-1 min-h-0 flex flex-col overflow-hidden">
-          {children}
+          <PageTransition>{children}</PageTransition>
         </main>
         <NavBar />
       </div>

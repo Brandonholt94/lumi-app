@@ -47,22 +47,72 @@ export async function POST(req: Request) {
       const clerkUserId = session.client_reference_id
       const customerId  = session.customer as string
 
-      if (!clerkUserId) break
+      console.log('[webhook] checkout.session.completed', { clerkUserId, customerId, subscription: session.subscription })
+
+      if (!clerkUserId) {
+        console.warn('[webhook] checkout.session.completed missing client_reference_id')
+        break
+      }
 
       // Resolve plan from subscription's price
-      let plan = 'core' // default if we can't resolve
+      let plan = 'starter' // default to starter (safest fallback)
       if (session.subscription) {
         const sub = await stripe.subscriptions.retrieve(session.subscription as string)
         const priceId = sub.items.data[0]?.price?.id
         if (priceId) plan = planFromPriceId(priceId)
+        console.log('[webhook] resolved plan', { priceId, plan })
       }
 
-      await supabase.from('profiles').upsert({
+      const { error } = await supabase.from('profiles').upsert({
         clerk_user_id:      clerkUserId,
         plan,
         stripe_customer_id: customerId,
         updated_at:         new Date().toISOString(),
       }, { onConflict: 'clerk_user_id' })
+
+      if (error) console.error('[webhook] supabase upsert error', error)
+      else console.log('[webhook] profile updated', { clerkUserId, plan })
+
+      break
+    }
+
+    // ── Subscription created (trial start) ───────────────────
+    case 'customer.subscription.created': {
+      const sub        = event.data.object as Stripe.Subscription
+      const customerId = sub.customer as string
+      const priceId    = sub.items.data[0]?.price?.id
+      const plan       = priceId ? planFromPriceId(priceId) : 'starter'
+      const status     = sub.status
+      const clerkUserId = sub.metadata?.clerk_user_id
+
+      console.log('[webhook] customer.subscription.created', { customerId, clerkUserId, priceId, plan, status })
+
+      // If we have clerk_user_id in metadata, use it directly
+      if (clerkUserId) {
+        const { error } = await supabase.from('profiles').upsert({
+          clerk_user_id:      clerkUserId,
+          plan,
+          stripe_customer_id: customerId,
+          updated_at:         new Date().toISOString(),
+        }, { onConflict: 'clerk_user_id' })
+        if (error) console.error('[webhook] supabase upsert error', error)
+        else console.log('[webhook] profile updated via subscription.created', { clerkUserId, plan })
+      } else {
+        // Fall back to matching by stripe_customer_id
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('clerk_user_id')
+          .eq('stripe_customer_id', customerId)
+          .single()
+        if (profile?.clerk_user_id) {
+          await supabase.from('profiles')
+            .update({ plan, updated_at: new Date().toISOString() })
+            .eq('clerk_user_id', profile.clerk_user_id)
+          console.log('[webhook] profile updated via customer lookup', { plan })
+        } else {
+          console.warn('[webhook] subscription.created: no profile found for customer', customerId)
+        }
+      }
 
       break
     }

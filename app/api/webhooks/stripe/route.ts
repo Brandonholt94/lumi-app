@@ -30,11 +30,15 @@ export async function POST(req: Request) {
 
   if (!sig) return new Response('No signature', { status: 400 })
 
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
+  console.log('[webhook] incoming POST — secret_set:', !!webhookSecret, 'secret_prefix:', webhookSecret?.slice(0, 12), 'sig_present:', !!sig)
+
   let event: Stripe.Event
   try {
-    event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET!)
+    event = stripe.webhooks.constructEvent(body, sig, webhookSecret!)
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[webhook] constructEvent failed:', message)
     return new Response(`Webhook signature failed: ${message}`, { status: 400 })
   }
 

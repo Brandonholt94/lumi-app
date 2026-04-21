@@ -9,44 +9,39 @@ function getServiceClient() {
   )
 }
 
-function todayRange() {
-  const now  = new Date()
-  const start = new Date(now); start.setHours(0, 0, 0, 0)
-  const end   = new Date(now); end.setHours(23, 59, 59, 999)
-  return { start: start.toISOString(), end: end.toISOString() }
-}
-
 // GET /api/your-day
-// Returns: tasks with a time_block (any date) + today's unblocked tasks (for the tray)
+// Returns: tasks with a time_block + unblocked tasks for the tray + hardestTime
 export async function GET() {
   const { userId } = await auth()
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const supabase = getServiceClient()
-  const { start, end } = todayRange()
+
+  // Tray window: last 14 days so older tasks aren't invisible
+  const trayFrom = new Date()
+  trayFrom.setDate(trayFrom.getDate() - 14)
 
   const [blockedRes, trayRes, profileRes] = await Promise.all([
-    // All tasks assigned to a block (not completed)
+    // All tasks with a time_block assigned (any tag, including null-tagged)
     supabase
       .from('captures')
       .select('id, text, tag, notes, time_block, completed, created_at')
       .eq('clerk_user_id', userId)
-      .in('tag', ['task'])
+      .or('tag.eq.task,tag.is.null')
       .not('time_block', 'is', null)
       .order('created_at', { ascending: true }),
 
-    // Today's unblocked tasks — available to drag in
+    // Unblocked, incomplete tasks — any tag:task or untagged, last 14 days
     supabase
       .from('captures')
       .select('id, text, tag, notes, time_block, completed, created_at')
       .eq('clerk_user_id', userId)
-      .in('tag', ['task'])
+      .or('tag.eq.task,tag.is.null')
       .is('time_block', null)
       .eq('completed', false)
-      .gte('created_at', start)
-      .lte('created_at', end)
+      .gte('created_at', trayFrom.toISOString())
       .order('created_at', { ascending: false })
-      .limit(20),
+      .limit(30),
 
     // Profile for hardest_time personalisation
     supabase
@@ -57,8 +52,8 @@ export async function GET() {
   ])
 
   return NextResponse.json({
-    blocked: blockedRes.data ?? [],
-    tray:    trayRes.data    ?? [],
+    blocked:     blockedRes.data ?? [],
+    tray:        trayRes.data    ?? [],
     hardestTime: profileRes.data?.hardest_time ?? null,
   })
 }

@@ -37,32 +37,37 @@ export default function MedCheckIn() {
   const [takenIds, setTakenIds] = useState<Set<string>>(new Set())
   const [visible, setVisible]   = useState(false)
   const [allDone, setAllDone]   = useState(false)
+  const [loading, setLoading]   = useState(true)
 
   const load = useCallback(async () => {
-    const [medsRes, logRes] = await Promise.all([
-      fetch('/api/medications'),
-      fetch(`/api/medications/log?date=${todayDate()}`),
-    ])
-    if (!medsRes.ok || !logRes.ok) return
+    try {
+      const [medsRes, logRes] = await Promise.all([
+        fetch('/api/medications'),
+        fetch(`/api/medications/log?date=${todayDate()}`),
+      ])
+      if (!medsRes.ok || !logRes.ok) return
 
-    const allMeds: Medication[] = await medsRes.json()
-    const taken: string[]       = await logRes.json()
-    const takenSet              = new Set(taken)
+      const allMeds: Medication[] = await medsRes.json()
+      const taken: string[]       = await logRes.json()
+      const takenSet              = new Set(taken)
 
-    // Only show meds within ±30 min of their scheduled time
-    const dueMeds = allMeds.filter(m => isInWindow(m.scheduled_time))
-    if (dueMeds.length === 0) return
+      // Only show meds within ±30 min of their scheduled time
+      const dueMeds = allMeds.filter(m => isInWindow(m.scheduled_time))
+      if (dueMeds.length === 0) return
 
-    setMeds(dueMeds)
-    setTakenIds(takenSet)
+      setMeds(dueMeds)
+      setTakenIds(takenSet)
 
-    const allChecked = dueMeds.every(m => takenSet.has(m.id))
-    if (allChecked) {
-      setAllDone(true)
-      setVisible(true)
-      setTimeout(() => setVisible(false), 3000)
-    } else {
-      setVisible(true)
+      const allChecked = dueMeds.every(m => takenSet.has(m.id))
+      if (allChecked) {
+        setAllDone(true)
+        setVisible(true)
+        setTimeout(() => setVisible(false), 3000)
+      } else {
+        setVisible(true)
+      }
+    } finally {
+      setLoading(false)
     }
   }, [])
 
@@ -84,6 +89,26 @@ export default function MedCheckIn() {
       setAllDone(true)
       setTimeout(() => setVisible(false), 2500)
     }
+  }
+
+  // Skeleton while fetching — holds layout space briefly
+  if (loading) {
+    return (
+      <div style={{
+        background: 'white', borderRadius: 16,
+        border: '1px solid rgba(45,42,62,0.07)',
+        marginBottom: 16, padding: '13px 16px',
+        display: 'flex', alignItems: 'center', gap: 10,
+      }}>
+        <style>{`@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }`}</style>
+        <div style={{ width: 16, height: 16, borderRadius: '50%', flexShrink: 0,
+          background: 'linear-gradient(90deg, rgba(45,42,62,0.05) 25%, rgba(45,42,62,0.10) 50%, rgba(45,42,62,0.05) 75%)',
+          backgroundSize: '200% 100%', animation: 'shimmer 1.4s ease-in-out infinite' }} />
+        <div style={{ height: 12, width: '38%', borderRadius: 5,
+          background: 'linear-gradient(90deg, rgba(45,42,62,0.05) 25%, rgba(45,42,62,0.10) 50%, rgba(45,42,62,0.05) 75%)',
+          backgroundSize: '200% 100%', animation: 'shimmer 1.4s ease-in-out infinite 0.1s' }} />
+      </div>
+    )
   }
 
   if (!visible || meds.length === 0) return null

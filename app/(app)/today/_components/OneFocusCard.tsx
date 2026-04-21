@@ -47,27 +47,38 @@ export default function OneFocusCard() {
     setDone(true)
   }
 
-  // Loading state
+  // Loading skeleton
   if (loading) {
     return (
-      <div
-        className="rounded-[22px] p-4 mb-4"
-        style={{ background: '#1E1C2E', minHeight: '140px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-      >
-        <div style={{ display: 'flex', gap: 6 }}>
-          {[0, 1, 2].map(i => (
-            <div
-              key={i}
-              style={{
-                width: 6, height: 6, borderRadius: '50%', background: '#F4A582',
-                animation: 'dotPulse 1.2s ease-in-out infinite',
-                animationDelay: `${i * 0.2}s`,
-                opacity: 0.5,
-              }}
-            />
-          ))}
+      <div className="rounded-[22px] p-4 mb-4" style={{ background: '#1E1C2E' }}>
+        <style>{`
+          @keyframes darkShimmer {
+            0%   { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+          }
+        `}</style>
+        {/* Label row */}
+        <div style={{ height: 9, width: '44%', borderRadius: 5, marginBottom: 14,
+          background: 'linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.10) 50%, rgba(255,255,255,0.05) 75%)',
+          backgroundSize: '200% 100%', animation: 'darkShimmer 1.5s ease-in-out infinite' }} />
+        {/* Task title — two lines */}
+        <div style={{ height: 20, width: '88%', borderRadius: 6, marginBottom: 8,
+          background: 'linear-gradient(90deg, rgba(255,255,255,0.07) 25%, rgba(255,255,255,0.13) 50%, rgba(255,255,255,0.07) 75%)',
+          backgroundSize: '200% 100%', animation: 'darkShimmer 1.5s ease-in-out infinite' }} />
+        <div style={{ height: 20, width: '62%', borderRadius: 6, marginBottom: 16,
+          background: 'linear-gradient(90deg, rgba(255,255,255,0.07) 25%, rgba(255,255,255,0.13) 50%, rgba(255,255,255,0.07) 75%)',
+          backgroundSize: '200% 100%', animation: 'darkShimmer 1.5s ease-in-out infinite 0.1s' }} />
+        {/* Message box */}
+        <div style={{ borderRadius: 11, padding: '12px 12px', marginBottom: 12, background: 'rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', gap: 7 }}>
+          <div style={{ height: 10, width: '92%', borderRadius: 5,
+            background: 'linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.09) 50%, rgba(255,255,255,0.05) 75%)',
+            backgroundSize: '200% 100%', animation: 'darkShimmer 1.5s ease-in-out infinite 0.05s' }} />
+          <div style={{ height: 10, width: '70%', borderRadius: 5,
+            background: 'linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.09) 50%, rgba(255,255,255,0.05) 75%)',
+            backgroundSize: '200% 100%', animation: 'darkShimmer 1.5s ease-in-out infinite 0.15s' }} />
         </div>
-        <style>{`@keyframes dotPulse { 0%,100%{opacity:0.3;transform:scale(0.8)} 50%{opacity:1;transform:scale(1)} }`}</style>
+        {/* Button */}
+        <div style={{ height: 46, borderRadius: 99, background: 'rgba(255,255,255,0.07)' }} />
       </div>
     )
   }

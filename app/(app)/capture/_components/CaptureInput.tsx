@@ -281,7 +281,7 @@ export default function CaptureInput() {
   return (
     <>
       {/* ── Beige body ── */}
-      <div style={{ background: '#FBF8F5', padding: '44px 20px 0' }}>
+      <div style={{ background: 'radial-gradient(ellipse 160% 42% at 50% 0%, rgba(244,165,130,0.22) 0%, rgba(232,160,191,0.13) 38%, #FBF8F5 66%)', padding: '44px 20px 0' }}>
 
       {/* Lumi hint */}
       <div

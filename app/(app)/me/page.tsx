@@ -198,6 +198,8 @@ export default async function MePage() {
   const avatar = user?.hasImage ? user.imageUrl : null
 
   let planLabel = 'Free'
+  let displayName = [firstName, lastName].filter(Boolean).join(' ')
+
   if (userId) {
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -205,10 +207,12 @@ export default async function MePage() {
     )
     const { data } = await supabase
       .from('profiles')
-      .select('plan')
+      .select('plan, display_name')
       .eq('clerk_user_id', userId)
       .single()
     if (data?.plan) planLabel = PLAN_LABELS[data.plan] ?? 'Free'
+    // If Clerk has no name (email/password signup), use onboarding display_name
+    if (!displayName && data?.display_name) displayName = data.display_name
   }
 
   return (
@@ -271,7 +275,7 @@ export default async function MePage() {
             overflow: 'hidden',
             textOverflow: 'ellipsis',
           }}>
-            {[firstName, lastName].filter(Boolean).join(' ') || 'Your name'}
+            {displayName || 'Your name'}
           </p>
           <p style={{
             fontFamily: 'var(--font-nunito-sans)',

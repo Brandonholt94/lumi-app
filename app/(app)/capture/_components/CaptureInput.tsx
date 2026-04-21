@@ -662,6 +662,18 @@ export default function CaptureInput() {
         </div>
       ) : (
         <div className="flex flex-col gap-[8px]">
+          {filtered.length === 0 && (
+            <p style={{
+              fontFamily: 'var(--font-nunito-sans)',
+              fontSize: '13px',
+              fontWeight: 500,
+              color: 'rgba(45,42,62,0.3)',
+              textAlign: 'center',
+              padding: '24px 0',
+            }}>
+              Nothing {filter === 'none' ? 'untagged' : `tagged as ${activeFilter?.label.toLowerCase()}`} yet.
+            </p>
+          )}
           {filtered.map(capture => {
             const s = capture.tag ? TAG_STYLES[capture.tag] : null
             return (

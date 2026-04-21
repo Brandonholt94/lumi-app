@@ -184,6 +184,7 @@ function TaskCard({
   return (
     <div
       ref={setNodeRef}
+      {...(!task.completed ? { ...attributes, ...listeners } : {})}
       onClick={() => { if (!isDragging) onTap(task) }}
       style={{
         position: 'relative',
@@ -195,25 +196,21 @@ function TaskCard({
         boxShadow: isDragging ? 'none' : '0 1px 4px rgba(45,42,62,0.05)',
         padding: '10px 12px',
         display: 'flex', alignItems: 'center', gap: 10,
-        cursor: task.completed ? 'default' : 'pointer',
+        cursor: task.completed ? 'default' : isDragging ? 'grabbing' : 'grab',
         opacity: isDragging ? 0.25 : 1,
         marginBottom: 7,
         transition: 'opacity 0.12s, background 0.2s',
         overflow: 'hidden',
+        touchAction: 'none',
         WebkitTapHighlightColor: 'transparent',
       }}
     >
       {/* Confetti */}
       {celebrating && <ConfettiBurst onDone={() => setCelebrating(false)} />}
 
-      {/* Drag handle — only show when not completed */}
+      {/* Drag handle — visual affordance only, drag activates on whole card */}
       {!task.completed && (
-        <div
-          {...attributes}
-          {...listeners}
-          onClick={e => e.stopPropagation()}
-          style={{ color: 'rgba(45,42,62,0.18)', flexShrink: 0, cursor: 'grab', touchAction: 'none' }}
-        >
+        <div style={{ color: 'rgba(45,42,62,0.18)', flexShrink: 0, pointerEvents: 'none' }}>
           <DragHandle />
         </div>
       )}
@@ -245,6 +242,7 @@ function TaskCard({
       {/* Complete / done indicator */}
       {!task.completed ? (
         <button
+          onPointerDown={e => e.stopPropagation()}
           onClick={handleComplete}
           style={{
             width: 24, height: 24, borderRadius: '50%', flexShrink: 0,
@@ -504,6 +502,8 @@ function TrayCard({ task, onTap }: { task: Task; onTap: () => void }) {
   return (
     <div
       ref={setNodeRef}
+      {...attributes}
+      {...listeners}
       style={{
         background: 'white', borderRadius: 12,
         border: '1px solid rgba(45,42,62,0.07)',
@@ -512,14 +512,11 @@ function TrayCard({ task, onTap }: { task: Task; onTap: () => void }) {
         opacity: isDragging ? 0.2 : 1,
         marginBottom: 7,
         boxShadow: '0 1px 3px rgba(45,42,62,0.04)',
+        cursor: isDragging ? 'grabbing' : 'grab',
+        touchAction: 'none',
       }}
     >
-      <div
-        {...attributes}
-        {...listeners}
-        onClick={e => e.stopPropagation()}
-        style={{ color: 'rgba(45,42,62,0.18)', flexShrink: 0, cursor: 'grab', touchAction: 'none' }}
-      >
+      <div style={{ color: 'rgba(45,42,62,0.18)', flexShrink: 0, pointerEvents: 'none' }}>
         <DragHandle />
       </div>
       <p style={{
@@ -529,6 +526,7 @@ function TrayCard({ task, onTap }: { task: Task; onTap: () => void }) {
         {task.text}
       </p>
       <button
+        onPointerDown={e => e.stopPropagation()}
         onClick={onTap}
         style={{
           background: 'rgba(244,165,130,0.11)', border: '1px solid rgba(244,165,130,0.28)',

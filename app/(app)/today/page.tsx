@@ -8,6 +8,7 @@ import EveningBrainClear from './_components/EveningBrainClear'
 import DaySceneHeader from './_components/DaySceneHeader'
 import WelcomeBack from './_components/WelcomeBack'
 import MedCheckIn from './_components/MedCheckIn'
+import YourDay from './_components/YourDay'
 import Link from 'next/link'
 
 function getServiceClient() {
@@ -70,6 +71,21 @@ export default async function TodayPage() {
 
       {/* Evening wind-down — shows after 8pm */}
       <EveningBrainClear />
+
+      {/* ── Your Day ── */}
+      <p
+        className="mb-3"
+        style={{
+          fontFamily: 'var(--font-nunito-sans)',
+          fontSize: '10px',
+          fontWeight: 800,
+          letterSpacing: '0.1em',
+          color: '#9895B0',
+        }}
+      >
+        YOUR DAY
+      </p>
+      <YourDay />
 
       {/* Quick Actions */}
       <p

@@ -671,6 +671,103 @@ function FocusCard({ sessions, minutes }: { sessions: number; minutes: number })
   )
 }
 
+// ── Wins Card ────────────────────────────────────────────
+function WinsCard({ completedTasks }: { completedTasks: { text: string; created_at: string }[] }) {
+  const [expanded, setExpanded] = useState(false)
+  const count = completedTasks.length
+
+  const copy = count === 0
+    ? "Nothing checked off yet — the week's still young."
+    : count === 1
+      ? "You completed 1 task this week. That's a start."
+      : count <= 5
+        ? `You completed ${count} tasks this week. Every one counts.`
+        : count <= 10
+          ? `${count} tasks done this week. That's real momentum.`
+          : `${count} tasks cleared this week. Your brain has been busy.`
+
+  return (
+    <div style={{ marginTop: 10 }}>
+      <button
+        onClick={() => count > 0 && setExpanded(e => !e)}
+        style={{
+          width: '100%', textAlign: 'left', cursor: count > 0 ? 'pointer' : 'default',
+          background: 'white', borderRadius: 20,
+          border: '1px solid rgba(45,42,62,0.07)',
+          boxShadow: '0 2px 8px rgba(45,42,62,0.06)',
+          padding: '14px 16px',
+          display: 'flex', alignItems: 'center', gap: 16,
+        }}
+      >
+        {/* Trophy circle */}
+        <div style={{
+          width: 48, height: 48, borderRadius: '50%', flexShrink: 0,
+          background: 'linear-gradient(135deg, rgba(245,201,138,0.22), rgba(244,165,130,0.16))',
+          border: '1.5px solid rgba(245,201,138,0.38)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          <svg width="22" height="22" viewBox="0 0 256 256" fill="rgba(200,160,48,0.82)">
+            <path d="M232,60H212V48a12,12,0,0,0-12-12H56A12,12,0,0,0,44,48V60H24A20,20,0,0,0,4,80V96a44.05,44.05,0,0,0,44,44h.77A84.18,84.18,0,0,0,116,195.15V212H96a12,12,0,0,0,0,24h64a12,12,0,0,0,0-24H140V195.11c30.94-4.51,56.53-26.2,67-55.11h1a44.05,44.05,0,0,0,44-44V80A20,20,0,0,0,232,60ZM28,96V84H44v28c0,1.21,0,2.41.09,3.61A20,20,0,0,1,28,96Zm160,15.1c0,33.33-26.71,60.65-59.54,60.9A60,60,0,0,1,68,112V60H188ZM228,96a20,20,0,0,1-16.12,19.62c.08-1.5.12-3,.12-4.52V84h16Z"/>
+          </svg>
+        </div>
+
+        {/* Text */}
+        <div style={{ flex: 1 }}>
+          <p style={{
+            fontFamily: 'var(--font-nunito-sans)', fontSize: '10px', fontWeight: 800,
+            letterSpacing: '0.08em', color: '#9895B0', marginBottom: 4,
+          }}>
+            WINS THIS WEEK
+          </p>
+          <p style={{
+            fontFamily: 'var(--font-nunito-sans)', fontSize: '14px', fontWeight: 700,
+            color: '#1E1C2E', lineHeight: 1.35,
+          }}>
+            {copy}
+          </p>
+        </div>
+
+        {/* Chevron */}
+        {count > 0 && (
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0, transition: 'transform 0.2s', transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)' }}>
+            <path d="M6 9l6 6 6-6" stroke="rgba(45,42,62,0.25)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        )}
+      </button>
+
+      {/* Expandable task list */}
+      {expanded && count > 0 && (
+        <div style={{
+          background: 'white', borderRadius: '0 0 20px 20px',
+          border: '1px solid rgba(45,42,62,0.07)',
+          borderTop: 'none',
+          marginTop: -8, paddingTop: 8,
+          overflow: 'hidden',
+        }}>
+          {completedTasks.map((t, i) => (
+            <div key={i} style={{
+              display: 'flex', alignItems: 'flex-start', gap: 12,
+              padding: '11px 16px',
+              borderTop: '1px solid rgba(45,42,62,0.05)',
+            }}>
+              <svg width="15" height="15" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0, marginTop: 1 }}>
+                <circle cx="8" cy="8" r="7" fill="rgba(94,194,105,0.14)" stroke="#5EC269" strokeWidth="1.4"/>
+                <path d="M5 8l2.5 2.5 4-4" stroke="#5EC269" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              <p style={{
+                fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 600,
+                color: '#2D2A3E', flex: 1, lineHeight: 1.4,
+              }}>
+                {t.text}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ── Brain Report card ─────────────────────────────────────
 function BrainReportCard({ plan, daysWithData }: { plan: 'free' | 'starter' | 'core' | 'companion'; daysWithData: number }) {
   const [status,  setStatus]  = useState<'idle' | 'loading' | 'done' | 'error'>('idle')
@@ -1010,7 +1107,8 @@ export default function InsightsPage() {
             {/* ── Stat cards ── */}
             <div>
               <SectionLabel>THIS WEEK</SectionLabel>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+              <WinsCard completedTasks={data.captures.completedTasks} />
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 10 }}>
 
                 {/* Captures */}
                 <div style={{ background: 'white', borderRadius: 16, padding: 14, border: '1px solid rgba(45,42,62,0.07)', boxShadow: '0 2px 8px rgba(45,42,62,0.06)', display: 'flex', flexDirection: 'column', gap: 4 }}>
@@ -1117,32 +1215,7 @@ export default function InsightsPage() {
               </div>
             )}
 
-            {/* ── Completed tasks ── */}
-            {data.captures.completedTasks.length > 0 && (
-              <div>
-                <SectionLabel>COMPLETED THIS WEEK</SectionLabel>
-                <div style={{ background: 'white', borderRadius: 16, border: '1px solid rgba(45,42,62,0.07)', boxShadow: '0 2px 8px rgba(45,42,62,0.06)', overflow: 'hidden' }}>
-                  {data.captures.completedTasks.map((t, i) => (
-                    <div key={i} style={{
-                      display: 'flex', alignItems: 'flex-start', gap: 12, padding: '12px 16px',
-                      borderBottom: i < data.captures.completedTasks.length - 1 ? '1px solid rgba(45,42,62,0.05)' : 'none',
-                    }}>
-                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0, marginTop: 1 }}>
-                        <circle cx="8" cy="8" r="7" fill="rgba(94,194,105,0.15)" stroke="#5EC269" strokeWidth="1.5"/>
-                        <path d="M5 8l2.5 2.5 4-4" stroke="#5EC269" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                      <div style={{ flex: 1 }}>
-                        <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 600, color: '#2D2A3E', lineHeight: 1.4, marginBottom: 2 }}>{t.text}</p>
-                        <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '10px', fontWeight: 500, color: '#9895B0' }}>
-                          {new Date(t.created_at).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-            </>
+</>
             )}
           </>
         ) : (

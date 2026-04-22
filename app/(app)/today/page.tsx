@@ -91,7 +91,20 @@ export default async function TodayPage() {
       <YourDay />
 
       {/* ── Quick actions ── */}
-      <div className="grid grid-cols-2 gap-3 mt-6 mb-3">
+      <p
+        style={{
+          fontFamily: 'var(--font-nunito-sans)',
+          fontSize: '10px',
+          fontWeight: 800,
+          letterSpacing: '0.1em',
+          color: '#9895B0',
+          marginTop: 28,
+          marginBottom: 10,
+        }}
+      >
+        QUICK ACTIONS
+      </p>
+      <div className="grid grid-cols-2 gap-3 mb-3">
         <Link href="/focus" className="flex flex-col items-start active:scale-[0.97] transition-transform" style={{
           background: 'rgba(245,201,138,0.16)', border: '1.5px solid rgba(245,201,138,0.36)',
           borderRadius: 20, boxShadow: '0 2px 8px rgba(245,201,138,0.12)', padding: '16px 14px 14px',

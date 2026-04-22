@@ -1,7 +1,6 @@
 import { auth, currentUser } from '@clerk/nextjs/server'
 import { createClient } from '@supabase/supabase-js'
 import Link from 'next/link'
-import ResourcesSection from '../today/_components/ResourcesSection'
 
 // ─── Icon set (Phosphor Bold) ────────────────────────────────────────────────
 
@@ -291,11 +290,6 @@ export default async function MePage() {
           <Row icon={icons.info}   label="About Lumi"       href="/me/about"   />
           <Row icon={icons.logout} label="Sign out" danger  href="/sign-out"   last />
         </Section>
-
-        {/* ── Lumi Library ── */}
-        <div style={{ marginBottom: 8 }}>
-          <ResourcesSection />
-        </div>
 
         <p style={{
           textAlign: 'center',

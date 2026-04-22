@@ -41,10 +41,35 @@ interface BlockedState {
 // Zone config
 // ─────────────────────────────────────────────────────────
 
+// Phosphor Bold icons — official SVGs from Phosphor library
+function IconSunHorizon({ color }: { color: string }) {
+  return (
+    <svg width="16" height="16" viewBox="0 0 256 256" fill={color}>
+      <path d="M240,148H203.89c.07-1.33.11-2.66.11-4a76,76,0,0,0-152,0c0,1.34,0,2.67.11,4H16a12,12,0,0,0,0,24H240a12,12,0,0,0,0-24ZM76,144a52,52,0,0,1,104,0c0,1.34-.07,2.67-.17,4H76.17C76.07,146.67,76,145.34,76,144Zm144,56a12,12,0,0,1-12,12H48a12,12,0,0,1,0-24H208A12,12,0,0,1,220,200ZM12.62,92.21a12,12,0,0,1,15.17-7.59l12,4a12,12,0,1,1-7.58,22.77l-12-4A12,12,0,0,1,12.62,92.21Zm56-48.41a12,12,0,1,1,22.76-7.59l4,12A12,12,0,1,1,72.62,55.8Zm140,60a12,12,0,0,1,7.59-15.18l12-4a12,12,0,0,1,7.58,22.77l-12,4a12,12,0,0,1-15.17-7.59Zm-48-55.59,4-12a12,12,0,1,1,22.76,7.59l-4,12a12,12,0,1,1-22.76-7.59Z"/>
+    </svg>
+  )
+}
+
+function IconSun({ color }: { color: string }) {
+  return (
+    <svg width="16" height="16" viewBox="0 0 256 256" fill={color}>
+      <path d="M116,36V20a12,12,0,0,1,24,0V36a12,12,0,0,1-24,0Zm80,92a68,68,0,1,1-68-68A68.07,68.07,0,0,1,196,128Zm-24,0a44,44,0,1,0-44,44A44.05,44.05,0,0,0,172,128ZM51.51,68.49a12,12,0,1,0,17-17l-12-12a12,12,0,0,0-17,17Zm0,119-12,12a12,12,0,0,0,17,17l12-12a12,12,0,1,0-17-17ZM196,72a12,12,0,0,0,8.49-3.51l12-12a12,12,0,0,0-17-17l-12,12A12,12,0,0,0,196,72Zm8.49,115.51a12,12,0,0,0-17,17l12,12a12,12,0,0,0,17-17ZM48,128a12,12,0,0,0-12-12H20a12,12,0,0,0,0,24H36A12,12,0,0,0,48,128Zm80,80a12,12,0,0,0-12,12v16a12,12,0,0,0,24,0V220A12,12,0,0,0,128,208Zm108-92H220a12,12,0,0,0,0,24h16a12,12,0,0,0,0-24Z"/>
+    </svg>
+  )
+}
+
+function IconMoonStars({ color }: { color: string }) {
+  return (
+    <svg width="16" height="16" viewBox="0 0 256 256" fill={color}>
+      <path d="M244,96a12,12,0,0,1-12,12H220v12a12,12,0,0,1-24,0V108H184a12,12,0,0,1,0-24h12V72a12,12,0,0,1,24,0V84h12A12,12,0,0,1,244,96ZM144,60h4v4a12,12,0,0,0,24,0V60h4a12,12,0,0,0,0-24h-4V32a12,12,0,0,0-24,0v4h-4a12,12,0,0,0,0,24Zm75.81,90.38A12,12,0,0,1,222,162.3,100,100,0,1,1,93.7,34a12,12,0,0,1,15.89,13.6A85.12,85.12,0,0,0,108,64a84.09,84.09,0,0,0,84,84,85.22,85.22,0,0,0,16.37-1.59A12,12,0,0,1,219.81,150.38ZM190,172A108.13,108.13,0,0,1,84,66,76,76,0,1,0,190,172Z"/>
+    </svg>
+  )
+}
+
 const ZONES: {
   key:            TimeBlock
   label:          string
-  emoji:          string
+  icon:           (color: string) => React.ReactNode
   timeLabel:      string
   accentColor:    string
   accentBg:       string
@@ -55,7 +80,7 @@ const ZONES: {
   {
     key:            'morning',
     label:          'Morning',
-    emoji:          '🌅',
+    icon:           (c) => <IconSunHorizon color={c} />,
     timeLabel:      'Before noon',
     accentColor:    '#C49820',
     accentBg:       'rgba(245,201,138,0.13)',
@@ -66,7 +91,7 @@ const ZONES: {
   {
     key:            'afternoon',
     label:          'Afternoon',
-    emoji:          '☀️',
+    icon:           (c) => <IconSun color={c} />,
     timeLabel:      'Noon – 5pm',
     accentColor:    '#C86040',
     accentBg:       'rgba(244,165,130,0.11)',
@@ -77,7 +102,7 @@ const ZONES: {
   {
     key:            'evening',
     label:          'Evening',
-    emoji:          '🌙',
+    icon:           (c) => <IconMoonStars color={c} />,
     timeLabel:      'After 5pm',
     accentColor:    '#5060A0',
     accentBg:       'rgba(143,170,224,0.11)',
@@ -100,48 +125,51 @@ function currentBlock(): TimeBlock {
 
 function ConfettiBurst({ onDone }: { onDone: () => void }) {
   useEffect(() => {
-    const t = setTimeout(onDone, 950)
+    const t = setTimeout(onDone, 1100)
     return () => clearTimeout(t)
   }, [onDone])
 
-  const COLORS = ['#F4A582', '#F5C98A', '#E8A0BF', '#8FAAE0', '#B8AECC', '#5EC269', '#F4A582']
-  const pieces = Array.from({ length: 16 }, (_, i) => {
-    const angle   = (i / 16) * 360
-    const dist    = 30 + (i % 4) * 10
-    const tx      = `${Math.cos((angle * Math.PI) / 180) * dist}px`
-    const ty      = `${Math.sin((angle * Math.PI) / 180) * dist}px`
-    const size    = 4 + (i % 4)
-    const isCirc  = i % 3 !== 0
-    const delay   = i * 0.022
-    return { tx, ty, size, isCirc, color: COLORS[i % COLORS.length], delay }
+  const COLORS = ['#F4A582', '#F5C98A', '#E8A0BF', '#8FAAE0', '#B8AECC', '#5EC269']
+  const pieces = Array.from({ length: 20 }, (_, i) => {
+    const startX = 4 + (i / 19) * 92          // spread evenly across card width
+    const drift  = ((i % 5) - 2) * 12          // slight horizontal drift px
+    const fall   = 44 + (i % 4) * 14           // how far it falls
+    const size   = 4 + (i % 4)
+    const isCirc = i % 3 !== 0
+    const delay  = (i % 6) * 0.04              // stagger within 0–0.2s
+    const spin   = i % 2 === 0 ? 180 : -180
+    return { startX, drift, fall, size, isCirc, color: COLORS[i % COLORS.length], delay, spin }
   })
 
   return (
-    <>
+    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, pointerEvents: 'none', overflow: 'hidden', zIndex: 20 }}>
       <style>{`
-        @keyframes confBurst {
-          0%   { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
-          80%  { opacity: 0.9; }
-          100% { transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(0.2); opacity: 0; }
+        @keyframes confFall {
+          0%   { transform: translateY(-6px) translateX(0px) rotate(0deg); opacity: 1; }
+          70%  { opacity: 1; }
+          100% { transform: translateY(var(--fall)) translateX(var(--drift)) rotate(var(--spin)); opacity: 0; }
         }
       `}</style>
       {pieces.map((p, i) => (
         <div
           key={i}
           style={{
-            position: 'absolute', left: '50%', top: '50%',
-            width: p.size, height: p.size,
+            position: 'absolute',
+            top: 0,
+            left: `${p.startX}%`,
+            width: p.size,
+            height: p.size,
             borderRadius: p.isCirc ? '50%' : 2,
             background: p.color,
-            pointerEvents: 'none',
-            zIndex: 10,
             // @ts-ignore CSS custom properties
-            '--tx': p.tx, '--ty': p.ty,
-            animation: `confBurst 0.8s cubic-bezier(0.23,1,0.32,1) ${p.delay}s both`,
+            '--fall':  `${p.fall}px`,
+            '--drift': `${p.drift}px`,
+            '--spin':  `${p.spin}deg`,
+            animation: `confFall 0.95s ease-in ${p.delay}s both`,
           } as React.CSSProperties}
         />
       ))}
-    </>
+    </div>
   )
 }
 
@@ -342,7 +370,7 @@ function DropZone({
     <div style={{ marginBottom: 20 }}>
       {/* Header row */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 9 }}>
-        <span style={{ fontSize: 15, lineHeight: 1 }}>{zone.emoji}</span>
+        <span style={{ lineHeight: 1, display: 'flex' }}>{zone.icon(isActiveNow ? zone.accentColor : '#9895B0')}</span>
         <p style={{
           fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 800,
           color: isActiveNow ? zone.accentColor : '#2D2A3E',
@@ -392,7 +420,7 @@ function DropZone({
       <div
         ref={setNodeRef}
         style={{
-          minHeight: tasks.length === 0 && !addingHere ? 70 : 'auto',
+          minHeight: tasks.length === 0 && !addingHere ? 44 : 'auto',
           borderRadius: 16,
           border: isOver
             ? `2px dashed ${zone.accentColor}`
@@ -405,7 +433,7 @@ function DropZone({
         {/* Empty state */}
         {tasks.length === 0 && !addingHere && (
           <div style={{
-            height: 70, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center',
             padding: '0 18px', textAlign: 'center',
           }}>
             <p style={{
@@ -623,7 +651,9 @@ function Tray({ tasks, onAssign }: {
                     cursor: 'pointer', textAlign: 'left',
                   }}
                 >
-                  <span style={{ fontSize: 20 }}>{z.emoji}</span>
+                  <span style={{ display: 'flex', width: 22, alignItems: 'center', justifyContent: 'center' }}>
+                    {z.icon(z.accentColor)}
+                  </span>
                   <span style={{
                     fontFamily: 'var(--font-nunito-sans)', fontSize: '14px',
                     fontWeight: 800, color: '#1E1C2E', flex: 1,

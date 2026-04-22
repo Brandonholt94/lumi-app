@@ -23,7 +23,7 @@ export async function POST(req: Request) {
   const email = user?.emailAddresses?.[0]?.emailAddress ?? 'unknown'
   const label = TOPIC_LABELS[topic] ?? topic
 
-  const { error } = await resend.emails.send({
+  const { data, error } = await resend.emails.send({
     from:    'Lumi <hey@lumimind.app>',
     to:      'hey@lumimind.app',
     replyTo: email,
@@ -31,10 +31,12 @@ export async function POST(req: Request) {
     text:    `From: ${name} (${email})\nTopic: ${label}\n\n${message.trim()}`,
   })
 
+  console.log('[contact] resend result:', JSON.stringify({ data, error }))
+
   if (error) {
     console.error('[contact] resend error:', error)
-    return NextResponse.json({ error: 'Failed to send' }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to send', detail: error }, { status: 500 })
   }
 
-  return NextResponse.json({ ok: true })
+  return NextResponse.json({ ok: true, emailId: data?.id })
 }

@@ -32,11 +32,11 @@ function AboutRow({ label, value }: { label: string; value: string }) {
 
 export default function AboutPage() {
   return (
-    <div className="flex flex-col h-full overflow-y-auto" style={{ paddingBottom: 48 }}>
+    <div className="flex flex-col h-full overflow-y-auto" style={{ background: '#FBF8F5', paddingBottom: 48 }}>
 
       <MeHeader title="About Lumi" />
 
-      <div className="px-5">
+      <div className="px-5" style={{ paddingTop: 20 }}>
 
         {/* Brand mark + tagline */}
         <div style={{ textAlign: 'center', marginBottom: 28 }}>

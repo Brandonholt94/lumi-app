@@ -32,11 +32,11 @@ export default function NotificationsPage() {
   }
 
   return (
-    <div className="flex flex-col h-full overflow-y-auto" style={{ paddingBottom: 48 }}>
+    <div className="flex flex-col h-full overflow-y-auto" style={{ background: '#FBF8F5', paddingBottom: 48 }}>
 
       <MeHeader title="Notifications" />
 
-      <div className="px-5">
+      <div className="px-5" style={{ paddingTop: 20 }}>
 
         <p style={{
           fontFamily: 'var(--font-nunito-sans)',

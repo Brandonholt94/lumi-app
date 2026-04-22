@@ -85,12 +85,12 @@ export default function MedicationPage() {
   const takenCount = meds.filter(m => takenIds.has(m.id)).length
 
   return (
-    <div className="flex flex-col h-full overflow-y-auto" style={{ paddingBottom: 48 }}>
+    <div className="flex flex-col h-full overflow-y-auto" style={{ background: '#FBF8F5', paddingBottom: 48 }}>
 
       <MeHeader title="Medication log" />
 
       {!loading && meds.length > 0 && (
-        <div className="px-5 py-3">
+        <div className="px-5" style={{ paddingTop: 16 }}>
           <div style={{
             background: takenCount === meds.length
               ? 'linear-gradient(135deg, rgba(244,165,130,0.15), rgba(245,201,138,0.15))'
@@ -116,7 +116,7 @@ export default function MedicationPage() {
         </div>
       )}
 
-      <div className="px-5 pt-2">
+      <div className="px-5" style={{ paddingTop: loading || meds.length === 0 ? 16 : 8 }}>
 
         <p style={{
           fontFamily: 'var(--font-nunito-sans)',

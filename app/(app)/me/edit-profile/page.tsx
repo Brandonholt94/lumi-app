@@ -34,11 +34,11 @@ export default function EditProfilePage() {
   }
 
   return (
-    <div className="flex flex-col h-full overflow-y-auto" style={{ paddingBottom: 32 }}>
+    <div className="flex flex-col h-full overflow-y-auto" style={{ background: '#FBF8F5', paddingBottom: 32 }}>
 
       <MeHeader title="Edit name" />
 
-      <div className="px-5">
+      <div className="px-5" style={{ paddingTop: 20 }}>
 
         <div style={{ marginBottom: 24 }}>
           <label style={{

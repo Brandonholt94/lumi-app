@@ -49,11 +49,11 @@ export default async function WinsPage() {
   const groups = Object.entries(grouped)
 
   return (
-    <div className="flex flex-col h-full overflow-y-auto" style={{ paddingBottom: 48 }}>
+    <div className="flex flex-col h-full overflow-y-auto" style={{ background: '#FBF8F5', paddingBottom: 48 }}>
 
       <MeHeader title="Your wins" subtitle={`${wins.length} ${wins.length === 1 ? 'task' : 'tasks'} completed`} />
 
-      <div className="px-5">
+      <div className="px-5" style={{ paddingTop: 20 }}>
 
         {wins.length === 0 ? (
           <div style={{
@@ -75,7 +75,7 @@ export default async function WinsPage() {
               </svg>
             </div>
             <p style={{
-              fontFamily: 'var(--font-fraunces)', fontSize: '20px', fontWeight: 700,
+              fontFamily: 'var(--font-nunito-sans)', fontSize: '18px', fontWeight: 800,
               color: '#1E1C2E', marginBottom: 10, lineHeight: 1.2,
             }}>
               No wins yet — but they&apos;re coming

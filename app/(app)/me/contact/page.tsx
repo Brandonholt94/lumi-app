@@ -24,11 +24,11 @@ export default function ContactPage() {
 
   if (sent) {
     return (
-      <div className="flex flex-col h-full overflow-y-auto" style={{ paddingBottom: 48 }}>
+      <div className="flex flex-col h-full overflow-y-auto" style={{ background: '#FBF8F5', paddingBottom: 48 }}>
         <MeHeader title="Contact us" />
         <div className="px-5 flex flex-col items-center" style={{ paddingTop: 48, textAlign: 'center' }}>
           <p style={{ fontSize: 48, marginBottom: 16 }}>🎉</p>
-          <p style={{ fontFamily: 'var(--font-fraunces)', fontSize: '22px', fontWeight: 900, color: '#1E1C2E', marginBottom: 10 }}>
+          <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '20px', fontWeight: 800, color: '#1E1C2E', marginBottom: 10 }}>
             Message sent!
           </p>
           <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '14px', fontWeight: 500, color: '#9895B0', lineHeight: 1.5 }}>
@@ -40,11 +40,11 @@ export default function ContactPage() {
   }
 
   return (
-    <div className="flex flex-col h-full overflow-y-auto" style={{ paddingBottom: 48 }}>
+    <div className="flex flex-col h-full overflow-y-auto" style={{ background: '#FBF8F5', paddingBottom: 48 }}>
 
       <MeHeader title="Contact us" />
 
-      <div className="px-5">
+      <div className="px-5" style={{ paddingTop: 20 }}>
 
         {/* Topic */}
         <p style={{

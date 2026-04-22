@@ -19,6 +19,35 @@ const D = {
   green:  '#5EC269',
 }
 
+// ─── Stars (static positions — no Math.random to avoid hydration mismatch) ───
+const STARS: { x: number; y: number; size: number; opacity: number; dur: number; delay: number }[] = [
+  { x:  5, y:  6, size: 1.5, opacity: 0.65, dur: 3.1, delay: 0.0 },
+  { x: 18, y: 12, size: 1.0, opacity: 0.45, dur: 2.7, delay: 0.8 },
+  { x: 33, y:  4, size: 1.2, opacity: 0.55, dur: 3.6, delay: 0.3 },
+  { x: 52, y:  9, size: 1.0, opacity: 0.40, dur: 2.4, delay: 1.2 },
+  { x: 71, y:  5, size: 1.5, opacity: 0.60, dur: 3.9, delay: 0.6 },
+  { x: 87, y: 14, size: 1.0, opacity: 0.50, dur: 2.8, delay: 1.5 },
+  { x: 94, y:  3, size: 1.2, opacity: 0.45, dur: 3.3, delay: 0.2 },
+  { x:  9, y: 24, size: 1.0, opacity: 0.35, dur: 4.1, delay: 1.0 },
+  { x: 42, y: 19, size: 1.5, opacity: 0.55, dur: 2.6, delay: 0.4 },
+  { x: 63, y: 22, size: 1.0, opacity: 0.40, dur: 3.4, delay: 1.8 },
+  { x: 78, y: 17, size: 1.2, opacity: 0.50, dur: 2.9, delay: 0.7 },
+  { x: 91, y: 28, size: 1.0, opacity: 0.35, dur: 3.7, delay: 1.3 },
+  { x: 22, y: 33, size: 1.5, opacity: 0.45, dur: 3.2, delay: 2.1 },
+  { x: 56, y: 38, size: 1.0, opacity: 0.30, dur: 4.4, delay: 0.9 },
+  { x: 82, y: 42, size: 1.2, opacity: 0.40, dur: 2.5, delay: 1.6 },
+  { x:  3, y: 48, size: 1.0, opacity: 0.35, dur: 3.8, delay: 0.1 },
+  { x: 14, y: 55, size: 1.5, opacity: 0.50, dur: 2.7, delay: 2.4 },
+  { x: 37, y: 52, size: 1.0, opacity: 0.30, dur: 3.5, delay: 1.1 },
+  { x: 68, y: 58, size: 1.2, opacity: 0.45, dur: 4.0, delay: 0.5 },
+  { x: 89, y: 51, size: 1.0, opacity: 0.35, dur: 2.9, delay: 1.9 },
+  { x: 48, y: 65, size: 1.5, opacity: 0.40, dur: 3.3, delay: 0.8 },
+  { x:  7, y: 72, size: 1.0, opacity: 0.30, dur: 4.2, delay: 2.2 },
+  { x: 26, y: 78, size: 1.2, opacity: 0.35, dur: 3.0, delay: 0.3 },
+  { x: 75, y: 71, size: 1.0, opacity: 0.40, dur: 2.6, delay: 1.7 },
+  { x: 93, y: 68, size: 1.5, opacity: 0.45, dur: 3.6, delay: 0.6 },
+]
+
 // ─── Clock math ───────────────────────────────────────────────────────────────
 const SZ = 280
 const C  = SZ / 2
@@ -266,7 +295,48 @@ export default function SleepPage() {
   const [wakeHx, wakeHy]   = polar(wakeAngle, R)
 
   return (
-    <div className="flex flex-col h-full overflow-y-auto" style={{ background: D.bg, paddingBottom: 48 }}>
+    <div className="flex flex-col h-full overflow-y-auto" style={{ background: D.bg, paddingBottom: 48, position: 'relative' }}>
+
+      {/* ── Background: stars + bottom-left gradient glow ── */}
+      <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'hidden', zIndex: 0 }}>
+        <style>{`
+          @keyframes starFlicker {
+            0%, 100% { opacity: var(--s-op); transform: scale(1); }
+            50%       { opacity: calc(var(--s-op) * 0.25); transform: scale(0.8); }
+          }
+        `}</style>
+
+        {/* Bottom-left peach → rose glow */}
+        <div style={{
+          position: 'absolute',
+          bottom: -60, left: -60,
+          width: 320, height: 320,
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(244,165,130,0.22) 0%, rgba(232,160,191,0.14) 45%, transparent 72%)',
+          filter: 'blur(32px)',
+        }} />
+
+        {/* Stars */}
+        {STARS.map((s, i) => (
+          <div
+            key={i}
+            style={{
+              position: 'absolute',
+              left: `${s.x}%`,
+              top:  `${s.y}%`,
+              width:  s.size,
+              height: s.size,
+              borderRadius: '50%',
+              background: 'white',
+              ['--s-op' as string]: s.opacity,
+              animation: `starFlicker ${s.dur}s ${s.delay}s ease-in-out infinite`,
+            } as React.CSSProperties}
+          />
+        ))}
+      </div>
+
+      {/* ── Page content (above background) ── */}
+      <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', flex: 1 }}>
 
       {/* ── Custom dark header ── */}
       <div style={{ padding: '20px 20px 8px', display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -459,6 +529,7 @@ export default function SleepPage() {
         <SleepHistoryChart history={history} today={todayLog} />
       )}
 
+      </div>{/* end content wrapper */}
     </div>
   )
 }

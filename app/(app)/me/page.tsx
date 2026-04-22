@@ -315,8 +315,7 @@ export default async function MePage() {
         <Section title="ACCOUNT">
           <Row icon={icons.crown}    label="Your plan"     value={planLabel} valueDim={planLabel === 'Free'} href="/me/subscription" />
           <Row icon={icons.bell}     label="Notifications"                   href="/me/notifications" />
-          <Row icon={icons.calendar} label="Calendar"                        href="/me/calendar" />
-          <Row icon={icons.trophy}   label="Your wins"                       href="/me/wins"     last />
+          <Row icon={icons.calendar} label="Calendar"                        href="/me/calendar"  last />
         </Section>
 
         <Section title="COMMUNITY">
@@ -333,8 +332,8 @@ export default async function MePage() {
         </Section>
 
         <Section title="LEGAL">
-          <Row icon={icons.info} label="Privacy Policy"  href="https://lumimind.app/privacy" external />
-          <Row icon={icons.info} label="Terms of Service" href="https://lumimind.app/terms"   external last />
+          <Row icon={icons.info} label="Privacy Policy"  href="https://lumimind.app/privacy-policy"    external />
+          <Row icon={icons.info} label="Terms of Service" href="https://lumimind.app/terms-of-service" external last />
         </Section>
 
         <p style={{

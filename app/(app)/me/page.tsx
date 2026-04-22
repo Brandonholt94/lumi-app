@@ -60,12 +60,32 @@ const icons = {
       <path d="M124,216a12,12,0,0,1-12,12H48a12,12,0,0,1-12-12V40A12,12,0,0,1,48,28h64a12,12,0,0,1,0,24H60V204h52A12,12,0,0,1,124,216Zm108.49-96.49-40-40a12,12,0,0,0-17,17L195,116H112a12,12,0,0,0,0,24h83l-19.52,19.51a12,12,0,0,0,17,17l40-40A12,12,0,0,0,232.49,119.51Z"/>
     </svg>
   ),
+  star: (
+    <svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor">
+      <path d="M243,94.18a20,20,0,0,0-17.24-13.72l-60.56-5.57L143,20.65a20,20,0,0,0-36.93,0L83.82,74.89,23.26,80.46A20,20,0,0,0,11.69,114.7l45.7,39.36L43.26,213.88a20,20,0,0,0,29.12,21.7L128,203.19l55.62,32.39a20,20,0,0,0,29.12-21.7l-14.13-59.82,45.7-39.36A20,20,0,0,0,243,94.18Zm-26,17.49-49.42,42.6a12,12,0,0,0-3.84,11.86L178,223.82l-60.07-34.97a12,12,0,0,0-11.8,0L46.06,223.82l15.25-57.69a12,12,0,0,0-3.84-11.86L8.05,111.67l61.73-5.68a12,12,0,0,0,10-7.26L128,41.93,187.25,98.73a12,12,0,0,0,10,7.26l61.73,5.68Z"/>
+    </svg>
+  ),
+  paperPlane: (
+    <svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor">
+      <path d="M231.87,114l-168-95.89A20,20,0,0,0,36,41.9l19.88,78.62L36,199.1a20,20,0,0,0,27.87,22.91l168-95.89a20,20,0,0,0,0-12.11ZM57.73,214.66,75.35,145.29l50.28,7.38a12,12,0,0,0,3.45-23.77l-.16,0L78.17,121.5,60.4,52.13,215.13,139Z"/>
+    </svg>
+  ),
+  instagram: (
+    <svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor">
+      <path d="M128,80a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,72a24,24,0,1,1,24-24A24,24,0,0,1,128,152ZM176,24H80A56.06,56.06,0,0,0,24,80v96a56.06,56.06,0,0,0,56,56h96a56.06,56.06,0,0,0,56-56V80A56.06,56.06,0,0,0,176,24Zm32,152a32,32,0,0,1-32,32H80a32,32,0,0,1-32-32V80A32,32,0,0,1,80,48h96a32,32,0,0,1,32,32ZM192,76a16,16,0,1,1-16-16A16,16,0,0,1,192,76Z"/>
+    </svg>
+  ),
+  question: (
+    <svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor">
+      <path d="M140,180a12,12,0,1,1-12-12A12,12,0,0,1,140,180ZM128,72c-22.06,0-40,16.15-40,36v4a12,12,0,0,0,24,0v-4c0-6.63,7.16-12,16-12s16,5.37,16,12c0,7.94-9.5,14.88-17.27,19.49A12,12,0,0,0,121,139.91,13,13,0,0,0,128,142a12,12,0,0,0,6-1.63c3-1.74,29-17.52,29-42.37C163,88.15,150.06,72,128,72Zm100,56A100,100,0,1,1,128,28,100.11,100.11,0,0,1,228,128Zm-24,0a76,76,0,1,0-76,76A76.08,76.08,0,0,0,204,128Z"/>
+    </svg>
+  ),
 }
 
 // ─── Row ────────────────────────────────────────────────────────────────────
 
 function Row({
-  icon, label, value, valueDim, href, danger, last,
+  icon, label, value, valueDim, href, danger, last, external,
 }: {
   icon: React.ReactNode
   label: string
@@ -74,52 +94,61 @@ function Row({
   href: string
   danger?: boolean
   last?: boolean
+  external?: boolean
 }) {
-  return (
-    <Link href={href} style={{ textDecoration: 'none', display: 'block' }}>
+  const inner = (
+    <div style={{
+      display: 'flex', alignItems: 'center',
+      padding: '13px 16px',
+      borderBottom: last ? 'none' : '1px solid rgba(45,42,62,0.06)',
+      gap: 12,
+    }}>
+      {/* Icon box */}
       <div style={{
-        display: 'flex', alignItems: 'center',
-        padding: '13px 16px',
-        borderBottom: last ? 'none' : '1px solid rgba(45,42,62,0.06)',
-        gap: 12,
+        width: 34, height: 34, minWidth: 34,
+        borderRadius: 10,
+        background: danger ? 'rgba(224,82,82,0.08)' : 'rgba(45,42,62,0.05)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        color: danger ? '#E05252' : '#7A7890',
       }}>
-        {/* Icon box */}
-        <div style={{
-          width: 34, height: 34, minWidth: 34,
-          borderRadius: 10,
-          background: danger ? 'rgba(224,82,82,0.08)' : 'rgba(45,42,62,0.05)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          color: danger ? '#E05252' : '#7A7890',
-        }}>
-          {icon}
-        </div>
+        {icon}
+      </div>
 
+      <span style={{
+        fontFamily: 'var(--font-nunito-sans)',
+        fontSize: '14px', fontWeight: 600,
+        color: danger ? '#E05252' : '#1E1C2E',
+        flex: 1,
+      }}>
+        {label}
+      </span>
+
+      {value && (
         <span style={{
           fontFamily: 'var(--font-nunito-sans)',
-          fontSize: '14px', fontWeight: 600,
-          color: danger ? '#E05252' : '#1E1C2E',
-          flex: 1,
+          fontSize: '12px', fontWeight: 700,
+          color: valueDim ? '#9895B0' : '#C86040',
+          background: valueDim ? 'transparent' : 'rgba(244,165,130,0.10)',
+          borderRadius: 6,
+          padding: valueDim ? 0 : '3px 8px',
         }}>
-          {label}
+          {value}
         </span>
+      )}
 
-        {value && (
-          <span style={{
-            fontFamily: 'var(--font-nunito-sans)',
-            fontSize: '12px', fontWeight: 700,
-            color: valueDim ? '#9895B0' : '#C86040',
-            background: valueDim ? 'transparent' : 'rgba(244,165,130,0.10)',
-            borderRadius: 6,
-            padding: valueDim ? 0 : '3px 8px',
-          }}>
-            {value}
-          </span>
-        )}
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+        <path d="M6 3L11 8L6 13" stroke="#C4C0D4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    </div>
+  )
 
-        <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
-          <path d="M6 3L11 8L6 13" stroke="#C4C0D4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      </div>
+  return external ? (
+    <a href={href} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', display: 'block' }}>
+      {inner}
+    </a>
+  ) : (
+    <Link href={href} style={{ textDecoration: 'none', display: 'block' }}>
+      {inner}
     </Link>
   )
 }
@@ -282,6 +311,13 @@ export default async function MePage() {
           <Row icon={icons.crown}  label="Your plan"     value={planLabel} valueDim={planLabel === 'Free'} href="/me/subscription" />
           <Row icon={icons.bell}   label="Notifications"                   href="/me/notifications" />
           <Row icon={icons.trophy} label="Your wins"                       href="/me/wins"          last />
+        </Section>
+
+        <Section title="COMMUNITY">
+          <Row icon={icons.paperPlane} label="Share feedback"       href="mailto:hello@craftandcode.agency"          external />
+          <Row icon={icons.instagram}  label="Follow on Instagram"  href="https://instagram.com/lumimindapp"         external />
+          <Row icon={icons.question}   label="FAQ"                  href="https://lumimind.app/faq"                  external />
+          <Row icon={icons.star}       label="Rate the app"         href="#" value="Coming soon" valueDim             last />
         </Section>
 
         <Section title="SUPPORT">

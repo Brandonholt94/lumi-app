@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
+import confetti from 'canvas-confetti'
 import {
   DndContext,
   DragOverlay,
@@ -123,56 +124,23 @@ function currentBlock(): TimeBlock {
 // Confetti Burst
 // ─────────────────────────────────────────────────────────
 
-function ConfettiBurst({ onDone }: { onDone: () => void }) {
-  useEffect(() => {
-    const t = setTimeout(onDone, 1400)
-    return () => clearTimeout(t)
-  }, [onDone])
+// Fire canvas-confetti from the checkmark button position
+function fireConfetti(buttonEl: HTMLElement) {
+  const rect = buttonEl.getBoundingClientRect()
+  const x = (rect.left + rect.width  / 2) / window.innerWidth
+  const y = (rect.top  + rect.height / 2) / window.innerHeight
 
-  const COLORS = ['#F4A582', '#F5C98A', '#E8A0BF', '#8FAAE0', '#B8AECC', '#5EC269']
-  // 24 pieces bursting outward — each gets a unique @keyframe with hardcoded values
-  // (avoids CSS custom property unreliability inside @keyframes across browsers)
-  const pieces = Array.from({ length: 24 }, (_, i) => {
-    const angle  = (i / 24) * 360
-    const dist   = 28 + (i % 5) * 10
-    const dx     = Math.round(Math.cos((angle * Math.PI) / 180) * dist)
-    const dy     = Math.round(Math.sin((angle * Math.PI) / 180) * dist - 18)
-    const size   = 5 + (i % 3) * 2
-    const isCirc = i % 3 !== 0
-    const delay  = (i % 5) * 0.025
-    const spin   = i % 2 === 0 ? 300 : -300
-    return { dx, dy, size, isCirc, color: COLORS[i % COLORS.length], delay, spin }
+  confetti({
+    particleCount: 60,
+    spread: 70,
+    startVelocity: 22,
+    decay: 0.88,
+    gravity: 0.9,
+    origin: { x, y },
+    colors: ['#F4A582', '#F5C98A', '#E8A0BF', '#8FAAE0', '#5EC269', '#B8AECC'],
+    scalar: 0.9,
+    ticks: 120,
   })
-
-  // Generate one unique keyframe name per piece — no CSS variables needed
-  const keyframesCSS = pieces.map((p, i) => `
-    @keyframes cb${i} {
-      0%   { transform: translate(0px,0px) rotate(0deg); opacity: 1; }
-      60%  { opacity: 1; }
-      100% { transform: translate(${p.dx}px,${p.dy}px) rotate(${p.spin}deg); opacity: 0; }
-    }
-  `).join('')
-
-  return (
-    <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'visible', zIndex: 20 }}>
-      <style>{keyframesCSS}</style>
-      {pieces.map((p, i) => (
-        <div
-          key={i}
-          style={{
-            position: 'absolute',
-            top:    '50%',
-            right:  24,
-            width:  p.size,
-            height: p.size,
-            borderRadius: p.isCirc ? '50%' : 2,
-            background: p.color,
-            animation: `cb${i} 1.1s cubic-bezier(0.22,1,0.36,1) ${p.delay}s both`,
-          }}
-        />
-      ))}
-    </div>
-  )
 }
 
 // ─────────────────────────────────────────────────────────
@@ -203,12 +171,12 @@ function TaskCard({
   onTap:      (task: Task) => void
 }) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: task.id })
-  const [celebrating, setCelebrating] = useState(false)
+  const btnRef = useRef<HTMLButtonElement>(null)
 
   function handleComplete(e: React.MouseEvent) {
     e.stopPropagation()
-    if (task.completed || celebrating) return
-    setCelebrating(true)
+    if (task.completed) return
+    if (btnRef.current) fireConfetti(btnRef.current)
     onComplete(task.id)
   }
 
@@ -232,15 +200,11 @@ function TaskCard({
         opacity: isDragging ? 0.25 : 1,
         marginBottom: 7,
         transition: 'opacity 0.12s, background 0.2s',
-        overflow: 'visible',           // let confetti burst outside card bounds
-        zIndex: celebrating ? 10 : 1, // float above sibling cards during burst
         touchAction: 'none',
         userSelect: 'none',
         WebkitTapHighlightColor: 'transparent',
       }}
     >
-      {/* Confetti */}
-      {celebrating && <ConfettiBurst onDone={() => setCelebrating(false)} />}
 
       {/* Drag handle — visual affordance only, drag activates on whole card */}
       {!task.completed && (
@@ -276,6 +240,7 @@ function TaskCard({
       {/* Complete / done indicator */}
       {!task.completed ? (
         <button
+          ref={btnRef}
           onPointerDown={e => e.stopPropagation()}
           onClick={handleComplete}
           style={{

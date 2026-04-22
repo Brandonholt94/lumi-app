@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { verifyCronAuth, getEligibleUsers } from '@/lib/cron-auth'
+import { verifyCronAuth, getEligibleUsersForLocalHour } from '@/lib/cron-auth'
 import { sendPushToUser } from '@/lib/push'
 
 export const runtime = 'nodejs'
@@ -10,7 +10,8 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const userIds = await getEligibleUsers('morning_checkin')
+  // Fire for users where it's currently 8am in their local timezone
+  const userIds = await getEligibleUsersForLocalHour('morning_checkin', 8)
 
   const results = await Promise.allSettled(
     userIds.map(userId =>

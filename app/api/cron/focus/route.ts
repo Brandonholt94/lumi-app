@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { verifyCronAuth, getEligibleUsers, getServiceClient } from '@/lib/cron-auth'
+import { verifyCronAuth, getEligibleUsersForLocalHour, getServiceClient } from '@/lib/cron-auth'
 import { sendPushToUser } from '@/lib/push'
 
 export const runtime = 'nodejs'
@@ -10,7 +10,8 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const userIds = await getEligibleUsers('focus_reminder')
+  // Fire for users where it's currently 11am in their local timezone
+  const userIds = await getEligibleUsersForLocalHour('focus_reminder', 11)
   if (userIds.length === 0) return NextResponse.json({ sent: 0, total: 0 })
 
   const supabase = getServiceClient()

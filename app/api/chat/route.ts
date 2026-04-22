@@ -77,7 +77,7 @@ async function summarizeHistory(messages: ChatMessage[]): Promise<{
 
   try {
     const { text } = await generateText({
-      model: anthropic('claude-haiku-4-5'),
+      model: anthropic('claude-haiku-4-5-20251001'),
       messages: [
         {
           role: 'user',
@@ -138,7 +138,7 @@ async function fetchPlatformContext(userId: string): Promise<Partial<LumiUserCon
   const fortyEightHoursAgo = new Date(now.getTime() - 48 * 60 * 60 * 1000)
 
   // Run all queries in parallel
-  const [capturesRes, recentWinsRes, moodRes, activityRes, profileRes] = await Promise.all([
+  const [capturesRes, recentWinsRes, moodRes, activityRes, profileRes, sleepRes] = await Promise.all([
     // Today's captures — tasks, worries, ideas
     supabase
       .from('captures')
@@ -179,6 +179,15 @@ async function fetchPlatformContext(userId: string): Promise<Partial<LumiUserCon
       .select('display_name, adhd_identity, biggest_struggle, hardest_time, support_situation, tone_preference, plan')
       .eq('clerk_user_id', userId)
       .single(),
+
+    // Most recent sleep log — last 2 days
+    supabase
+      .from('sleep_logs')
+      .select('bedtime_hour, wake_hour, quality, log_date')
+      .eq('clerk_user_id', userId)
+      .order('log_date', { ascending: false })
+      .limit(1)
+      .maybeSingle(),
   ])
 
   const captures = capturesRes.data ?? []
@@ -186,6 +195,7 @@ async function fetchPlatformContext(userId: string): Promise<Partial<LumiUserCon
   const lastMood = moodRes.data?.mood ?? null
   const lastSeenAt = activityRes.data?.last_seen_at ?? null
   const profile = profileRes.data ?? null
+  const sleepRow = sleepRes.data ?? null
 
   // Today's captures broken down
   const worryCaptures = captures.filter(c => c.tag === 'worry' && !c.addressed)
@@ -234,6 +244,13 @@ async function fetchPlatformContext(userId: string): Promise<Partial<LumiUserCon
     ...(profile?.plan              ? { plan:             profile.plan }              : {}),
     // Pass last known mood as fallback — chat will prefer client-passed mood
     ...(lastMood ? { _lastKnownMood: lastMood } : {}),
+    // Sleep context — lets Lumi factor in rest quality
+    sleepLastNight: sleepRow ? {
+      duration: sleepRow.wake_hour >= sleepRow.bedtime_hour
+        ? sleepRow.wake_hour - sleepRow.bedtime_hour
+        : 24 - sleepRow.bedtime_hour + sleepRow.wake_hour,
+      quality: sleepRow.quality as 'great' | 'okay' | 'rough' | null,
+    } : null,
   } as Partial<LumiUserContext> & { _lastKnownMood?: string }
 }
 
@@ -331,8 +348,8 @@ export async function POST(req: Request) {
     userContext.isReturningAfterAbsence,
   )
   const model = useSonnet
-    ? anthropic('claude-sonnet-4-5')
-    : anthropic('claude-haiku-4-5')
+    ? anthropic('claude-sonnet-4-5-20251001')
+    : anthropic('claude-haiku-4-5-20251001')
 
   // ── Stream Lumi's response ─────────────────────────────────
   const result = streamText({

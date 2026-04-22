@@ -27,6 +27,10 @@ export interface LumiUserContext {
   blockers?: string
   isReturningAfterAbsence?: boolean
   daysSinceLastVisit?: number
+  sleepLastNight?: {
+    duration: number                          // hours, e.g. 3.5
+    quality: 'great' | 'okay' | 'rough' | null
+  } | null
 }
 
 export function buildLumiSystemPrompt(ctx: LumiUserContext = {}): string {
@@ -638,6 +642,20 @@ ${ctx.tonePreference ? `**Tone preference:** ${({
 
 # Today's Context
 
+${ctx.sleepLastNight != null ? (() => {
+  const { duration, quality } = ctx.sleepLastNight!
+  const h = Math.floor(duration)
+  const half = duration % 1 !== 0
+  const durLabel = half ? `${h}h 30m` : `${h}h`
+  const qualityLabel = quality === 'great' ? 'felt rested' : quality === 'okay' ? 'got through it' : quality === 'rough' ? 'rough night' : 'quality not logged'
+  const guidance =
+    duration < 4  ? 'Very little sleep — cognitive capacity and emotional regulation will likely be impaired. Be especially gentle. Do not add demand. If they seem flat, irritable, or foggy, this is probably why.' :
+    duration < 6  ? 'Less than 6 hours — they may be running low. Watch for lower tolerance, foggy thinking, or short fuse. Don\'t push.' :
+    duration < 7  ? 'Slightly short on sleep — may feel the effects by afternoon.' :
+    duration >= 8 && quality === 'great' ? 'Well rested — they may have more capacity and clarity today than usual.' :
+    ''
+  return `**Last night's sleep:** ${durLabel} — ${qualityLabel}.${guidance ? `\n${guidance}` : ''}`
+})() : ''}
 ${ctx.mood ? `**Today's mood:** ${ctx.mood.charAt(0).toUpperCase() + ctx.mood.slice(1)}${
   ctx.mood === 'low'     ? ' — meet them gently, low demand, one small thing at a time.' :
   ctx.mood === 'okay'    ? ' — normal companion energy, check in before assuming they want to work.' :

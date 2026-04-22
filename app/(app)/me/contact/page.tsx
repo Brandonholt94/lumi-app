@@ -12,14 +12,29 @@ const TOPICS = [
 ]
 
 export default function ContactPage() {
-  const [topic, setTopic] = useState('feedback')
+  const [topic,   setTopic]   = useState('feedback')
   const [message, setMessage] = useState('')
-  const [sent, setSent] = useState(false)
+  const [sent,    setSent]    = useState(false)
+  const [sending, setSending] = useState(false)
+  const [error,   setError]   = useState(false)
 
   async function handleSend() {
-    if (!message.trim()) return
-    // TODO: wire to contact form API or email service
-    setSent(true)
+    if (!message.trim() || sending) return
+    setSending(true)
+    setError(false)
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ topic, message }),
+      })
+      if (!res.ok) throw new Error('Failed')
+      setSent(true)
+    } catch {
+      setError(true)
+    } finally {
+      setSending(false)
+    }
   }
 
   if (sent) {
@@ -121,22 +136,35 @@ export default function ContactPage() {
 
         <button
           onClick={handleSend}
-          disabled={!message.trim()}
+          disabled={!message.trim() || sending}
           style={{
             width: '100%',
             padding: '16px',
             borderRadius: 14,
-            background: message.trim() ? 'linear-gradient(135deg, #F4A582, #F5C98A)' : 'rgba(45,42,62,0.08)',
+            background: message.trim() && !sending ? 'linear-gradient(135deg, #F4A582, #F5C98A)' : 'rgba(45,42,62,0.08)',
             border: 'none',
-            cursor: message.trim() ? 'pointer' : 'not-allowed',
+            cursor: message.trim() && !sending ? 'pointer' : 'not-allowed',
             fontFamily: 'var(--font-nunito-sans)',
             fontSize: '15px',
             fontWeight: 800,
-            color: message.trim() ? '#1E1C2E' : '#9895B0',
+            color: message.trim() && !sending ? '#1E1C2E' : '#9895B0',
           }}
         >
-          Send message
+          {sending ? 'Sending…' : 'Send message'}
         </button>
+
+        {error && (
+          <p style={{
+            marginTop: 10,
+            textAlign: 'center',
+            fontFamily: 'var(--font-nunito-sans)',
+            fontSize: '13px',
+            fontWeight: 600,
+            color: '#E05050',
+          }}>
+            Something went wrong — try again or email us directly at hey@lumimind.app
+          </p>
+        )}
 
         <p style={{
           marginTop: 16,

@@ -142,7 +142,7 @@ export default function SleepPage() {
   const [wakeHx, wakeHy] = polar(wakeAngle, R)
 
   return (
-    <div style={{ background: D.bg, minHeight: '100%', display: 'flex', flexDirection: 'column', paddingBottom: 48 }}>
+    <div className="flex flex-col h-full overflow-y-auto" style={{ background: D.bg, paddingBottom: 48 }}>
 
       {/* ── Custom dark header ── */}
       <div style={{ padding: '20px 20px 8px', display: 'flex', alignItems: 'center', gap: 8 }}>

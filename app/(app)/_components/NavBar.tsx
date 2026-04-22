@@ -27,10 +27,12 @@ export default function NavBar() {
   const iconColor = (path: string) => is(path) ? '#F4A582' : 'rgba(45,42,62,0.26)'
   const iconScale = (path: string) => ({ transition: 'transform 0.2s ease', transform: is(path) ? 'scale(1.1)' : 'scale(1)' })
 
+  const isSleepPage = pathname === '/me/sleep'
+
   return (
     <nav
       className="w-full flex-shrink-0 z-50"
-      style={{ background: 'transparent', overflow: 'visible' }}
+      style={{ background: isSleepPage ? '#0D0C1A' : 'transparent', overflow: 'visible', transition: 'background 0.3s' }}
     >
       <style>{`
         @keyframes tabPop {

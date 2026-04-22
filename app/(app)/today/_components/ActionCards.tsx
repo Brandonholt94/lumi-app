@@ -130,27 +130,34 @@ function saveDismissed(dismissed: Set<CardId>) {
 // ── Component ─────────────────────────────────────────────────
 
 export default function ActionCards() {
-  const [dismissed,        setDismissed]        = useState<Set<CardId>>(new Set())
-  const [calendarConnected, setCalendarConnected] = useState<boolean | null>(null)
-  const [notifGranted,     setNotifGranted]     = useState<boolean>(true) // assume true until checked
-  const [ready,            setReady]            = useState(false)
+  const [dismissed,         setDismissed]         = useState<Set<CardId>>(new Set())
+  const [calendarConnected, setCalendarConnected]  = useState<boolean | null>(null)
+  const [notifGranted,      setNotifGranted]       = useState<boolean>(true)
+  const [sleepLoggedToday,  setSleepLoggedToday]   = useState<boolean>(false)
+  const [hasTasks,          setHasTasks]           = useState<boolean>(false)
+  const [hasCaptures,       setHasCaptures]        = useState<boolean>(false)
+  const [ready,             setReady]              = useState(false)
 
   useEffect(() => {
-    // Load dismissed state
-    const saved = loadDismissed()
-    setDismissed(saved)
+    setDismissed(loadDismissed())
 
-    // Check notification permission
     if (typeof Notification !== 'undefined') {
       setNotifGranted(Notification.permission === 'granted')
     }
 
-    // Check calendar connection
-    fetch('/api/calendar/status')
-      .then(r => r.json())
-      .then(d => setCalendarConnected(d.connected ?? false))
-      .catch(() => setCalendarConnected(false))
-      .finally(() => setReady(true))
+    const tzOffset = new Date().getTimezoneOffset()
+
+    Promise.all([
+      fetch('/api/calendar/status').then(r => r.json()).catch(() => ({ connected: false })),
+      fetch(`/api/sleep?tzOffset=${tzOffset}`).then(r => r.json()).catch(() => ({ today: null })),
+      fetch('/api/captures').then(r => r.json()).catch(() => []),
+    ]).then(([cal, sleep, captures]) => {
+      setCalendarConnected(cal.connected ?? false)
+      setSleepLoggedToday(!!sleep.today)
+      const list = Array.isArray(captures) ? captures : []
+      setHasTasks(list.some((c: { tag: string }) => c.tag === 'task' || c.tag === 'reminder'))
+      setHasCaptures(list.length > 2)
+    }).finally(() => setReady(true))
   }, [])
 
   function dismiss(id: CardId) {
@@ -213,9 +220,12 @@ export default function ActionCards() {
 
   // Filter out dismissed + cards that don't apply
   const visible = ALL_CARDS.filter(card => {
-    if (dismissed.has(card.id)) return false
+    if (dismissed.has(card.id))                           return false
     if (card.id === 'notifications' && notifGranted)      return false
     if (card.id === 'calendar'      && calendarConnected) return false
+    if (card.id === 'sleep'         && sleepLoggedToday)  return false
+    if (card.id === 'focus'         && hasTasks)          return false
+    if (card.id === 'braindump'     && hasCaptures)       return false
     return true
   }).slice(0, 3)
 

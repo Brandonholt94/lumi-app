@@ -193,9 +193,16 @@ export default function DaySceneHeader({ firstName }: Props) {
             <ellipse cx="195" cy="145" rx="240" ry="105" fill="url(#horizonGlow)"/>
           )}
 
-          {/* Morning sun orb — soft radial bloom, raised to sit visibly in the sky */}
+          {/* Morning sun orb — soft radial bloom with gentle pulse */}
           {scene === 'morning' && (
-            <circle cx="210" cy="100" r="90" fill="url(#sunOrb)"/>
+            <circle cx="210" cy="100" r="90" fill="url(#sunOrb)">
+              <animate
+                attributeName="opacity"
+                values="0.88;1;0.88"
+                dur="7s"
+                repeatCount="indefinite"
+              />
+            </circle>
           )}
 
           {/* Afternoon sun — crisp disk + rays + soft glow, upper right */}
@@ -208,10 +215,21 @@ export default function DaySceneHeader({ firstName }: Props) {
             return (
               <g transform={`translate(${cx},${cy})`}>
                 <circle cx={0} cy={0} r={36} fill="url(#sunGlow)"/>
-                {rays.map((r, i) => (
-                  <line key={i} x1={r.x1} y1={r.y1} x2={r.x2} y2={r.y2}
-                    stroke="#FFD600" strokeWidth="2.5" strokeLinecap="round" strokeOpacity="0.85"/>
-                ))}
+                {/* Rays rotate slowly — one full turn every 90 seconds */}
+                <g>
+                  <animateTransform
+                    attributeName="transform"
+                    type="rotate"
+                    from="0 0 0"
+                    to="360 0 0"
+                    dur="90s"
+                    repeatCount="indefinite"
+                  />
+                  {rays.map((r, i) => (
+                    <line key={i} x1={r.x1} y1={r.y1} x2={r.x2} y2={r.y2}
+                      stroke="#FFD600" strokeWidth="2.5" strokeLinecap="round" strokeOpacity="0.85"/>
+                  ))}
+                </g>
                 <circle cx={0} cy={0} r={13} fill="#FFF9C4"/>
                 <circle cx={0} cy={0} r={10} fill="#FFE040"/>
               </g>
@@ -249,17 +267,34 @@ export default function DaySceneHeader({ firstName }: Props) {
           {/* Circle-cluster clouds — natural puffy shape */}
           {scene && CLOUDS[scene].map((c, i) => {
             const f = CLOUD_COLOR[scene]
+            // Morning + afternoon clouds drift slowly left→right→left
+            const drifting = scene === 'morning' || scene === 'afternoon'
+            const driftX   = [10, -8, 6][i] ?? 8
+            const driftDur = [28, 22, 35][i] ?? 28
             return (
-              <g key={i} transform={`translate(${c.x},${c.y}) scale(${c.s})`} filter="url(#cloudBlur)" opacity={c.o}>
-                {/* Puff circles — varying sizes for organic shape */}
-                <circle cx={0}   cy={0}   r={22} fill={f}/>
-                <circle cx={26}  cy={-14} r={28} fill={f}/>
-                <circle cx={60}  cy={-10} r={24} fill={f}/>
-                <circle cx={88}  cy={-4}  r={19} fill={f}/>
-                <circle cx={-18} cy={6}   r={18} fill={f}/>
-                <circle cx={112} cy={4}   r={16} fill={f}/>
-                {/* Flat base fills gaps between circles */}
-                <rect x={-18} y={0} width={130} height={30} fill={f} rx={4}/>
+              <g key={i} transform={`translate(${c.x},${c.y})`} filter="url(#cloudBlur)" opacity={c.o}>
+                {/* additive="sum" drifts on top of the static translate above */}
+                {drifting && (
+                  <animateTransform
+                    attributeName="transform"
+                    type="translate"
+                    values={`0 0; ${driftX} 0; 0 0`}
+                    dur={`${driftDur}s`}
+                    repeatCount="indefinite"
+                    additive="sum"
+                  />
+                )}
+                <g transform={`scale(${c.s})`}>
+                  {/* Puff circles — varying sizes for organic shape */}
+                  <circle cx={0}   cy={0}   r={22} fill={f}/>
+                  <circle cx={26}  cy={-14} r={28} fill={f}/>
+                  <circle cx={60}  cy={-10} r={24} fill={f}/>
+                  <circle cx={88}  cy={-4}  r={19} fill={f}/>
+                  <circle cx={-18} cy={6}   r={18} fill={f}/>
+                  <circle cx={112} cy={4}   r={16} fill={f}/>
+                  {/* Flat base fills gaps between circles */}
+                  <rect x={-18} y={0} width={130} height={30} fill={f} rx={4}/>
+                </g>
               </g>
             )
           })}

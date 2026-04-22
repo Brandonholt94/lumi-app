@@ -1,11 +1,16 @@
 import webpush from 'web-push'
 import { createClient } from '@supabase/supabase-js'
 
-webpush.setVapidDetails(
-  process.env.VAPID_EMAIL!,
-  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
-  process.env.VAPID_PRIVATE_KEY!
-)
+// Lazy VAPID init — called at runtime only, not during build
+function initVapid() {
+  const email  = process.env.VAPID_EMAIL!
+  const subject = email.startsWith('mailto:') ? email : `mailto:${email}`
+  webpush.setVapidDetails(
+    subject,
+    process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
+    process.env.VAPID_PRIVATE_KEY!
+  )
+}
 
 function getServiceClient() {
   return createClient(
@@ -22,6 +27,7 @@ export interface PushPayload {
 
 // Send a push notification to all of a user's subscribed devices
 export async function sendPushToUser(userId: string, payload: PushPayload) {
+  initVapid()
   const supabase = getServiceClient()
 
   const { data: subs } = await supabase

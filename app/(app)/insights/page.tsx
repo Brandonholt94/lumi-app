@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import ProfileButton from '../_components/ProfileButton'
+import type { SleepLog } from '@/app/api/sleep/route'
 
 // ─────────────────────────────────────────────────────────
 // Types
@@ -969,6 +971,105 @@ function BrainReportCard({ plan, daysWithData }: { plan: 'free' | 'starter' | 'c
   )
 }
 
+// ── Sleep Strip ──────────────────────────────────────────
+const SLEEP_Q_COLOR: Record<string, string> = {
+  great: '#8FAAE0',
+  okay:  '#F5C98A',
+  rough: '#E8A0BF',
+}
+const SLEEP_Q_LABEL: Record<string, string> = {
+  great: 'Rested',
+  okay:  'Got through it',
+  rough: 'Rough night',
+}
+
+function SleepStrip({ logs }: { logs: SleepLog[] }) {
+  if (logs.length === 0) return null
+
+  const MAX_H    = 9
+  const slots: (SleepLog | null)[] = Array(Math.max(0, 7 - logs.length)).fill(null).concat([...logs].sort((a, b) => a.log_date.localeCompare(b.log_date)))
+  const avgHours = logs.length > 0 ? logs.reduce((s, l) => s + l.duration, 0) / logs.length : 0
+  const avgStr   = avgHours % 1 !== 0 ? `${Math.floor(avgHours)}h 30m` : `${Math.floor(avgHours)}h`
+
+  return (
+    <div style={{
+      background: 'white', borderRadius: 16, padding: '16px',
+      border: '1px solid rgba(45,42,62,0.07)',
+      boxShadow: '0 2px 8px rgba(45,42,62,0.06)',
+    }}>
+      {/* Header row */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+        <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '12px', fontWeight: 700, color: '#9895B0' }}>
+          Avg {avgStr} / night
+        </span>
+        <Link href="/me/sleep" style={{
+          fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 800,
+          color: '#8FAAE0', textDecoration: 'none',
+          background: 'rgba(143,170,224,0.10)', borderRadius: 8, padding: '4px 8px',
+        }}>
+          Log sleep →
+        </Link>
+      </div>
+
+      {/* Bars */}
+      <div style={{ display: 'flex', alignItems: 'flex-end', gap: 6, height: 68, marginBottom: 8 }}>
+        {slots.map((log, i) => {
+          if (!log) {
+            return (
+              <div key={i} style={{ flex: 1, height: '12%', borderRadius: '4px 4px 2px 2px', background: 'rgba(45,42,62,0.05)', minHeight: 4 }} />
+            )
+          }
+          const pct   = Math.min(log.duration / MAX_H, 1)
+          const color = log.quality ? SLEEP_Q_COLOR[log.quality] : '#8FAAE0'
+          const dow   = new Date(log.log_date + 'T12:00:00').getDay()
+          const dayLetter = ['S','M','T','W','T','F','S'][dow]
+
+          return (
+            <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', height: '100%', justifyContent: 'flex-end', gap: 0 }}>
+              <div style={{
+                width: '100%',
+                height: `${Math.max(pct * 100, 8)}%`,
+                borderRadius: '5px 5px 3px 3px',
+                background: `linear-gradient(180deg, ${color}, ${color}88)`,
+                minHeight: 5,
+              }} />
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Day labels */}
+      <div style={{ display: 'flex', gap: 6 }}>
+        {slots.map((log, i) => {
+          const dow = log ? new Date(log.log_date + 'T12:00:00').getDay() : null
+          const dayLetter = dow !== null ? ['S','M','T','W','T','F','S'][dow] : '·'
+          const color = log?.quality ? SLEEP_Q_COLOR[log.quality] : 'transparent'
+          return (
+            <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
+              <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '10px', fontWeight: 800, color: log ? '#9895B0' : 'rgba(45,42,62,0.2)' }}>
+                {dayLetter}
+              </span>
+              {log?.quality && (
+                <div style={{ width: 4, height: 4, borderRadius: '50%', background: color }} />
+              )}
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Quality legend */}
+      <div style={{ display: 'flex', gap: 10, marginTop: 10, flexWrap: 'wrap' }}>
+        {Object.entries(SLEEP_Q_LABEL).map(([k, label]) => (
+          <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <div style={{ width: 6, height: 6, borderRadius: '50%', background: SLEEP_Q_COLOR[k] }} />
+            <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '10px', fontWeight: 600, color: '#9895B0' }}>{label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 // ─────────────────────────────────────────────────────────
 // Page
 // ─────────────────────────────────────────────────────────
@@ -979,6 +1080,7 @@ export default function InsightsPage() {
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const [dayData,      setDayData]      = useState<DayDetail | null>(null)
   const [dayLoading,   setDayLoading]   = useState(false)
+  const [sleepLogs,    setSleepLogs]    = useState<SleepLog[]>([])
 
   useEffect(() => {
     const tzOffset = new Date().getTimezoneOffset()
@@ -986,6 +1088,14 @@ export default function InsightsPage() {
       .then(r => r.json())
       .then(d => setData(d))
       .finally(() => setLoading(false))
+    // Sleep data fetched independently — doesn't block main insights load
+    fetch(`/api/sleep?tzOffset=${tzOffset}`)
+      .then(r => r.json())
+      .then(({ today, history }) => {
+        const all = [...(today ? [today] : []), ...(history ?? [])]
+        setSleepLogs(all.slice(0, 7))
+      })
+      .catch(() => {})
   }, [])
 
   async function handleSelectDate(date: string) {
@@ -1195,6 +1305,14 @@ export default function InsightsPage() {
               <div>
                 <SectionLabel>FOCUS TIME</SectionLabel>
                 <FocusCard sessions={data.focus.sessions} minutes={data.focus.minutes} />
+              </div>
+            )}
+
+            {/* ── Sleep ── */}
+            {sleepLogs.length > 0 && (
+              <div>
+                <SectionLabel>SLEEP</SectionLabel>
+                <SleepStrip logs={sleepLogs} />
               </div>
             )}
 

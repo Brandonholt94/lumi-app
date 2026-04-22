@@ -8,6 +8,7 @@ import EveningBrainClear from './_components/EveningBrainClear'
 import DaySceneHeader from './_components/DaySceneHeader'
 import WelcomeBack from './_components/WelcomeBack'
 import MedCheckIn from './_components/MedCheckIn'
+import SleepCard from './_components/SleepCard'
 import YourDay from './_components/YourDay'
 import Link from 'next/link'
 
@@ -47,6 +48,9 @@ export default async function TodayPage() {
 
       {/* Medication check-in — time-aware, disappears when all taken */}
       <MedCheckIn />
+
+      {/* Sleep card — shows last night's log or "How'd you sleep?" prompt */}
+      <SleepCard />
 
       {/* Mood check-in */}
       <p

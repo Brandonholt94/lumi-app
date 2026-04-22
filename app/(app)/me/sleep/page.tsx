@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
+import type { SleepLog } from '@/app/api/sleep/route'
 
 // ─── Design tokens — dark sleep mode ─────────────────────────────────────────
 const D = {
@@ -19,15 +20,15 @@ const D = {
 }
 
 // ─── Clock math ───────────────────────────────────────────────────────────────
-const SZ = 280        // SVG viewport
-const C  = SZ / 2     // center
-const R  = 108        // arc track radius
-const HR = 18         // handle radius
+const SZ = 280
+const C  = SZ / 2
+const R  = 108
+const HR = 18
 
 function h2a(h: number)  { return (h / 24) * 360 }
 function a2h(a: number)  {
   const raw = ((a / 360) * 24 + 24) % 24
-  return Math.round(raw * 2) / 2   // snap to 30-min increments
+  return Math.round(raw * 2) / 2
 }
 function polar(deg: number, r: number): [number, number] {
   const rad = (deg - 90) * (Math.PI / 180)
@@ -52,14 +53,13 @@ function durStr(bed: number, wake: number) {
   const h = Math.floor(d), half = d % 1 !== 0
   return half ? `${h}h 30m` : `${h}h`
 }
+function durNum(bed: number, wake: number) {
+  let d = wake - bed; if (d <= 0) d += 24
+  return d
+}
 
-// ─── Clock labels (inside ring) ───────────────────────────────────────────────
-const MAJOR = [
-  { hour: 0,  label: '12am' },
-  { hour: 6,  label: '6am'  },
-  { hour: 12, label: '12pm' },
-  { hour: 18, label: '6pm'  },
-]
+// ─── Clock labels ─────────────────────────────────────────────────────────────
+const MAJOR       = [{ hour: 0, label: '12am' }, { hour: 6, label: '6am' }, { hour: 12, label: '12pm' }, { hour: 18, label: '6pm' }]
 const MINOR_HOURS = [3, 9, 15, 21]
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
@@ -78,25 +78,145 @@ function Sun({ size = 13 }: { size?: number }) {
   )
 }
 
-// ─── Quality options ──────────────────────────────────────────────────────────
+// ─── Quality ──────────────────────────────────────────────────────────────────
 const QUALITY = [
-  { value: 'great', label: 'Rested',       desc: 'Woke up feeling good' },
-  { value: 'okay',  label: 'Got through it', desc: 'Managed but tired' },
-  { value: 'rough', label: 'Rough night',  desc: 'Running on fumes'    },
+  { value: 'great', label: 'Rested',        desc: 'Woke up feeling good'   },
+  { value: 'okay',  label: 'Got through it', desc: 'Managed but tired'      },
+  { value: 'rough', label: 'Rough night',    desc: 'Running on fumes'       },
 ]
+
+const QUALITY_COLOR: Record<string, string> = {
+  great: '#8FAAE0',
+  okay:  '#F5C98A',
+  rough: '#E8A0BF',
+}
+
+// ─── History bar chart ────────────────────────────────────────────────────────
+function SleepHistoryChart({ history, today }: { history: SleepLog[]; today: SleepLog | null }) {
+  // Build last-7-nights array in chronological order (oldest → newest)
+  // We want to show tonight's slot even if not yet logged
+  const allLogs = today ? [today, ...history].slice(0, 7) : [...history].slice(0, 7)
+  // Sort oldest → newest
+  const sorted  = [...allLogs].sort((a, b) => a.log_date.localeCompare(b.log_date))
+
+  const MAX_H    = 9   // 9h = full bar height
+  const barCount = 7
+
+  // Pad to 7 slots (empty on left if < 7 logs)
+  const slots: (SleepLog | null)[] = Array(barCount - sorted.length).fill(null).concat(sorted as (SleepLog | null)[])
+
+  if (allLogs.length === 0) return null
+
+  return (
+    <div style={{ padding: '0 20px', marginBottom: 32 }}>
+      <p style={{
+        fontFamily: 'var(--font-nunito-sans)', fontSize: '10px',
+        fontWeight: 800, letterSpacing: '0.1em', color: D.muted,
+        marginBottom: 14, paddingLeft: 2,
+      }}>
+        LAST 7 NIGHTS
+      </p>
+
+      <div style={{
+        background: D.card, borderRadius: 16, border: `1px solid ${D.bdr}`,
+        padding: '16px 16px 12px',
+      }}>
+        {/* Bars */}
+        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 6, height: 72, marginBottom: 8 }}>
+          {slots.map((log, i) => {
+            if (!log) {
+              return (
+                <div key={i} style={{ flex: 1, height: '20%', borderRadius: '4px 4px 2px 2px', background: 'rgba(255,255,255,0.05)', minHeight: 4 }} />
+              )
+            }
+            const dur   = log.duration
+            const pct   = Math.min(dur / MAX_H, 1)
+            const color = log.quality ? QUALITY_COLOR[log.quality] : D.indigo
+            const isToday = log === today || (today && log.log_date === today.log_date)
+            return (
+              <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', height: '100%', justifyContent: 'flex-end', gap: 4 }}>
+                {/* duration label on tallest / today */}
+                {(isToday || dur >= MAX_H * 0.85) && (
+                  <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '9px', fontWeight: 800, color: D.muted }}>
+                    {Math.floor(dur)}h
+                  </span>
+                )}
+                <div style={{
+                  width: '100%',
+                  height: `${Math.max(pct * 100, 8)}%`,
+                  borderRadius: '5px 5px 3px 3px',
+                  background: isToday
+                    ? `linear-gradient(180deg, ${color}, ${color}88)`
+                    : `${color}55`,
+                  border: isToday ? `1px solid ${color}88` : 'none',
+                  minHeight: 4,
+                  transition: 'height 0.4s ease',
+                }} />
+              </div>
+            )
+          })}
+        </div>
+
+        {/* Quality legend */}
+        <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
+          {[
+            { label: 'Rested', color: '#8FAAE0' },
+            { label: 'Got through it', color: '#F5C98A' },
+            { label: 'Rough night', color: '#E8A0BF' },
+          ].map(q => (
+            <div key={q.label} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              <div style={{ width: 6, height: 6, borderRadius: '50%', background: q.color, flexShrink: 0 }} />
+              <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '9px', fontWeight: 600, color: D.muted }}>
+                {q.label}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function SleepPage() {
-  const [bedtime,  setBedtime]  = useState(22)    // 10:00 pm
-  const [wakeTime, setWakeTime] = useState(6.5)   // 6:30 am
-  const [quality,  setQuality]  = useState<string | null>(null)
-  const [saving,   setSaving]   = useState(false)
-  const [saved,    setSaved]    = useState(false)
+  const [bedtime,   setBedtime]   = useState(22)
+  const [wakeTime,  setWakeTime]  = useState(6.5)
+  const [quality,   setQuality]   = useState<string | null>(null)
+  const [saving,    setSaving]    = useState(false)
+  const [saved,     setSaved]     = useState(false)
+  const [isUpdate,  setIsUpdate]  = useState(false)
+  const [history,   setHistory]   = useState<SleepLog[]>([])
+  const [todayLog,  setTodayLog]  = useState<SleepLog | null>(null)
+  const [loaded,    setLoaded]    = useState(false)
 
   const svgRef      = useRef<SVGSVGElement>(null)
   const draggingRef = useRef<'bed' | 'wake' | null>(null)
 
-  // Global drag tracking via refs (avoids stale closure issues)
+  // ── Load previous sleep data ──────────────────────────────────────────────
+  useEffect(() => {
+    const tzOffset = new Date().getTimezoneOffset()
+    fetch(`/api/sleep?tzOffset=${tzOffset}`)
+      .then(r => r.json())
+      .then(({ today, history: hist }) => {
+        setHistory(hist ?? [])
+        if (today) {
+          // Already logged today — pre-fill everything
+          setTodayLog(today)
+          setBedtime(today.bedtime_hour)
+          setWakeTime(today.wake_hour)
+          setQuality(today.quality ?? null)
+          setIsUpdate(true)
+        } else if (hist && hist.length > 0) {
+          // Use last night's times as sensible defaults (quality always resets)
+          setBedtime(hist[0].bedtime_hour)
+          setWakeTime(hist[0].wake_hour)
+        }
+        setLoaded(true)
+      })
+      .catch(() => setLoaded(true))
+  }, [])
+
+  // ── Global drag ───────────────────────────────────────────────────────────
   useEffect(() => {
     function onMove(e: PointerEvent) {
       if (!draggingRef.current || !svgRef.current) return
@@ -122,40 +242,39 @@ export default function SleepPage() {
   async function handleSave() {
     setSaving(true)
     try {
-      await fetch('/api/sleep', {
+      const tzOffset = new Date().getTimezoneOffset()
+      const res = await fetch('/api/sleep', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ bedtime, wake_time: wakeTime, quality }),
+        body: JSON.stringify({ bedtime_hour: bedtime, wake_hour: wakeTime, quality, tzOffset }),
       })
-      setSaved(true)
-      setTimeout(() => setSaved(false), 2000)
+      if (res.ok) {
+        const updated: SleepLog = await res.json()
+        setTodayLog(updated)
+        setIsUpdate(true)
+        setSaved(true)
+        setTimeout(() => setSaved(false), 2000)
+      }
     } finally {
       setSaving(false)
     }
   }
 
-  const bedAngle  = h2a(bedtime)
-  const wakeAngle = h2a(wakeTime)
-  const [bx, by]  = polar(bedAngle,  HR + 4)   // not used directly
-  const [wx, wy]  = polar(wakeAngle, HR + 4)   // not used directly
-  const [bedHx, bedHy]   = polar(bedAngle,  R)
-  const [wakeHx, wakeHy] = polar(wakeAngle, R)
+  const bedAngle            = h2a(bedtime)
+  const wakeAngle           = h2a(wakeTime)
+  const [bedHx,  bedHy]    = polar(bedAngle,  R)
+  const [wakeHx, wakeHy]   = polar(wakeAngle, R)
 
   return (
     <div className="flex flex-col h-full overflow-y-auto" style={{ background: D.bg, paddingBottom: 48 }}>
 
       {/* ── Custom dark header ── */}
       <div style={{ padding: '20px 20px 8px', display: 'flex', alignItems: 'center', gap: 8 }}>
-        <Link href="/me" style={{
-          display: 'inline-flex', alignItems: 'center', gap: 4,
-          textDecoration: 'none',
-        }}>
+        <Link href="/me" style={{ display: 'inline-flex', alignItems: 'center', gap: 4, textDecoration: 'none' }}>
           <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
             <path d="M13 4L7 10L13 16" stroke={D.muted} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
-          <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '12px', fontWeight: 700, color: D.muted }}>
-            Back
-          </span>
+          <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '12px', fontWeight: 700, color: D.muted }}>Back</span>
         </Link>
       </div>
 
@@ -164,7 +283,7 @@ export default function SleepPage() {
           Sleep schedule
         </h1>
         <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 500, color: D.muted }}>
-          Drag the handles to set your times
+          {isUpdate ? 'Logged — drag to adjust' : 'Drag the handles to set your times'}
         </p>
       </div>
 
@@ -172,91 +291,54 @@ export default function SleepPage() {
       <div style={{ display: 'flex', justifyContent: 'center', padding: '24px 0 8px' }}>
         <svg
           ref={svgRef}
-          width={SZ}
-          height={SZ}
+          width={SZ} height={SZ}
           viewBox={`0 0 ${SZ} ${SZ}`}
           style={{ overflow: 'visible', touchAction: 'none', userSelect: 'none' }}
         >
           {/* Gray track */}
-          <circle
-            cx={C} cy={C} r={R}
-            fill="none"
-            stroke="rgba(255,255,255,0.08)"
-            strokeWidth={14}
-          />
+          <circle cx={C} cy={C} r={R} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth={14} />
 
-          {/* Sleep arc — indigo/violet gradient */}
+          {/* Sleep arc */}
           <defs>
             <linearGradient id="sleepGrad" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%"   stopColor="#8FAAE0"/>
               <stop offset="100%" stopColor="#B8AECC"/>
             </linearGradient>
           </defs>
-          <path
-            d={arcD(bedAngle, wakeAngle, R)}
-            fill="none"
-            stroke="url(#sleepGrad)"
-            strokeWidth={14}
-            strokeLinecap="round"
-          />
+          <path d={arcD(bedAngle, wakeAngle, R)} fill="none" stroke="url(#sleepGrad)" strokeWidth={14} strokeLinecap="round" />
 
-          {/* Minor tick marks at quarter hours */}
+          {/* Minor ticks */}
           {MINOR_HOURS.map(h => {
             const a = h2a(h)
             const [ix, iy] = polar(a, R - 9)
             const [ox, oy] = polar(a, R + 9)
-            return (
-              <line key={h} x1={ix} y1={iy} x2={ox} y2={oy}
-                stroke="rgba(255,255,255,0.15)" strokeWidth={1.5} strokeLinecap="round"/>
-            )
+            return <line key={h} x1={ix} y1={iy} x2={ox} y2={oy} stroke="rgba(255,255,255,0.15)" strokeWidth={1.5} strokeLinecap="round"/>
           })}
 
-          {/* Major clock labels inside ring */}
+          {/* Major labels */}
           {MAJOR.map(({ hour, label }) => {
             const a = h2a(hour)
             const [lx, ly] = polar(a, R - 36)
             return (
-              <text
-                key={hour}
-                x={lx} y={ly}
-                textAnchor="middle"
-                dominantBaseline="middle"
-                style={{
-                  fontFamily: 'var(--font-nunito-sans)',
-                  fontSize: '11px',
-                  fontWeight: 600,
-                  fill: 'rgba(245,242,238,0.35)',
-                }}
-              >
+              <text key={hour} x={lx} y={ly} textAnchor="middle" dominantBaseline="middle"
+                style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 600, fill: 'rgba(245,242,238,0.35)' }}>
                 {label}
               </text>
             )
           })}
 
           {/* Duration in center */}
-          <text
-            x={C} y={C - 10}
-            textAnchor="middle"
-            dominantBaseline="middle"
-            style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '28px', fontWeight: 800, fill: D.text }}
-          >
+          <text x={C} y={C - 10} textAnchor="middle" dominantBaseline="middle"
+            style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '28px', fontWeight: 800, fill: D.text }}>
             {durStr(bedtime, wakeTime)}
           </text>
-          <text
-            x={C} y={C + 18}
-            textAnchor="middle"
-            dominantBaseline="middle"
-            style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 600, fill: D.muted }}
-          >
+          <text x={C} y={C + 18} textAnchor="middle" dominantBaseline="middle"
+            style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 600, fill: D.muted }}>
             of sleep
           </text>
 
-          {/* Bedtime handle — moon */}
-          <circle
-            cx={bedHx} cy={bedHy} r={HR}
-            fill="#3A3560"
-            stroke="rgba(143,170,224,0.6)"
-            strokeWidth={2}
+          {/* Bedtime handle */}
+          <circle cx={bedHx} cy={bedHy} r={HR} fill="#3A3560" stroke="rgba(143,170,224,0.6)" strokeWidth={2}
             style={{ cursor: 'grab' }}
             onPointerDown={e => { e.currentTarget.setPointerCapture(e.pointerId); draggingRef.current = 'bed' }}
           />
@@ -264,12 +346,8 @@ export default function SleepPage() {
             <Moon size={14} />
           </foreignObject>
 
-          {/* Wake time handle — sun */}
-          <circle
-            cx={wakeHx} cy={wakeHy} r={HR}
-            fill="#5C4A20"
-            stroke="rgba(245,201,138,0.7)"
-            strokeWidth={2}
+          {/* Wake handle */}
+          <circle cx={wakeHx} cy={wakeHy} r={HR} fill="#5C4A20" stroke="rgba(245,201,138,0.7)" strokeWidth={2}
             style={{ cursor: 'grab' }}
             onPointerDown={e => { e.currentTarget.setPointerCapture(e.pointerId); draggingRef.current = 'wake' }}
           />
@@ -280,66 +358,42 @@ export default function SleepPage() {
       </div>
 
       {/* ── Time display ── */}
-      <div style={{
-        display: 'flex', justifyContent: 'center', gap: 48,
-        padding: '4px 24px 28px',
-      }}>
+      <div style={{ display: 'flex', justifyContent: 'center', gap: 48, padding: '4px 24px 28px' }}>
         <div style={{ textAlign: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginBottom: 4 }}>
             <Moon size={12} />
-            <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 700, color: D.muted, letterSpacing: '0.06em' }}>
-              BEDTIME
-            </span>
+            <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 700, color: D.muted, letterSpacing: '0.06em' }}>BEDTIME</span>
           </div>
-          <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '22px', fontWeight: 800, color: D.text }}>
-            {fmt(bedtime)}
-          </p>
+          <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '22px', fontWeight: 800, color: D.text }}>{fmt(bedtime)}</p>
         </div>
-
         <div style={{ width: 1, background: D.bdr, alignSelf: 'stretch' }} />
-
         <div style={{ textAlign: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginBottom: 4 }}>
             <Sun size={12} />
-            <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 700, color: D.muted, letterSpacing: '0.06em' }}>
-              WAKE UP
-            </span>
+            <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 700, color: D.muted, letterSpacing: '0.06em' }}>WAKE UP</span>
           </div>
-          <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '22px', fontWeight: 800, color: D.text }}>
-            {fmt(wakeTime)}
-          </p>
+          <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '22px', fontWeight: 800, color: D.text }}>{fmt(wakeTime)}</p>
         </div>
       </div>
 
       {/* ── Quality ── */}
       <div style={{ padding: '0 20px', marginBottom: 28 }}>
-        <p style={{
-          fontFamily: 'var(--font-nunito-sans)', fontSize: '10px',
-          fontWeight: 800, letterSpacing: '0.1em', color: D.muted,
-          marginBottom: 10, paddingLeft: 2,
-        }}>
+        <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '10px', fontWeight: 800, letterSpacing: '0.1em', color: D.muted, marginBottom: 10, paddingLeft: 2 }}>
           HOW WAS LAST NIGHT?
         </p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {QUALITY.map(q => {
             const active = quality === q.value
             return (
-              <button
-                key={q.value}
-                onClick={() => setQuality(q.value)}
-                style={{
-                  width: '100%', display: 'flex', alignItems: 'center', gap: 12,
-                  padding: '13px 16px', borderRadius: 14,
-                  border: `1.5px solid ${active ? 'rgba(143,170,224,0.45)' : D.bdr}`,
-                  background: active ? 'rgba(143,170,224,0.10)' : D.card,
-                  cursor: 'pointer', textAlign: 'left', transition: 'all 0.15s',
-                }}
-              >
+              <button key={q.value} onClick={() => setQuality(q.value)} style={{
+                width: '100%', display: 'flex', alignItems: 'center', gap: 12,
+                padding: '13px 16px', borderRadius: 14,
+                border: `1.5px solid ${active ? 'rgba(143,170,224,0.45)' : D.bdr}`,
+                background: active ? 'rgba(143,170,224,0.10)' : D.card,
+                cursor: 'pointer', textAlign: 'left', transition: 'all 0.15s',
+              }}>
                 <div style={{ flex: 1 }}>
-                  <p style={{
-                    fontFamily: 'var(--font-nunito-sans)', fontSize: '14px',
-                    fontWeight: 700, color: active ? D.indigo : D.text, marginBottom: 1,
-                  }}>
+                  <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '14px', fontWeight: 700, color: active ? D.indigo : D.text, marginBottom: 1 }}>
                     {q.label}
                   </p>
                   <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '12px', fontWeight: 500, color: D.muted }}>
@@ -360,75 +414,50 @@ export default function SleepPage() {
 
       {/* ── Apple Health (future) ── */}
       <div style={{ padding: '0 20px', marginBottom: 28 }}>
-        <p style={{
-          fontFamily: 'var(--font-nunito-sans)', fontSize: '10px',
-          fontWeight: 800, letterSpacing: '0.1em', color: D.muted,
-          marginBottom: 10, paddingLeft: 2,
-        }}>
+        <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '10px', fontWeight: 800, letterSpacing: '0.1em', color: D.muted, marginBottom: 10, paddingLeft: 2 }}>
           APPLE HEALTH
         </p>
-        <div style={{
-          borderRadius: 14, border: `1.5px solid ${D.bdr}`,
-          background: D.card, padding: '14px 16px',
-          display: 'flex', alignItems: 'center', gap: 12,
-          opacity: 0.55,
-        }}>
-          {/* Apple Health heart icon */}
-          <div style={{
-            width: 34, height: 34, borderRadius: 10, flexShrink: 0,
-            background: 'rgba(255,59,48,0.15)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
+        <div style={{ borderRadius: 14, border: `1.5px solid ${D.bdr}`, background: D.card, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, opacity: 0.55 }}>
+          <div style={{ width: 34, height: 34, borderRadius: 10, flexShrink: 0, background: 'rgba(255,59,48,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <svg width="18" height="18" viewBox="0 0 256 256" fill="#FF3B30">
               <path d="M240,94c0,70-103.79,126.66-108.21,129a8,8,0,0,1-7.58,0C119.79,220.66,16,164,16,94A62.07,62.07,0,0,1,78,32c20.65,0,38.73,8.88,50,23.89C139.27,40.88,157.35,32,178,32A62.07,62.07,0,0,1,240,94Z"/>
             </svg>
           </div>
           <div style={{ flex: 1 }}>
-            <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '14px', fontWeight: 700, color: D.text, marginBottom: 2 }}>
-              Connect Apple Health
-            </p>
-            <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 500, color: D.muted }}>
-              Read &amp; write sleep data — coming in the iOS app
-            </p>
+            <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '14px', fontWeight: 700, color: D.text, marginBottom: 2 }}>Connect Apple Health</p>
+            <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 500, color: D.muted }}>Read &amp; write sleep data — coming in the iOS app</p>
           </div>
-          <div style={{
-            width: 42, height: 26, borderRadius: 13,
-            background: 'rgba(255,255,255,0.12)',
-            display: 'flex', alignItems: 'center',
-            padding: '3px',
-          }}>
+          <div style={{ width: 42, height: 26, borderRadius: 13, background: 'rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', padding: '3px' }}>
             <div style={{ width: 20, height: 20, borderRadius: '50%', background: 'rgba(255,255,255,0.3)' }} />
           </div>
         </div>
       </div>
 
       {/* ── Save ── */}
-      <div style={{ padding: '0 20px' }}>
+      <div style={{ padding: '0 20px', marginBottom: 32 }}>
         <button
           onClick={handleSave}
           disabled={saving || saved}
           style={{
             width: '100%', padding: '16px', borderRadius: 14, border: 'none',
-            background: saved
-              ? 'rgba(94,194,105,0.20)'
-              : 'linear-gradient(135deg, #F4A582, #F5C98A)',
+            background: saved ? 'rgba(94,194,105,0.20)' : 'linear-gradient(135deg, #F4A582, #F5C98A)',
             cursor: saving ? 'wait' : 'pointer',
-            fontFamily: 'var(--font-nunito-sans)',
-            fontSize: '15px', fontWeight: 800,
+            fontFamily: 'var(--font-nunito-sans)', fontSize: '15px', fontWeight: 800,
             color: saved ? D.green : '#1E1C2E',
             transition: 'all 0.2s', opacity: saving ? 0.7 : 1,
           }}
         >
-          {saved ? '✓ Logged!' : saving ? 'Saving…' : 'Log sleep'}
+          {saved ? '✓ Logged!' : saving ? 'Saving…' : isUpdate ? 'Update sleep log' : 'Log sleep'}
         </button>
-        <p style={{
-          marginTop: 12, textAlign: 'center',
-          fontFamily: 'var(--font-nunito-sans)', fontSize: '11px',
-          fontWeight: 500, color: D.faint,
-        }}>
+        <p style={{ marginTop: 12, textAlign: 'center', fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 500, color: D.faint }}>
           Lumi uses sleep patterns to support your energy and mood.
         </p>
       </div>
+
+      {/* ── History chart ── */}
+      {loaded && (
+        <SleepHistoryChart history={history} today={todayLog} />
+      )}
 
     </div>
   )

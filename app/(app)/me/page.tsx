@@ -195,7 +195,6 @@ export default async function MePage() {
       {/* ── Profile hero ── */}
       <div style={{
         background: 'linear-gradient(160deg, rgba(244,165,130,0.22) 0%, rgba(245,201,138,0.14) 55%, transparent 100%)',
-        borderBottom: '1px solid rgba(45,42,62,0.07)',
         padding: '32px 20px 24px',
         display: 'flex', alignItems: 'center', gap: 16,
       }}>

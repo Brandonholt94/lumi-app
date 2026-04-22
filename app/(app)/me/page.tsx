@@ -168,7 +168,6 @@ export default async function MePage() {
 
   let planLabel   = 'Free'
   let displayName = [firstName, lastName].filter(Boolean).join(' ')
-  const initial   = (firstName || displayName || '?')[0].toUpperCase()
 
   if (userId) {
     const supabase = createClient(
@@ -180,9 +179,13 @@ export default async function MePage() {
       .select('plan, display_name')
       .eq('clerk_user_id', userId)
       .single()
-    if (data?.plan)         planLabel   = PLAN_LABELS[data.plan] ?? 'Free'
+    if (data?.plan)                         planLabel   = PLAN_LABELS[data.plan] ?? 'Free'
     if (!displayName && data?.display_name) displayName = data.display_name
   }
+
+  // Derive initial after all name sources have been resolved.
+  // Fall back to first letter of email if name is still empty.
+  const initial = (displayName || email || 'L')[0].toUpperCase()
 
   return (
     <div

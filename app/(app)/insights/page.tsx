@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import ProfileButton from '../_components/ProfileButton'
+import ResourcesSection from '../today/_components/ResourcesSection'
 import type { SleepLog } from '@/app/api/sleep/route'
 
 // ─────────────────────────────────────────────────────────
@@ -1339,6 +1340,9 @@ export default function InsightsPage() {
                 </div>
               </div>
             )}
+
+            {/* ── Lumi Library ── */}
+            <ResourcesSection />
 
 </>
             )}

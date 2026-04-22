@@ -174,7 +174,7 @@ export default function ContactPage() {
           fontWeight: 500,
           color: 'rgba(45,42,62,0.3)',
         }}>
-          We reply to every message. Built by Craft + Code LLC.
+          We reply to every message. Built by Lumi Mind.
         </p>
 
       </div>

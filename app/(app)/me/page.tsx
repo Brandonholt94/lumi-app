@@ -334,7 +334,7 @@ export default async function MePage() {
           color: 'rgba(45,42,62,0.22)',
           marginTop: 8,
         }}>
-          Lumi · v0.1 · Built with care by Craft + Code LLC
+          Lumi · v0.1 · Built with care by Lumi Mind
         </p>
 
       </div>

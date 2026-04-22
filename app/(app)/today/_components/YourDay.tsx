@@ -185,6 +185,7 @@ function TaskCard({
     <div
       ref={setNodeRef}
       {...(!task.completed ? { ...attributes, ...listeners } : {})}
+      draggable={false}
       onClick={() => { if (!isDragging) onTap(task) }}
       style={{
         position: 'relative',
@@ -202,6 +203,7 @@ function TaskCard({
         transition: 'opacity 0.12s, background 0.2s',
         overflow: 'hidden',
         touchAction: 'none',
+        userSelect: 'none',
         WebkitTapHighlightColor: 'transparent',
       }}
     >
@@ -504,6 +506,7 @@ function TrayCard({ task, onTap }: { task: Task; onTap: () => void }) {
       ref={setNodeRef}
       {...attributes}
       {...listeners}
+      draggable={false}
       style={{
         background: 'white', borderRadius: 12,
         border: '1px solid rgba(45,42,62,0.07)',
@@ -514,6 +517,7 @@ function TrayCard({ task, onTap }: { task: Task; onTap: () => void }) {
         boxShadow: '0 1px 3px rgba(45,42,62,0.04)',
         cursor: isDragging ? 'grabbing' : 'grab',
         touchAction: 'none',
+        userSelect: 'none',
       }}
     >
       <div style={{ color: 'rgba(45,42,62,0.18)', flexShrink: 0, pointerEvents: 'none' }}>

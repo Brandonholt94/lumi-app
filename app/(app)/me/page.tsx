@@ -323,8 +323,12 @@ export default async function MePage() {
         <Section title="SUPPORT">
           <Row icon={icons.heart}  label="Crisis resources" href="/me/crisis"  />
           <Row icon={icons.chat}   label="Contact us"       href="/me/contact" />
-          <Row icon={icons.info}   label="About Lumi"       href="/me/about"   />
           <Row icon={icons.logout} label="Sign out" danger  href="/sign-out"   last />
+        </Section>
+
+        <Section title="LEGAL">
+          <Row icon={icons.info} label="Privacy Policy"  href="https://lumimind.app/privacy" external />
+          <Row icon={icons.info} label="Terms of Service" href="https://lumimind.app/terms"   external last />
         </Section>
 
         <p style={{

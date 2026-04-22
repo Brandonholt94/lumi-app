@@ -125,29 +125,32 @@ function currentBlock(): TimeBlock {
 
 function ConfettiBurst({ onDone }: { onDone: () => void }) {
   useEffect(() => {
-    const t = setTimeout(onDone, 1100)
+    const t = setTimeout(onDone, 1400)
     return () => clearTimeout(t)
   }, [onDone])
 
   const COLORS = ['#F4A582', '#F5C98A', '#E8A0BF', '#8FAAE0', '#B8AECC', '#5EC269']
-  const pieces = Array.from({ length: 20 }, (_, i) => {
-    const startX = 4 + (i / 19) * 92          // spread evenly across card width
-    const drift  = ((i % 5) - 2) * 12          // slight horizontal drift px
-    const fall   = 44 + (i % 4) * 14           // how far it falls
-    const size   = 4 + (i % 4)
+  // 24 pieces bursting outward from the checkmark button area
+  const pieces = Array.from({ length: 24 }, (_, i) => {
+    const angle  = (i / 24) * 360
+    const dist   = 28 + (i % 5) * 10                        // 28–68px travel
+    const dx     = Math.cos((angle * Math.PI) / 180) * dist
+    const dy     = Math.sin((angle * Math.PI) / 180) * dist - 18  // bias upward
+    const size   = 5 + (i % 3) * 2
     const isCirc = i % 3 !== 0
-    const delay  = (i % 6) * 0.04              // stagger within 0–0.2s
-    const spin   = i % 2 === 0 ? 180 : -180
-    return { startX, drift, fall, size, isCirc, color: COLORS[i % COLORS.length], delay, spin }
+    const delay  = (i % 5) * 0.025
+    const spin   = i % 2 === 0 ? 300 : -300
+    return { dx, dy, size, isCirc, color: COLORS[i % COLORS.length], delay, spin }
   })
 
   return (
-    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, pointerEvents: 'none', overflow: 'hidden', zIndex: 20 }}>
+    // overflow:visible so pieces escape the card boundary
+    <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'visible', zIndex: 20 }}>
       <style>{`
-        @keyframes confFall {
-          0%   { transform: translateY(-6px) translateX(0px) rotate(0deg); opacity: 1; }
-          70%  { opacity: 1; }
-          100% { transform: translateY(var(--fall)) translateX(var(--drift)) rotate(var(--spin)); opacity: 0; }
+        @keyframes confBurst {
+          0%   { transform: translate(0,0) rotate(0deg) scale(1); opacity: 1; }
+          55%  { opacity: 1; }
+          100% { transform: translate(var(--cdx),var(--cdy)) rotate(var(--cspin)) scale(0.5); opacity: 0; }
         }
       `}</style>
       {pieces.map((p, i) => (
@@ -155,17 +158,17 @@ function ConfettiBurst({ onDone }: { onDone: () => void }) {
           key={i}
           style={{
             position: 'absolute',
-            top: 0,
-            left: `${p.startX}%`,
-            width: p.size,
+            top:   '50%',
+            right: 24,               // anchored near the checkmark button
+            width:  p.size,
             height: p.size,
             borderRadius: p.isCirc ? '50%' : 2,
             background: p.color,
             // @ts-ignore CSS custom properties
-            '--fall':  `${p.fall}px`,
-            '--drift': `${p.drift}px`,
-            '--spin':  `${p.spin}deg`,
-            animation: `confFall 0.95s ease-in ${p.delay}s both`,
+            '--cdx':   `${p.dx}px`,
+            '--cdy':   `${p.dy}px`,
+            '--cspin': `${p.spin}deg`,
+            animation: `confBurst 1.1s cubic-bezier(0.22,1,0.36,1) ${p.delay}s both`,
           } as React.CSSProperties}
         />
       ))}
@@ -230,7 +233,8 @@ function TaskCard({
         opacity: isDragging ? 0.25 : 1,
         marginBottom: 7,
         transition: 'opacity 0.12s, background 0.2s',
-        overflow: 'hidden',
+        overflow: 'visible',           // let confetti burst outside card bounds
+        zIndex: celebrating ? 10 : 1, // float above sibling cards during burst
         touchAction: 'none',
         userSelect: 'none',
         WebkitTapHighlightColor: 'transparent',

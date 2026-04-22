@@ -315,7 +315,7 @@ export default async function MePage() {
 
         <Section title="COMMUNITY">
           <Row icon={icons.paperPlane} label="Share feedback"       href="mailto:hello@craftandcode.agency"          external />
-          <Row icon={icons.instagram}  label="Follow on Instagram"  href="https://instagram.com/lumimindapp"         external />
+          <Row icon={icons.instagram}  label="Follow on Instagram"  href="https://instagram.com/lumiforadhd"         external />
           <Row icon={icons.question}   label="FAQ"                  href="https://lumimind.app/faq"                  external />
           <Row icon={icons.star}       label="Rate the app"         href="#" value="Coming soon" valueDim             last />
         </Section>

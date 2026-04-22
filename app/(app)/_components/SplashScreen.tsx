@@ -60,7 +60,7 @@ export default function SplashScreen() {
         }}
       />
 
-      {/* Lumi wordmark — Fraunces, letters stagger in */}
+      {/* Lumi wordmark — Aegora, letters stagger in */}
       <svg
         style={{ position: 'relative', zIndex: 2, width: '140px' }}
         viewBox="0 0 216.1 85"

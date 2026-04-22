@@ -38,7 +38,7 @@ export default function GreetingHeader({ firstName }: Props) {
         <div>
           <h1
             style={{
-              fontFamily: 'var(--font-fraunces)',
+              fontFamily: 'var(--font-aegora)',
               fontSize: '26px',
               fontWeight: 900,
               color: '#1E1C2E',

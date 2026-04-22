@@ -244,7 +244,7 @@ export default function ActionCards() {
 
             {/* Text */}
             <p style={{
-              fontFamily: 'var(--font-fraunces)',
+              fontFamily: 'var(--font-aegora)',
               fontSize:   14,
               fontWeight: 700,
               color:      '#1E1C2E',

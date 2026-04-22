@@ -602,7 +602,7 @@ function Tray({ tasks, onAssign }: {
               ADD TO WHICH BLOCK?
             </p>
             <p style={{
-              fontFamily: 'var(--font-fraunces)', fontSize: '18px', fontWeight: 700,
+              fontFamily: 'var(--font-aegora)', fontSize: '18px', fontWeight: 700,
               color: '#1E1C2E', marginBottom: 20, lineHeight: 1.25,
             }}>
               {picking.text}

@@ -45,7 +45,7 @@ export default function WelcomeBack() {
         <span style={{ fontSize: 20, lineHeight: 1 }}>✦</span>
         <div>
           <p style={{
-            fontFamily: 'var(--font-fraunces)',
+            fontFamily: 'var(--font-aegora)',
             fontSize: 15, fontWeight: 700,
             color: '#1E1C2E', lineHeight: 1.2, marginBottom: 2,
           }}>

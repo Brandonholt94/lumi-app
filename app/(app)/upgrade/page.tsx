@@ -118,7 +118,7 @@ export default function UpgradePage() {
           ← Back
         </button>
         <h1 style={{
-          fontFamily: 'var(--font-fraunces)',
+          fontFamily: 'var(--font-aegora)',
           fontSize: '28px', fontWeight: 900,
           color: DARKER, marginBottom: 8,
         }}>
@@ -220,7 +220,7 @@ export default function UpgradePage() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14 }}>
                 <div>
                   <h2 style={{
-                    fontFamily: 'var(--font-fraunces)',
+                    fontFamily: 'var(--font-aegora)',
                     fontSize: '20px', fontWeight: 900,
                     color: DARKER, marginBottom: 3,
                   }}>

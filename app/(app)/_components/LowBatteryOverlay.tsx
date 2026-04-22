@@ -140,7 +140,7 @@ export default function LowBatteryOverlay() {
           borderRadius: 20, padding: '20px',
           marginBottom: 16, width: '100%', position: 'relative', zIndex: 1,
         }}>
-          <p style={{ fontFamily: 'var(--font-fraunces)', fontSize: 20, fontWeight: 900, color: 'rgba(255,255,255,0.92)', lineHeight: 1.35 }}>
+          <p style={{ fontFamily: 'var(--font-aegora)', fontSize: 20, fontWeight: 900, color: 'rgba(255,255,255,0.92)', lineHeight: 1.35 }}>
             You don&apos;t have to do everything today.
           </p>
           <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.45)', marginTop: 8, lineHeight: 1.5 }}>

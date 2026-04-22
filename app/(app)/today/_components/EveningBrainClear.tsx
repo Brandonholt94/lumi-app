@@ -98,7 +98,7 @@ export default function EveningBrainClear() {
 
       {/* Headline */}
       <p style={{
-        fontFamily: 'var(--font-fraunces)', fontSize: 18, fontWeight: 700,
+        fontFamily: 'var(--font-aegora)', fontSize: 18, fontWeight: 700,
         color: 'rgba(255,255,255,0.92)', lineHeight: 1.3, marginBottom: 8,
       }}>
         Before you close out the day —

@@ -219,7 +219,7 @@ export default function SignUpPage() {
         {/* ── Form phase ── */}
         {phase === 'form' && (
           <>
-            <h1 style={{ fontFamily: 'var(--font-fraunces)', fontSize: 26, fontWeight: 900, color: '#1E1C2E', marginBottom: 4, lineHeight: 1.1 }}>
+            <h1 style={{ fontFamily: 'var(--font-aegora)', fontSize: 26, fontWeight: 900, color: '#1E1C2E', marginBottom: 4, lineHeight: 1.1 }}>
               A new day for your brain.
             </h1>
             <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: 13, fontWeight: 600, color: '#9895B0', marginBottom: 28 }}>
@@ -305,7 +305,7 @@ export default function SignUpPage() {
               </div>
             </div>
 
-            <h1 style={{ fontFamily: 'var(--font-fraunces)', fontSize: 24, fontWeight: 900, color: '#1E1C2E', marginBottom: 6, lineHeight: 1.1, textAlign: 'center' }}>
+            <h1 style={{ fontFamily: 'var(--font-aegora)', fontSize: 24, fontWeight: 900, color: '#1E1C2E', marginBottom: 6, lineHeight: 1.1, textAlign: 'center' }}>
               Check your email
             </h1>
             <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: 13, fontWeight: 600, color: '#9895B0', marginBottom: 28, textAlign: 'center', lineHeight: 1.5 }}>

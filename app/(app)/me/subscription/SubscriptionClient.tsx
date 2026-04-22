@@ -90,7 +90,7 @@ export default function SubscriptionClient({ currentPlan }: { currentPlan: Plan 
             fontWeight: 800, letterSpacing: '0.1em', color: MUTED, marginBottom: 4,
           }}>CURRENT PLAN</p>
           <p style={{
-            fontFamily: 'var(--font-fraunces)', fontSize: '22px',
+            fontFamily: 'var(--font-aegora)', fontSize: '22px',
             fontWeight: 900, color: DARKER,
           }}>
             {PLAN_LABELS[currentPlan]}
@@ -176,7 +176,7 @@ export default function SubscriptionClient({ currentPlan }: { currentPlan: Plan 
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
                 <div>
-                  <p style={{ fontFamily: 'var(--font-fraunces)', fontSize: '18px', fontWeight: 900, color: DARKER, marginBottom: 3 }}>Starter</p>
+                  <p style={{ fontFamily: 'var(--font-aegora)', fontSize: '18px', fontWeight: 900, color: DARKER, marginBottom: 3 }}>Starter</p>
                   <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 600, color: MUTED }}>A gentle place to begin</p>
                 </div>
                 <div style={{ textAlign: 'right' }}>
@@ -229,7 +229,7 @@ export default function SubscriptionClient({ currentPlan }: { currentPlan: Plan 
                 color: 'rgba(244,165,130,0.7)', marginBottom: 6,
               }}>LUMI CORE</p>
               <p style={{
-                fontFamily: 'var(--font-fraunces)', fontSize: '26px',
+                fontFamily: 'var(--font-aegora)', fontSize: '26px',
                 fontWeight: 900, color: 'white', marginBottom: 2,
               }}>
                 {billing === 'annual' ? '$10' : '$14'}
@@ -273,7 +273,7 @@ export default function SubscriptionClient({ currentPlan }: { currentPlan: Plan 
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
               <div>
-                <p style={{ fontFamily: 'var(--font-fraunces)', fontSize: '18px', fontWeight: 900, color: DARKER, marginBottom: 3 }}>Companion</p>
+                <p style={{ fontFamily: 'var(--font-aegora)', fontSize: '18px', fontWeight: 900, color: DARKER, marginBottom: 3 }}>Companion</p>
                 <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 600, color: MUTED }}>Lumi at its fullest</p>
               </div>
               <div style={{ textAlign: 'right' }}>

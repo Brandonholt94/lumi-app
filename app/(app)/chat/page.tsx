@@ -304,7 +304,7 @@ export default function ChatPage() {
             <div className="flex-1 flex flex-col items-center justify-center px-8"
               style={{ animation: 'lumiGreetIn 0.5s ease-out both' }}>
               <p style={{
-                fontFamily: 'var(--font-fraunces)',
+                fontFamily: 'var(--font-aegora)',
                 fontSize: '36px',
                 fontWeight: 900,
                 lineHeight: 1.15,

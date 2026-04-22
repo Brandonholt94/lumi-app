@@ -262,7 +262,7 @@ export default function SignInPage() {
         {/* ── Credentials ── */}
         {phase === 'credentials' && (
           <>
-            <h1 style={{ fontFamily: 'var(--font-fraunces)', fontSize: 26, fontWeight: 900, color: '#1E1C2E', marginBottom: 4, lineHeight: 1.1 }}>
+            <h1 style={{ fontFamily: 'var(--font-aegora)', fontSize: 26, fontWeight: 900, color: '#1E1C2E', marginBottom: 4, lineHeight: 1.1 }}>
               Welcome back.
             </h1>
             <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: 13, fontWeight: 600, color: '#9895B0', marginBottom: 28 }}>
@@ -314,7 +314,7 @@ export default function SignInPage() {
         {phase === 'forgot-email' && (
           <>
             <BackBtn onClick={() => { setPhase('credentials'); setError(null) }} />
-            <h1 style={{ fontFamily: 'var(--font-fraunces)', fontSize: 24, fontWeight: 900, color: '#1E1C2E', marginBottom: 4, lineHeight: 1.1 }}>
+            <h1 style={{ fontFamily: 'var(--font-aegora)', fontSize: 24, fontWeight: 900, color: '#1E1C2E', marginBottom: 4, lineHeight: 1.1 }}>
               Reset your password
             </h1>
             <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: 13, fontWeight: 600, color: '#9895B0', marginBottom: 28 }}>
@@ -342,7 +342,7 @@ export default function SignInPage() {
                 ✉️
               </div>
             </div>
-            <h1 style={{ fontFamily: 'var(--font-fraunces)', fontSize: 24, fontWeight: 900, color: '#1E1C2E', marginBottom: 4, lineHeight: 1.1, textAlign: 'center' }}>
+            <h1 style={{ fontFamily: 'var(--font-aegora)', fontSize: 24, fontWeight: 900, color: '#1E1C2E', marginBottom: 4, lineHeight: 1.1, textAlign: 'center' }}>
               Check your email
             </h1>
             <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: 13, fontWeight: 600, color: '#9895B0', marginBottom: 28, textAlign: 'center' }}>

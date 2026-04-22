@@ -313,7 +313,7 @@ export default function DaySceneHeader({ firstName }: Props) {
         zIndex: 2,
       }}>
         <h1 style={{
-          fontFamily: 'var(--font-fraunces)',
+          fontFamily: 'var(--font-aegora)',
           fontSize: 26, fontWeight: 900,
           color: '#1E1C2E',
           lineHeight: 1.1, marginBottom: 3,

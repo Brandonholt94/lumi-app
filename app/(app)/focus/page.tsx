@@ -822,7 +822,7 @@ export default function FocusPage() {
               pointerEvents: 'none',
             }}>
               <span style={{
-                fontFamily: 'var(--font-fraunces)',
+                fontFamily: 'var(--font-aegora)',
                 fontSize: state === 'done' ? '40px' : '54px', fontWeight: 900,
                 color: state === 'done' ? D.peach : D.textPrimary,
                 lineHeight: 1, letterSpacing: '-1px',
@@ -1051,7 +1051,7 @@ export default function FocusPage() {
             }} />
 
             <p style={{
-              fontFamily: 'var(--font-fraunces)', fontSize: '22px',
+              fontFamily: 'var(--font-aegora)', fontSize: '22px',
               fontWeight: 900, color: D.textPrimary, marginBottom: 4,
             }}>
               Drop a thought

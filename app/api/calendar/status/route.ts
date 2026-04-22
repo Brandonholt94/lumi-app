@@ -1,5 +1,6 @@
 import { auth } from '@clerk/nextjs/server'
 import { isCalendarConnected, getConnectedEmail } from '@/lib/google-calendar'
+import { isMicrosoftConnected, getMicrosoftEmail } from '@/lib/microsoft-calendar'
 import { NextResponse } from 'next/server'
 
 export const dynamic = 'force-dynamic'
@@ -8,8 +9,18 @@ export async function GET() {
   const { userId } = await auth()
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const connected = await isCalendarConnected(userId)
-  const email     = connected ? await getConnectedEmail(userId) : null
+  const [googleConnected, microsoftConnected] = await Promise.all([
+    isCalendarConnected(userId),
+    isMicrosoftConnected(userId),
+  ])
 
-  return NextResponse.json({ connected, email })
+  const [googleEmail, microsoftEmail] = await Promise.all([
+    googleConnected    ? getConnectedEmail(userId)  : Promise.resolve(null),
+    microsoftConnected ? getMicrosoftEmail(userId)  : Promise.resolve(null),
+  ])
+
+  return NextResponse.json({
+    google:    { connected: googleConnected,    email: googleEmail },
+    microsoft: { connected: microsoftConnected, email: microsoftEmail },
+  })
 }

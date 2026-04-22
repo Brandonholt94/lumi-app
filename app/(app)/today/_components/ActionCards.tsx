@@ -1,9 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import Link from 'next/link'
 
-type CardId = 'notifications' | 'calendar' | 'sleep' | 'focus' | 'braindump'
+type CardId = 'notifications' | 'calendar' | 'app'
 
 interface CardDef {
   id:          CardId
@@ -55,47 +54,20 @@ const CalendarIcon = () => (
   </>
 )
 
-const MoonIcon = () => (
+const PhoneIcon = () => (
   <>
     <style>{`
-      @keyframes lumiMoonPulse {
-        0%,100% { opacity: 1;   transform: scale(1);    }
-        50%      { opacity: 0.6; transform: scale(0.88); }
+      @keyframes lumiPhoneBounce {
+        0%,100% { transform: translateY(0px) rotate(0deg);  }
+        20%      { transform: translateY(-4px) rotate(-6deg); }
+        40%      { transform: translateY(0px) rotate(0deg);  }
+        60%      { transform: translateY(-2px) rotate(4deg); }
+        80%      { transform: translateY(0px) rotate(0deg);  }
       }
     `}</style>
     <svg width="28" height="28" viewBox="0 0 256 256" fill="none"
-      style={{ animation: 'lumiMoonPulse 3s ease-in-out infinite' }}>
-      <path fill="#9895B0" d="M244,96a12,12,0,0,1-12,12H220v12a12,12,0,0,1-24,0V108H184a12,12,0,0,1,0-24h12V72a12,12,0,0,1,24,0V84h12A12,12,0,0,1,244,96ZM144,60h4v4a12,12,0,0,0,24,0V60h4a12,12,0,0,0,0-24h-4V32a12,12,0,0,0-24,0v4h-4a12,12,0,0,0,0,24Zm75.81,90.38A12,12,0,0,1,222,162.3,100,100,0,1,1,93.7,34a12,12,0,0,1,15.89,13.6A85.12,85.12,0,0,0,108,64a84.09,84.09,0,0,0,84,84,85.22,85.22,0,0,0,16.37-1.59A12,12,0,0,1,219.81,150.38ZM190,172A108.13,108.13,0,0,1,84,66,76,76,0,1,0,190,172Z"/>
-    </svg>
-  </>
-)
-
-const SparkIcon = () => (
-  <>
-    <style>{`
-      @keyframes lumiSparkSpin {
-        from { transform: rotate(0deg);   }
-        to   { transform: rotate(360deg); }
-      }
-    `}</style>
-    <svg width="28" height="28" viewBox="0 0 256 256" fill="none"
-      style={{ animation: 'lumiSparkSpin 8s linear infinite' }}>
-      <path fill="#F5C98A" d="M199,125.31l-49.88-18.39L130.69,57a19.92,19.92,0,0,0-37.38,0L74.92,106.92,25,125.31a19.92,19.92,0,0,0,0,37.38l49.88,18.39L93.31,231a19.92,19.92,0,0,0,37.38,0l18.39-49.88L199,162.69a19.92,19.92,0,0,0,0-37.38Zm-63.38,35.16a12,12,0,0,0-7.11,7.11L112,212.28l-16.47-44.7a12,12,0,0,0-7.11-7.11L43.72,144l44.7-16.47a12,12,0,0,0,7.11-7.11L112,75.72l16.47,44.7a12,12,0,0,0,7.11,7.11L180.28,144Z"/>
-    </svg>
-  </>
-)
-
-const CloudIcon = () => (
-  <>
-    <style>{`
-      @keyframes lumiFloat {
-        0%,100% { transform: translateY(0px);  }
-        50%      { transform: translateY(-5px); }
-      }
-    `}</style>
-    <svg width="28" height="28" viewBox="0 0 256 256" fill="none"
-      style={{ animation: 'lumiFloat 3s ease-in-out infinite' }}>
-      <path fill="#E8A0BF" d="M248,124a56.11,56.11,0,0,0-32-50.61V72a48,48,0,0,0-88-26.49A48,48,0,0,0,40,72v1.39a56,56,0,0,0,0,101.2V176a48,48,0,0,0,88,26.49A48,48,0,0,0,216,176v-1.41A56.09,56.09,0,0,0,248,124ZM88,208a32,32,0,0,1-31.81-28.56A55.87,55.87,0,0,0,64,180h8a8,8,0,0,0,0-16H64A40,40,0,0,1,50.67,86.27,8,8,0,0,0,56,78.73V72a32,32,0,0,1,64,0v68.26A47.8,47.8,0,0,0,88,128a8,8,0,0,0,0,16,32,32,0,0,1,0,64Zm104-44h-8a8,8,0,0,0,0,16h8a55.87,55.87,0,0,0,7.81-.56A32,32,0,1,1,168,144a8,8,0,0,0,0-16,47.8,47.8,0,0,0-32,12.26V72a32,32,0,0,1,64,0v6.73a8,8,0,0,0,5.33,7.54A40,40,0,0,1,192,164Z"/>
+      style={{ animation: 'lumiPhoneBounce 4s ease-in-out infinite' }}>
+      <path fill="#E8A0BF" d="M176,16H80A24,24,0,0,0,56,40V216a24,24,0,0,0,24,24h96a24,24,0,0,0,24-24V40A24,24,0,0,0,176,16Zm8,200a8,8,0,0,1-8,8H80a8,8,0,0,1-8-8V40a8,8,0,0,1,8-8h96a8,8,0,0,1,8,8Zm-56-24a12,12,0,1,1-12-12A12,12,0,0,1,128,192Z"/>
     </svg>
   </>
 )
@@ -130,13 +102,10 @@ function saveDismissed(dismissed: Set<CardId>) {
 // ── Component ─────────────────────────────────────────────────
 
 export default function ActionCards() {
-  const [dismissed,         setDismissed]         = useState<Set<CardId>>(new Set())
-  const [calendarConnected, setCalendarConnected]  = useState<boolean | null>(null)
-  const [notifGranted,      setNotifGranted]       = useState<boolean>(true)
-  const [sleepLoggedToday,  setSleepLoggedToday]   = useState<boolean>(false)
-  const [hasTasks,          setHasTasks]           = useState<boolean>(false)
-  const [hasCaptures,       setHasCaptures]        = useState<boolean>(false)
-  const [ready,             setReady]              = useState(false)
+  const [dismissed,         setDismissed]        = useState<Set<CardId>>(new Set())
+  const [calendarConnected, setCalendarConnected] = useState<boolean | null>(null)
+  const [notifGranted,      setNotifGranted]      = useState<boolean>(true)
+  const [ready,             setReady]             = useState(false)
 
   useEffect(() => {
     setDismissed(loadDismissed())
@@ -145,19 +114,14 @@ export default function ActionCards() {
       setNotifGranted(Notification.permission === 'granted')
     }
 
-    const tzOffset = new Date().getTimezoneOffset()
-
-    Promise.all([
-      fetch('/api/calendar/status').then(r => r.json()).catch(() => ({ connected: false })),
-      fetch(`/api/sleep?tzOffset=${tzOffset}`).then(r => r.json()).catch(() => ({ today: null })),
-      fetch('/api/captures').then(r => r.json()).catch(() => []),
-    ]).then(([cal, sleep, captures]) => {
-      setCalendarConnected(cal.connected ?? false)
-      setSleepLoggedToday(!!sleep.today)
-      const list = Array.isArray(captures) ? captures : []
-      setHasTasks(list.some((c: { tag: string }) => c.tag === 'task' || c.tag === 'reminder'))
-      setHasCaptures(list.length > 2)
-    }).finally(() => setReady(true))
+    fetch('/api/calendar/status')
+      .then(r => r.json())
+      .then(data => {
+        const anyConnected = !!(data.google?.connected || data.microsoft?.connected)
+        setCalendarConnected(anyConnected)
+      })
+      .catch(() => setCalendarConnected(false))
+      .finally(() => setReady(true))
   }, [])
 
   function dismiss(id: CardId) {
@@ -188,44 +152,23 @@ export default function ActionCards() {
       icon:        <CalendarIcon />,
     },
     {
-      id:          'sleep',
-      title:       'Log your sleep',
-      description: 'Lumi adjusts to how you slept',
-      actionLabel: 'Log it',
-      color:       '#9895B0',
-      href:        '/me/sleep',
-      icon:        <MoonIcon />,
-    },
-    {
-      id:          'focus',
-      title:       'Set one focus',
-      description: 'What\'s the one thing today?',
-      actionLabel: 'Set focus',
-      color:       '#F5C98A',
-      href:        '/capture',
-      icon:        <SparkIcon />,
-    },
-    {
-      id:          'braindump',
-      title:       'Brain dump',
-      description: 'Clear your head in seconds',
-      actionLabel: 'Open',
+      id:          'app',
+      title:       'Get the app',
+      description: 'Lumi on your phone, always',
+      actionLabel: 'Download',
       color:       '#E8A0BF',
-      href:        '/capture',
-      icon:        <CloudIcon />,
+      href:        'https://apps.apple.com',
+      icon:        <PhoneIcon />,
     },
   ]
 
   if (!ready) return null
 
-  // Filter out dismissed + cards that don't apply
+  // Filter out dismissed + cards that are already done
   const visible = ALL_CARDS.filter(card => {
     if (dismissed.has(card.id))                           return false
     if (card.id === 'notifications' && notifGranted)      return false
     if (card.id === 'calendar'      && calendarConnected) return false
-    if (card.id === 'sleep'         && sleepLoggedToday)  return false
-    if (card.id === 'focus'         && hasTasks)          return false
-    if (card.id === 'braindump'     && hasCaptures)       return false
     return true
   }).slice(0, 3)
 

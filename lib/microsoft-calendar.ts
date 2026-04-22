@@ -1,10 +1,11 @@
 import { createClient } from '@supabase/supabase-js'
+import type { CalendarEvent } from './google-calendar'
 
-const GOOGLE_AUTH_URL  = 'https://accounts.google.com/o/oauth2/v2/auth'
-const GOOGLE_TOKEN_URL = 'https://oauth2.googleapis.com/token'
-const CALENDAR_API     = 'https://www.googleapis.com/calendar/v3'
-const USERINFO_API     = 'https://www.googleapis.com/oauth2/v3/userinfo'
-const SCOPES           = 'https://www.googleapis.com/auth/calendar.readonly'
+const MS_AUTH_URL  = 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize'
+const MS_TOKEN_URL = 'https://login.microsoftonline.com/common/oauth2/v2.0/token'
+const GRAPH_API    = 'https://graph.microsoft.com/v1.0'
+// offline_access is required for refresh tokens; openid+email for userinfo
+const SCOPES       = 'Calendars.Read offline_access openid email'
 
 function getServiceClient() {
   return createClient(
@@ -14,57 +15,59 @@ function getServiceClient() {
 }
 
 // ── OAuth URL ─────────────────────────────────────────────────
-export function buildOAuthUrl(redirectUri: string): string {
+export function buildMicrosoftOAuthUrl(redirectUri: string): string {
   const params = new URLSearchParams({
-    client_id:     process.env.GOOGLE_CLIENT_ID!,
+    client_id:     process.env.MICROSOFT_CLIENT_ID!,
     redirect_uri:  redirectUri,
     response_type: 'code',
     scope:         SCOPES,
-    access_type:   'offline',
-    prompt:        'consent', // always returns refresh_token
+    response_mode: 'query',
+    prompt:        'consent',
   })
-  return `${GOOGLE_AUTH_URL}?${params.toString()}`
+  return `${MS_AUTH_URL}?${params.toString()}`
 }
 
 // ── Token exchange ────────────────────────────────────────────
-export async function exchangeCode(code: string, redirectUri: string) {
-  const res = await fetch(GOOGLE_TOKEN_URL, {
+export async function exchangeMicrosoftCode(code: string, redirectUri: string) {
+  const res = await fetch(MS_TOKEN_URL, {
     method:  'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({
       code,
-      client_id:     process.env.GOOGLE_CLIENT_ID!,
-      client_secret: process.env.GOOGLE_CLIENT_SECRET!,
+      client_id:     process.env.MICROSOFT_CLIENT_ID!,
+      client_secret: process.env.MICROSOFT_CLIENT_SECRET!,
       redirect_uri:  redirectUri,
       grant_type:    'authorization_code',
+      scope:         SCOPES,
     }),
   })
   return res.json()
 }
 
 // ── Token refresh ─────────────────────────────────────────────
-async function refreshAccessToken(refreshToken: string) {
-  const res = await fetch(GOOGLE_TOKEN_URL, {
+async function refreshMicrosoftToken(refreshToken: string) {
+  const res = await fetch(MS_TOKEN_URL, {
     method:  'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({
       refresh_token: refreshToken,
-      client_id:     process.env.GOOGLE_CLIENT_ID!,
-      client_secret: process.env.GOOGLE_CLIENT_SECRET!,
+      client_id:     process.env.MICROSOFT_CLIENT_ID!,
+      client_secret: process.env.MICROSOFT_CLIENT_SECRET!,
       grant_type:    'refresh_token',
+      scope:         SCOPES,
     }),
   })
   return res.json()
 }
 
-// ── Get valid access token (auto-refresh if near expiry) ──────
+// ── Get valid access token (auto-refresh) ─────────────────────
 async function getValidAccessToken(userId: string): Promise<string | null> {
   const supabase = getServiceClient()
   const { data } = await supabase
     .from('calendar_tokens')
     .select('access_token, refresh_token, token_expiry')
     .eq('clerk_user_id', userId)
-    .eq('provider', 'google')
+    .eq('provider', 'microsoft')
     .maybeSingle()
 
   if (!data) return null
@@ -72,9 +75,8 @@ async function getValidAccessToken(userId: string): Promise<string | null> {
   const now    = new Date()
   const expiry = new Date(data.token_expiry)
 
-  // Refresh if token expires within 5 minutes
   if (expiry.getTime() - now.getTime() < 5 * 60 * 1000) {
-    const refreshed = await refreshAccessToken(data.refresh_token)
+    const refreshed = await refreshMicrosoftToken(data.refresh_token)
     if (refreshed.error) return null
 
     const newExpiry = new Date(now.getTime() + refreshed.expires_in * 1000)
@@ -86,7 +88,7 @@ async function getValidAccessToken(userId: string): Promise<string | null> {
         updated_at:   now.toISOString(),
       })
       .eq('clerk_user_id', userId)
-      .eq('provider', 'google')
+      .eq('provider', 'microsoft')
 
     return refreshed.access_token
   }
@@ -94,16 +96,21 @@ async function getValidAccessToken(userId: string): Promise<string | null> {
   return data.access_token
 }
 
-// ── Events ────────────────────────────────────────────────────
-export interface CalendarEvent {
-  id:     string
-  title:  string
-  start:  string // ISO string
-  end:    string
-  allDay: boolean
+// ── Fetch Microsoft account email ─────────────────────────────
+export async function fetchMicrosoftEmail(accessToken: string): Promise<string | null> {
+  try {
+    const res  = await fetch(`${GRAPH_API}/me?$select=mail,userPrincipalName`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    })
+    const data = await res.json()
+    return data.mail ?? data.userPrincipalName ?? null
+  } catch {
+    return null
+  }
 }
 
-export async function getUpcomingEvents(
+// ── Upcoming events ───────────────────────────────────────────
+export async function getMicrosoftUpcomingEvents(
   userId: string,
   hours = 24
 ): Promise<CalendarEvent[]> {
@@ -114,31 +121,34 @@ export async function getUpcomingEvents(
   const timeMax = new Date(now.getTime() + hours * 60 * 60 * 1000)
 
   const params = new URLSearchParams({
-    timeMin:       now.toISOString(),
-    timeMax:       timeMax.toISOString(),
-    singleEvents:  'true',
-    orderBy:       'startTime',
-    maxResults:    '5',
+    startDateTime: now.toISOString(),
+    endDateTime:   timeMax.toISOString(),
+    '$orderby':    'start/dateTime',
+    '$top':        '5',
+    '$select':     'id,subject,start,end,isAllDay',
   })
 
   try {
-    const res = await fetch(`${CALENDAR_API}/calendars/primary/events?${params}`, {
-      headers: { Authorization: `Bearer ${accessToken}` },
+    const res = await fetch(`${GRAPH_API}/me/calendarview?${params}`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        Prefer:        'outlook.timezone="UTC"',
+      },
     })
     if (!res.ok) return []
 
     const data  = await res.json()
-    const items = data.items ?? []
+    const items = data.value ?? []
 
     return items.map((item: Record<string, unknown>) => {
       const start = item.start as Record<string, string> | undefined
       const end   = item.end   as Record<string, string> | undefined
       return {
         id:     item.id as string,
-        title:  (item.summary as string) ?? 'Event',
-        start:  start?.dateTime ?? start?.date ?? '',
-        end:    end?.dateTime   ?? end?.date   ?? '',
-        allDay: !start?.dateTime,
+        title:  (item.subject as string) ?? 'Event',
+        start:  start?.dateTime ? `${start.dateTime}Z` : '',
+        end:    end?.dateTime   ? `${end.dateTime}Z`   : '',
+        allDay: !!(item.isAllDay),
       }
     })
   } catch {
@@ -147,37 +157,24 @@ export async function getUpcomingEvents(
 }
 
 // ── Connection status ─────────────────────────────────────────
-export async function isCalendarConnected(userId: string): Promise<boolean> {
+export async function isMicrosoftConnected(userId: string): Promise<boolean> {
   const supabase = getServiceClient()
   const { data } = await supabase
     .from('calendar_tokens')
     .select('clerk_user_id')
     .eq('clerk_user_id', userId)
-    .eq('provider', 'google')
+    .eq('provider', 'microsoft')
     .maybeSingle()
   return !!data
 }
 
-export async function getConnectedEmail(userId: string): Promise<string | null> {
+export async function getMicrosoftEmail(userId: string): Promise<string | null> {
   const supabase = getServiceClient()
   const { data } = await supabase
     .from('calendar_tokens')
     .select('google_email')
     .eq('clerk_user_id', userId)
-    .eq('provider', 'google')
+    .eq('provider', 'microsoft')
     .maybeSingle()
   return data?.google_email ?? null
-}
-
-// ── Fetch Google account email after auth ─────────────────────
-export async function fetchGoogleEmail(accessToken: string): Promise<string | null> {
-  try {
-    const res  = await fetch(USERINFO_API, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    })
-    const data = await res.json()
-    return data.email ?? null
-  } catch {
-    return null
-  }
 }

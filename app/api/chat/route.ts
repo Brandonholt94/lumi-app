@@ -1,15 +1,14 @@
-import { createAnthropic } from '@ai-sdk/anthropic'
+import { createVercel } from '@ai-sdk/vercel'
 import { streamText, generateText, stepCountIs, tool, type ModelMessage } from 'ai'
 import { auth, currentUser } from '@clerk/nextjs/server'
 import { createClient } from '@supabase/supabase-js'
 import { buildLumiSystemPrompt, LumiUserContext } from '@/lib/ai/lumi-prompt'
 import { getUpcomingEvents } from '@/lib/google-calendar'
+import { getMicrosoftUpcomingEvents } from '@/lib/microsoft-calendar'
 import { detectCrisis, CRISIS_RESPONSE, DISTRESS_CONTEXT } from '@/lib/ai/crisis-detection'
 import { z } from 'zod'
 
-const anthropic = createAnthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-})
+const vercel = createVercel()
 
 // ── Model routing ──────────────────────────────────────────
 // Sonnet: emotional states, RSD, distress, re-entry, first message
@@ -78,7 +77,7 @@ async function summarizeHistory(messages: ChatMessage[]): Promise<{
 
   try {
     const { text } = await generateText({
-      model: anthropic('claude-haiku-4-5-20251001'),
+      model: vercel('anthropic/claude-haiku-4.5'),
       messages: [
         {
           role: 'user',
@@ -139,7 +138,7 @@ async function fetchPlatformContext(userId: string): Promise<Partial<LumiUserCon
   const fortyEightHoursAgo = new Date(now.getTime() - 48 * 60 * 60 * 1000)
 
   // Run all queries in parallel
-  const [capturesRes, recentWinsRes, moodRes, activityRes, profileRes, sleepRes, calendarEvents] = await Promise.all([
+  const [capturesRes, recentWinsRes, moodRes, activityRes, profileRes, sleepRes, googleEvents, microsoftEvents] = await Promise.all([
     // Today's captures — tasks, worries, ideas
     supabase
       .from('captures')
@@ -192,6 +191,7 @@ async function fetchPlatformContext(userId: string): Promise<Partial<LumiUserCon
 
     // Upcoming calendar events — Core/Companion only (returns [] if not connected)
     getUpcomingEvents(userId, 12),
+    getMicrosoftUpcomingEvents(userId, 12),
   ])
 
   const captures = capturesRes.data ?? []
@@ -255,8 +255,13 @@ async function fetchPlatformContext(userId: string): Promise<Partial<LumiUserCon
         : 24 - sleepRow.bedtime_hour + sleepRow.wake_hour,
       quality: sleepRow.quality as 'great' | 'okay' | 'rough' | null,
     } : null,
-    // Calendar events — empty if not connected or Starter plan
-    ...(calendarEvents.length > 0 ? { upcomingEvents: calendarEvents } : {}),
+    // Calendar events — merged from all connected providers, sorted by start time
+    ...(() => {
+      const allEvents = [...googleEvents, ...microsoftEvents].sort(
+        (a, b) => new Date(a.start).getTime() - new Date(b.start).getTime()
+      )
+      return allEvents.length > 0 ? { upcomingEvents: allEvents } : {}
+    })(),
   } as Partial<LumiUserContext> & { _lastKnownMood?: string }
 }
 
@@ -376,8 +381,8 @@ export async function POST(req: Request) {
     userContext.isReturningAfterAbsence,
   )
   const model = useSonnet
-    ? anthropic('claude-sonnet-4-5-20251001')
-    : anthropic('claude-haiku-4-5-20251001')
+    ? vercel('anthropic/claude-sonnet-4.6')
+    : vercel('anthropic/claude-haiku-4.5')
 
   // ── Stream Lumi's response ─────────────────────────────────
   const result = streamText({

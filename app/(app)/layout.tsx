@@ -7,6 +7,7 @@ import PageTransition from './_components/PageTransition'
 import { MoodProvider } from './_components/MoodContext'
 import ActivityTracker from './_components/ActivityTracker'
 import LowBatteryOverlay from './_components/LowBatteryOverlay'
+import NotificationBanner from './_components/NotificationBanner'
 
 export default async function AppLayout({
   children,
@@ -35,6 +36,7 @@ export default async function AppLayout({
       <LowBatteryOverlay />
       <div className="h-dvh bg-[#FBF8F5] flex flex-col max-w-md mx-auto relative overflow-hidden">
         <SplashScreen />
+        <NotificationBanner />
         <main className="flex-1 min-h-0 flex flex-col overflow-hidden">
           <PageTransition>{children}</PageTransition>
         </main>

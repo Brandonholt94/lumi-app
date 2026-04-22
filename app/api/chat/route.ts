@@ -311,6 +311,27 @@ export async function POST(req: Request) {
     focusTaskCompleted: serverContext.focusTaskCompleted || clientContext?.focusTaskCompleted,
   }
 
+  // ── Plan-based feature gates ───────────────────────────────
+  const plan = (userContext.plan ?? 'free') as string
+  const isStarter = plan === 'free' || plan === 'starter'
+  const isCompanion = plan === 'companion'
+
+  // Starter/Free: strip sleep context — Core+ only
+  if (isStarter) {
+    userContext.sleepLastNight = null
+  }
+
+  // Starter/Free: enforce 20 messages/day
+  if (isStarter) {
+    const userMsgCount = (messages as ChatMessage[]).filter(m => m.role === 'user').length
+    if (userMsgCount > 20) {
+      return new Response(
+        JSON.stringify({ error: 'Daily message limit reached', limitReached: true }),
+        { status: 429, headers: { 'Content-Type': 'application/json' } }
+      )
+    }
+  }
+
   // ── Context summarization ─────────────────────────────────
   // Compress old messages when history grows long to control token costs
   let activeMessages: ChatMessage[] = messages
@@ -340,8 +361,9 @@ export async function POST(req: Request) {
   }
 
   // ── Model routing ──────────────────────────────────────────
-  // Sonnet for emotional/companion moments, Haiku for casual exchanges
-  const useSonnet = shouldUseSonnet(
+  // Companion: always Sonnet — no Haiku routing ever
+  // Core/Starter: Sonnet for emotional moments, Haiku for casual
+  const useSonnet = isCompanion || shouldUseSonnet(
     userContext.mood,
     crisis.tier,
     messages,

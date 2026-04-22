@@ -78,7 +78,7 @@ export default function AboutPage() {
           marginBottom: 20,
         }}>
           <AboutRow label="Version" value="v0.1" />
-          <AboutRow label="Built by" value="Craft + Code LLC" />
+          <AboutRow label="Built by" value="Lumi Mind" />
           <AboutRow label="Website" value="lumimind.app" />
           <div style={{ padding: '13px 16px' }}>
             <span style={{

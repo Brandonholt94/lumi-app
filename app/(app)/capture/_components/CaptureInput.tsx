@@ -700,8 +700,8 @@ export default function CaptureInput() {
                     onClick={e => { e.stopPropagation(); toggleComplete(capture) }}
                     style={{
                       width: 20, height: 20, borderRadius: '50%', flexShrink: 0, marginTop: 1,
-                      border: `2px solid ${capture.completed ? (s?.dot ?? 'rgba(45,42,62,0.2)') : (s?.dot ?? 'rgba(45,42,62,0.2)')}`,
-                      background: capture.completed ? (s?.dot ?? 'rgba(45,42,62,0.2)') : 'transparent',
+                      border: `2px solid ${capture.completed ? '#F4A582' : (s?.dot ?? 'rgba(45,42,62,0.2)')}`,
+                      background: capture.completed ? 'linear-gradient(135deg, #F4A582, #E8A0BF)' : 'transparent',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                       cursor: 'pointer', transition: 'all 0.15s', padding: 0,
                     }}
@@ -768,7 +768,7 @@ export default function CaptureInput() {
                           style={{
                             width: 16, height: 16, borderRadius: '50%', flexShrink: 0,
                             border: `1.5px solid ${st.completed ? '#F4A582' : 'rgba(45,42,62,0.2)'}`,
-                            background: st.completed ? '#F4A582' : 'transparent',
+                            background: st.completed ? 'linear-gradient(135deg, #F4A582, #E8A0BF)' : 'transparent',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
                             cursor: 'pointer', padding: 0, transition: 'all 0.15s',
                           }}
@@ -825,7 +825,13 @@ export default function CaptureInput() {
                     display: 'flex', alignItems: 'center', gap: 10, opacity: 0.6,
                   }}>
                     <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                      <circle cx="8" cy="8" r="7" fill={cs?.dot ?? 'rgba(45,42,62,0.2)'}/>
+                      <defs>
+                        <linearGradient id="doneGrad" x1="0" y1="0" x2="1" y2="1">
+                          <stop offset="0%" stopColor="#F4A582"/>
+                          <stop offset="100%" stopColor="#E8A0BF"/>
+                        </linearGradient>
+                      </defs>
+                      <circle cx="8" cy="8" r="7" fill="url(#doneGrad)"/>
                       <path d="M5 8l2.5 2.5 4-4" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                     <p style={{
@@ -1011,8 +1017,14 @@ export default function CaptureInput() {
                 }}
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <circle cx="12" cy="12" r="9" stroke="#5EC269" strokeWidth="2"/>
-                  <path d="M8 12l3 3 5-5" stroke="#5EC269" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <defs>
+                    <linearGradient id="actionGrad" x1="0" y1="0" x2="1" y2="1">
+                      <stop offset="0%" stopColor="#F4A582"/>
+                      <stop offset="100%" stopColor="#E8A0BF"/>
+                    </linearGradient>
+                  </defs>
+                  <circle cx="12" cy="12" r="9" stroke="url(#actionGrad)" strokeWidth="2"/>
+                  <path d="M8 12l3 3 5-5" stroke="url(#actionGrad)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
                 <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: 15, fontWeight: 700, color: '#2D2A3E' }}>
                   {actionSheetFor.completed ? 'Mark as incomplete' : 'Mark as complete'}

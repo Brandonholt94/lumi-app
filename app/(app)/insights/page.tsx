@@ -471,8 +471,14 @@ function DayDetailPanel({
                 <span style={{ flexShrink: 0, marginTop: 1 }}>
                   {data.oneFocus.completed ? (
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                      <circle cx="8" cy="8" r="7" fill="rgba(94,194,105,0.15)" stroke="#5EC269" strokeWidth="1.5"/>
-                      <path d="M5 8l2.5 2.5 4-4" stroke="#5EC269" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      <defs>
+                        <linearGradient id="focusCheckGrad" x1="0" y1="0" x2="1" y2="1">
+                          <stop offset="0%" stopColor="#F4A582"/>
+                          <stop offset="100%" stopColor="#E8A0BF"/>
+                        </linearGradient>
+                      </defs>
+                      <circle cx="8" cy="8" r="7" fill="rgba(244,165,130,0.15)" stroke="url(#focusCheckGrad)" strokeWidth="1.5"/>
+                      <path d="M5 8l2.5 2.5 4-4" stroke="url(#focusCheckGrad)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                   ) : (
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -761,8 +767,14 @@ function WinsCard({ completedTasks }: { completedTasks: { text: string; created_
               borderTop: '1px solid rgba(45,42,62,0.05)',
             }}>
               <svg width="15" height="15" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0, marginTop: 1 }}>
-                <circle cx="8" cy="8" r="7" fill="rgba(94,194,105,0.14)" stroke="#5EC269" strokeWidth="1.4"/>
-                <path d="M5 8l2.5 2.5 4-4" stroke="#5EC269" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+                <defs>
+                  <linearGradient id="taskCheckGrad" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stopColor="#F4A582"/>
+                    <stop offset="100%" stopColor="#E8A0BF"/>
+                  </linearGradient>
+                </defs>
+                <circle cx="8" cy="8" r="7" fill="rgba(244,165,130,0.14)" stroke="url(#taskCheckGrad)" strokeWidth="1.4"/>
+                <path d="M5 8l2.5 2.5 4-4" stroke="url(#taskCheckGrad)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
               <p style={{
                 fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 600,

@@ -45,10 +45,8 @@ export default function SleepCard() {
       .catch(() => setLog(null))
   }, [])
 
-  // Don't render anything if loading and no data yet
+  // Don't render anything while loading
   if (log === 'loading') return null
-  // Don't show if never logged and no history — sleep is new to them
-  if (!log && !hasPrev) return null
 
   return (
     <Link
@@ -58,8 +56,10 @@ export default function SleepCard() {
       <div style={{
         background: log
           ? 'linear-gradient(135deg, rgba(143,170,224,0.10), rgba(184,174,204,0.08))'
-          : 'white',
-        border: `1.5px solid ${log ? 'rgba(143,170,224,0.25)' : 'rgba(45,42,62,0.08)'}`,
+          : !hasPrev
+            ? 'linear-gradient(135deg, rgba(143,170,224,0.06), rgba(184,174,204,0.04))'
+            : 'white',
+        border: `1.5px solid ${log ? 'rgba(143,170,224,0.25)' : !hasPrev ? 'rgba(143,170,224,0.18)' : 'rgba(45,42,62,0.08)'}`,
         borderRadius: 18,
         padding: '14px 16px',
         display: 'flex',
@@ -84,7 +84,7 @@ export default function SleepCard() {
             letterSpacing: '0.06em', color: '#9895B0',
             marginBottom: 3,
           }}>
-            LAST NIGHT
+            {!log && !hasPrev ? 'SLEEP TRACKING' : 'LAST NIGHT'}
           </p>
           {log ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -105,6 +105,23 @@ export default function SleepCard() {
                   {QUALITY_LABEL[log.quality]}
                 </span>
               )}
+            </div>
+          ) : !hasPrev ? (
+            /* Brand new user — introduce the feature */
+            <div>
+              <p style={{
+                fontFamily: 'var(--font-nunito-sans)',
+                fontSize: '13px', fontWeight: 700, color: '#1E1C2E',
+                marginBottom: 1,
+              }}>
+                Log your sleep
+              </p>
+              <p style={{
+                fontFamily: 'var(--font-nunito-sans)',
+                fontSize: '11px', fontWeight: 500, color: '#9895B0',
+              }}>
+                Track how rest affects your day
+              </p>
             </div>
           ) : (
             <p style={{

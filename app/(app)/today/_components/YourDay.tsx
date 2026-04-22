@@ -188,10 +188,10 @@ function TaskCard({
       onClick={() => { if (!isDragging) onTap(task) }}
       style={{
         position: 'relative',
-        background: task.completed ? 'rgba(94,194,105,0.06)' : 'white',
+        background: task.completed ? 'rgba(244,165,130,0.05)' : 'white',
         borderRadius: 13,
         border: task.completed
-          ? '1px solid rgba(94,194,105,0.22)'
+          ? '1px solid rgba(244,165,130,0.22)'
           : '1px solid rgba(45,42,62,0.08)',
         boxShadow: isDragging ? 'none' : '0 1px 4px rgba(45,42,62,0.05)',
         padding: '10px 12px',
@@ -251,8 +251,8 @@ function TaskCard({
             transition: 'border-color 0.15s, background 0.15s',
           }}
           onPointerEnter={e => {
-            e.currentTarget.style.borderColor = '#5EC269'
-            e.currentTarget.style.background  = 'rgba(94,194,105,0.08)'
+            e.currentTarget.style.borderColor = '#F4A582'
+            e.currentTarget.style.background  = 'rgba(244,165,130,0.10)'
           }}
           onPointerLeave={e => {
             e.currentTarget.style.borderColor = 'rgba(45,42,62,0.15)'
@@ -262,11 +262,11 @@ function TaskCard({
       ) : (
         <div style={{
           width: 24, height: 24, borderRadius: '50%', flexShrink: 0,
-          background: 'rgba(94,194,105,0.15)',
+          background: 'linear-gradient(135deg, #F4A582, #E8A0BF)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
           <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
-            <path d="M2.5 6L5 8.5L9.5 3.5" stroke="#5EC269" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M2.5 6L5 8.5L9.5 3.5" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </div>
       )}
@@ -740,11 +740,11 @@ function TaskDetailDrawer({
               onClick={() => { onComplete(task.id); onClose() }}
               style={{
                 flex: 1, padding: '13px',
-                background: 'rgba(94,194,105,0.10)',
-                border: '1.5px solid rgba(94,194,105,0.28)',
+                background: 'linear-gradient(135deg, rgba(244,165,130,0.15), rgba(232,160,191,0.12))',
+                border: '1.5px solid rgba(244,165,130,0.30)',
                 borderRadius: 13, cursor: 'pointer',
                 fontFamily: 'var(--font-nunito-sans)', fontSize: '13px',
-                fontWeight: 800, color: '#3a9a47',
+                fontWeight: 800, color: '#C86040',
               }}
             >
               Done 🎉
@@ -765,11 +765,11 @@ function TaskDetailDrawer({
         ) : (
           <div style={{
             textAlign: 'center', padding: '14px',
-            background: 'rgba(94,194,105,0.08)',
-            border: '1px solid rgba(94,194,105,0.2)',
+            background: 'linear-gradient(135deg, rgba(244,165,130,0.10), rgba(232,160,191,0.08))',
+            border: '1px solid rgba(244,165,130,0.22)',
             borderRadius: 13, marginBottom: 12,
             fontFamily: 'var(--font-nunito-sans)', fontSize: '13px',
-            fontWeight: 700, color: '#3a9a47',
+            fontWeight: 700, color: '#C86040',
           }}>
             🎉 Completed — nice work.
           </div>

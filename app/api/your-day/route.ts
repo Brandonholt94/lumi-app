@@ -22,13 +22,14 @@ export async function GET() {
   trayFrom.setDate(trayFrom.getDate() - 14)
 
   const [blockedRes, trayRes, profileRes] = await Promise.all([
-    // All tasks with a time_block assigned (any tag, including null-tagged)
+    // Incomplete tasks with a time_block assigned — no completed tasks, prevents yesterday's done items persisting
     supabase
       .from('captures')
       .select('id, text, tag, notes, time_block, completed, created_at')
       .eq('clerk_user_id', userId)
       .or('tag.eq.task,tag.is.null')
       .not('time_block', 'is', null)
+      .eq('completed', false)
       .order('created_at', { ascending: true }),
 
     // Unblocked, incomplete tasks — any tag:task or untagged, last 14 days

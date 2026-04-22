@@ -3,6 +3,7 @@ import { streamText, generateText, stepCountIs, tool, type ModelMessage } from '
 import { auth, currentUser } from '@clerk/nextjs/server'
 import { createClient } from '@supabase/supabase-js'
 import { buildLumiSystemPrompt, LumiUserContext } from '@/lib/ai/lumi-prompt'
+import { getUpcomingEvents } from '@/lib/google-calendar'
 import { detectCrisis, CRISIS_RESPONSE, DISTRESS_CONTEXT } from '@/lib/ai/crisis-detection'
 import { z } from 'zod'
 
@@ -138,7 +139,7 @@ async function fetchPlatformContext(userId: string): Promise<Partial<LumiUserCon
   const fortyEightHoursAgo = new Date(now.getTime() - 48 * 60 * 60 * 1000)
 
   // Run all queries in parallel
-  const [capturesRes, recentWinsRes, moodRes, activityRes, profileRes, sleepRes] = await Promise.all([
+  const [capturesRes, recentWinsRes, moodRes, activityRes, profileRes, sleepRes, calendarEvents] = await Promise.all([
     // Today's captures — tasks, worries, ideas
     supabase
       .from('captures')
@@ -188,6 +189,9 @@ async function fetchPlatformContext(userId: string): Promise<Partial<LumiUserCon
       .order('log_date', { ascending: false })
       .limit(1)
       .maybeSingle(),
+
+    // Upcoming calendar events — Core/Companion only (returns [] if not connected)
+    getUpcomingEvents(userId, 12),
   ])
 
   const captures = capturesRes.data ?? []
@@ -251,6 +255,8 @@ async function fetchPlatformContext(userId: string): Promise<Partial<LumiUserCon
         : 24 - sleepRow.bedtime_hour + sleepRow.wake_hour,
       quality: sleepRow.quality as 'great' | 'okay' | 'rough' | null,
     } : null,
+    // Calendar events — empty if not connected or Starter plan
+    ...(calendarEvents.length > 0 ? { upcomingEvents: calendarEvents } : {}),
   } as Partial<LumiUserContext> & { _lastKnownMood?: string }
 }
 

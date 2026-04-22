@@ -10,6 +10,7 @@ import WelcomeBack from './_components/WelcomeBack'
 import MedCheckIn from './_components/MedCheckIn'
 import SleepCard from './_components/SleepCard'
 import YourDay from './_components/YourDay'
+import TimeBlinessAlert from './_components/TimeBlinessAlert'
 
 function getServiceClient() {
   return createClient(
@@ -65,6 +66,9 @@ export default async function TodayPage() {
         HOW&apos;S YOUR BRAIN TODAY?
       </p>
       <MoodSelector />
+
+      {/* Time Blindness Alert — shows when an event is 5-90 min away */}
+      <TimeBlinessAlert />
 
       {/* Lumi Nudge */}
       <LumiNudge />

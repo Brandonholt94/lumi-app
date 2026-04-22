@@ -80,6 +80,11 @@ const icons = {
       <path d="M144,180a16,16,0,1,1-16-16A16,16,0,0,1,144,180Zm92-52A108,108,0,1,1,128,20,108.12,108.12,0,0,1,236,128Zm-24,0a84,84,0,1,0-84,84A84.09,84.09,0,0,0,212,128ZM128,64c-24.26,0-44,17.94-44,40v4a12,12,0,0,0,24,0v-4c0-8.82,9-16,20-16s20,7.18,20,16-9,16-20,16a12,12,0,0,0-12,12v8a12,12,0,0,0,23.73,2.56C158.31,137.88,172,122.37,172,104,172,81.94,152.26,64,128,64Z"/>
     </svg>
   ),
+  calendar: (
+    <svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor">
+      <path d="M208,28H188V24a12,12,0,0,0-24,0v4H92V24a12,12,0,0,0-24,0v4H48A20,20,0,0,0,28,48V208a20,20,0,0,0,20,20H208a20,20,0,0,0,20-20V48A20,20,0,0,0,208,28ZM68,52a12,12,0,0,0,24,0h72a12,12,0,0,0,24,0h16V76H52V52ZM52,204V100H204V204Zm92-76a16,16,0,1,1-16-16A16,16,0,0,1,144,128Zm48,0a16,16,0,1,1-16-16A16,16,0,0,1,192,128ZM96,176a16,16,0,1,1-16-16A16,16,0,0,1,96,176Zm48,0a16,16,0,1,1-16-16A16,16,0,0,1,144,176Zm48,0a16,16,0,1,1-16-16A16,16,0,0,1,192,176Z"/>
+    </svg>
+  ),
 }
 
 // ─── Row ────────────────────────────────────────────────────────────────────
@@ -308,9 +313,10 @@ export default async function MePage() {
         </Section>
 
         <Section title="ACCOUNT">
-          <Row icon={icons.crown}  label="Your plan"     value={planLabel} valueDim={planLabel === 'Free'} href="/me/subscription" />
-          <Row icon={icons.bell}   label="Notifications"                   href="/me/notifications" />
-          <Row icon={icons.trophy} label="Your wins"                       href="/me/wins"          last />
+          <Row icon={icons.crown}    label="Your plan"     value={planLabel} valueDim={planLabel === 'Free'} href="/me/subscription" />
+          <Row icon={icons.bell}     label="Notifications"                   href="/me/notifications" />
+          <Row icon={icons.calendar} label="Calendar"                        href="/me/calendar" />
+          <Row icon={icons.trophy}   label="Your wins"                       href="/me/wins"     last />
         </Section>
 
         <Section title="COMMUNITY">

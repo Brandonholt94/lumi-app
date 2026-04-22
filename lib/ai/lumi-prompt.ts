@@ -31,6 +31,11 @@ export interface LumiUserContext {
     duration: number                          // hours, e.g. 3.5
     quality: 'great' | 'okay' | 'rough' | null
   } | null
+  upcomingEvents?: Array<{
+    title: string
+    start: string  // ISO string
+    allDay: boolean
+  }>
 }
 
 export function buildLumiSystemPrompt(ctx: LumiUserContext = {}): string {
@@ -642,6 +647,17 @@ ${ctx.tonePreference ? `**Tone preference:** ${({
 
 # Today's Context
 
+${ctx.upcomingEvents && ctx.upcomingEvents.filter(e => !e.allDay).length > 0 ? (() => {
+  const timed = ctx.upcomingEvents!.filter(e => !e.allDay)
+  const lines = timed.map(e => {
+    const start = new Date(e.start)
+    const timeStr = start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
+    const minsAway = Math.round((start.getTime() - Date.now()) / 60000)
+    const when = minsAway < 60 ? `in ${minsAway} min` : timeStr
+    return `- ${e.title} (${when})`
+  }).join('\n')
+  return `**Upcoming calendar events today:**\n${lines}\nBe aware of their schedule. If they seem scattered or anxious, a nearby event may be a factor. For Companion plan users: you may proactively reference time pressure if it's relevant (e.g., "You've got ${timed[0].title} coming up — want to wrap up first?"). For Core users: use this context passively to inform your tone and pacing, but don't mention the calendar unless they do.`
+})() : ''}
 ${ctx.sleepLastNight != null ? (() => {
   const { duration, quality } = ctx.sleepLastNight!
   const h = Math.floor(duration)

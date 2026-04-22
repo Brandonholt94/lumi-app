@@ -876,13 +876,17 @@ export default function YourDay() {
   // ── CRUD helpers ──────────────────────────────────────────
 
   function handleComplete(id: string) {
-    const upd = (arr: Task[]) => arr.map(t => t.id === id ? { ...t, completed: true } : t)
-    setBlocked(p => ({ morning: upd(p.morning), afternoon: upd(p.afternoon), evening: upd(p.evening) }))
+    // Remove from day view immediately — clear time_block so it won't reappear tomorrow
+    setBlocked(p => ({
+      morning:   p.morning.filter(t =>   t.id !== id),
+      afternoon: p.afternoon.filter(t => t.id !== id),
+      evening:   p.evening.filter(t =>   t.id !== id),
+    }))
     setTray(prev => prev.filter(t => t.id !== id))
     fetch('/api/captures', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id, completed: true }),
+      body: JSON.stringify({ id, completed: true, time_block: null }),
     })
   }
 

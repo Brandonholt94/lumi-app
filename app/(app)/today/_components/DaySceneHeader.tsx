@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import ProfileButton from '../../_components/ProfileButton'
 
 interface Props { firstName: string }
 
@@ -300,10 +299,6 @@ export default function DaySceneHeader({ firstName }: Props) {
           })}
         </svg>
 
-        {/* Profile button — white so it reads against the sky */}
-        <div style={{ position: 'absolute', top: 16, right: 16 }}>
-          <ProfileButton color="white" />
-        </div>
       </div>
 
       {/* ── Beige dome — curved shape divider ── */}

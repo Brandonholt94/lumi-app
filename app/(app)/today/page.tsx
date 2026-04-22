@@ -11,6 +11,7 @@ import MedCheckIn from './_components/MedCheckIn'
 import SleepCard from './_components/SleepCard'
 import YourDay from './_components/YourDay'
 import TimeBlinessAlert from './_components/TimeBlinessAlert'
+import ActionCards from './_components/ActionCards'
 
 function getServiceClient() {
   return createClient(
@@ -66,6 +67,9 @@ export default async function TodayPage() {
         HOW&apos;S YOUR BRAIN TODAY?
       </p>
       <MoodSelector />
+
+      {/* Suggested action cards — up to 3, dismissible, resets weekly */}
+      <ActionCards />
 
       {/* Time Blindness Alert — shows when an event is 5-90 min away */}
       <TimeBlinessAlert />

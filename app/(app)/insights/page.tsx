@@ -101,6 +101,13 @@ const DAY_SHORT = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
 // Helpers
 // ─────────────────────────────────────────────────────────
 
+// Returns today's date in YYYY-MM-DD using LOCAL time, not UTC.
+// new Date().toISOString() is UTC — at 9pm EST that's already "tomorrow".
+function localToday(): string {
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
 function formatWeekRange(start: string, end: string) {
   const s = new Date(start + 'T12:00:00')
   const e = new Date(end   + 'T12:00:00')
@@ -150,7 +157,7 @@ function LumiHighlightCard({ highlight }: { highlight: string }) {
 
 // ── Activity Calendar ────────────────────────────────────
 function ActivityCalendar({ activeDays, moods }: { activeDays: boolean[]; moods: { date: string; mood: Mood | null }[] }) {
-  const today = new Date().toISOString().slice(0, 10)
+  const today = localToday()
   const todayIdx = (new Date().getDay() + 6) % 7 // Mon=0
 
   return (
@@ -250,7 +257,7 @@ function DateStrip({
   selectedDate: string | null
   onSelect: (date: string) => void
 }) {
-  const today = new Date().toISOString().slice(0, 10)
+  const today = localToday()
 
   return (
     <div style={{

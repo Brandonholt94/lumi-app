@@ -10,6 +10,7 @@ import {
   useSensors,
   useDroppable,
   useDraggable,
+  pointerWithin,
   type DragEndEvent,
   type DragStartEvent,
 } from '@dnd-kit/core'
@@ -961,7 +962,7 @@ export default function YourDay() {
 
   return (
     <>
-      <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+      <DndContext sensors={sensors} collisionDetection={pointerWithin} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
 
         {/* Brain Dump tray */}
         <Tray tasks={tray} onAssign={handleAssignFromTray} />

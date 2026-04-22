@@ -130,12 +130,13 @@ function ConfettiBurst({ onDone }: { onDone: () => void }) {
   }, [onDone])
 
   const COLORS = ['#F4A582', '#F5C98A', '#E8A0BF', '#8FAAE0', '#B8AECC', '#5EC269']
-  // 24 pieces bursting outward from the checkmark button area
+  // 24 pieces bursting outward — each gets a unique @keyframe with hardcoded values
+  // (avoids CSS custom property unreliability inside @keyframes across browsers)
   const pieces = Array.from({ length: 24 }, (_, i) => {
     const angle  = (i / 24) * 360
-    const dist   = 28 + (i % 5) * 10                        // 28–68px travel
-    const dx     = Math.cos((angle * Math.PI) / 180) * dist
-    const dy     = Math.sin((angle * Math.PI) / 180) * dist - 18  // bias upward
+    const dist   = 28 + (i % 5) * 10
+    const dx     = Math.round(Math.cos((angle * Math.PI) / 180) * dist)
+    const dy     = Math.round(Math.sin((angle * Math.PI) / 180) * dist - 18)
     const size   = 5 + (i % 3) * 2
     const isCirc = i % 3 !== 0
     const delay  = (i % 5) * 0.025
@@ -143,33 +144,31 @@ function ConfettiBurst({ onDone }: { onDone: () => void }) {
     return { dx, dy, size, isCirc, color: COLORS[i % COLORS.length], delay, spin }
   })
 
+  // Generate one unique keyframe name per piece — no CSS variables needed
+  const keyframesCSS = pieces.map((p, i) => `
+    @keyframes cb${i} {
+      0%   { transform: translate(0px,0px) rotate(0deg); opacity: 1; }
+      60%  { opacity: 1; }
+      100% { transform: translate(${p.dx}px,${p.dy}px) rotate(${p.spin}deg); opacity: 0; }
+    }
+  `).join('')
+
   return (
-    // overflow:visible so pieces escape the card boundary
     <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'visible', zIndex: 20 }}>
-      <style>{`
-        @keyframes confBurst {
-          0%   { transform: translate(0,0) rotate(0deg) scale(1); opacity: 1; }
-          55%  { opacity: 1; }
-          100% { transform: translate(var(--cdx),var(--cdy)) rotate(var(--cspin)) scale(0.5); opacity: 0; }
-        }
-      `}</style>
+      <style>{keyframesCSS}</style>
       {pieces.map((p, i) => (
         <div
           key={i}
           style={{
             position: 'absolute',
-            top:   '50%',
-            right: 24,               // anchored near the checkmark button
+            top:    '50%',
+            right:  24,
             width:  p.size,
             height: p.size,
             borderRadius: p.isCirc ? '50%' : 2,
             background: p.color,
-            // @ts-ignore CSS custom properties
-            '--cdx':   `${p.dx}px`,
-            '--cdy':   `${p.dy}px`,
-            '--cspin': `${p.spin}deg`,
-            animation: `confBurst 1.1s cubic-bezier(0.22,1,0.36,1) ${p.delay}s both`,
-          } as React.CSSProperties}
+            animation: `cb${i} 1.1s cubic-bezier(0.22,1,0.36,1) ${p.delay}s both`,
+          }}
         />
       ))}
     </div>

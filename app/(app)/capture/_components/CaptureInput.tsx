@@ -722,10 +722,10 @@ export default function CaptureInput() {
                         color: capture.completed ? '#9895B0' : '#2D2A3E',
                         lineHeight: 1.4,
                         marginBottom: 3,
-                        textDecoration: capture.completed ? 'line-through' : 'none',
                         transition: 'color 0.15s',
                       }}
                     >
+                      {capture.completed && <span style={{ marginRight: 5 }}>🎉</span>}
                       {capture.text}
                     </p>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
@@ -782,7 +782,6 @@ export default function CaptureInput() {
                         <p style={{
                           fontFamily: 'var(--font-nunito-sans)', fontSize: 12, fontWeight: 600,
                           color: st.completed ? '#9895B0' : '#4A4760', flex: 1, lineHeight: 1.4,
-                          textDecoration: st.completed ? 'line-through' : 'none',
                           transition: 'color 0.15s',
                         }}>{st.text}</p>
                         <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: 9, fontWeight: 800, color: '#9895B0', whiteSpace: 'nowrap' }}>{st.minutes}m</span>
@@ -832,8 +831,7 @@ export default function CaptureInput() {
                     <p style={{
                       fontFamily: 'var(--font-nunito-sans)', fontSize: '12px', fontWeight: 500,
                       color: '#9895B0', flex: 1, lineHeight: 1.4,
-                      textDecoration: 'line-through',
-                    }}>{c.text}</p>
+                    }}>🎉 {c.text}</p>
                     <button
                       onClick={() => toggleComplete(c)}
                       style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontSize: 10, color: '#9895B0', fontFamily: 'var(--font-nunito-sans)', fontWeight: 700 }}

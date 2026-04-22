@@ -34,9 +34,10 @@ export async function POST(req: Request) {
   const isStarter = plan === 'free' || plan === 'starter'
 
   // ── Starter: enforce 3 breakdowns/day ──────────────────────
-  if (isStarter) {
-    const today = new Date().toISOString().slice(0, 10)
+  const today = new Date().toISOString().slice(0, 10)
+  let usedBreakdowns = 0
 
+  if (isStarter) {
     const { data: usage } = await supabase
       .from('daily_usage')
       .select('breakdowns')
@@ -44,9 +45,9 @@ export async function POST(req: Request) {
       .eq('date', today)
       .single()
 
-    const used = usage?.breakdowns ?? 0
+    usedBreakdowns = usage?.breakdowns ?? 0
 
-    if (used >= STARTER_BREAKDOWN_LIMIT) {
+    if (usedBreakdowns >= STARTER_BREAKDOWN_LIMIT) {
       return Response.json(
         { error: 'Daily breakdown limit reached', limitReached: true, limit: STARTER_BREAKDOWN_LIMIT },
         { status: 429 }
@@ -85,9 +86,9 @@ Return ONLY a valid JSON array, no explanation, no markdown:
     // ── Starter: increment daily usage counter ──────────────
     if (isStarter) {
       const today = new Date().toISOString().slice(0, 10)
-      // `used` is already fetched above — safe to increment directly
+      // usedBreakdowns fetched above — safe to increment directly
       await supabase.from('daily_usage').upsert(
-        { clerk_user_id: userId, date: today, breakdowns: (usage?.breakdowns ?? 0) + 1 },
+        { clerk_user_id: userId, date: today, breakdowns: usedBreakdowns + 1 },
         { onConflict: 'clerk_user_id,date' }
       )
     }

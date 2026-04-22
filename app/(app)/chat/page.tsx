@@ -88,6 +88,7 @@ export default function ChatPage() {
   const [isListening, setIsListening] = useState(false)
   const [focusCtx, setFocusCtx] = useState<FocusContext>({ task: null, completed: false })
   const [started, setStarted] = useState(false) // true once messages exist
+  const [limitReached, setLimitReached] = useState(false)
 
   const bottomRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
@@ -190,6 +191,16 @@ export default function ChatPage() {
           userContext: { mood, focusTask: focusCtx.task, focusTaskCompleted: focusCtx.completed },
         }),
       })
+      if (res.status === 429) {
+        const data = await res.json().catch(() => ({}))
+        if (data.limitReached) {
+          setLimitReached(true)
+          setIsTyping(false)
+          setIsStreaming(false)
+          return
+        }
+        throw new Error('Rate limited')
+      }
       if (!res.ok || !res.body) throw new Error('Stream failed')
       setIsTyping(false)
       const assistantId = `assistant-${Date.now()}`
@@ -404,6 +415,59 @@ export default function ChatPage() {
               })}
 
               {isTyping && <TypingIndicator />}
+
+              {/* ── Daily limit card ── */}
+              {limitReached && (
+                <div style={{ animation: 'lumiIn 0.3s ease-out both', marginBottom: 16 }}>
+                  <div className="flex items-start gap-2">
+                    <div style={{
+                      width: 28, height: 28, minWidth: 28,
+                      borderRadius: '50%',
+                      background: '#2D2A3E',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      flexShrink: 0, marginTop: 2,
+                    }}>
+                      <LumiBrandmarkWhite size={14} />
+                    </div>
+                    <div style={{
+                      borderRadius: 20,
+                      padding: '14px 16px',
+                      background: 'rgba(255,248,244,0.60)',
+                      backdropFilter: 'blur(28px) saturate(1.6)',
+                      WebkitBackdropFilter: 'blur(28px) saturate(1.6)',
+                      border: '1px solid rgba(244,165,130,0.35)',
+                      boxShadow: '0 4px 24px rgba(244,165,130,0.18)',
+                      maxWidth: '82%',
+                    }}>
+                      <p style={{
+                        fontFamily: 'var(--font-nunito-sans)',
+                        fontSize: '14px', fontWeight: 500,
+                        color: '#2D2A3E', lineHeight: 1.55, marginBottom: 12,
+                      }}>
+                        You&apos;ve reached your 20 message limit for today — you&apos;re clearly putting your brain to work. 💛
+                        <br /><br />
+                        Upgrade to Core for unlimited conversations, your Weekly Brain Report, and more.
+                      </p>
+                      <a
+                        href="/upgrade"
+                        style={{
+                          display: 'inline-block',
+                          padding: '8px 18px',
+                          borderRadius: 20,
+                          background: 'linear-gradient(135deg, #F4A582, #F5C98A)',
+                          fontFamily: 'var(--font-nunito-sans)',
+                          fontSize: '13px', fontWeight: 700,
+                          color: '#1E1C2E',
+                          textDecoration: 'none',
+                        }}
+                      >
+                        Upgrade to Core — $14/mo
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div ref={bottomRef} />
             </div>
           )}
@@ -418,6 +482,28 @@ export default function ChatPage() {
             borderTop: '1px solid rgba(45,42,62,0.07)',
           }}
         >
+          {limitReached ? (
+            <a
+              href="/upgrade"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+                height: 52,
+                borderRadius: 16,
+                background: 'linear-gradient(135deg, #F4A582, #F5C98A)',
+                fontFamily: 'var(--font-nunito-sans)',
+                fontSize: '15px',
+                fontWeight: 700,
+                color: '#1E1C2E',
+                textDecoration: 'none',
+              }}
+            >
+              Upgrade for unlimited chat →
+            </a>
+          ) : (
+          <>
           <div
             className="flex items-center gap-2 rounded-2xl px-3"
             style={{
@@ -513,6 +599,8 @@ export default function ChatPage() {
             }}>
               Listening…
             </p>
+          )}
+          </>
           )}
         </div>
       </div>

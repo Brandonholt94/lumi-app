@@ -2,26 +2,7 @@ import { auth, currentUser } from '@clerk/nextjs/server'
 import { createClient } from '@supabase/supabase-js'
 import Link from 'next/link'
 
-// ─── Icon primitives ────────────────────────────────────────────────────────
-
-function IconWrap({ children, color = '#7A7890' }: { children: React.ReactNode; color?: string }) {
-  return (
-    <div style={{
-      width: 36,
-      height: 36,
-      minWidth: 36,
-      minHeight: 36,
-      borderRadius: '50%',
-      background: 'rgba(45,42,62,0.06)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      color,
-    }}>
-      {children}
-    </div>
-  )
-}
+// ─── Icon set (Phosphor Bold) ────────────────────────────────────────────────
 
 const icons = {
   sparkle: (
@@ -46,7 +27,7 @@ const icons = {
   ),
   crown: (
     <svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor">
-      <path d="M232.63,70a19.82,19.82,0,0,0-23.55,4.71l-29.52,31.82L146.22,31.76l-.06-.14a20,20,0,0,0-36.32,0l-.06.14L76.44,106.52,46.92,74.7a20,20,0,0,0-34.6,16.81c0,.16.06.31.09.47L35.07,195.76A20,20,0,0,0,54.71,212H201.29a20,20,0,0,0,19.64-16.24L243.59,92c0-.16.07-.31.09-.47A19.82,19.82,0,0,0,232.63,70ZM198.06,188H57.94L39.06,101.51,71.2,136.16A12,12,0,0,0,91,132.89l37-83.07,37,83.07a12,12,0,0,0,19.76,3.27l32.14-34.65Z"/>
+      <path d="M232,60H212V48a12,12,0,0,0-12-12H56A12,12,0,0,0,44,48V60H24A20,20,0,0,0,4,80V96a44.05,44.05,0,0,0,44,44h.77A84.18,84.18,0,0,0,116,195.15V212H96a12,12,0,0,0,0,24h64a12,12,0,0,0,0-24H140V195.11c30.94-4.51,56.53-26.2,67-55.11h1a44.05,44.05,0,0,0,44-44V80A20,20,0,0,0,232,60ZM28,96V84H44v28c0,1.21,0,2.41.09,3.61A20,20,0,0,1,28,96Zm160,15.1c0,33.33-26.71,60.65-59.54,60.9A60,60,0,0,1,68,112V60H188ZM228,96a20,20,0,0,1-16.12,19.62c.08-1.5.12-3,.12-4.52V84h16Z"/>
     </svg>
   ),
   bell: (
@@ -84,13 +65,7 @@ const icons = {
 // ─── Row ────────────────────────────────────────────────────────────────────
 
 function Row({
-  icon,
-  label,
-  value,
-  valueDim,
-  href,
-  danger,
-  last,
+  icon, label, value, valueDim, href, danger, last,
 }: {
   icon: React.ReactNode
   label: string
@@ -103,21 +78,25 @@ function Row({
   return (
     <Link href={href} style={{ textDecoration: 'none', display: 'block' }}>
       <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        padding: '12px 20px',
+        display: 'flex', alignItems: 'center',
+        padding: '13px 16px',
         borderBottom: last ? 'none' : '1px solid rgba(45,42,62,0.06)',
-        gap: 14,
-        background: 'white',
+        gap: 12,
       }}>
-        <IconWrap color={danger ? '#E05252' : '#7A7890'}>
+        {/* Icon box */}
+        <div style={{
+          width: 34, height: 34, minWidth: 34,
+          borderRadius: 10,
+          background: danger ? 'rgba(224,82,82,0.08)' : 'rgba(45,42,62,0.05)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          color: danger ? '#E05252' : '#7A7890',
+        }}>
           {icon}
-        </IconWrap>
+        </div>
 
         <span style={{
           fontFamily: 'var(--font-nunito-sans)',
-          fontSize: '15px',
-          fontWeight: 600,
+          fontSize: '14px', fontWeight: 600,
           color: danger ? '#E05252' : '#1E1C2E',
           flex: 1,
         }}>
@@ -127,10 +106,9 @@ function Row({
         {value && (
           <span style={{
             fontFamily: 'var(--font-nunito-sans)',
-            fontSize: '13px',
-            fontWeight: 700,
-            color: valueDim ? '#9895B0' : '#2D2A3E',
-            background: valueDim ? 'transparent' : 'rgba(45,42,62,0.05)',
+            fontSize: '12px', fontWeight: 700,
+            color: valueDim ? '#9895B0' : '#C86040',
+            background: valueDim ? 'transparent' : 'rgba(244,165,130,0.10)',
             borderRadius: 6,
             padding: valueDim ? 0 : '3px 8px',
           }}>
@@ -138,7 +116,7 @@ function Row({
           </span>
         )}
 
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
           <path d="M6 3L11 8L6 13" stroke="#C4C0D4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       </div>
@@ -150,21 +128,20 @@ function Row({
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div style={{ marginBottom: 28 }}>
+    <div style={{ marginBottom: 24 }}>
       <p style={{
         fontFamily: 'var(--font-nunito-sans)',
-        fontSize: '13px',
-        fontWeight: 700,
-        color: '#1E1C2E',
-        marginBottom: 8,
-        paddingLeft: 4,
+        fontSize: '10px', fontWeight: 800,
+        letterSpacing: '0.1em', color: '#9895B0',
+        marginBottom: 8, paddingLeft: 2,
       }}>
         {title}
       </p>
       <div style={{
         background: 'white',
-        borderRadius: 20,
+        borderRadius: 16,
         border: '1px solid rgba(45,42,62,0.07)',
+        boxShadow: '0 2px 8px rgba(45,42,62,0.05)',
         overflow: 'hidden',
       }}>
         {children}
@@ -173,27 +150,25 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   )
 }
 
-// ─── Page ───────────────────────────────────────────────────────────────────
+// ─── Plan badge colors ───────────────────────────────────────────────────────
 
 const PLAN_LABELS: Record<string, string> = {
-  free:      'Free',
-  starter:   'Starter',
-  core:      'Core',
-  companion: 'Companion',
+  free: 'Free', starter: 'Starter', core: 'Core', companion: 'Companion',
 }
+
+// ─── Page ───────────────────────────────────────────────────────────────────
 
 export default async function MePage() {
   const { userId } = await auth()
   const user = await currentUser()
-  const firstName = user?.firstName ?? ''
-  const lastName = user?.lastName ?? ''
-  const email = user?.emailAddresses?.[0]?.emailAddress ?? ''
-  // Only use imageUrl if user explicitly uploaded a photo (hasImage),
-  // otherwise Clerk returns a generated purple/blue avatar
-  const avatar = user?.hasImage ? user.imageUrl : null
+  const firstName   = user?.firstName ?? ''
+  const lastName    = user?.lastName  ?? ''
+  const email       = user?.emailAddresses?.[0]?.emailAddress ?? ''
+  const avatar      = user?.hasImage ? user.imageUrl : null
 
-  let planLabel = 'Free'
+  let planLabel   = 'Free'
   let displayName = [firstName, lastName].filter(Boolean).join(' ')
+  const initial   = (firstName || displayName || '?')[0].toUpperCase()
 
   if (userId) {
     const supabase = createClient(
@@ -205,138 +180,121 @@ export default async function MePage() {
       .select('plan, display_name')
       .eq('clerk_user_id', userId)
       .single()
-    if (data?.plan) planLabel = PLAN_LABELS[data.plan] ?? 'Free'
-    // If Clerk has no name (email/password signup), use onboarding display_name
+    if (data?.plan)         planLabel   = PLAN_LABELS[data.plan] ?? 'Free'
     if (!displayName && data?.display_name) displayName = data.display_name
   }
 
   return (
-    <div className="flex flex-col h-full overflow-y-auto" style={{ background: 'radial-gradient(ellipse 100% 55% at 100% 0%, rgba(244,165,130,0.28) 0%, transparent 62%), radial-gradient(ellipse 100% 55% at 0% 0%, rgba(245,201,138,0.20) 0%, transparent 62%), #FBF8F5', paddingBottom: 40 }}>
-
-      {/* Avatar + name hero */}
+    <div
+      className="flex flex-col h-full overflow-y-auto"
+      style={{ background: '#FBF8F5', paddingBottom: 40 }}
+    >
+      {/* ── Profile hero ── */}
       <div style={{
-        background: 'transparent',
+        background: 'linear-gradient(160deg, rgba(244,165,130,0.22) 0%, rgba(245,201,138,0.14) 55%, transparent 100%)',
         borderBottom: '1px solid rgba(45,42,62,0.07)',
-        padding: '28px 20px 24px',
-        display: 'flex',
-        alignItems: 'center',
-        gap: 16,
-        marginBottom: 24,
+        padding: '32px 20px 24px',
+        display: 'flex', alignItems: 'center', gap: 16,
       }}>
+
+        {/* Avatar — real photo if uploaded, otherwise gradient initial */}
         {avatar ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={avatar}
             alt="Avatar"
             style={{
-              width: 64,
-              height: 64,
-              minWidth: 64,
-              minHeight: 64,
-              borderRadius: '50%',
-              objectFit: 'cover',
+              width: 60, height: 60, minWidth: 60,
+              borderRadius: '50%', objectFit: 'cover',
+              boxShadow: '0 2px 10px rgba(45,42,62,0.14)',
             }}
           />
         ) : (
-          /* Gray silhouette — same style as the nav button */
           <div style={{
-            width: 64,
-            height: 64,
-            minWidth: 64,
-            minHeight: 64,
+            width: 60, height: 60, minWidth: 60,
             borderRadius: '50%',
-            background: '#AEAEB2',
-            display: 'flex',
-            alignItems: 'flex-end',
-            justifyContent: 'center',
-            overflow: 'hidden',
+            background: 'linear-gradient(135deg, #F4A582, #F5C98A)',
+            boxShadow: '0 2px 10px rgba(244,165,130,0.30)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            flexShrink: 0,
           }}>
-            <svg width="48" height="48" viewBox="0 0 28 28" fill="none" style={{ marginBottom: -3 }}>
-              <circle cx="14" cy="10" r="5" fill="white" />
-              <path d="M4 26c0-5.523 4.477-10 10-10s10 4.477 10 10" fill="white" />
-            </svg>
+            <span style={{
+              fontFamily: 'var(--font-nunito-sans)',
+              fontSize: '22px', fontWeight: 800,
+              color: '#1E1C2E',
+              lineHeight: 1,
+            }}>
+              {initial}
+            </span>
           </div>
         )}
 
+        {/* Name + email */}
         <div style={{ flex: 1, minWidth: 0 }}>
           <p style={{
-            fontFamily: 'var(--font-fraunces)',
-            fontSize: '20px',
-            fontWeight: 700,
-            color: '#1E1C2E',
-            lineHeight: 1.2,
+            fontFamily: 'var(--font-nunito-sans)',
+            fontSize: '19px', fontWeight: 800,
+            color: '#1E1C2E', lineHeight: 1.2,
             marginBottom: 3,
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
           }}>
-            {displayName || 'Your name'}
+            {displayName || 'Hey there'}
           </p>
           <p style={{
             fontFamily: 'var(--font-nunito-sans)',
-            fontSize: '13px',
-            fontWeight: 500,
-            color: '#9895B0',
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
+            fontSize: '12px', fontWeight: 500, color: '#9895B0',
+            whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
           }}>
             {email}
           </p>
         </div>
 
+        {/* Edit button */}
         <Link href="/me/edit-profile" style={{
           flexShrink: 0,
-          padding: '8px 14px',
+          padding: '7px 14px',
           borderRadius: 10,
           background: 'rgba(45,42,62,0.06)',
           fontFamily: 'var(--font-nunito-sans)',
-          fontSize: '13px',
-          fontWeight: 700,
-          color: '#7A7890',
-          textDecoration: 'none',
+          fontSize: '12px', fontWeight: 700,
+          color: '#7A7890', textDecoration: 'none',
         }}>
           Edit
         </Link>
       </div>
 
-      <div className="px-4">
+      {/* ── Settings list ── */}
+      <div style={{ padding: '24px 16px 0' }}>
 
-        {/* YOU */}
-        <Section title="You">
-          <Row icon={icons.sparkle}  label="How Lumi addresses you"    href="/me/lumi-preferences" />
-          <Row icon={icons.clipboard} label="Onboarding answers"        href="/me/onboarding" last />
+        <Section title="YOU">
+          <Row icon={icons.sparkle}   label="How Lumi addresses you"  href="/me/lumi-preferences" />
+          <Row icon={icons.clipboard} label="Onboarding answers"       href="/me/onboarding"       last />
         </Section>
 
-        {/* HEALTH */}
-        <Section title="Health">
+        <Section title="HEALTH">
           <Row icon={icons.pill} label="Medication log" href="/me/medication" />
           <Row icon={icons.moon} label="Sleep log"      href="/me/sleep"      last />
         </Section>
 
-        {/* ACCOUNT */}
-        <Section title="Account">
-          <Row icon={icons.crown}   label="Your plan"     value={planLabel}  valueDim={planLabel === 'Free'}  href="/me/subscription" />
-          <Row icon={icons.bell}    label="Notifications"               href="/me/notifications" />
-          <Row icon={icons.trophy}  label="Your wins"                   href="/me/wins"          last />
+        <Section title="ACCOUNT">
+          <Row icon={icons.crown}  label="Your plan"     value={planLabel} valueDim={planLabel === 'Free'} href="/me/subscription" />
+          <Row icon={icons.bell}   label="Notifications"                   href="/me/notifications" />
+          <Row icon={icons.trophy} label="Your wins"                       href="/me/wins"          last />
         </Section>
 
-        {/* SUPPORT */}
-        <Section title="Support">
-          <Row icon={icons.heart}   label="Crisis resources"  href="/me/crisis"   />
-          <Row icon={icons.chat}    label="Contact us"        href="/me/contact"  />
-          <Row icon={icons.info}    label="About Lumi"        href="/me/about"    />
-          <Row icon={icons.logout}  label="Sign out"  danger  href="/sign-out"    last />
+        <Section title="SUPPORT">
+          <Row icon={icons.heart}  label="Crisis resources" href="/me/crisis"  />
+          <Row icon={icons.chat}   label="Contact us"       href="/me/contact" />
+          <Row icon={icons.info}   label="About Lumi"       href="/me/about"   />
+          <Row icon={icons.logout} label="Sign out" danger  href="/sign-out"   last />
         </Section>
 
-        {/* Version */}
         <p style={{
           textAlign: 'center',
           fontFamily: 'var(--font-nunito-sans)',
-          fontSize: '11px',
-          fontWeight: 500,
-          color: 'rgba(45,42,62,0.25)',
-          marginTop: 4,
+          fontSize: '11px', fontWeight: 500,
+          color: 'rgba(45,42,62,0.22)',
+          marginTop: 8,
         }}>
           Lumi · v0.1 · Built with care by Craft + Code LLC
         </p>

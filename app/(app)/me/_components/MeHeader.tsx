@@ -3,61 +3,66 @@ import Link from 'next/link'
 interface MeHeaderProps {
   title: string
   subtitle?: string
-  back?: string // href to go back to, defaults to /me
+  back?: string
 }
 
 export default function MeHeader({ title, subtitle, back = '/me' }: MeHeaderProps) {
   return (
     <div style={{
       display: 'flex',
-      alignItems: 'flex-start',
-      gap: 4,
-      padding: '12px 20px 20px',
+      flexDirection: 'column',
+      padding: '16px 20px 14px',
+      borderBottom: '1px solid rgba(45,42,62,0.06)',
     }}>
-      {/* Back button — same vertical position as Today's greeting */}
+      {/* Back link */}
       <Link
         href={back}
         style={{
-          display: 'flex',
+          display: 'inline-flex',
           alignItems: 'center',
-          justifyContent: 'center',
-          width: 30,
-          height: 30,
-          borderRadius: '50%',
-          background: 'rgba(45,42,62,0.05)',
-          flexShrink: 0,
-          marginTop: 3,
-          marginRight: 8,
+          gap: 4,
+          marginBottom: subtitle ? 10 : 8,
+          textDecoration: 'none',
+          width: 'fit-content',
         }}
       >
-        <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
-          <path d="M13 4L7 10L13 16" stroke="#2D2A3E" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+          <path d="M13 4L7 10L13 16" stroke="#9895B0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
+        <span style={{
+          fontFamily: 'var(--font-nunito-sans)',
+          fontSize: '12px',
+          fontWeight: 700,
+          color: '#9895B0',
+        }}>
+          Back
+        </span>
       </Link>
 
-      <div>
-        <h1 style={{
-          fontFamily: 'var(--font-fraunces)',
-          fontSize: '26px',
-          fontWeight: 900,
-          color: '#1E1C2E',
-          lineHeight: 1.1,
-          margin: 0,
+      {/* Title */}
+      <h1 style={{
+        fontFamily: 'var(--font-nunito-sans)',
+        fontSize: '20px',
+        fontWeight: 800,
+        color: '#1E1C2E',
+        lineHeight: 1.15,
+        margin: 0,
+      }}>
+        {title}
+      </h1>
+
+      {subtitle && (
+        <p style={{
+          fontFamily: 'var(--font-nunito-sans)',
+          fontSize: '12px',
+          fontWeight: 500,
+          color: '#9895B0',
+          marginTop: 4,
+          lineHeight: 1.4,
         }}>
-          {title}
-        </h1>
-        {subtitle && (
-          <p style={{
-            fontFamily: 'var(--font-nunito-sans)',
-            fontSize: '12.5px',
-            fontWeight: 600,
-            color: '#9895B0',
-            marginTop: 3,
-          }}>
-            {subtitle}
-          </p>
-        )}
-      </div>
+          {subtitle}
+        </p>
+      )}
     </div>
   )
 }

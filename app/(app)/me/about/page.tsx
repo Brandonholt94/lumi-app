@@ -42,18 +42,18 @@ export default function AboutPage() {
         <div style={{ textAlign: 'center', marginBottom: 28 }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/lumi-wordmark-dark.svg"
+            src="/lumi-stacked.svg"
             alt="Lumi"
-            style={{ height: 32, marginBottom: 10, display: 'inline-block' }}
+            style={{ height: 72, marginBottom: 12, display: 'inline-block' }}
           />
           <p style={{
-            fontFamily: 'var(--font-nunito-sans)',
-            fontSize: '13px',
-            fontWeight: 600,
-            color: '#9895B0',
-            lineHeight: 1.5,
+            fontFamily: 'var(--font-fraunces)',
+            fontSize: '17px',
+            fontWeight: 700,
+            color: '#2D2A3E',
+            lineHeight: 1.4,
           }}>
-            Your AI companion for the ADHD brain.{'\n'}167 hours a week — whenever you need it.
+            A new day for your brain.
           </p>
         </div>
 

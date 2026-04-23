@@ -9,7 +9,6 @@ import DaySceneHeader from './_components/DaySceneHeader'
 import WelcomeBack from './_components/WelcomeBack'
 import MedCheckIn from './_components/MedCheckIn'
 import SleepCard from './_components/SleepCard'
-import TimeBlinessAlert from './_components/TimeBlinessAlert'
 import ActionCards from './_components/ActionCards'
 import MorningAnchors from './_components/MorningAnchors'
 import DayTimeline from './_components/DayTimeline'
@@ -91,15 +90,11 @@ export default async function TodayPage() {
         {/* Evening wind-down — shows after 8pm, right below the day view */}
         <EveningBrainClear />
 
-        {/* Time Blindness Alert — shows when an event is 5-90 min away */}
-        <TimeBlinessAlert />
-
         {/* ── ONE FOCUS (label + card rendered together inside OneFocusCard) ── */}
         <OneFocusCard />
 
-
-        {/* Lumi nudge */}
-        <LumiNudge />
+        {/* Lumi contextual nudge — context-aware, replaces Heads Up alert */}
+        <LumiNudge firstName={firstName} plan={plan} />
 
         {/* ── QUICK ACTIONS ── */}
         <p
@@ -146,9 +141,6 @@ export default async function TodayPage() {
           </Link>
         </div>
 
-        {/* Setup nudge cards — notifications, calendar, download */}
-        <ActionCards plan={plan} />
-
         {/* ── Talk to Lumi ── */}
         <Link href="/chat" className="flex items-center active:scale-[0.98] transition-transform mb-2" style={{
           background: 'linear-gradient(135deg, rgba(244,165,130,0.18) 0%, rgba(245,201,138,0.14) 100%)',
@@ -174,6 +166,9 @@ export default async function TodayPage() {
             <path d="M9 18l6-6-6-6" stroke="rgba(244,165,130,0.7)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </Link>
+
+        {/* Setup nudge cards — notifications, calendar, download (below the fold) */}
+        <ActionCards plan={plan} />
 
       </div>{/* end body */}
     </div>

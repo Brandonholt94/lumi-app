@@ -1,5 +1,5 @@
 import { streamText, generateText, stepCountIs, tool, type ModelMessage } from 'ai'
-import { anthropic } from '@ai-sdk/anthropic'
+import { createAnthropic } from '@ai-sdk/anthropic'
 import { auth, currentUser } from '@clerk/nextjs/server'
 import { createClient } from '@supabase/supabase-js'
 import { buildLumiSystemPrompt, LumiUserContext } from '@/lib/ai/lumi-prompt'
@@ -59,7 +59,10 @@ function shouldUseSonnet(
 const SUMMARIZE_THRESHOLD = 16  // total messages before summarizing
 const KEEP_RECENT = 8           // verbatim messages to always keep
 
-async function summarizeHistory(messages: ChatMessage[]): Promise<{
+async function summarizeHistory(
+  messages: ChatMessage[],
+  anthropic: ReturnType<typeof createAnthropic>,
+): Promise<{
   summarizedContext: string
   trimmedMessages: ChatMessage[]
 }> {
@@ -293,9 +296,16 @@ function streamText200(text: string): Response {
 }
 
 export async function POST(req: Request) {
-  // ── DIAGNOSTIC: surface real error in stream so client shows it ──
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return streamText200('DEBUG: ANTHROPIC_API_KEY is not set in this environment.')
+  // ── Create provider inside the handler so any init error is catchable ──
+  // (module-level singleton would crash the entire route if the key is missing)
+  let anthropic: ReturnType<typeof createAnthropic>
+  try {
+    if (!process.env.ANTHROPIC_API_KEY) {
+      return streamText200('DEBUG: ANTHROPIC_API_KEY is not set in this environment.')
+    }
+    anthropic = createAnthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  } catch (err) {
+    return streamText200(`DEBUG: Failed to init Anthropic provider — ${err}`)
   }
 
   const { userId } = await auth()
@@ -373,7 +383,7 @@ export async function POST(req: Request) {
   let historySummary: string | undefined
 
   if (messages.length > SUMMARIZE_THRESHOLD) {
-    const { summarizedContext, trimmedMessages } = await summarizeHistory(messages)
+    const { summarizedContext, trimmedMessages } = await summarizeHistory(messages, anthropic)
     activeMessages = trimmedMessages
     historySummary = summarizedContext || undefined
   }

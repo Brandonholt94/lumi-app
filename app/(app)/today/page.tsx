@@ -56,8 +56,6 @@ export default async function TodayPage() {
           <div className="desktop-only" style={{ padding: '0 28px 32px', flex: 1 }}>
             <p className="lumi-section-label" style={{ marginBottom: 12 }}>YOUR WEEK</p>
             <DesktopCalendar plan={plan} />
-
-            <p className="lumi-section-label" style={{ marginTop: 20, marginBottom: 8 }}>HOW&apos;S YOUR BRAIN TODAY?</p>
             <MoodSelector />
           </div>
 

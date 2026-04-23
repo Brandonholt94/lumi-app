@@ -173,7 +173,7 @@ export default function DesktopCalendar({ plan }: { plan: string }) {
           <div key={i} style={{
             background: 'white', borderRadius: 16,
             border: '1px solid rgba(45,42,62,0.07)',
-            padding: 16, height: 260,
+            padding: 16, height: 340,
           }}>
             <div style={{ height: 10, width: '45%', borderRadius: 6, background: 'rgba(45,42,62,0.07)', marginBottom: 18 }} />
             {[75, 60, 85, 50].map((w, j) => (
@@ -299,7 +299,7 @@ export default function DesktopCalendar({ plan }: { plan: string }) {
               flex: 1,
               overflowY: 'auto',
               padding: '10px 14px 14px',
-              maxHeight: 300,
+              maxHeight: 420,
               scrollbarWidth: 'none',
             }}>
               {isEmpty && !isCompanion && isToday ? (
@@ -411,43 +411,45 @@ export default function DesktopCalendar({ plan }: { plan: string }) {
       })}
     </div>
 
-    {/* ── Add Task bar ── */}
-    {!addOpen ? (
-      <button
-        onClick={openAdd}
-        style={{
-          display:        'flex',
-          alignItems:     'center',
-          gap:            8,
-          width:          '100%',
-          padding:        '13px 16px',
-          marginTop:      12,
-          background:     'white',
-          border:         '1.5px solid rgba(45,42,62,0.09)',
-          borderRadius:   14,
-          cursor:         'pointer',
-          fontFamily:     'var(--font-nunito-sans)',
-          fontSize:       '13px',
-          fontWeight:     700,
-          color:          '#9895B0',
-          boxShadow:      '0 1px 4px rgba(45,42,62,0.05)',
-          transition:     'border-color 0.15s, box-shadow 0.15s',
-        }}
-        onMouseEnter={e => {
-          (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(244,165,130,0.45)'
-          ;(e.currentTarget as HTMLButtonElement).style.color = '#F4A582'
-        }}
-        onMouseLeave={e => {
-          (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(45,42,62,0.09)'
-          ;(e.currentTarget as HTMLButtonElement).style.color = '#9895B0'
-        }}
-      >
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-          <path d="M8 2v12M2 8h12" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/>
-        </svg>
-        Add Task
-      </button>
-    ) : (
+    {/* ── Mood label + Add Task row ── */}
+    <div style={{
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      marginTop: 22, marginBottom: 10,
+    }}>
+      <p className="lumi-section-label" style={{ margin: 0 }}>HOW&apos;S YOUR BRAIN TODAY?</p>
+      {!addOpen && (
+        <button
+          onClick={openAdd}
+          style={{
+            display:     'flex',
+            alignItems:  'center',
+            gap:         6,
+            padding:     '7px 14px',
+            borderRadius: 99,
+            border:      'none',
+            background:  'linear-gradient(135deg, #F4A582 0%, #F5C98A 100%)',
+            boxShadow:   '0 2px 10px rgba(244,165,130,0.35)',
+            cursor:      'pointer',
+            fontFamily:  'var(--font-nunito-sans)',
+            fontSize:    '12px',
+            fontWeight:  800,
+            color:       '#1E1C2E',
+            transition:  'box-shadow 0.15s, transform 0.1s',
+            flexShrink:  0,
+          }}
+          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 16px rgba(244,165,130,0.50)' }}
+          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 2px 10px rgba(244,165,130,0.35)' }}
+        >
+          <svg width="11" height="11" viewBox="0 0 16 16" fill="none">
+            <path d="M8 2v12M2 8h12" stroke="#1E1C2E" strokeWidth="2.5" strokeLinecap="round"/>
+          </svg>
+          Add Task
+        </button>
+      )}
+    </div>
+
+    {/* ── Add Task form (expands below the header row) ── */}
+    {addOpen && (
       <div style={{
         marginTop:    12,
         background:   'white',

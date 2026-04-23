@@ -464,14 +464,24 @@ export async function POST(req: Request) {
   const encoder = new TextEncoder()
   const readable = new ReadableStream({
     async start(controller) {
+      controller.enqueue(encoder.encode('[STREAM_START] '))
       try {
+        let chunkCount = 0
         for await (const chunk of result.textStream) {
+          chunkCount++
           controller.enqueue(encoder.encode(chunk))
+        }
+        if (chunkCount === 0) {
+          // textStream yielded nothing — check fullStream for errors or tool-only response
+          controller.enqueue(encoder.encode('[EMPTY_STREAM] '))
+          for await (const part of result.fullStream) {
+            controller.enqueue(encoder.encode(`[PART:${part.type}] `))
+          }
         }
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err)
         console.error('[Lumi chat] stream error:', msg)
-        controller.enqueue(encoder.encode(`DEBUG: ${msg}`))
+        controller.enqueue(encoder.encode(`[STREAM_ERR: ${msg}]`))
       } finally {
         controller.close()
       }

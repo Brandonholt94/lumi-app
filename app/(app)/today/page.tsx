@@ -25,14 +25,16 @@ export default async function TodayPage() {
   const { userId } = await auth()
 
   let firstName = 'Friend'
+  let plan = 'core'
   if (userId) {
     const supabase = getServiceClient()
     const { data } = await supabase
       .from('profiles')
-      .select('display_name')
+      .select('display_name, plan')
       .eq('clerk_user_id', userId)
       .maybeSingle()
     if (data?.display_name) firstName = data.display_name
+    plan = data?.plan ?? 'core'
   }
 
   return (
@@ -54,7 +56,7 @@ export default async function TodayPage() {
         <SleepCard />
 
         {/* Setup nudge cards — notifications, calendar, download */}
-        <ActionCards />
+        <ActionCards plan={plan} />
 
         {/* ── HOW'S YOUR BRAIN TODAY? ── */}
         <p
@@ -87,7 +89,7 @@ export default async function TodayPage() {
         >
           YOUR DAY
         </p>
-        <DayTimeline />
+        <DayTimeline plan={plan} />
 
         {/* Evening wind-down — shows after 8pm, right below the day view */}
         <EveningBrainClear />

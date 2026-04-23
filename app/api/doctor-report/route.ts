@@ -30,6 +30,10 @@ export async function POST(req: Request) {
     .eq('clerk_user_id', userId)
     .maybeSingle()
 
+  if (profile?.plan !== 'companion') {
+    return NextResponse.json({ error: 'Companion plan required' }, { status: 403 })
+  }
+
   if (!profile?.doctor_email) {
     return NextResponse.json({ error: 'No doctor email on file' }, { status: 400 })
   }

@@ -11,6 +11,7 @@ interface CardDef {
   href?:       string
   color:       string       // tint hex
   icon:        React.ReactNode
+  locked?:     boolean
 }
 
 // ── Animated icons ────────────────────────────────────────────
@@ -100,7 +101,7 @@ function saveDismissed(dismissed: Set<CardId>) {
 
 // ── Component ─────────────────────────────────────────────────
 
-export default function ActionCards() {
+export default function ActionCards({ plan }: { plan: string }) {
   const [dismissed,         setDismissed]        = useState<Set<CardId>>(new Set())
   const [calendarConnected, setCalendarConnected] = useState<boolean | null>(null)
   const [notifGranted,      setNotifGranted]      = useState<boolean>(true)
@@ -145,7 +146,8 @@ export default function ActionCards() {
       title:       'Connect your calendar',
       description: 'Lumi sees what\'s coming up',
       color:       '#8FAAE0',
-      href:        '/me/calendar',
+      href:        plan === 'companion' ? '/me/calendar' : '/upgrade?feature=calendar',
+      locked:      plan !== 'companion',
       icon:        <CalendarIcon />,
     },
     {
@@ -268,6 +270,20 @@ export default function ActionCards() {
               }}>
                 {card.title}
               </p>
+
+              {/* Companion badge */}
+              {card.locked && (
+                <p style={{
+                  fontFamily:    'var(--font-nunito-sans)',
+                  fontSize:      '10px',
+                  fontWeight:    800,
+                  color:         '#C49820',
+                  letterSpacing: '0.04em',
+                  marginTop:     4,
+                }}>
+                  ✦ Companion
+                </p>
+              )}
             </a>
           </div>
         ))}

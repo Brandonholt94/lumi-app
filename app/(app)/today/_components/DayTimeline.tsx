@@ -63,7 +63,7 @@ function todayAtTime(timeStr: string): string {
   return d.toISOString()
 }
 
-export default function DayTimeline() {
+export default function DayTimeline({ plan }: { plan: string }) {
   const [events,    setEvents]    = useState<CalEvent[]>([])
   const [tasks,     setTasks]     = useState<PersonalTask[]>([])
   const [loading,   setLoading]   = useState(true)
@@ -79,14 +79,22 @@ export default function DayTimeline() {
     const nextH = now.getHours() + 1
     setTaskTime(`${nextH.toString().padStart(2, '0')}:00`)
 
-    Promise.all([
-      fetch('/api/calendar/events?hours=12').then(r => r.json()).catch(() => []),
-      fetch('/api/timeline-tasks').then(r => r.json()).catch(() => []),
-    ]).then(([calData, taskData]) => {
-      setEvents(Array.isArray(calData)  ? calData  : [])
-      setTasks(Array.isArray(taskData) ? taskData : [])
-      setLoading(false)
-    })
+    if (plan === 'companion') {
+      Promise.all([
+        fetch('/api/calendar/events?hours=12').then(r => r.json()).catch(() => []),
+        fetch('/api/timeline-tasks').then(r => r.json()).catch(() => []),
+      ]).then(([calData, taskData]) => {
+        setEvents(Array.isArray(calData) ? calData : [])
+        setTasks(Array.isArray(taskData) ? taskData : [])
+        setLoading(false)
+      })
+    } else {
+      fetch('/api/timeline-tasks').then(r => r.json()).catch(() => []).then(taskData => {
+        setEvents([])
+        setTasks(Array.isArray(taskData) ? taskData : [])
+        setLoading(false)
+      })
+    }
   }, [])
 
   // Scroll "Now" into view

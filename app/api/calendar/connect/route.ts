@@ -21,8 +21,8 @@ export async function GET(req: Request) {
     .single()
 
   const plan = profile?.plan ?? 'free'
-  if (plan === 'free') {
-    redirect('/me/subscription')
+  if (plan !== 'companion') {
+    redirect('/upgrade?feature=calendar')
   }
 
   const origin      = new URL(req.url).origin

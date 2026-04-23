@@ -22,6 +22,7 @@ export default function DoctorReportPage() {
   const [sent, setSent]       = useState(false)
   const [error, setError]     = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const [plan, setPlan]       = useState<string>('core')
 
   useEffect(() => {
     fetch('/api/profile')
@@ -31,6 +32,7 @@ export default function DoctorReportPage() {
           doctor_name:  d.doctor_name  ?? '',
           doctor_email: d.doctor_email ?? '',
         })
+        setPlan(d.plan ?? 'core')
         setLoading(false)
       })
       .catch(() => setLoading(false))
@@ -105,6 +107,56 @@ export default function DoctorReportPage() {
         </p>
       </div>
 
+      {/* Upgrade prompt for non-Companion users */}
+      {!loading && plan !== 'companion' && (
+        <div style={{
+          background:   'linear-gradient(135deg, rgba(244,165,130,0.14) 0%, rgba(245,201,138,0.12) 100%)',
+          border:       '1.5px solid rgba(244,165,130,0.28)',
+          borderRadius: 20,
+          padding:      '28px 22px',
+          marginBottom: 24,
+          textAlign:    'center',
+        }}>
+          <p style={{
+            fontFamily:    'var(--font-aegora)',
+            fontSize:      '20px',
+            fontWeight:    900,
+            color:         DARKER,
+            marginBottom:  10,
+            lineHeight:    1.3,
+          }}>
+            Doctor reports are a Companion feature
+          </p>
+          <p style={{
+            fontFamily:  'var(--font-nunito-sans)',
+            fontSize:    '14px',
+            fontWeight:  500,
+            color:       MUTED,
+            lineHeight:  1.6,
+            marginBottom: 20,
+          }}>
+            Upgrade to Companion to generate and send professional health summaries directly to your prescriber.
+          </p>
+          <a
+            href="/upgrade"
+            style={{
+              display:        'inline-block',
+              padding:        '13px 28px',
+              borderRadius:   14,
+              background:     `linear-gradient(135deg, ${PEACH}, ${GOLD})`,
+              fontFamily:     'var(--font-nunito-sans)',
+              fontSize:       '14px',
+              fontWeight:     800,
+              color:          DARKER,
+              textDecoration: 'none',
+              boxShadow:      '0 3px 14px rgba(244,165,130,0.30)',
+            }}
+          >
+            Upgrade to Companion
+          </a>
+        </div>
+      )}
+
       {/* What's included */}
       <div style={{
         background: 'rgba(244,165,130,0.07)',
@@ -138,115 +190,119 @@ export default function DoctorReportPage() {
         ))}
       </div>
 
-      {/* Doctor contact */}
-      <p style={{
-        fontFamily: 'var(--font-nunito-sans)',
-        fontSize: '11px', fontWeight: 800,
-        letterSpacing: '0.1em', color: MUTED,
-        marginBottom: 10,
-      }}>
-        YOUR DOCTOR&apos;S CONTACT
-      </p>
-
-      {loading ? (
-        <div style={{ height: 44, borderRadius: 12, background: 'rgba(45,42,62,0.06)', marginBottom: 12 }} />
-      ) : (
+      {/* Doctor contact + send — Companion only */}
+      {!loading && plan === 'companion' && (
         <>
-          <input
-            value={info.doctor_name}
-            onChange={e => setInfo(p => ({ ...p, doctor_name: e.target.value }))}
-            placeholder="Dr. Sarah Chen"
-            style={{
-              display: 'block', width: '100%', boxSizing: 'border-box',
-              marginBottom: 10, padding: '12px 14px',
+          <p style={{
+            fontFamily: 'var(--font-nunito-sans)',
+            fontSize: '11px', fontWeight: 800,
+            letterSpacing: '0.1em', color: MUTED,
+            marginBottom: 10,
+          }}>
+            YOUR DOCTOR&apos;S CONTACT
+          </p>
+
+          {loading ? (
+            <div style={{ height: 44, borderRadius: 12, background: 'rgba(45,42,62,0.06)', marginBottom: 12 }} />
+          ) : (
+            <>
+              <input
+                value={info.doctor_name}
+                onChange={e => setInfo(p => ({ ...p, doctor_name: e.target.value }))}
+                placeholder="Dr. Sarah Chen"
+                style={{
+                  display: 'block', width: '100%', boxSizing: 'border-box',
+                  marginBottom: 10, padding: '12px 14px',
+                  fontFamily: 'var(--font-nunito-sans)',
+                  fontSize: '14px', fontWeight: 600, color: DARKER,
+                  background: 'white', border: '1.5px solid rgba(45,42,62,0.10)',
+                  borderRadius: 12, outline: 'none',
+                }}
+              />
+              <input
+                value={info.doctor_email}
+                onChange={e => setInfo(p => ({ ...p, doctor_email: e.target.value }))}
+                placeholder="doctor@practice.com"
+                type="email"
+                style={{
+                  display: 'block', width: '100%', boxSizing: 'border-box',
+                  marginBottom: 14, padding: '12px 14px',
+                  fontFamily: 'var(--font-nunito-sans)',
+                  fontSize: '14px', fontWeight: 600, color: DARKER,
+                  background: 'white', border: '1.5px solid rgba(45,42,62,0.10)',
+                  borderRadius: 12, outline: 'none',
+                }}
+              />
+              <button
+                onClick={saveContact}
+                disabled={saving}
+                style={{
+                  width: '100%', padding: '12px',
+                  borderRadius: 12, border: 'none',
+                  background: saved
+                    ? 'rgba(94,194,105,0.15)'
+                    : 'rgba(45,42,62,0.06)',
+                  cursor: 'pointer',
+                  fontFamily: 'var(--font-nunito-sans)',
+                  fontSize: '13px', fontWeight: 800,
+                  color: saved ? '#4A9A55' : MUTED,
+                  marginBottom: 28,
+                  transition: 'all 0.2s',
+                }}
+              >
+                {saving ? 'Saving…' : saved ? '✓ Contact saved' : 'Save contact'}
+              </button>
+            </>
+          )}
+
+          {/* Error */}
+          {error && (
+            <div style={{
+              background: 'rgba(200,64,64,0.08)',
+              border: '1px solid rgba(200,64,64,0.20)',
+              borderRadius: 12, padding: '12px 16px',
+              marginBottom: 16,
               fontFamily: 'var(--font-nunito-sans)',
-              fontSize: '14px', fontWeight: 600, color: DARKER,
-              background: 'white', border: '1.5px solid rgba(45,42,62,0.10)',
-              borderRadius: 12, outline: 'none',
-            }}
-          />
-          <input
-            value={info.doctor_email}
-            onChange={e => setInfo(p => ({ ...p, doctor_email: e.target.value }))}
-            placeholder="doctor@practice.com"
-            type="email"
-            style={{
-              display: 'block', width: '100%', boxSizing: 'border-box',
-              marginBottom: 14, padding: '12px 14px',
-              fontFamily: 'var(--font-nunito-sans)',
-              fontSize: '14px', fontWeight: 600, color: DARKER,
-              background: 'white', border: '1.5px solid rgba(45,42,62,0.10)',
-              borderRadius: 12, outline: 'none',
-            }}
-          />
+              fontSize: '13px', fontWeight: 600,
+              color: '#C84040',
+            }}>
+              {error}
+            </div>
+          )}
+
+          {/* Send button */}
           <button
-            onClick={saveContact}
-            disabled={saving}
+            onClick={sendReport}
+            disabled={sending || !info.doctor_email.trim()}
             style={{
-              width: '100%', padding: '12px',
-              borderRadius: 12, border: 'none',
-              background: saved
+              width: '100%', padding: '16px',
+              borderRadius: 16, border: 'none',
+              cursor: sending || !info.doctor_email.trim() ? 'not-allowed' : 'pointer',
+              background: sent
                 ? 'rgba(94,194,105,0.15)'
-                : 'rgba(45,42,62,0.06)',
-              cursor: 'pointer',
+                : `linear-gradient(135deg, ${PEACH}, ${GOLD})`,
               fontFamily: 'var(--font-nunito-sans)',
-              fontSize: '13px', fontWeight: 800,
-              color: saved ? '#4A9A55' : MUTED,
-              marginBottom: 28,
+              fontSize: '15px', fontWeight: 800,
+              color: sent ? '#4A9A55' : DARKER,
+              boxShadow: sent ? 'none' : '0 3px 14px rgba(244,165,130,0.30)',
+              opacity: (!info.doctor_email.trim() && !sent) ? 0.5 : 1,
               transition: 'all 0.2s',
+              marginBottom: 12,
             }}
           >
-            {saving ? 'Saving…' : saved ? '✓ Contact saved' : 'Save contact'}
+            {sending ? 'Sending report…' : sent ? '✓ Report sent to your doctor' : `Send report to ${info.doctor_name || 'my doctor'}`}
           </button>
+
+          <p style={{
+            fontFamily: 'var(--font-nunito-sans)',
+            fontSize: '11px', fontWeight: 500,
+            color: MUTED, textAlign: 'center',
+            lineHeight: 1.6,
+          }}>
+            Report is sent via secure email. Your doctor receives a professional summary — not your raw conversations.
+          </p>
         </>
       )}
-
-      {/* Error */}
-      {error && (
-        <div style={{
-          background: 'rgba(200,64,64,0.08)',
-          border: '1px solid rgba(200,64,64,0.20)',
-          borderRadius: 12, padding: '12px 16px',
-          marginBottom: 16,
-          fontFamily: 'var(--font-nunito-sans)',
-          fontSize: '13px', fontWeight: 600,
-          color: '#C84040',
-        }}>
-          {error}
-        </div>
-      )}
-
-      {/* Send button */}
-      <button
-        onClick={sendReport}
-        disabled={sending || !info.doctor_email.trim()}
-        style={{
-          width: '100%', padding: '16px',
-          borderRadius: 16, border: 'none',
-          cursor: sending || !info.doctor_email.trim() ? 'not-allowed' : 'pointer',
-          background: sent
-            ? 'rgba(94,194,105,0.15)'
-            : `linear-gradient(135deg, ${PEACH}, ${GOLD})`,
-          fontFamily: 'var(--font-nunito-sans)',
-          fontSize: '15px', fontWeight: 800,
-          color: sent ? '#4A9A55' : DARKER,
-          boxShadow: sent ? 'none' : '0 3px 14px rgba(244,165,130,0.30)',
-          opacity: (!info.doctor_email.trim() && !sent) ? 0.5 : 1,
-          transition: 'all 0.2s',
-          marginBottom: 12,
-        }}
-      >
-        {sending ? 'Sending report…' : sent ? '✓ Report sent to your doctor' : `Send report to ${info.doctor_name || 'my doctor'}`}
-      </button>
-
-      <p style={{
-        fontFamily: 'var(--font-nunito-sans)',
-        fontSize: '11px', fontWeight: 500,
-        color: MUTED, textAlign: 'center',
-        lineHeight: 1.6,
-      }}>
-        Report is sent via secure email. Your doctor receives a professional summary — not your raw conversations.
-      </p>
     </div>
   )
 }

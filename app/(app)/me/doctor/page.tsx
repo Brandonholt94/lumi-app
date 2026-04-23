@@ -35,7 +35,10 @@ export default function DoctorReportPage() {
         setPlan((d.plan ?? 'core').toLowerCase())
         setLoading(false)
       })
-      .catch(() => setLoading(false))
+      .catch(() => {
+        setPlan('companion') // fail open — real auth enforced by /api/doctor-report
+        setLoading(false)
+      })
   }, [])
 
   async function saveContact() {

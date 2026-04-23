@@ -379,7 +379,7 @@ export default function ChatPage() {
               </div>
             </div>
           ) : (
-            /* ── MESSAGES — anchored to bottom ── */
+            /* ── MESSAGES — anchored to bottom, scrollable up ── */
             <div
               className="lumi-scroll"
               style={{
@@ -387,10 +387,12 @@ export default function ChatPage() {
                 overflowY: 'auto',
                 display: 'flex',
                 flexDirection: 'column',
-                justifyContent: 'flex-end',
                 padding: '20px 16px 12px',
               }}
             >
+              {/* Spacer pushes messages to bottom when list is short;
+                  collapses automatically when content overflows so scroll works */}
+              <div style={{ flex: 1 }} />
               {messages.map((msg, i) => {
                 const isUser = msg.role === 'user'
                 return (

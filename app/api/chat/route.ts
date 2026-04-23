@@ -438,5 +438,26 @@ export async function POST(req: Request) {
     },
   })
 
-  return result.toTextStreamResponse()
+  // Stream plain text — result.textStream gives clean text-only chunks
+  // (avoids AI SDK v6 Data Stream Protocol encoding that the client can't parse)
+  const encoder = new TextEncoder()
+  const readable = new ReadableStream({
+    async start(controller) {
+      try {
+        for await (const chunk of result.textStream) {
+          controller.enqueue(encoder.encode(chunk))
+        }
+      } catch (err) {
+        console.error('[Lumi chat] stream error:', err)
+        // Send a fallback message so the client never shows an empty bubble
+        controller.enqueue(encoder.encode("Something went sideways on my end. Want to try again?"))
+      } finally {
+        controller.close()
+      }
+    },
+  })
+
+  return new Response(readable, {
+    headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+  })
 }

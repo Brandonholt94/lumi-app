@@ -89,9 +89,8 @@ export default function ChatPage() {
   const [focusCtx, setFocusCtx] = useState<FocusContext>({ task: null, completed: false })
   const [started, setStarted] = useState(false) // true once messages exist
   const [limitReached, setLimitReached] = useState(false)
-  const [judgeMode, setJudgeMode] = useState(false)
+  const [judgeOpen, setJudgeOpen] = useState(false)
   const [judgePaste, setJudgePaste] = useState('')
-  const judgePasteRef = useRef<HTMLTextAreaElement>(null)
 
   const bottomRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
@@ -217,6 +216,13 @@ export default function ChatPage() {
         accumulated += decoder.decode(value, { stream: true })
         setMessages(prev => prev.map(m => m.id === assistantId ? { ...m, content: accumulated } : m))
       }
+      // If the stream completed with no content, show a fallback rather than an empty bubble
+      if (!accumulated.trim()) {
+        setMessages(prev => prev.map(m =>
+          m.id === assistantId ? { ...m, content: "Something went sideways on my end. Want to try again?" } : m
+        ))
+        return
+      }
       // Persist today's conversation (fire and forget)
       const assistantTimestamp = new Date()
       const historyToSave = [
@@ -330,128 +336,46 @@ export default function ChatPage() {
                 What&apos;s on your mind?
               </p>
 
-              {/* ── Suggested prompts / Lumi Judge panel ── */}
+              {/* ── Suggested prompts ── */}
               <div style={{ marginTop: 28, width: '100%', maxWidth: 320 }}>
-                {judgeMode ? (
-                  /* ── Lumi Judge paste panel ── */
-                  <div style={{
-                    background: 'rgba(255,248,244,0.75)',
-                    backdropFilter: 'blur(24px)',
-                    WebkitBackdropFilter: 'blur(24px)',
-                    border: '1px solid rgba(255,255,255,0.80)',
-                    borderRadius: 20,
-                    padding: '18px 16px 14px',
-                    boxShadow: '0 4px 24px rgba(244,165,130,0.16)',
-                  }}>
-                    {/* Header */}
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <span style={{ fontSize: '15px' }}>🔍</span>
-                        <span style={{ fontFamily: 'var(--font-aegora)', fontSize: '15px', fontWeight: 700, color: '#1E1C2E' }}>
-                          Lumi Judge
-                        </span>
-                      </div>
-                      <button
-                        onClick={() => { setJudgeMode(false); setJudgePaste('') }}
-                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9895B0', padding: 4 }}
-                      >
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                          <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
-                        </svg>
-                      </button>
-                    </div>
-
-                    <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '12px', fontWeight: 500, color: '#9895B0', marginBottom: 10, lineHeight: 1.4 }}>
-                      Paste the message and I&apos;ll give you the real read — no filter.
-                    </p>
-
-                    <textarea
-                      ref={judgePasteRef}
-                      value={judgePaste}
-                      onChange={e => setJudgePaste(e.target.value)}
-                      placeholder="Paste the message here…"
-                      rows={4}
-                      style={{
-                        display: 'block', width: '100%', boxSizing: 'border-box',
-                        padding: '10px 12px', borderRadius: 12, resize: 'none',
-                        fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 500, color: '#2D2A3E',
-                        background: 'white', border: '1.5px solid rgba(45,42,62,0.10)',
-                        outline: 'none', lineHeight: 1.5,
-                        marginBottom: 10,
-                      }}
-                    />
-
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  {[
+                    { emoji: '🧠', label: "I'm overwhelmed", prompt: "I'm overwhelmed and don't know where to start. Can you help me figure out what to do first?" },
+                    { emoji: '✦',  label: 'Help me focus',   prompt: "I'm struggling to start. Can you help me pick one thing to focus on right now?" },
+                  ].map(({ emoji, label, prompt }) => (
                     <button
-                      disabled={!judgePaste.trim()}
+                      key={label}
                       onClick={() => {
-                        const msg = `Decode this message for me — give me the real, objective read on the tone. I want to know what it actually says, what might be ambiguous, and what my brain could be adding:\n\n"${judgePaste.trim()}"`
-                        setJudgeMode(false)
-                        setJudgePaste('')
-                        sendMessage(msg)
+                        setInput(prompt)
+                        if (inputRef.current) {
+                          inputRef.current.style.height = '44px'
+                          inputRef.current.style.height = Math.min(inputRef.current.scrollHeight, 120) + 'px'
+                          inputRef.current.focus()
+                        }
                       }}
                       style={{
-                        width: '100%', padding: '11px',
-                        borderRadius: 12, border: 'none',
-                        background: judgePaste.trim()
-                          ? 'linear-gradient(135deg, #F4A582, #F5C98A)'
-                          : 'rgba(45,42,62,0.06)',
+                        display: 'flex', alignItems: 'center', gap: 10,
+                        padding: '12px 16px', borderRadius: 16,
+                        background: 'rgba(255,248,244,0.55)',
+                        backdropFilter: 'blur(20px)',
+                        WebkitBackdropFilter: 'blur(20px)',
+                        border: '1px solid rgba(255,255,255,0.70)',
+                        boxShadow: '0 2px 12px rgba(244,165,130,0.12)',
+                        cursor: 'pointer',
+                        textAlign: 'left',
                         fontFamily: 'var(--font-nunito-sans)',
-                        fontSize: '13px', fontWeight: 800,
-                        color: judgePaste.trim() ? '#1E1C2E' : '#9895B0',
-                        cursor: judgePaste.trim() ? 'pointer' : 'not-allowed',
-                        transition: 'all 0.2s',
+                        WebkitTapHighlightColor: 'transparent',
+                        width: '100%',
                       }}
                     >
-                      Decode this →
+                      <span style={{ fontSize: '16px', flexShrink: 0 }}>{emoji}</span>
+                      <span style={{ fontSize: '14px', fontWeight: 700, color: '#2D2A3E' }}>{label}</span>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ marginLeft: 'auto', flexShrink: 0 }}>
+                        <path d="M9 18l6-6-6-6" stroke="rgba(244,165,130,0.7)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
                     </button>
-                  </div>
-                ) : (
-                  /* ── Normal chips ── */
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                    {[
-                      { emoji: '🔍', label: 'Lumi Judge', isJudge: true },
-                      { emoji: '🧠', label: "I'm overwhelmed", prompt: "I'm overwhelmed and don't know where to start. Can you help me figure out what to do first?" },
-                      { emoji: '✦',  label: 'Help me focus',   prompt: "I'm struggling to start. Can you help me pick one thing to focus on right now?" },
-                    ].map(({ emoji, label, prompt, isJudge }) => (
-                      <button
-                        key={label}
-                        onClick={() => {
-                          if (isJudge) {
-                            setJudgeMode(true)
-                            setTimeout(() => judgePasteRef.current?.focus(), 80)
-                          } else {
-                            setInput(prompt ?? '')
-                            if (inputRef.current) {
-                              inputRef.current.style.height = '44px'
-                              inputRef.current.style.height = Math.min(inputRef.current.scrollHeight, 120) + 'px'
-                              inputRef.current.focus()
-                            }
-                          }
-                        }}
-                        style={{
-                          display: 'flex', alignItems: 'center', gap: 10,
-                          padding: '12px 16px', borderRadius: 16,
-                          background: 'rgba(255,248,244,0.55)',
-                          backdropFilter: 'blur(20px)',
-                          WebkitBackdropFilter: 'blur(20px)',
-                          border: '1px solid rgba(255,255,255,0.70)',
-                          boxShadow: '0 2px 12px rgba(244,165,130,0.12)',
-                          cursor: 'pointer',
-                          textAlign: 'left',
-                          fontFamily: 'var(--font-nunito-sans)',
-                          WebkitTapHighlightColor: 'transparent',
-                          width: '100%',
-                        }}
-                      >
-                        <span style={{ fontSize: '16px', flexShrink: 0 }}>{emoji}</span>
-                        <span style={{ fontSize: '14px', fontWeight: 700, color: '#2D2A3E' }}>{label}</span>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ marginLeft: 'auto', flexShrink: 0 }}>
-                          <path d="M9 18l6-6-6-6" stroke="rgba(244,165,130,0.7)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
-                      </button>
-                    ))}
-                  </div>
-                )}
+                  ))}
+                </div>
               </div>
             </div>
           ) : (
@@ -631,6 +555,70 @@ export default function ChatPage() {
             </a>
           ) : (
           <>
+          {/* ── Lumi Judge paste panel — slides in above the input ── */}
+          {judgeOpen && (
+            <div style={{
+              marginBottom: 10,
+              background: 'white',
+              border: '1.5px solid rgba(45,42,62,0.09)',
+              borderRadius: 20,
+              padding: '14px 14px 12px',
+              boxShadow: '0 2px 12px rgba(244,165,130,0.12)',
+              animation: 'lumiIn 0.18s ease-out both',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '12px', fontWeight: 800, color: '#9895B0', letterSpacing: '0.06em' }}>
+                  LUMI JUDGE
+                </span>
+                <button
+                  onClick={() => { setJudgeOpen(false); setJudgePaste('') }}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#B0ADBE', padding: 2, lineHeight: 1 }}
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                    <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
+                  </svg>
+                </button>
+              </div>
+              <textarea
+                autoFocus
+                value={judgePaste}
+                onChange={e => setJudgePaste(e.target.value)}
+                placeholder="Paste the message here…"
+                rows={3}
+                style={{
+                  display: 'block', width: '100%', boxSizing: 'border-box',
+                  padding: '9px 11px', borderRadius: 12, resize: 'none',
+                  fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 500, color: '#2D2A3E',
+                  background: 'rgba(45,42,62,0.04)', border: '1.5px solid rgba(45,42,62,0.08)',
+                  outline: 'none', lineHeight: 1.5, marginBottom: 10,
+                }}
+              />
+              <button
+                disabled={!judgePaste.trim()}
+                onClick={() => {
+                  const msg = `Decode this message for me — give me the real, objective read on the tone. I want to know what it actually says, what might be ambiguous, and what my brain could be adding:\n\n"${judgePaste.trim()}"`
+                  setJudgeOpen(false)
+                  setJudgePaste('')
+                  sendMessage(msg)
+                }}
+                style={{
+                  width: '100%', padding: '10px',
+                  borderRadius: 12, border: 'none',
+                  background: judgePaste.trim()
+                    ? 'linear-gradient(135deg, #F4A582, #F5C98A)'
+                    : 'rgba(45,42,62,0.06)',
+                  fontFamily: 'var(--font-nunito-sans)',
+                  fontSize: '13px', fontWeight: 800,
+                  color: judgePaste.trim() ? '#1E1C2E' : '#9895B0',
+                  cursor: judgePaste.trim() ? 'pointer' : 'not-allowed',
+                  transition: 'all 0.15s',
+                }}
+              >
+                Decode this →
+              </button>
+            </div>
+          )}
+
           <div
             className="flex items-center gap-2 rounded-2xl px-3"
             style={{
@@ -642,6 +630,32 @@ export default function ChatPage() {
               paddingBottom: 8,
             }}
           >
+            {/* Judge pill — always visible on left */}
+            <button
+              onClick={() => { setJudgeOpen(o => !o); setJudgePaste('') }}
+              style={{
+                flexShrink: 0,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 4,
+                padding: '5px 10px',
+                borderRadius: 20,
+                background: judgeOpen ? 'linear-gradient(135deg, #F4A582, #F5C98A)' : 'rgba(45,42,62,0.06)',
+                border: 'none',
+                cursor: 'pointer',
+                fontFamily: 'var(--font-nunito-sans)',
+                fontSize: '12px',
+                fontWeight: 800,
+                color: judgeOpen ? '#1E1C2E' : '#7A7890',
+                letterSpacing: '0.01em',
+                transition: 'all 0.15s',
+                WebkitTapHighlightColor: 'transparent',
+              }}
+            >
+              <span style={{ fontSize: '11px' }}>🔍</span>
+              Judge
+            </button>
+
             <textarea
               ref={inputRef}
               value={input}
@@ -664,21 +678,16 @@ export default function ChatPage() {
               }}
             />
 
-            {/* Button — always 36×36 circle, never distorted */}
+            {/* Send / mic button — always 36×36 circle */}
             {input.trim() ? (
               <button
                 onClick={() => sendMessage(input)}
                 disabled={isStreaming}
                 className="transition-all active:scale-90"
                 style={{
-                  width: 36,
-                  height: 36,
-                  minWidth: 36,
-                  minHeight: 36,
+                  width: 36, height: 36, minWidth: 36, minHeight: 36,
                   borderRadius: '50%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
                   flexShrink: 0,
                   background: 'linear-gradient(135deg, #F4A582, #F5C98A)',
                 }}
@@ -693,14 +702,9 @@ export default function ChatPage() {
                 onClick={toggleListening}
                 className="transition-all active:scale-90"
                 style={{
-                  width: 36,
-                  height: 36,
-                  minWidth: 36,
-                  minHeight: 36,
+                  width: 36, height: 36, minWidth: 36, minHeight: 36,
                   borderRadius: '50%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
                   flexShrink: 0,
                   background: isListening ? 'linear-gradient(135deg, #F4A582, #F5C98A)' : 'rgba(45,42,62,0.06)',
                   animation: isListening ? 'lumiPulse 1s ease-in-out infinite' : undefined,

@@ -20,7 +20,9 @@ export default function EveningBrainClear() {
 
   useEffect(() => {
     const hour = new Date().getHours()
-    if (hour < 20) return // Only show at 8pm or later
+    // Show 8pm–3am (ADHD night owls commonly up past midnight)
+    const isEvening = hour >= 20 || hour < 3
+    if (!isEvening) return
 
     const dismissedDate = getDismissedDate()
     const today = new Date().toDateString()

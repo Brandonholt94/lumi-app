@@ -139,10 +139,11 @@ export default function OneFocusCard() {
   }
 
   // Empty state — no task captures yet
-  // Hide entirely at night (≥ 8pm): EveningBrainClear already covers this CTA
+  // Only hide 3am–6am — ADHD night owls are commonly up past midnight,
+  // keep the brain dump CTA available until 3am
   if (!focus?.task) {
     const hour = new Date().getHours()
-    if (hour >= 20) return null
+    if (hour >= 3 && hour < 6) return null
 
     return (
       <>

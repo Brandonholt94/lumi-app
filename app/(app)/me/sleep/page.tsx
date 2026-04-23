@@ -482,26 +482,8 @@ export default function SleepPage() {
         </div>
       </div>
 
-      {/* ── Apple Health (future) ── */}
-      <div style={{ padding: '0 20px', marginBottom: 28 }}>
-        <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '10px', fontWeight: 800, letterSpacing: '0.1em', color: D.muted, marginBottom: 10, paddingLeft: 2 }}>
-          APPLE HEALTH
-        </p>
-        <div style={{ borderRadius: 14, border: `1.5px solid ${D.bdr}`, background: D.card, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, opacity: 0.55 }}>
-          <div style={{ width: 34, height: 34, borderRadius: 10, flexShrink: 0, background: 'rgba(255,59,48,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <svg width="18" height="18" viewBox="0 0 256 256" fill="#FF3B30">
-              <path d="M240,94c0,70-103.79,126.66-108.21,129a8,8,0,0,1-7.58,0C119.79,220.66,16,164,16,94A62.07,62.07,0,0,1,78,32c20.65,0,38.73,8.88,50,23.89C139.27,40.88,157.35,32,178,32A62.07,62.07,0,0,1,240,94Z"/>
-            </svg>
-          </div>
-          <div style={{ flex: 1 }}>
-            <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '14px', fontWeight: 700, color: D.text, marginBottom: 2 }}>Connect Apple Health</p>
-            <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 500, color: D.muted }}>Read &amp; write sleep data — coming in the iOS app</p>
-          </div>
-          <div style={{ width: 42, height: 26, borderRadius: 13, background: 'rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', padding: '3px' }}>
-            <div style={{ width: 20, height: 20, borderRadius: '50%', background: 'rgba(255,255,255,0.3)' }} />
-          </div>
-        </div>
-      </div>
+      {/* ── Apple Health — iOS app only, hidden on web ── */}
+      {/* TODO(ios): restore this section in the native app — identical UI, but wired to HealthKit */}
 
       {/* ── Save ── */}
       <div style={{ padding: '0 20px', marginBottom: 32 }}>

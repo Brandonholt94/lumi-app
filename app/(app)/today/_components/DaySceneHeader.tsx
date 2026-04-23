@@ -75,10 +75,10 @@ const STARS = [
 // Afternoon clouds sit LOW (y≈100-108) so the beige dome clips their
 // bottoms — they look like they're rising over the hill.
 const CLOUDS: Record<Scene, { x: number; y: number; s: number; o: number }[]> = {
-  morning:   [{ x: 30,  y: 80,  s: 0.90, o: 0.70 }, { x: 268, y: 86,  s: 0.75, o: 0.55 }],
-  afternoon: [{ x: -8,  y: 100, s: 1.30, o: 0.96 }, { x: 312, y: 103, s: 1.10, o: 0.93 }, { x: 112, y: 62,  s: 0.70, o: 0.78 }],
-  evening:   [{ x: 25,  y: 84,  s: 0.90, o: 0.62 }, { x: 268, y: 78,  s: 0.75, o: 0.50 }],
-  night:     [{ x: 80,  y: 95,  s: 0.78, o: 0.28 }, { x: 268, y: 98,  s: 0.62, o: 0.20 }],
+  morning:   [{ x: 30,  y: 42,  s: 0.90, o: 0.70 }, { x: 248, y: 48,  s: 0.75, o: 0.55 }],
+  afternoon: [{ x: -8,  y: 58,  s: 1.30, o: 0.96 }, { x: 300, y: 62,  s: 1.10, o: 0.93 }, { x: 120, y: 24,  s: 0.70, o: 0.78 }],
+  evening:   [{ x: 25,  y: 46,  s: 0.90, o: 0.62 }, { x: 258, y: 40,  s: 0.75, o: 0.50 }],
+  night:     [{ x: 60,  y: 55,  s: 0.78, o: 0.28 }, { x: 258, y: 58,  s: 0.62, o: 0.20 }],
 }
 
 const CLOUD_COLOR: Record<Scene, string> = {

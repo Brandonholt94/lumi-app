@@ -67,7 +67,7 @@ export default function OneFocusCard() {
     return (
       <>
         {sectionLabel}
-        <div className="rounded-[22px] p-4 mb-4" style={{ background: 'linear-gradient(135deg, rgba(244,165,130,0.14), rgba(245,201,138,0.10))' }}>
+        <div className="rounded-[22px] p-4 mb-4" style={{ background: '#1E1C2E' }}>
         <style>{`
           @keyframes darkShimmer {
             0%   { background-position: 200% 0; }
@@ -108,13 +108,13 @@ export default function OneFocusCard() {
         {sectionLabel}
         <div
           className="rounded-[22px] p-5 mb-4 flex flex-col items-center text-center gap-2"
-          style={{ background: 'linear-gradient(135deg, rgba(244,165,130,0.14), rgba(245,201,138,0.10))' }}
+          style={{ background: '#1E1C2E' }}
         >
           <span style={{ fontSize: '26px', lineHeight: 1 }}>✦</span>
-          <p style={{ fontFamily: 'var(--font-aegora)', fontSize: '18px', fontWeight: 700, color: '#1E1C2E', lineHeight: 1.3 }}>
+          <p style={{ fontFamily: 'var(--font-aegora)', fontSize: '18px', fontWeight: 700, color: 'rgba(245,243,240,0.92)', lineHeight: 1.3 }}>
             That&apos;s the one.
           </p>
-          <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '12.5px', fontWeight: 500, color: '#9895B0', lineHeight: 1.5 }}>
+          <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '12.5px', fontWeight: 500, color: 'rgba(245,243,240,0.50)', lineHeight: 1.5 }}>
             <span style={{ color: '#F4A582', fontWeight: 700 }}>Lumi: </span>
             You did it. That&apos;s not nothing — that&apos;s the whole thing.
           </p>
@@ -125,7 +125,7 @@ export default function OneFocusCard() {
               fontFamily: 'var(--font-nunito-sans)',
               fontSize: '12px',
               fontWeight: 700,
-              color: '#9895B0',
+              color: 'rgba(245,243,240,0.35)',
               background: 'none',
               border: 'none',
               cursor: 'pointer',
@@ -150,7 +150,7 @@ export default function OneFocusCard() {
         {sectionLabel}
         <div
           className="rounded-[22px] p-4 mb-4 relative overflow-hidden"
-          style={{ background: 'linear-gradient(135deg, rgba(244,165,130,0.14), rgba(245,201,138,0.10))' }}
+          style={{ background: '#1E1C2E' }}
         >
           <div
             className="absolute pointer-events-none"
@@ -159,11 +159,11 @@ export default function OneFocusCard() {
           <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '9.5px', fontWeight: 800, letterSpacing: '0.13em', color: '#F4A582', marginBottom: 8 }}>
             TODAY&apos;S FOCUS
           </p>
-          <p style={{ fontFamily: 'var(--font-aegora)', fontSize: '17px', fontWeight: 700, color: 'rgba(45,42,62,0.40)', lineHeight: 1.3, marginBottom: 12 }}>
+          <p style={{ fontFamily: 'var(--font-aegora)', fontSize: '17px', fontWeight: 700, color: 'rgba(245,243,240,0.35)', lineHeight: 1.3, marginBottom: 12 }}>
             Nothing in the queue yet.
           </p>
-          <div className="rounded-[11px] p-[10px_12px] mb-3" style={{ background: 'rgba(200,120,74,0.08)' }}>
-            <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11.5px', fontWeight: 500, color: '#7A6050', lineHeight: 1.55 }}>
+          <div className="rounded-[11px] p-[10px_12px] mb-3" style={{ background: 'rgba(255,255,255,0.06)' }}>
+            <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11.5px', fontWeight: 500, color: 'rgba(245,243,240,0.60)', lineHeight: 1.55 }}>
               <span style={{ color: '#F4A582', fontWeight: 700 }}>Lumi: </span>
               {focus?.lumi_message ?? "Add something to Brain Dump and I'll pick your one thing."}
             </p>
@@ -207,12 +207,12 @@ export default function OneFocusCard() {
         )}
       </div>
 
-      <p style={{ fontFamily: 'var(--font-aegora)', fontSize: '18px', fontWeight: 700, color: '#1E1C2E', lineHeight: 1.25, marginBottom: 12 }}>
+      <p style={{ fontFamily: 'var(--font-aegora)', fontSize: '18px', fontWeight: 700, color: 'rgba(245,243,240,0.92)', lineHeight: 1.25, marginBottom: 12 }}>
         {focus.task}
       </p>
 
-      <div className="rounded-[11px] p-[10px_12px] mb-3" style={{ background: 'rgba(200,120,74,0.08)' }}>
-        <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11.5px', fontWeight: 500, color: '#7A6050', lineHeight: 1.55 }}>
+      <div className="rounded-[11px] p-[10px_12px] mb-3" style={{ background: 'rgba(255,255,255,0.06)' }}>
+        <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11.5px', fontWeight: 500, color: 'rgba(245,243,240,0.60)', lineHeight: 1.55 }}>
           <span style={{ color: '#F4A582', fontWeight: 700 }}>Lumi: </span>
           {focus.lumi_message}
         </p>

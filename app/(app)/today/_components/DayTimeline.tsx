@@ -293,16 +293,25 @@ export default function DayTimeline({ plan }: { plan: string }) {
             padding:      '12px 14px 10px',
             borderBottom: '1px solid rgba(45,42,62,0.05)',
           }}>
-            <p style={{
-              fontFamily:    'var(--font-nunito-sans)',
-              fontSize:      '9px',
-              fontWeight:    800,
-              letterSpacing: '0.1em',
-              color:         '#C4A882',
-              marginBottom:  8,
-            }}>
-              MORNING ANCHORS
-            </p>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+              <p style={{
+                fontFamily:    'var(--font-nunito-sans)',
+                fontSize:      '9px',
+                fontWeight:    800,
+                letterSpacing: '0.1em',
+                color:         '#C4A882',
+              }}>
+                MORNING ANCHORS
+              </p>
+              <a href="/me/anchors" style={{
+                fontFamily: 'var(--font-nunito-sans)',
+                fontSize: '10px', fontWeight: 700,
+                color: '#C4A882', textDecoration: 'none',
+                opacity: 0.7,
+              }}>
+                Edit
+              </a>
+            </div>
             <div style={{
               display:    'flex',
               gap:        7,

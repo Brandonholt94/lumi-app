@@ -249,53 +249,8 @@ export default function MorningAnchors() {
       .then(setState)
   }, [])
 
-  if (!state) return null
-
-  // Hide entirely in the afternoon if all anchors are done
-  const hour = new Date().getHours()
-  const allDone = state.anchors.length > 0 && state.checked.length === state.anchors.length
-  if (allDone && hour >= 12) return null
-
-  // No anchors configured yet
-  if (state.anchors.length === 0) {
-    return (
-      <>
-        <p
-          style={{
-            fontFamily: 'var(--font-nunito-sans)',
-            fontSize: '10px',
-            fontWeight: 800,
-            letterSpacing: '0.1em',
-            color: '#9895B0',
-            marginBottom: 9,
-          }}
-        >
-          MORNING ANCHORS
-        </p>
-        <AnchorSetup
-          onSaved={anchors => {
-            setState({ anchors, checked: [] })
-            router.refresh()
-          }}
-        />
-      </>
-    )
-  }
-
-  async function toggle(index: number) {
-    if (!state) return
-    const isDone = state.checked.includes(index)
-    const newChecked = isDone
-      ? state.checked.filter(i => i !== index)
-      : [...state.checked, index]
-    setState({ ...state, checked: newChecked })
-
-    await fetch('/api/morning-anchors', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ anchorIndex: index, checked: !isDone }),
-    })
-  }
+  // Only show setup card — configured anchors are now shown inside DayTimeline
+  if (!state || state.anchors.length > 0) return null
 
   return (
     <>
@@ -311,29 +266,12 @@ export default function MorningAnchors() {
       >
         MORNING ANCHORS
       </p>
-      <div
-        style={{
-          background: 'white',
-          borderRadius: 18,
-          border: '1px solid rgba(45,42,62,0.07)',
-          boxShadow: '0 2px 8px rgba(45,42,62,0.05)',
-          padding: '6px 16px 4px',
-          marginBottom: 20,
+      <AnchorSetup
+        onSaved={anchors => {
+          setState({ anchors, checked: [] })
+          router.refresh()
         }}
-      >
-        {state.anchors.map((anchor, i) => (
-          <div key={i}>
-            <AnchorRow
-              text={anchor}
-              done={state.checked.includes(i)}
-              onToggle={() => toggle(i)}
-            />
-            {i < state.anchors.length - 1 && (
-              <div style={{ height: 1, background: 'rgba(45,42,62,0.05)', margin: '0 2px' }} />
-            )}
-          </div>
-        ))}
-      </div>
+      />
     </>
   )
 }

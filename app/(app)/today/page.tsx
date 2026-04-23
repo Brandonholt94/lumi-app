@@ -55,9 +55,6 @@ export default async function TodayPage() {
         {/* Sleep card — shows last night's log or prompt */}
         <SleepCard />
 
-        {/* Setup nudge cards — notifications, calendar, download */}
-        <ActionCards plan={plan} />
-
         {/* ── HOW'S YOUR BRAIN TODAY? ── */}
         <p
           className="mb-[9px]"
@@ -148,6 +145,9 @@ export default async function TodayPage() {
             <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 500, color: '#9895B0' }}>Clear your head</span>
           </Link>
         </div>
+
+        {/* Setup nudge cards — notifications, calendar, download */}
+        <ActionCards plan={plan} />
 
         {/* ── Talk to Lumi ── */}
         <Link href="/chat" className="flex items-center active:scale-[0.98] transition-transform mb-2" style={{

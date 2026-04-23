@@ -63,9 +63,15 @@ function todayAtTime(timeStr: string): string {
   return d.toISOString()
 }
 
+interface AnchorState {
+  anchors: string[]
+  checked: number[]
+}
+
 export default function DayTimeline({ plan }: { plan: string }) {
   const [events,    setEvents]    = useState<CalEvent[]>([])
   const [tasks,     setTasks]     = useState<PersonalTask[]>([])
+  const [anchors,   setAnchors]   = useState<AnchorState | null>(null)
   const [loading,   setLoading]   = useState(true)
   const [adding,    setAdding]    = useState(false)
   const [taskName,  setTaskName]  = useState('')
@@ -79,24 +85,45 @@ export default function DayTimeline({ plan }: { plan: string }) {
     const nextH = now.getHours() + 1
     setTaskTime(`${nextH.toString().padStart(2, '0')}:00`)
 
+    const fetches: Promise<unknown>[] = [
+      fetch('/api/timeline-tasks').then(r => r.json()).catch(() => []),
+      fetch('/api/morning-anchors').then(r => r.json()).catch(() => null),
+    ]
+
     if (plan.toLowerCase() === 'companion') {
-      Promise.all([
-        fetch('/api/calendar/events?hours=24').then(r => r.json()).catch(() => ({})),
-        fetch('/api/timeline-tasks').then(r => r.json()).catch(() => []),
-      ]).then(([calData, taskData]) => {
-        const evts = Array.isArray(calData) ? calData : (calData?.events ?? [])
+      fetches.unshift(
+        fetch('/api/calendar/events?hours=24').then(r => r.json()).catch(() => ({}))
+      )
+      Promise.all(fetches).then(([calData, taskData, anchorData]) => {
+        const evts = Array.isArray(calData) ? calData : ((calData as { events?: CalEvent[] })?.events ?? [])
         setEvents(evts)
-        setTasks(Array.isArray(taskData) ? taskData : [])
+        setTasks(Array.isArray(taskData) ? taskData as PersonalTask[] : [])
+        if (anchorData) setAnchors(anchorData as AnchorState)
         setLoading(false)
       })
     } else {
-      fetch('/api/timeline-tasks').then(r => r.json()).catch(() => []).then(taskData => {
+      Promise.all(fetches).then(([taskData, anchorData]) => {
         setEvents([])
-        setTasks(Array.isArray(taskData) ? taskData : [])
+        setTasks(Array.isArray(taskData) ? taskData as PersonalTask[] : [])
+        if (anchorData) setAnchors(anchorData as AnchorState)
         setLoading(false)
       })
     }
   }, [])
+
+  async function toggleAnchor(index: number) {
+    if (!anchors) return
+    const isDone = anchors.checked.includes(index)
+    const newChecked = isDone
+      ? anchors.checked.filter(i => i !== index)
+      : [...anchors.checked, index]
+    setAnchors({ ...anchors, checked: newChecked })
+    await fetch('/api/morning-anchors', {
+      method:  'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ anchorIndex: index, checked: !isDone }),
+    })
+  }
 
   // Scroll "Now" into view
   useEffect(() => {
@@ -256,6 +283,81 @@ export default function DayTimeline({ plan }: { plan: string }) {
         overflow:     'hidden',
       }}
     >
+      {/* Morning anchors — pill row at top of card */}
+      {anchors && anchors.anchors.length > 0 && (() => {
+        const hour    = new Date().getHours()
+        const allDone = anchors.checked.length === anchors.anchors.length
+        if (allDone && hour >= 12) return null
+        return (
+          <div style={{
+            padding:      '12px 14px 10px',
+            borderBottom: '1px solid rgba(45,42,62,0.05)',
+          }}>
+            <p style={{
+              fontFamily:    'var(--font-nunito-sans)',
+              fontSize:      '9px',
+              fontWeight:    800,
+              letterSpacing: '0.1em',
+              color:         '#C4A882',
+              marginBottom:  8,
+            }}>
+              MORNING ANCHORS
+            </p>
+            <div style={{
+              display:    'flex',
+              gap:        7,
+              overflowX:  'auto',
+              paddingBottom: 2,
+              scrollbarWidth: 'none',
+            }}>
+              {anchors.anchors.map((text, i) => {
+                const done = anchors.checked.includes(i)
+                return (
+                  <button
+                    key={i}
+                    onClick={() => toggleAnchor(i)}
+                    style={{
+                      flexShrink:  0,
+                      display:     'flex',
+                      alignItems:  'center',
+                      gap:         5,
+                      padding:     '5px 11px 5px 8px',
+                      borderRadius: 20,
+                      border:      done ? 'none' : '1.5px solid rgba(45,42,62,0.12)',
+                      background:  done ? 'rgba(94,194,105,0.12)' : 'rgba(45,42,62,0.04)',
+                      cursor:      'pointer',
+                      WebkitTapHighlightColor: 'transparent',
+                    }}
+                  >
+                    {done ? (
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                        <circle cx="12" cy="12" r="10" fill="#5EC269" opacity="0.25"/>
+                        <path d="M7 12.5l3.5 3.5L17 9" stroke="#3DA85A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    ) : (
+                      <div style={{
+                        width: 13, height: 13, borderRadius: '50%',
+                        border: '1.5px solid rgba(45,42,62,0.20)',
+                      }} />
+                    )}
+                    <span style={{
+                      fontFamily:     'var(--font-nunito-sans)',
+                      fontSize:       '12px',
+                      fontWeight:     done ? 700 : 600,
+                      color:          done ? '#3DA85A' : '#2D2A3E',
+                      textDecoration: done ? 'line-through' : 'none',
+                      whiteSpace:     'nowrap',
+                    }}>
+                      {text}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        )
+      })()}
+
       {!hasContent && !adding && (
         <div style={{ padding: '16px', textAlign: 'center' }}>
           <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 500, color: '#9895B0' }}>

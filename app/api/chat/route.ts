@@ -296,6 +296,7 @@ function streamText200(text: string): Response {
 }
 
 export async function POST(req: Request) {
+  return streamText200('ALIVE: POST function reached. Env key present: ' + !!process.env.ANTHROPIC_API_KEY)
   // ── Create provider inside the handler so any init error is catchable ──
   // (module-level singleton would crash the entire route if the key is missing)
   let anthropic: ReturnType<typeof createAnthropic>

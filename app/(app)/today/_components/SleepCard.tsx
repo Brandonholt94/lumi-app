@@ -61,17 +61,20 @@ export default function SleepCard() {
             : 'white',
         border: `1.5px solid ${log ? 'rgba(143,170,224,0.25)' : !hasPrev ? 'rgba(143,170,224,0.18)' : 'rgba(45,42,62,0.08)'}`,
         borderRadius: 18,
-        padding: '14px 16px',
+        padding: log ? '9px 14px' : '14px 16px',
         display: 'flex',
         alignItems: 'center',
-        gap: 12,
+        gap: log ? 10 : 12,
+        transition: 'padding 0.2s ease',
       }}>
 
-        {/* Icon bubble */}
+        {/* Icon bubble — smaller when filled */}
         <div style={{
-          width: 40, height: 40, borderRadius: 12, flexShrink: 0,
+          width: log ? 32 : 40, height: log ? 32 : 40,
+          borderRadius: log ? 10 : 12, flexShrink: 0,
           background: log ? 'rgba(143,170,224,0.15)' : 'rgba(45,42,62,0.05)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
+          transition: 'all 0.2s ease',
         }}>
           <MoonIcon />
         </div>
@@ -82,7 +85,7 @@ export default function SleepCard() {
             fontFamily: 'var(--font-nunito-sans)',
             fontSize: '10px', fontWeight: 800,
             letterSpacing: '0.06em', color: '#9895B0',
-            marginBottom: 3,
+            marginBottom: log ? 1 : 3,
           }}>
             {!log && !hasPrev ? 'SLEEP TRACKING' : 'LAST NIGHT'}
           </p>
@@ -90,7 +93,7 @@ export default function SleepCard() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <span style={{
                 fontFamily: 'var(--font-nunito-sans)',
-                fontSize: '16px', fontWeight: 800, color: '#1E1C2E',
+                fontSize: '14px', fontWeight: 800, color: '#1E1C2E',
               }}>
                 {durStr(log.duration)}
               </span>

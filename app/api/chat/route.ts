@@ -429,9 +429,9 @@ export async function POST(req: Request) {
           controller.enqueue(encoder.encode(chunk))
         }
       } catch (err) {
-        console.error('[Lumi chat] stream error:', err)
-        // Send a fallback message so the client never shows an empty bubble
-        controller.enqueue(encoder.encode("Something went sideways on my end. Want to try again?"))
+        const msg = err instanceof Error ? err.message : String(err)
+        console.error('[Lumi chat] stream error:', msg)
+        controller.enqueue(encoder.encode(`DEBUG: ${msg}`))
       } finally {
         controller.close()
       }

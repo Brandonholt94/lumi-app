@@ -1,4 +1,5 @@
 import { generateText } from 'ai'
+import { anthropic } from '@ai-sdk/anthropic'
 import { auth } from '@clerk/nextjs/server'
 
 export async function POST(req: Request) {
@@ -9,7 +10,7 @@ export async function POST(req: Request) {
   if (!text) return new Response('Missing text', { status: 400 })
 
   const { text: result } = await generateText({
-    model: 'anthropic/claude-haiku-4.5',
+    model: anthropic('claude-haiku-4-5'),
     messages: [
       {
         role: 'user',

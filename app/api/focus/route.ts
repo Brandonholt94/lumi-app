@@ -1,3 +1,4 @@
+import { anthropic } from '@ai-sdk/anthropic'
 import { auth } from '@clerk/nextjs/server'
 import { createClient } from '@supabase/supabase-js'
 import { generateText } from 'ai'
@@ -131,7 +132,7 @@ export async function GET(req: Request) {
 
   try {
     const { text } = await generateText({
-      model: 'anthropic/claude-sonnet-4.6',
+      model: anthropic('claude-sonnet-4-6'),
       prompt,
       maxOutputTokens: 300,
     })

@@ -1,3 +1,4 @@
+import { anthropic } from '@ai-sdk/anthropic'
 import { auth } from '@clerk/nextjs/server'
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
@@ -153,7 +154,7 @@ export async function GET(req: Request) {
   let reflection = ''
   try {
     const { text } = await generateText({
-      model: 'anthropic/claude-haiku-4.5',
+      model: anthropic('claude-haiku-4-5'),
       maxOutputTokens: 60,
       prompt: `Generate a single warm, shame-free sentence (under 20 words) reflecting on this person's day as Lumi, an ADHD companion. Day data: mood=${moodResult?.value ?? 'unknown'}, tasks completed=${completedTasks.length}, focus minutes=${focusMinutes}, captures=${totalCaptures}. No "you did great". Just a genuine warm observation. No quotes around the sentence.`,
     })

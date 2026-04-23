@@ -1,4 +1,5 @@
 import { streamText, generateText, stepCountIs, tool, type ModelMessage } from 'ai'
+import { anthropic } from '@ai-sdk/anthropic'
 import { auth, currentUser } from '@clerk/nextjs/server'
 import { createClient } from '@supabase/supabase-js'
 import { buildLumiSystemPrompt, LumiUserContext } from '@/lib/ai/lumi-prompt'
@@ -75,7 +76,7 @@ async function summarizeHistory(messages: ChatMessage[]): Promise<{
 
   try {
     const { text } = await generateText({
-      model: 'anthropic/claude-haiku-4.5',
+      model: anthropic('claude-haiku-4-5'),
       messages: [
         {
           role: 'user',
@@ -383,8 +384,8 @@ export async function POST(req: Request) {
     userContext.isReturningAfterAbsence,
   )
   const model = useSonnet
-    ? 'anthropic/claude-sonnet-4.6'
-    : 'anthropic/claude-haiku-4.5'
+    ? anthropic('claude-sonnet-4-6')
+    : anthropic('claude-haiku-4-5')
 
   // ── Stream Lumi's response ─────────────────────────────────
   const result = streamText({
@@ -402,7 +403,7 @@ export async function POST(req: Request) {
             tag: z.enum(['task', 'idea', 'worry', 'reminder']).describe('Type of capture — default to task if unclear'),
           })),
         }),
-        execute: async ({ items }) => {
+        execute: async ({ items }: { items: Array<{ text: string; tag: string }> }) => {
           const supabase = getServiceClient()
           await supabase.from('captures').insert(
             items.map((item: { text: string; tag: string }) => ({

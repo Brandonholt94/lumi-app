@@ -1,3 +1,4 @@
+import { anthropic } from '@ai-sdk/anthropic'
 import { auth } from '@clerk/nextjs/server'
 import { generateText } from 'ai'
 import { NextResponse } from 'next/server'
@@ -11,7 +12,7 @@ export async function POST(req: Request) {
 
   try {
     const { text: result } = await generateText({
-      model: 'anthropic/claude-haiku-4.5',
+      model: anthropic('claude-haiku-4-5'),
       maxOutputTokens: 10,
       prompt: `Classify this brain dump entry into exactly one category. Reply with only the word: task, idea, worry, reminder, or null.
 

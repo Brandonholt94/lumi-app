@@ -1,6 +1,7 @@
 import { auth } from '@clerk/nextjs/server'
 import { createClient } from '@supabase/supabase-js'
 import { generateText } from 'ai'
+import { anthropic } from '@ai-sdk/anthropic'
 import { NextResponse } from 'next/server'
 
 function getServiceClient() {
@@ -97,7 +98,7 @@ Lead with something specific and human. End with one grounding observation for n
 
   try {
     const { text } = await generateText({
-      model: 'anthropic/claude-sonnet-4.6',
+      model: anthropic('claude-sonnet-4-6'),
       prompt,
       maxOutputTokens: 400,
     })

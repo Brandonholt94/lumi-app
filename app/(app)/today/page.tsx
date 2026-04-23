@@ -56,7 +56,6 @@ export default async function TodayPage() {
           <div className="desktop-only" style={{ padding: '0 28px 32px', flex: 1 }}>
             <p className="lumi-section-label" style={{ marginBottom: 12 }}>YOUR WEEK</p>
             <DesktopCalendar plan={plan} />
-            <MoodSelector />
           </div>
 
           {/* ── MOBILE: full content ── */}
@@ -142,47 +141,44 @@ export default async function TodayPage() {
             <MedCheckIn />
             <SleepCard />
 
-            {/* One Focus */}
-            <OneFocusCard />
-
-            {/* Lumi contextual nudge */}
+            {/* Lumi nudge — top of right rail */}
             <LumiNudge firstName={firstName} plan={plan} />
+
+            {/* Today's focus — below nudge */}
+            <OneFocusCard />
 
             {/* Evening wind-down — shows after 8 PM */}
             <EveningBrainClear />
 
-            {/* Quick actions */}
-            <p className="lumi-section-label" style={{ marginTop: 8 }}>QUICK ACTIONS</p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 12 }}>
-              <Link href="/focus" style={{
-                display: 'flex', alignItems: 'center', gap: 10,
-                padding: '11px 14px', borderRadius: 14, textDecoration: 'none',
+            {/* Quick actions — 2-col grid, taller cards */}
+            <p className="lumi-section-label" style={{ marginTop: 12 }}>QUICK ACTIONS</p>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
+              <Link href="/focus" className="active:scale-[0.97] transition-transform" style={{
+                display: 'flex', flexDirection: 'column', alignItems: 'flex-start',
+                padding: '16px 14px 14px', borderRadius: 16, textDecoration: 'none',
                 background: 'rgba(245,201,138,0.14)', border: '1.5px solid rgba(245,201,138,0.35)',
               }}>
-                <div style={{ width: 34, height: 34, borderRadius: 9, background: 'rgba(245,201,138,0.22)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(245,201,138,0.22)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10 }}>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                     <circle cx="12" cy="13.5" r="7.5" stroke="#C49820" strokeWidth="1.8"/>
                     <path d="M12 10V13.8L14.2 15.2" stroke="#C49820" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
                     <path d="M9.5 3H14.5M12 3V5.5" stroke="#C49820" strokeWidth="1.8" strokeLinecap="round"/>
                   </svg>
                 </div>
-                <div>
-                  <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 700, color: '#1E1C2E' }}>Focus Timer</p>
-                  <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', color: '#9895B0' }}>Start a session</p>
-                </div>
+                <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 700, color: '#1E1C2E', marginBottom: 2 }}>Focus Timer</p>
+                <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', color: '#9895B0' }}>Start a session</p>
               </Link>
-              <Link href="/capture" style={{
-                display: 'flex', alignItems: 'center', gap: 10,
-                padding: '11px 14px', borderRadius: 14, textDecoration: 'none',
+
+              <Link href="/capture" className="active:scale-[0.97] transition-transform" style={{
+                display: 'flex', flexDirection: 'column', alignItems: 'flex-start',
+                padding: '16px 14px 14px', borderRadius: 16, textDecoration: 'none',
                 background: 'rgba(232,160,191,0.12)', border: '1.5px solid rgba(232,160,191,0.30)',
               }}>
-                <div style={{ width: 34, height: 34, borderRadius: 9, background: 'rgba(232,160,191,0.20)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(232,160,191,0.20)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10 }}>
                   <svg width="18" height="18" viewBox="0 0 256 256" fill="#B86090"><path d="M248,124a56.11,56.11,0,0,0-32-50.61V72a48,48,0,0,0-88-26.49A48,48,0,0,0,40,72v1.39a56,56,0,0,0,0,101.2V176a48,48,0,0,0,88,26.49A48,48,0,0,0,216,176v-1.41A56.09,56.09,0,0,0,248,124Z"/></svg>
                 </div>
-                <div>
-                  <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 700, color: '#1E1C2E' }}>Brain Dump</p>
-                  <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', color: '#9895B0' }}>Clear your head</p>
-                </div>
+                <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 700, color: '#1E1C2E', marginBottom: 2 }}>Brain Dump</p>
+                <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', color: '#9895B0' }}>Clear your head</p>
               </Link>
             </div>
 

@@ -50,7 +50,7 @@ export async function POST(req: Request) {
       .order('created_at', { ascending: false }),
     supabase
       .from('sleep_logs')
-      .select('hours, quality, created_at')
+      .select('bedtime_hour, wake_hour, quality, created_at')
       .eq('clerk_user_id', userId)
       .gte('created_at', thirtyDaysAgo.toISOString())
       .order('created_at', { ascending: false }),
@@ -84,7 +84,13 @@ export async function POST(req: Request) {
     : 'N/A'
 
   const avgSleep = sleepLogs.length
-    ? (sleepLogs.reduce((a, b) => a + (b.hours ?? 0), 0) / sleepLogs.length).toFixed(1)
+    ? (sleepLogs.reduce((a, b) => {
+        const { bedtime_hour, wake_hour } = b as { bedtime_hour: number; wake_hour: number }
+        const hrs = wake_hour >= bedtime_hour
+          ? wake_hour - bedtime_hour
+          : 24 - bedtime_hour + wake_hour
+        return a + hrs
+      }, 0) / sleepLogs.length).toFixed(1)
     : 'N/A'
 
   const totalFocusMin = focusSessions.reduce((a, b) => a + (b.duration_minutes ?? 0), 0)

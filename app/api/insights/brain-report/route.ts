@@ -1,6 +1,5 @@
 import { auth } from '@clerk/nextjs/server'
 import { createClient } from '@supabase/supabase-js'
-import { createAnthropic } from '@ai-sdk/anthropic'
 import { generateText } from 'ai'
 import { NextResponse } from 'next/server'
 
@@ -23,7 +22,7 @@ export async function POST() {
     .eq('clerk_user_id', userId)
     .single()
 
-  if (!profile || profile.plan === 'free') {
+  if (!profile || !['core', 'companion'].includes((profile.plan ?? '').toLowerCase())) {
     return NextResponse.json({ error: 'Upgrade required' }, { status: 403 })
   }
 
@@ -97,9 +96,8 @@ ${sampleCaptures || '(none yet)'}
 Lead with something specific and human. End with one grounding observation for next week.`
 
   try {
-    const anthropic = createAnthropic({ apiKey: process.env.ANTHROPIC_API_KEY! })
     const { text } = await generateText({
-      model: anthropic('claude-sonnet-4-6'),
+      model: 'anthropic/claude-sonnet-4.6',
       prompt,
       maxOutputTokens: 400,
     })

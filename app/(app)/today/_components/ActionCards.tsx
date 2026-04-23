@@ -183,84 +183,93 @@ export default function ActionCards() {
         SUGGESTED
       </p>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      {/* Horizontal scroll tiles — Tiimo style */}
+      <div style={{
+        display:        'flex',
+        gap:            10,
+        overflowX:      'auto',
+        scrollbarWidth: 'none',
+        paddingBottom:  2,
+        marginLeft:     -1,
+        marginRight:    -1,
+        paddingLeft:    1,
+        paddingRight:   1,
+      }}>
         {visible.map(card => (
-          <a
-            key={card.id}
-            href={card.href ?? '#'}
-            style={{
-              display:        'flex',
-              alignItems:     'center',
-              gap:            14,
-              background:     'white',
-              borderRadius:   16,
-              border:         '1.5px solid rgba(45,42,62,0.07)',
-              padding:        '11px 14px',
-              boxShadow:      '0 2px 8px rgba(45,42,62,0.05)',
-              textDecoration: 'none',
-              WebkitTapHighlightColor: 'transparent',
-            }}
-          >
-            {/* Animated icon */}
-            <div style={{
-              width:          38,
-              height:         38,
-              borderRadius:   11,
-              background:     `${card.color}22`,
-              display:        'flex',
-              alignItems:     'center',
-              justifyContent: 'center',
-              flexShrink:     0,
-            }}>
-              {card.icon}
-            </div>
+          <div key={card.id} style={{ position: 'relative', flexShrink: 0 }}>
 
-            {/* Text */}
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <p style={{
-                fontFamily: 'var(--font-aegora)',
-                fontSize:   14,
-                fontWeight: 700,
+            {/* Dismiss X — top right corner */}
+            <button
+              onClick={() => dismiss(card.id)}
+              style={{
+                position:   'absolute',
+                top:        9,
+                right:      9,
+                zIndex:     2,
+                background: `${card.color}28`,
+                border:     'none',
+                borderRadius: 20,
+                width:      22,
+                height:     22,
+                display:    'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor:     'pointer',
                 color:      '#1E1C2E',
-                lineHeight: 1.2,
-                marginBottom: 2,
+                opacity:    0.6,
+              }}
+            >
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
+                <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round"/>
+              </svg>
+            </button>
+
+            {/* Clickable tile */}
+            <a
+              href={card.href ?? '#'}
+              style={{
+                display:        'flex',
+                flexDirection:  'column',
+                justifyContent: 'flex-end',
+                width:          148,
+                height:         148,
+                borderRadius:   22,
+                background:     `${card.color}1A`,
+                border:         `1.5px solid ${card.color}38`,
+                padding:        '14px 13px',
+                textDecoration: 'none',
+                WebkitTapHighlightColor: 'transparent',
+                boxSizing:      'border-box',
+              }}
+            >
+              {/* Icon — upper area */}
+              <div style={{
+                width:          48,
+                height:         48,
+                borderRadius:   14,
+                background:     `${card.color}30`,
+                display:        'flex',
+                alignItems:     'center',
+                justifyContent: 'center',
+                marginBottom:   'auto',
+                marginTop:      4,
+              }}>
+                {card.icon}
+              </div>
+
+              {/* Title */}
+              <p style={{
+                fontFamily: 'var(--font-nunito-sans)',
+                fontSize:   14,
+                fontWeight: 800,
+                color:      '#1E1C2E',
+                lineHeight: 1.25,
+                marginTop:  10,
               }}>
                 {card.title}
               </p>
-              <p style={{
-                fontFamily: 'var(--font-nunito-sans)',
-                fontSize:   11,
-                fontWeight: 500,
-                color:      '#9895B0',
-                lineHeight: 1.3,
-              }}>
-                {card.description}
-              </p>
-            </div>
-
-            {/* Chevron + dismiss */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                <path d="M9 18l6-6-6-6" stroke={`${card.color}cc`} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              <button
-                onClick={e => { e.preventDefault(); e.stopPropagation(); dismiss(card.id) }}
-                style={{
-                  background: 'none',
-                  border:     'none',
-                  cursor:     'pointer',
-                  padding:    4,
-                  color:      'rgba(45,42,62,0.22)',
-                  lineHeight: 1,
-                  display:    'flex',
-                }}
-              >
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
-                  <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
-                </svg>
-              </button>
-            </div>
-          </a>
+            </a>
+          </div>
         ))}
       </div>
     </div>

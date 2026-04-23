@@ -90,6 +90,9 @@ export default async function TodayPage() {
         </p>
         <DayTimeline />
 
+        {/* Evening wind-down — shows after 8pm, right below the day view */}
+        <EveningBrainClear />
+
         {/* Time Blindness Alert — shows when an event is 5-90 min away */}
         <TimeBlinessAlert />
 
@@ -113,9 +116,6 @@ export default async function TodayPage() {
 
         {/* Lumi nudge */}
         <LumiNudge />
-
-        {/* Evening wind-down — shows after 8pm */}
-        <EveningBrainClear />
 
         {/* ── QUICK ACTIONS ── */}
         <p

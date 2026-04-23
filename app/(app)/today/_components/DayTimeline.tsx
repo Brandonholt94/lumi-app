@@ -79,12 +79,13 @@ export default function DayTimeline({ plan }: { plan: string }) {
     const nextH = now.getHours() + 1
     setTaskTime(`${nextH.toString().padStart(2, '0')}:00`)
 
-    if (plan === 'companion') {
+    if (plan.toLowerCase() === 'companion') {
       Promise.all([
-        fetch('/api/calendar/events?hours=12').then(r => r.json()).catch(() => []),
+        fetch('/api/calendar/events?hours=24').then(r => r.json()).catch(() => ({})),
         fetch('/api/timeline-tasks').then(r => r.json()).catch(() => []),
       ]).then(([calData, taskData]) => {
-        setEvents(Array.isArray(calData) ? calData : [])
+        const evts = Array.isArray(calData) ? calData : (calData?.events ?? [])
+        setEvents(evts)
         setTasks(Array.isArray(taskData) ? taskData : [])
         setLoading(false)
       })

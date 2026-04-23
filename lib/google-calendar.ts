@@ -110,15 +110,17 @@ export async function getUpcomingEvents(
   const accessToken = await getValidAccessToken(userId)
   if (!accessToken) return []
 
-  const now    = new Date()
-  const timeMax = new Date(now.getTime() + hours * 60 * 60 * 1000)
+  const now       = new Date()
+  const startOfDay = new Date(now)
+  startOfDay.setHours(0, 0, 0, 0)
+  const timeMax   = new Date(now.getTime() + hours * 60 * 60 * 1000)
 
   const params = new URLSearchParams({
-    timeMin:       now.toISOString(),
+    timeMin:       startOfDay.toISOString(),
     timeMax:       timeMax.toISOString(),
     singleEvents:  'true',
     orderBy:       'startTime',
-    maxResults:    '5',
+    maxResults:    '10',
   })
 
   try {

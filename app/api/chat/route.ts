@@ -475,7 +475,11 @@ export async function POST(req: Request) {
           // textStream yielded nothing — check fullStream for errors or tool-only response
           controller.enqueue(encoder.encode('[EMPTY_STREAM] '))
           for await (const part of result.fullStream) {
-            controller.enqueue(encoder.encode(`[PART:${part.type}] `))
+            if (part.type === 'error') {
+              controller.enqueue(encoder.encode(`[API_ERROR: ${JSON.stringify(part.error)}]`))
+            } else {
+              controller.enqueue(encoder.encode(`[PART:${part.type}] `))
+            }
           }
         }
       } catch (err) {

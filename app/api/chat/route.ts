@@ -284,12 +284,32 @@ async function fetchPlatformContext(userId: string): Promise<Partial<LumiUserCon
   } as Partial<LumiUserContext> & { _lastKnownMood?: string }
 }
 
+function streamText200(text: string): Response {
+  const encoder = new TextEncoder()
+  return new Response(
+    new ReadableStream({ start(c) { c.enqueue(encoder.encode(text)); c.close() } }),
+    { status: 200, headers: { 'Content-Type': 'text/plain; charset=utf-8' } }
+  )
+}
+
 export async function POST(req: Request) {
+  // ── DIAGNOSTIC: surface real error in stream so client shows it ──
+  if (!process.env.ANTHROPIC_API_KEY) {
+    return streamText200('DEBUG: ANTHROPIC_API_KEY is not set in this environment.')
+  }
+
   const { userId } = await auth()
   if (!userId) return new Response('Unauthorized', { status: 401 })
 
   // Client sends messages + lightweight context it owns (mood, focusTask)
-  const { messages, userContext: clientContext } = await req.json()
+  let messages: ChatMessage[], clientContext: Record<string, unknown> | undefined
+  try {
+    const body = await req.json()
+    messages = body.messages
+    clientContext = body.userContext
+  } catch (e) {
+    return streamText200(`DEBUG: Failed to parse request body — ${e}`)
+  }
 
   // Get the last user message for crisis detection
   const lastUserMessage = [...messages]

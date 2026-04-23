@@ -112,7 +112,7 @@ export default function DaySceneHeader({ firstName }: Props) {
         <svg
           viewBox="0 0 390 180"
           preserveAspectRatio="xMidYMin slice"
-          style={{ display: 'block', width: '100%', height: '138px' }}
+          className="lumi-scene-svg"
         >
           <defs>
             {/* Sky gradient */}
@@ -300,17 +300,8 @@ export default function DaySceneHeader({ firstName }: Props) {
 
       </div>
 
-      {/* ── Beige dome — curved shape divider ── */}
-      <div style={{
-        background: '#FBF8F5',
-        borderRadius: '50% 50% 0 0 / 28px 28px 0 0',
-        marginTop: -28,
-        paddingTop: 46,
-        paddingLeft: 20,
-        paddingRight: 20,
-        position: 'relative',
-        zIndex: 2,
-      }}>
+      {/* ── Horizon divider — curved on mobile, straight on desktop ── */}
+      <div className="lumi-scene-dome">
         <h1 style={{
           fontFamily: 'var(--font-aegora)',
           fontSize: 26, fontWeight: 900,

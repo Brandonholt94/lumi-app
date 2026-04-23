@@ -331,6 +331,12 @@ export async function POST(req: Request) {
   // ── Wrap entire handler so any crash surfaces as a debug stream ──
   try {
 
+  // Filter out messages with empty content — these accumulate from failed stream
+  // attempts and cause Anthropic to reject the whole request with a 400.
+  messages = messages.filter((m: ChatMessage) =>
+    typeof m.content === 'string' ? m.content.trim().length > 0 : true
+  )
+
   // Get the last user message for crisis detection
   const lastUserMessage = [...messages]
     .reverse()
@@ -464,28 +470,14 @@ export async function POST(req: Request) {
   const encoder = new TextEncoder()
   const readable = new ReadableStream({
     async start(controller) {
-      controller.enqueue(encoder.encode('[STREAM_START] '))
       try {
-        let chunkCount = 0
         for await (const chunk of result.textStream) {
-          chunkCount++
           controller.enqueue(encoder.encode(chunk))
         }
-        if (chunkCount === 0) {
-          // textStream yielded nothing — check fullStream for errors or tool-only response
-          controller.enqueue(encoder.encode('[EMPTY_STREAM] '))
-          for await (const part of result.fullStream) {
-            if (part.type === 'error') {
-              controller.enqueue(encoder.encode(`[API_ERROR: ${JSON.stringify(part.error)}]`))
-            } else {
-              controller.enqueue(encoder.encode(`[PART:${part.type}] `))
-            }
-          }
-        }
       } catch (err) {
-        const msg = err instanceof Error ? err.message : String(err)
+        const msg = String(err)
         console.error('[Lumi chat] stream error:', msg)
-        controller.enqueue(encoder.encode(`[STREAM_ERR: ${msg}]`))
+        controller.enqueue(encoder.encode(`Something went wrong on my end — ${msg}`))
       } finally {
         controller.close()
       }

@@ -92,7 +92,8 @@ export default function DayTimeline({ plan }: { plan: string }) {
   const [tasks,      setTasks]      = useState<PersonalTask[]>([])
   const [anchors,    setAnchors]    = useState<AnchorState | null>(null)
   const [habits,     setHabits]     = useState<Habit[]>([])
-  const [focusTask,  setFocusTask]  = useState<FocusTask | null>(null)
+  const [focusTask,     setFocusTask]     = useState<FocusTask | null>(null)
+  const [focusRefreshing, setFocusRefreshing] = useState(false)
   const [loading,    setLoading]    = useState(true)
   const [adding,    setAdding]    = useState(false)
   const [taskName,  setTaskName]  = useState('')
@@ -223,6 +224,21 @@ export default function DayTimeline({ plan }: { plan: string }) {
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify({ id, completed: done }),
     })
+  }
+
+  async function refreshFocus() {
+    if (focusRefreshing) return
+    setFocusRefreshing(true)
+    try {
+      const data = await fetch('/api/focus?bypass_pin=1').then(r => r.json())
+      if (data && !(data as Record<string, unknown>).error) {
+        setFocusTask(data as FocusTask)
+      }
+    } catch {
+      // best-effort
+    } finally {
+      setFocusRefreshing(false)
+    }
   }
 
   // Filter calendar events to today 6am–9pm
@@ -609,20 +625,45 @@ export default function DayTimeline({ plan }: { plan: string }) {
                         }}>
                           {focusTask!.task}
                         </p>
-                        {/* CTA */}
-                        <Link href="/focus" style={{
-                          display: 'inline-flex', alignItems: 'center', gap: 5,
-                          padding: '5px 12px', borderRadius: 20, textDecoration: 'none',
-                          background: 'linear-gradient(135deg, #F4A582, #F5C98A)',
-                          boxShadow: '0 1px 6px rgba(244,165,130,0.30)',
-                        }}>
-                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
-                            <polygon points="5,3 19,12 5,21" fill="#1E1C2E" />
-                          </svg>
-                          <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 800, color: '#1E1C2E' }}>
-                            Start Focus
-                          </span>
-                        </Link>
+                        {/* CTAs */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <Link href="/focus" style={{
+                            display: 'inline-flex', alignItems: 'center', gap: 5,
+                            padding: '5px 12px', borderRadius: 20, textDecoration: 'none',
+                            background: 'linear-gradient(135deg, #F4A582, #F5C98A)',
+                            boxShadow: '0 1px 6px rgba(244,165,130,0.30)',
+                          }}>
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
+                              <polygon points="5,3 19,12 5,21" fill="#1E1C2E" />
+                            </svg>
+                            <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 800, color: '#1E1C2E' }}>
+                              Start Focus
+                            </span>
+                          </Link>
+                          <button
+                            onClick={refreshFocus}
+                            disabled={focusRefreshing}
+                            style={{
+                              display: 'inline-flex', alignItems: 'center', gap: 4,
+                              padding: '5px 10px', borderRadius: 20,
+                              border: '1.5px solid rgba(45,42,62,0.10)',
+                              background: 'transparent', cursor: focusRefreshing ? 'not-allowed' : 'pointer',
+                              opacity: focusRefreshing ? 0.5 : 1,
+                              WebkitTapHighlightColor: 'transparent',
+                            }}
+                          >
+                            <svg
+                              width="11" height="11" viewBox="0 0 24 24" fill="none"
+                              style={{ transition: 'transform 0.4s', transform: focusRefreshing ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                            >
+                              <path d="M4 4v5h5M20 20v-5h-5" stroke="#9895B0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                              <path d="M4.06 14.99A9 9 0 1 0 6 6.34M19.94 9A9 9 0 0 0 18 17.66" stroke="#9895B0" strokeWidth="2" strokeLinecap="round"/>
+                            </svg>
+                            <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 700, color: '#9895B0' }}>
+                              {focusRefreshing ? 'Thinking…' : 'Different task'}
+                            </span>
+                          </button>
+                        </div>
                       </>
                     ) : (
                       <Link href="/capture" style={{ textDecoration: 'none', display: 'block' }}>

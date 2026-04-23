@@ -96,19 +96,7 @@ export default async function TodayPage() {
         {/* Time Blindness Alert — shows when an event is 5-90 min away */}
         <TimeBlinessAlert />
 
-        {/* ── ONE FOCUS ── */}
-        <p
-          style={{
-            fontFamily: 'var(--font-nunito-sans)',
-            fontSize: '10px',
-            fontWeight: 800,
-            letterSpacing: '0.1em',
-            color: '#9895B0',
-            marginBottom: 9,
-          }}
-        >
-          ONE FOCUS
-        </p>
+        {/* ── ONE FOCUS (label + card rendered together inside OneFocusCard) ── */}
         <OneFocusCard />
 
         {/* ── TODAY'S HABITS ── */}

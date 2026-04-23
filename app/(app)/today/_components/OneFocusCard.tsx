@@ -47,10 +47,27 @@ export default function OneFocusCard() {
     setDone(true)
   }
 
+  const sectionLabel = (
+    <p
+      style={{
+        fontFamily:    'var(--font-nunito-sans)',
+        fontSize:      '10px',
+        fontWeight:    800,
+        letterSpacing: '0.1em',
+        color:         '#9895B0',
+        marginBottom:  9,
+      }}
+    >
+      ONE FOCUS
+    </p>
+  )
+
   // Loading skeleton
   if (loading) {
     return (
-      <div className="rounded-[22px] p-4 mb-4" style={{ background: '#1E1C2E' }}>
+      <>
+        {sectionLabel}
+        <div className="rounded-[22px] p-4 mb-4" style={{ background: '#1E1C2E' }}>
         <style>{`
           @keyframes darkShimmer {
             0%   { background-position: 200% 0; }
@@ -80,83 +97,96 @@ export default function OneFocusCard() {
         {/* Button */}
         <div style={{ height: 46, borderRadius: 99, background: 'rgba(255,255,255,0.07)' }} />
       </div>
+      </>
     )
   }
 
   // Done state
   if (done) {
     return (
-      <div
-        className="rounded-[22px] p-5 mb-4 flex flex-col items-center text-center gap-2"
-        style={{ background: '#1E1C2E' }}
-      >
-        <span style={{ fontSize: '26px', lineHeight: 1 }}>✦</span>
-        <p style={{ fontFamily: 'var(--font-aegora)', fontSize: '18px', fontWeight: 700, color: '#F5F3F0', lineHeight: 1.3 }}>
-          That&apos;s the one.
-        </p>
-        <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '12.5px', fontWeight: 500, color: 'rgba(245,243,240,0.55)', lineHeight: 1.5 }}>
-          <span style={{ color: '#F4A582', fontWeight: 700 }}>Lumi: </span>
-          You did it. That&apos;s not nothing — that&apos;s the whole thing.
-        </p>
-        <button
-          onClick={() => fetchFocus()}
-          style={{
-            marginTop: 4,
-            fontFamily: 'var(--font-nunito-sans)',
-            fontSize: '12px',
-            fontWeight: 700,
-            color: 'rgba(245,243,240,0.4)',
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-          }}
+      <>
+        {sectionLabel}
+        <div
+          className="rounded-[22px] p-5 mb-4 flex flex-col items-center text-center gap-2"
+          style={{ background: '#1E1C2E' }}
         >
-          See next task →
-        </button>
-      </div>
+          <span style={{ fontSize: '26px', lineHeight: 1 }}>✦</span>
+          <p style={{ fontFamily: 'var(--font-aegora)', fontSize: '18px', fontWeight: 700, color: '#F5F3F0', lineHeight: 1.3 }}>
+            That&apos;s the one.
+          </p>
+          <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '12.5px', fontWeight: 500, color: 'rgba(245,243,240,0.55)', lineHeight: 1.5 }}>
+            <span style={{ color: '#F4A582', fontWeight: 700 }}>Lumi: </span>
+            You did it. That&apos;s not nothing — that&apos;s the whole thing.
+          </p>
+          <button
+            onClick={() => fetchFocus()}
+            style={{
+              marginTop: 4,
+              fontFamily: 'var(--font-nunito-sans)',
+              fontSize: '12px',
+              fontWeight: 700,
+              color: 'rgba(245,243,240,0.4)',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+            }}
+          >
+            See next task →
+          </button>
+        </div>
+      </>
     )
   }
 
   // Empty state — no task captures yet
+  // Hide entirely at night (≥ 8pm): EveningBrainClear already covers this CTA
   if (!focus?.task) {
+    const hour = new Date().getHours()
+    if (hour >= 20) return null
+
     return (
-      <div
-        className="rounded-[22px] p-4 mb-4 relative overflow-hidden"
-        style={{ background: '#1E1C2E' }}
-      >
+      <>
+        {sectionLabel}
         <div
-          className="absolute pointer-events-none"
-          style={{ top: '-40px', right: '-40px', width: '120px', height: '120px', background: 'radial-gradient(circle, rgba(244,165,130,0.14) 0%, transparent 70%)' }}
-        />
-        <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '9.5px', fontWeight: 800, letterSpacing: '0.13em', color: '#F4A582', marginBottom: 8 }}>
-          ✦ YOUR ONE FOCUS TODAY
-        </p>
-        <p style={{ fontFamily: 'var(--font-aegora)', fontSize: '17px', fontWeight: 700, color: 'rgba(245,243,240,0.5)', lineHeight: 1.3, marginBottom: 12 }}>
-          Nothing in the queue yet.
-        </p>
-        <div className="rounded-[11px] p-[10px_12px] mb-3" style={{ background: 'rgba(255,255,255,0.06)' }}>
-          <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11.5px', fontWeight: 500, color: 'rgba(245,243,240,0.62)', lineHeight: 1.55 }}>
-            <span style={{ color: '#F4A582', fontWeight: 700 }}>Lumi: </span>
-            {focus?.lumi_message ?? "Add something to Brain Dump and I'll pick your one thing."}
-          </p>
-        </div>
-        <Link
-          href="/capture"
-          className="block text-center rounded-full py-[13px] transition-opacity hover:opacity-90 active:scale-[0.98]"
-          style={{ background: 'linear-gradient(135deg, #F4A582, #F5C98A)', fontFamily: 'var(--font-nunito-sans)', fontSize: '14px', fontWeight: 800, color: '#1E1C2E' }}
+          className="rounded-[22px] p-4 mb-4 relative overflow-hidden"
+          style={{ background: '#1E1C2E' }}
         >
-          Open Brain Dump →
-        </Link>
-      </div>
+          <div
+            className="absolute pointer-events-none"
+            style={{ top: '-40px', right: '-40px', width: '120px', height: '120px', background: 'radial-gradient(circle, rgba(244,165,130,0.14) 0%, transparent 70%)' }}
+          />
+          <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '9.5px', fontWeight: 800, letterSpacing: '0.13em', color: '#F4A582', marginBottom: 8 }}>
+            ✦ YOUR ONE FOCUS TODAY
+          </p>
+          <p style={{ fontFamily: 'var(--font-aegora)', fontSize: '17px', fontWeight: 700, color: 'rgba(245,243,240,0.5)', lineHeight: 1.3, marginBottom: 12 }}>
+            Nothing in the queue yet.
+          </p>
+          <div className="rounded-[11px] p-[10px_12px] mb-3" style={{ background: 'rgba(255,255,255,0.06)' }}>
+            <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11.5px', fontWeight: 500, color: 'rgba(245,243,240,0.62)', lineHeight: 1.55 }}>
+              <span style={{ color: '#F4A582', fontWeight: 700 }}>Lumi: </span>
+              {focus?.lumi_message ?? "Add something to Brain Dump and I'll pick your one thing."}
+            </p>
+          </div>
+          <Link
+            href="/capture"
+            className="block text-center rounded-full py-[13px] transition-opacity hover:opacity-90 active:scale-[0.98]"
+            style={{ background: 'linear-gradient(135deg, #F4A582, #F5C98A)', fontFamily: 'var(--font-nunito-sans)', fontSize: '14px', fontWeight: 800, color: '#1E1C2E' }}
+          >
+            Open Brain Dump →
+          </Link>
+        </div>
+      </>
     )
   }
 
   // Main focus card
   return (
-    <div
-      className="rounded-[22px] p-4 mb-4 relative overflow-hidden"
-      style={{ background: '#1E1C2E' }}
-    >
+    <>
+      {sectionLabel}
+      <div
+        className="rounded-[22px] p-4 mb-4 relative overflow-hidden"
+        style={{ background: '#1E1C2E' }}
+      >
       <div
         className="absolute pointer-events-none"
         style={{ top: '-40px', right: '-40px', width: '120px', height: '120px', background: 'radial-gradient(circle, rgba(244,165,130,0.14) 0%, transparent 70%)' }}
@@ -226,6 +256,7 @@ export default function OneFocusCard() {
           Done ✓
         </button>
       </div>
-    </div>
+      </div>
+    </>
   )
 }

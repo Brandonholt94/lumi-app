@@ -13,7 +13,6 @@ import TimeBlinessAlert from './_components/TimeBlinessAlert'
 import ActionCards from './_components/ActionCards'
 import MorningAnchors from './_components/MorningAnchors'
 import DayTimeline from './_components/DayTimeline'
-import TodaysHabits from './_components/TodaysHabits'
 
 function getServiceClient() {
   return createClient(
@@ -99,8 +98,6 @@ export default async function TodayPage() {
         {/* ── ONE FOCUS (label + card rendered together inside OneFocusCard) ── */}
         <OneFocusCard />
 
-        {/* ── TODAY'S HABITS ── */}
-        <TodaysHabits />
 
         {/* Lumi nudge */}
         <LumiNudge />

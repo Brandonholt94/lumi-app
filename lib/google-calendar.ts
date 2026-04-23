@@ -101,6 +101,7 @@ export interface CalendarEvent {
   start:  string // ISO string
   end:    string
   allDay: boolean
+  source: 'google' | 'microsoft'
 }
 
 export async function getUpcomingEvents(
@@ -141,6 +142,7 @@ export async function getUpcomingEvents(
         start:  start?.dateTime ?? start?.date ?? '',
         end:    end?.dateTime   ?? end?.date   ?? '',
         allDay: !start?.dateTime,
+        source: 'google' as const,
       }
     })
   } catch {

@@ -117,14 +117,16 @@ export async function getMicrosoftUpcomingEvents(
   const accessToken = await getValidAccessToken(userId)
   if (!accessToken) return []
 
-  const now    = new Date()
-  const timeMax = new Date(now.getTime() + hours * 60 * 60 * 1000)
+  const now        = new Date()
+  const startOfDay = new Date(now)
+  startOfDay.setHours(0, 0, 0, 0)
+  const timeMax    = new Date(now.getTime() + hours * 60 * 60 * 1000)
 
   const params = new URLSearchParams({
-    startDateTime: now.toISOString(),
+    startDateTime: startOfDay.toISOString(),
     endDateTime:   timeMax.toISOString(),
     '$orderby':    'start/dateTime',
-    '$top':        '5',
+    '$top':        '10',
     '$select':     'id,subject,start,end,isAllDay',
   })
 
@@ -149,6 +151,7 @@ export async function getMicrosoftUpcomingEvents(
         start:  start?.dateTime ? `${start.dateTime}Z` : '',
         end:    end?.dateTime   ? `${end.dateTime}Z`   : '',
         allDay: !!(item.isAllDay),
+        source: 'microsoft' as const,
       }
     })
   } catch {

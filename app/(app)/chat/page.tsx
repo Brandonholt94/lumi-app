@@ -679,47 +679,47 @@ export default function ChatPage() {
               }}
             />
 
-            {/* Send / mic button — always 36×36 circle */}
-            {input.trim() ? (
-              <button
-                onClick={() => sendMessage(input)}
-                disabled={isStreaming}
-                className="transition-all active:scale-90"
-                style={{
-                  width: 36, height: 36, minWidth: 36, minHeight: 36,
-                  borderRadius: '50%',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  flexShrink: 0,
-                  background: 'linear-gradient(135deg, #F4A582, #F5C98A)',
-                }}
-              >
-                <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
-                  <path d="M8 13V3M8 3L3.5 7.5M8 3L12.5 7.5"
-                    stroke="#1E1C2E" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </button>
-            ) : (
-              <button
-                onClick={toggleListening}
-                className="transition-all active:scale-90"
-                style={{
-                  width: 36, height: 36, minWidth: 36, minHeight: 36,
-                  borderRadius: '50%',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  flexShrink: 0,
-                  background: isListening ? 'linear-gradient(135deg, #F4A582, #F5C98A)' : 'rgba(45,42,62,0.06)',
-                  animation: isListening ? 'lumiPulse 1s ease-in-out infinite' : undefined,
-                }}
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                  <rect x="9" y="2" width="6" height="12" rx="3" fill={isListening ? '#1E1C2E' : '#7A7890'}/>
-                  <path d="M5 10C5 14.4183 8.13401 18 12 18C15.866 18 19 14.4183 19 10"
-                    stroke={isListening ? '#1E1C2E' : '#7A7890'} strokeWidth="2" strokeLinecap="round"/>
-                  <line x1="12" y1="18" x2="12" y2="22"
-                    stroke={isListening ? '#1E1C2E' : '#7A7890'} strokeWidth="2" strokeLinecap="round"/>
-                </svg>
-              </button>
-            )}
+            {/* Mic — always visible */}
+            <button
+              onClick={toggleListening}
+              className="transition-all active:scale-90"
+              style={{
+                width: 36, height: 36, minWidth: 36, minHeight: 36,
+                borderRadius: '50%',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                flexShrink: 0,
+                background: isListening ? 'linear-gradient(135deg, #F4A582, #F5C98A)' : 'rgba(45,42,62,0.06)',
+                animation: isListening ? 'lumiPulse 1s ease-in-out infinite' : undefined,
+              }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <rect x="9" y="2" width="6" height="12" rx="3" fill={isListening ? '#1E1C2E' : '#7A7890'}/>
+                <path d="M5 10C5 14.4183 8.13401 18 12 18C15.866 18 19 14.4183 19 10"
+                  stroke={isListening ? '#1E1C2E' : '#7A7890'} strokeWidth="2" strokeLinecap="round"/>
+                <line x1="12" y1="18" x2="12" y2="22"
+                  stroke={isListening ? '#1E1C2E' : '#7A7890'} strokeWidth="2" strokeLinecap="round"/>
+              </svg>
+            </button>
+
+            {/* Send — always visible, active when there's input */}
+            <button
+              onClick={() => sendMessage(input)}
+              disabled={!input.trim() || isStreaming}
+              className="transition-all active:scale-90"
+              style={{
+                width: 36, height: 36, minWidth: 36, minHeight: 36,
+                borderRadius: '50%',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                flexShrink: 0,
+                background: input.trim() ? 'linear-gradient(135deg, #F4A582, #F5C98A)' : 'rgba(45,42,62,0.06)',
+                transition: 'background 0.15s',
+              }}
+            >
+              <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+                <path d="M8 13V3M8 3L3.5 7.5M8 3L12.5 7.5"
+                  stroke={input.trim() ? '#1E1C2E' : '#7A7890'} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
           </div>
 
           {isListening && (

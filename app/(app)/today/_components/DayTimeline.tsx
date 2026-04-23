@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import Link from 'next/link'
 import confetti from 'canvas-confetti'
 
 interface CalEvent {
@@ -69,18 +70,30 @@ interface AnchorState {
 }
 
 interface Habit {
-  id:   string
-  name: string
+  id:    string
+  name:  string
   emoji: string
-  done: boolean
+  done:  boolean
+}
+
+interface FocusTask {
+  task:        string | null
+  capture_id:  string | null
+}
+
+function fmtDuration(mins: number): string {
+  if (mins < 60) return `${mins}m`
+  const h = mins / 60
+  return h === Math.floor(h) ? `${h}h` : `${Math.round(h * 2) / 2}h`
 }
 
 export default function DayTimeline({ plan }: { plan: string }) {
-  const [events,    setEvents]    = useState<CalEvent[]>([])
-  const [tasks,     setTasks]     = useState<PersonalTask[]>([])
-  const [anchors,   setAnchors]   = useState<AnchorState | null>(null)
-  const [habits,    setHabits]    = useState<Habit[]>([])
-  const [loading,   setLoading]   = useState(true)
+  const [events,     setEvents]     = useState<CalEvent[]>([])
+  const [tasks,      setTasks]      = useState<PersonalTask[]>([])
+  const [anchors,    setAnchors]    = useState<AnchorState | null>(null)
+  const [habits,     setHabits]     = useState<Habit[]>([])
+  const [focusTask,  setFocusTask]  = useState<FocusTask | null>(null)
+  const [loading,    setLoading]    = useState(true)
   const [adding,    setAdding]    = useState(false)
   const [taskName,  setTaskName]  = useState('')
   const [taskTime,  setTaskTime]  = useState('')
@@ -97,6 +110,7 @@ export default function DayTimeline({ plan }: { plan: string }) {
       fetch('/api/timeline-tasks').then(r => r.json()).catch(() => []),
       fetch('/api/morning-anchors').then(r => r.json()).catch(() => null),
       fetch('/api/habits').then(r => r.json()).catch(() => ({ habits: [] })),
+      fetch('/api/focus').then(r => r.json()).catch(() => null),
     ]
 
     if (plan.toLowerCase() === 'companion') {
@@ -104,20 +118,22 @@ export default function DayTimeline({ plan }: { plan: string }) {
         fetch('/api/calendar/events?hours=24').then(r => r.json()).catch(() => ({})),
         ...baseFetches,
       ]
-      Promise.all(fetches).then(([calData, taskData, anchorData, habitData]) => {
+      Promise.all(fetches).then(([calData, taskData, anchorData, habitData, focusData]) => {
         const evts = Array.isArray(calData) ? calData : ((calData as { events?: CalEvent[] })?.events ?? [])
         setEvents(evts)
         setTasks(Array.isArray(taskData) ? taskData as PersonalTask[] : [])
         if (anchorData) setAnchors(anchorData as AnchorState)
         setHabits((habitData as { habits?: Habit[] })?.habits ?? [])
+        if (focusData && !(focusData as Record<string, unknown>).error) setFocusTask(focusData as FocusTask)
         setLoading(false)
       })
     } else {
-      Promise.all(baseFetches).then(([taskData, anchorData, habitData]) => {
+      Promise.all(baseFetches).then(([taskData, anchorData, habitData, focusData]) => {
         setEvents([])
         setTasks(Array.isArray(taskData) ? taskData as PersonalTask[] : [])
         if (anchorData) setAnchors(anchorData as AnchorState)
         setHabits((habitData as { habits?: Habit[] })?.habits ?? [])
+        if (focusData && !(focusData as Record<string, unknown>).error) setFocusTask(focusData as FocusTask)
         setLoading(false)
       })
     }
@@ -214,7 +230,7 @@ export default function DayTimeline({ plan }: { plan: string }) {
     .slice(0, 6)
 
   // Build unified rows
-  type RawRow = Row & { sortMins: number }
+  type RawRow = Row & { sortMins: number; endMins: number }
   const rawRows: RawRow[] = []
 
   for (const event of upcomingEvents) {
@@ -231,6 +247,7 @@ export default function DayTimeline({ plan }: { plan: string }) {
       type:     startMins < nowMins ? 'past-cal' : 'calendar',
       duration: durationStr,
       sortMins: startMins,
+      endMins:  minutesFromMidnight(end),
     })
   }
 
@@ -245,6 +262,7 @@ export default function DayTimeline({ plan }: { plan: string }) {
       taskId:  task.id,
       done:    task.completed,
       sortMins: startMins,
+      endMins:  startMins + 30,
     })
   }
 
@@ -263,20 +281,68 @@ export default function DayTimeline({ plan }: { plan: string }) {
   }
   if (!nowInserted) rows.push({ key: 'now', isNow: true, sortMins: nowMins })
 
-  // Free afternoon block
-  const hasAfternoonFree =
-    upcomingEvents.filter(e => {
-      const h = new Date(e.start).getHours()
-      return h >= 12 && h <= 17
-    }).length === 0 &&
-    tasks.filter(t => {
-      const h = new Date(t.scheduled_at).getHours()
-      return h >= 12 && h <= 17
-    }).length === 0 &&
-    now.getHours() < 17
+  // Re-sort after inserting now marker (it was already inserted correctly, but
+  // the free gap will be inserted next and needs consistent ordering)
+  // ── Smart free gap detection ──────────────────────────────────────────────
+  // Find the first unscheduled window ≥ 90 min in the future (before 9 PM)
+  const DAY_END = 21 * 60        // 9 PM in minutes
+  const MIN_GAP = 90             // minimum gap to surface
+  let freeGapStart: number | null    = null
+  let freeGapDuration: number | null = null
 
-  if (hasAfternoonFree) {
-    rows.push({ key: 'free', sortMins: 780, isNow: false } as unknown as RawRow)
+  if (nowMins < DAY_END - MIN_GAP) {
+    // Items that end in the future, sorted by start
+    const futureItems = rawRows
+      .filter(r => r.endMins > nowMins)
+      .sort((a, b) => a.sortMins - b.sortMins)
+
+    if (futureItems.length === 0) {
+      // Whole rest-of-day is free
+      freeGapStart    = nowMins
+      freeGapDuration = Math.min(DAY_END - nowMins, 8 * 60)
+    } else {
+      // Gap from now → first future item
+      const gapToFirst = futureItems[0].sortMins - nowMins
+      if (gapToFirst >= MIN_GAP) {
+        freeGapStart    = nowMins
+        freeGapDuration = gapToFirst
+      } else {
+        // Gaps between consecutive future items
+        for (let i = 0; i < futureItems.length - 1; i++) {
+          const gapStart    = futureItems[i].endMins
+          const gapEnd      = futureItems[i + 1].sortMins
+          const gapDuration = gapEnd - gapStart
+          if (gapDuration >= MIN_GAP) {
+            freeGapStart    = gapStart
+            freeGapDuration = gapDuration
+            break
+          }
+        }
+        // Gap after last item → end of day
+        if (freeGapStart === null) {
+          const lastEnd  = futureItems[futureItems.length - 1].endMins
+          const trailing = DAY_END - lastEnd
+          if (trailing >= MIN_GAP) {
+            freeGapStart    = lastEnd
+            freeGapDuration = trailing
+          }
+        }
+      }
+    }
+  }
+
+  if (freeGapStart !== null && freeGapDuration !== null) {
+    // Cap display duration at 4 h so it doesn't say "8h free"
+    const displayDuration = Math.min(freeGapDuration, 4 * 60)
+    rows.push({
+      key:      'free',
+      type:     'free',
+      label:    `Free · ${fmtDuration(displayDuration)}`,
+      sortMins: freeGapStart,
+      endMins:  freeGapStart + freeGapDuration,
+    } as RawRow)
+    // Re-sort so the free block appears at the right position
+    rows.sort((a, b) => a.sortMins - b.sortMins)
   }
 
   if (loading) {
@@ -492,26 +558,64 @@ export default function DayTimeline({ plan }: { plan: string }) {
             const isTask = r.type === 'task'     || r.type === 'past-task'
             const isFree = r.key  === 'free'
 
-            // Free time block — dashed card
+            // Free time block — interactive dashed card
             if (isFree) {
+              const hasTask = !!(focusTask?.task)
               return (
-                <div key="free" style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8, opacity: 0.85 }}>
-                  <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 700, color: '#9895B0', width: 40, flexShrink: 0, lineHeight: 1.2, textAlign: 'right' }}>
+                <div key="free" style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 8 }}>
+                  <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 700, color: '#9895B0', width: 40, flexShrink: 0, lineHeight: 1.2, textAlign: 'right', paddingTop: 11 }}>
                     —
                   </span>
                   <div style={{
                     flex: 1,
-                    border: '1.5px dashed rgba(245,201,138,0.55)',
+                    border: '1.5px dashed rgba(245,201,138,0.60)',
                     borderRadius: 12,
-                    padding: '10px 12px',
-                    background: 'rgba(245,201,138,0.07)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    padding: '10px 12px 10px 14px',
+                    background: 'rgba(245,201,138,0.06)',
                   }}>
-                    <div>
-                      <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 700, color: '#C4A030' }}>Free time</p>
-                      <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 500, color: '#9895B0', marginTop: 1 }}>Good window for your focus task</p>
+                    {/* Header row */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: hasTask ? 6 : 2 }}>
+                      <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 800, color: '#C4A030' }}>
+                        {r.label}
+                      </p>
+                      <span style={{ color: 'rgba(196,160,48,0.45)', fontSize: 14, flexShrink: 0 }}>✦</span>
                     </div>
-                    <span style={{ color: 'rgba(196,160,48,0.5)', fontSize: 16, flexShrink: 0 }}>✦</span>
+
+                    {hasTask ? (
+                      <>
+                        {/* Focus task name */}
+                        <p style={{
+                          fontFamily: 'var(--font-nunito-sans)', fontSize: '12px', fontWeight: 600,
+                          color: '#2D2A3E', marginBottom: 8, lineHeight: 1.3,
+                          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                        }}>
+                          {focusTask!.task}
+                        </p>
+                        {/* CTA */}
+                        <Link href="/focus" style={{
+                          display: 'inline-flex', alignItems: 'center', gap: 5,
+                          padding: '5px 12px', borderRadius: 20, textDecoration: 'none',
+                          background: 'linear-gradient(135deg, #F4A582, #F5C98A)',
+                          boxShadow: '0 1px 6px rgba(244,165,130,0.30)',
+                        }}>
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
+                            <polygon points="5,3 19,12 5,21" fill="#1E1C2E" />
+                          </svg>
+                          <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 800, color: '#1E1C2E' }}>
+                            Start Focus
+                          </span>
+                        </Link>
+                      </>
+                    ) : (
+                      <Link href="/capture" style={{ textDecoration: 'none', display: 'block' }}>
+                        <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '12px', fontWeight: 600, color: '#9895B0', lineHeight: 1.3, marginBottom: 0 }}>
+                          Good window for a focus task
+                        </p>
+                        <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 700, color: 'rgba(196,160,48,0.80)', marginTop: 4 }}>
+                          Set your One Focus →
+                        </p>
+                      </Link>
+                    )}
                   </div>
                 </div>
               )

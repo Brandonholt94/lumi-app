@@ -9,7 +9,6 @@ interface CardDef {
   title:       string
   description: string
   href?:       string
-  actionLabel: string
   color:       string       // tint hex
   icon:        React.ReactNode
 }
@@ -137,7 +136,6 @@ export default function ActionCards() {
       id:          'notifications',
       title:       'Stay in sync',
       description: 'Get gentle nudges from Lumi',
-      actionLabel: 'Turn on',
       color:       '#F4A582',
       href:        '/me/notifications',
       icon:        <BellIcon />,
@@ -146,7 +144,6 @@ export default function ActionCards() {
       id:          'calendar',
       title:       'Connect calendar',
       description: 'Lumi sees what\'s coming up',
-      actionLabel: 'Connect',
       color:       '#8FAAE0',
       href:        '/me/calendar',
       icon:        <CalendarIcon />,
@@ -155,7 +152,6 @@ export default function ActionCards() {
       id:          'app',
       title:       'Get the app',
       description: 'Lumi on your phone, always',
-      actionLabel: 'Download',
       color:       '#E8A0BF',
       href:        'https://apps.apple.com',
       icon:        <PhoneIcon />,
@@ -187,105 +183,84 @@ export default function ActionCards() {
         SUGGESTED
       </p>
 
-      <div style={{
-        display:         'flex',
-        gap:             12,
-        overflowX:       'auto',
-        scrollbarWidth:  'none',
-        paddingBottom:   4,
-      }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         {visible.map(card => (
-          <div
+          <a
             key={card.id}
+            href={card.href ?? '#'}
             style={{
-              flexShrink:   0,
-              width:        148,
-              background:   'white',
-              borderRadius: 20,
-              border:       '1.5px solid rgba(45,42,62,0.07)',
-              padding:      '16px 14px 14px',
-              position:     'relative',
-              boxShadow:    '0 2px 8px rgba(45,42,62,0.06)',
+              display:        'flex',
+              alignItems:     'center',
+              gap:            14,
+              background:     'white',
+              borderRadius:   16,
+              border:         '1.5px solid rgba(45,42,62,0.07)',
+              padding:        '11px 14px',
+              boxShadow:      '0 2px 8px rgba(45,42,62,0.05)',
+              textDecoration: 'none',
+              WebkitTapHighlightColor: 'transparent',
             }}
           >
-            {/* Dismiss X */}
-            <button
-              onClick={() => dismiss(card.id)}
-              style={{
-                position:   'absolute',
-                top:        10,
-                right:      10,
-                background: 'none',
-                border:     'none',
-                cursor:     'pointer',
-                padding:    2,
-                color:      'rgba(45,42,62,0.25)',
-                lineHeight: 1,
-              }}
-            >
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
-              </svg>
-            </button>
-
             {/* Animated icon */}
             <div style={{
-              width:          44,
-              height:         44,
-              borderRadius:   13,
+              width:          38,
+              height:         38,
+              borderRadius:   11,
               background:     `${card.color}22`,
               display:        'flex',
               alignItems:     'center',
               justifyContent: 'center',
-              marginBottom:   12,
+              flexShrink:     0,
             }}>
               {card.icon}
             </div>
 
             {/* Text */}
-            <p style={{
-              fontFamily: 'var(--font-aegora)',
-              fontSize:   14,
-              fontWeight: 700,
-              color:      '#1E1C2E',
-              marginBottom: 4,
-              lineHeight: 1.2,
-              paddingRight: 8,
-            }}>
-              {card.title}
-            </p>
-            <p style={{
-              fontFamily: 'var(--font-nunito-sans)',
-              fontSize:   11,
-              fontWeight: 500,
-              color:      '#9895B0',
-              lineHeight: 1.4,
-              marginBottom: 14,
-            }}>
-              {card.description}
-            </p>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p style={{
+                fontFamily: 'var(--font-aegora)',
+                fontSize:   14,
+                fontWeight: 700,
+                color:      '#1E1C2E',
+                lineHeight: 1.2,
+                marginBottom: 2,
+              }}>
+                {card.title}
+              </p>
+              <p style={{
+                fontFamily: 'var(--font-nunito-sans)',
+                fontSize:   11,
+                fontWeight: 500,
+                color:      '#9895B0',
+                lineHeight: 1.3,
+              }}>
+                {card.description}
+              </p>
+            </div>
 
-            {/* CTA */}
-            {card.href && (
-              <a
-                href={card.href}
+            {/* Chevron + dismiss */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                <path d="M9 18l6-6-6-6" stroke={`${card.color}cc`} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              <button
+                onClick={e => { e.preventDefault(); e.stopPropagation(); dismiss(card.id) }}
                 style={{
-                  display:        'inline-block',
-                  padding:        '6px 12px',
-                  borderRadius:   8,
-                  background:     `${card.color}22`,
-                  fontFamily:     'var(--font-nunito-sans)',
-                  fontSize:       11,
-                  fontWeight:     800,
-                  color:          card.color,
-                  textDecoration: 'none',
-                  border:         `1.5px solid ${card.color}44`,
+                  background: 'none',
+                  border:     'none',
+                  cursor:     'pointer',
+                  padding:    4,
+                  color:      'rgba(45,42,62,0.22)',
+                  lineHeight: 1,
+                  display:    'flex',
                 }}
               >
-                {card.actionLabel}
-              </a>
-            )}
-          </div>
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
+                  <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
+                </svg>
+              </button>
+            </div>
+          </a>
         ))}
       </div>
     </div>

@@ -55,10 +55,17 @@ body {
 @media (min-width: 768px) { .input-bar-pad { padding-bottom: 24px; } }
 
 /* ══════════════════════════════════════════════════════════════
-   TODAY PAGE — two-column desktop layout
+   TODAY PAGE — 70/30 desktop layout
+   Left 70%: scene + 3-day calendar + mood  (the "planner")
+   Right 30%: focus card + Lumi nudge + quick actions
+   Mobile: single scroll column, unchanged
    ══════════════════════════════════════════════════════════════ */
 
-/* Outer wrapper — mobile: single scroll column; desktop: flex row */
+/* Utility: show/hide per breakpoint */
+.desktop-only { display: none; }
+.mobile-only  { display: block; }
+
+/* Outer wrapper */
 .lumi-today-root {
   display: flex;
   flex-direction: column;
@@ -66,27 +73,45 @@ body {
   overflow-y: auto;
   background: #FBF8F5;
 }
-/* Left content column (all content on mobile) */
-.lumi-today-left { flex: 1; min-width: 0; }
-/* Right rail — calendar — hidden on mobile */
+
+/* Two-column body (below scene header) */
+.lumi-today-body { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.lumi-today-left  { flex: 1; min-width: 0; }
 .lumi-today-right { display: none; }
-/* DayTimeline rendered in-flow on mobile, hidden on desktop */
-.lumi-cal-mobile  { }
-/* Section label shared style */
+
+/* Shared section label */
 .lumi-section-label {
-  font-family: var(--font-nunito-sans);
-  font-size: 10px;
-  font-weight: 800;
+  font-family:    var(--font-nunito-sans);
+  font-size:      10px;
+  font-weight:    800;
   letter-spacing: 0.1em;
-  color: #9895B0;
-  margin-bottom: 9px;
+  color:          #9895B0;
+  margin-bottom:  9px;
 }
 
 @media (min-width: 768px) {
-  .lumi-today-root   { flex-direction: row; overflow: hidden; }
-  .lumi-today-left   { width: 360px; flex-shrink: 0; overflow-y: auto; border-right: 1px solid rgba(45,42,62,0.07); }
-  .lumi-today-right  { display: flex; flex: 1; min-width: 0; flex-direction: column; overflow: hidden; }
-  .lumi-cal-mobile   { display: none; }
+  .desktop-only  { display: block; }
+  .mobile-only   { display: none; }
+
+  .lumi-today-root { overflow: hidden; }
+  .lumi-today-body { flex-direction: row; flex: 1; overflow: hidden; }
+
+  /* Left rail — 70%, scene header lives inside it */
+  .lumi-today-left {
+    flex: 0 0 70%;
+    overflow-y: auto;
+    border-right: 1px solid rgba(45,42,62,0.07);
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Right rail — 30%, focus + context */
+  .lumi-today-right {
+    display: flex;
+    flex: 0 0 30%;
+    flex-direction: column;
+    overflow-y: auto;
+  }
 }
 
 /* Scene header — height + dome */
@@ -103,17 +128,10 @@ body {
 }
 @media (min-width: 768px) {
   .lumi-scene-svg  { height: 200px; }
-  .lumi-scene-dome { border-radius: 0; margin-top: -2px; padding-top: 28px; }
+  .lumi-scene-dome { border-radius: 0; margin-top: -2px; padding-top: 24px; }
 }
 
-/* Focus + Nudge — card grid */
-.lumi-focus-nudge-grid { display: flex; flex-direction: column; }
-@media (min-width: 768px) {
-  .lumi-focus-nudge-grid { flex-direction: row; gap: 12px; align-items: flex-start; }
-  .lumi-focus-nudge-grid > div { flex: 1; min-width: 0; }
-}
-
-/* Floating Brain Dump FAB */
+/* Mobile-only floating Brain Dump FAB (removed on desktop — Add Task is inline) */
 .lumi-fab {
   position:        fixed;
   right:           20px;
@@ -133,9 +151,7 @@ body {
   transition:      box-shadow 0.2s, transform 0.15s;
 }
 .lumi-fab:active { transform: scale(0.95); }
-@media (min-width: 768px) {
-  .lumi-fab { bottom: 32px; right: 32px; box-shadow: 0 8px 28px rgba(244,165,130,0.40); }
-}
+@media (min-width: 768px) { .lumi-fab { display: none; } }
 
 /* ── Chat page container ── */
 /* Mobile: constrained width; Desktop: full-width with inner content cap */

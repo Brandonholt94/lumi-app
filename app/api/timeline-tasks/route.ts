@@ -22,7 +22,7 @@ export async function GET() {
 
   const { data } = await supabase
     .from('captures')
-    .select('id, content, scheduled_at, completed')
+    .select('id, text, scheduled_at, completed')
     .eq('clerk_user_id', userId)
     .gte('scheduled_at', startOfDay)
     .lt('scheduled_at', endOfDay)
@@ -46,11 +46,12 @@ export async function POST(req: Request) {
     .from('captures')
     .insert({
       clerk_user_id: userId,
-      content:       content.trim(),
+      text:          content.trim(),
+      tag:           'task',        // makes it eligible for One Focus
       scheduled_at,
       completed:     false,
     })
-    .select('id, content, scheduled_at, completed')
+    .select('id, text, scheduled_at, completed')
     .single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })

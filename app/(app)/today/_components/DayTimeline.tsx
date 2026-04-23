@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import confetti from 'canvas-confetti'
 
 interface CalEvent {
   id: string
@@ -13,7 +14,7 @@ interface CalEvent {
 
 interface PersonalTask {
   id: string
-  content: string
+  text: string
   scheduled_at: string
   completed: boolean
 }
@@ -124,6 +125,15 @@ export default function DayTimeline() {
 
   async function toggleTask(id: string, done: boolean) {
     setTasks(prev => prev.map(t => t.id === id ? { ...t, completed: done } : t))
+    if (done) {
+      confetti({
+        particleCount: 60,
+        spread: 70,
+        origin: { y: 0.55 },
+        colors: ['#F4A582', '#F5C98A', '#E8A0BF', '#8FAAE0'],
+        scalar: 0.85,
+      })
+    }
     await fetch('/api/timeline-tasks', {
       method:  'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -170,7 +180,7 @@ export default function DayTimeline() {
     rawRows.push({
       key:     task.id,
       time:    fmt12(start),
-      label:   task.content,
+      label:   task.text,
       type:    startMins < nowMins ? 'past-task' : 'task',
       taskId:  task.id,
       done:    task.completed,

@@ -36,6 +36,7 @@ export interface LumiUserContext {
     start: string  // ISO string
     allDay: boolean
   }>
+  scheduledToday?: string  // formatted list of personal tasks added to the day timeline
 }
 
 export function buildLumiSystemPrompt(ctx: LumiUserContext = {}): string {
@@ -658,6 +659,7 @@ ${ctx.upcomingEvents && ctx.upcomingEvents.filter(e => !e.allDay).length > 0 ? (
   }).join('\n')
   return `**Upcoming calendar events today:**\n${lines}\nBe aware of their schedule. If they seem scattered or anxious, a nearby event may be a factor. For Companion plan users: you may proactively reference time pressure if it's relevant (e.g., "You've got ${timed[0].title} coming up — want to wrap up first?"). For Core users: use this context passively to inform your tone and pacing, but don't mention the calendar unless they do.`
 })() : ''}
+${ctx.scheduledToday ? `**Personal tasks on their day timeline today (they added these themselves):**\n${ctx.scheduledToday}\nThese are commitments they've chosen to show up for. Reference them naturally if relevant — e.g. if they're anxious about time, if they've completed one, or if they mention it.` : ''}
 ${ctx.sleepLastNight != null ? (() => {
   const { duration, quality } = ctx.sleepLastNight!
   const h = Math.floor(duration)

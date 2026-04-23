@@ -140,7 +140,7 @@ async function fetchPlatformContext(userId: string): Promise<Partial<LumiUserCon
   const fortyEightHoursAgo = new Date(now.getTime() - 48 * 60 * 60 * 1000)
 
   // Run all queries in parallel
-  const [capturesRes, recentWinsRes, moodRes, activityRes, profileRes, sleepRes, googleEvents, microsoftEvents] = await Promise.all([
+  const [capturesRes, recentWinsRes, moodRes, activityRes, profileRes, sleepRes, googleEvents, microsoftEvents, scheduledTasksRes] = await Promise.all([
     // Today's captures — tasks, worries, ideas
     supabase
       .from('captures')
@@ -194,10 +194,20 @@ async function fetchPlatformContext(userId: string): Promise<Partial<LumiUserCon
     // Upcoming calendar events — Core/Companion only (returns [] if not connected)
     getUpcomingEvents(userId, 12),
     getMicrosoftUpcomingEvents(userId, 12),
+
+    // Today's scheduled personal tasks (added to day timeline)
+    supabase
+      .from('captures')
+      .select('text, scheduled_at, completed')
+      .eq('clerk_user_id', userId)
+      .gte('scheduled_at', todayStart.toISOString())
+      .lt('scheduled_at', new Date(todayStart.getTime() + 86_400_000).toISOString())
+      .order('scheduled_at', { ascending: true }),
   ])
 
-  const captures = capturesRes.data ?? []
-  const recentWins = recentWinsRes.data ?? []
+  const captures      = capturesRes.data ?? []
+  const recentWins    = recentWinsRes.data ?? []
+  const scheduledTasks = scheduledTasksRes.data ?? []
   const lastMood = moodRes.data?.mood ?? null
   const lastSeenAt = activityRes.data?.last_seen_at ?? null
   const profile = profileRes.data ?? null
@@ -231,6 +241,15 @@ async function fetchPlatformContext(userId: string): Promise<Partial<LumiUserCon
     isReturningAfterAbsence = hoursSince >= 48
   }
 
+  // Format scheduled tasks for Lumi context
+  const scheduledTasksText = scheduledTasks.length > 0
+    ? scheduledTasks.map(t => {
+        const time = new Date(t.scheduled_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+        const status = t.completed ? '✓' : '○'
+        return `  ${status} ${time} — ${t.text}`
+      }).join('\n')
+    : undefined
+
   return {
     recentCaptures: captures.slice(0, 10).map(c => ({ text: c.text, tag: c.tag, completed: c.completed ?? false })),
     captureCount: captures.length,
@@ -240,6 +259,7 @@ async function fetchPlatformContext(userId: string): Promise<Partial<LumiUserCon
     wins: winsText,
     isReturningAfterAbsence,
     daysSinceLastVisit,
+    ...(scheduledTasksText ? { scheduledToday: scheduledTasksText } : {}),
     // Onboarding profile
     ...(profile?.display_name      ? { name:             profile.display_name }      : {}),
     ...(profile?.adhd_identity     ? { adhdIdentity:     profile.adhd_identity }     : {}),

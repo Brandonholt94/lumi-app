@@ -630,32 +630,6 @@ export default function ChatPage() {
               paddingBottom: 8,
             }}
           >
-            {/* Judge pill — always visible on left */}
-            <button
-              onClick={() => { setJudgeOpen(o => !o); setJudgePaste('') }}
-              style={{
-                flexShrink: 0,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 4,
-                padding: '5px 10px',
-                borderRadius: 20,
-                background: judgeOpen ? 'linear-gradient(135deg, #F4A582, #F5C98A)' : 'rgba(45,42,62,0.06)',
-                border: 'none',
-                cursor: 'pointer',
-                fontFamily: 'var(--font-nunito-sans)',
-                fontSize: '12px',
-                fontWeight: 800,
-                color: judgeOpen ? '#1E1C2E' : '#7A7890',
-                letterSpacing: '0.01em',
-                transition: 'all 0.15s',
-                WebkitTapHighlightColor: 'transparent',
-              }}
-            >
-              <span style={{ fontSize: '11px' }}>🔍</span>
-              Decode
-            </button>
-
             <textarea
               ref={inputRef}
               value={input}
@@ -677,6 +651,33 @@ export default function ChatPage() {
                 alignSelf: 'center',
               }}
             />
+
+            {/* Decode pill — right of textarea, left of send */}
+            <button
+              onClick={() => { setJudgeOpen(o => !o); setJudgePaste('') }}
+              style={{
+                flexShrink: 0,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 4,
+                padding: '5px 11px',
+                borderRadius: 20,
+                background: judgeOpen ? '#F4A582' : '#F4A582',
+                border: 'none',
+                cursor: 'pointer',
+                fontFamily: 'var(--font-nunito-sans)',
+                fontSize: '12px',
+                fontWeight: 800,
+                color: '#1E1C2E',
+                letterSpacing: '0.01em',
+                opacity: judgeOpen ? 1 : 0.85,
+                transition: 'opacity 0.15s',
+                WebkitTapHighlightColor: 'transparent',
+              }}
+            >
+              <span style={{ fontSize: '11px' }}>🔍</span>
+              Decode
+            </button>
 
             {/* Send / mic button — always 36×36 circle */}
             {input.trim() ? (

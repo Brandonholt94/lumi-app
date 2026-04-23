@@ -25,12 +25,11 @@ function getGreeting(hour: number) {
 // Bottom-most visible stop should land near the horizon warmth.
 const SKY_STOPS: Record<Scene, { color: string; offset: string }[]> = {
   morning: [
-    { color: '#0D1E38', offset: '0%'  },
-    { color: '#1C3A6E', offset: '25%' },
-    { color: '#6B3525', offset: '50%' },
-    { color: '#C85A20', offset: '66%' },
-    { color: '#F08A3A', offset: '78%' },
-    { color: '#FFBB4A', offset: '100%'},
+    { color: '#3B7FC4', offset: '0%'  },
+    { color: '#64A8DB', offset: '28%' },
+    { color: '#F5C8A8', offset: '54%' },
+    { color: '#FFBA5A', offset: '72%' },
+    { color: '#FFD880', offset: '100%'},
   ],
   afternoon: [
     { color: '#1473C8', offset: '0%'  },
@@ -83,7 +82,7 @@ const CLOUDS: Record<Scene, { x: number; y: number; s: number; o: number }[]> = 
 }
 
 const CLOUD_COLOR: Record<Scene, string> = {
-  morning:   '#FFCCA0',
+  morning:   '#FFF0E0',
   afternoon: '#DCF0FF', // cool blue-white so clouds read clearly against warm beige
   evening:   '#FF9050',
   night:     '#1A2850',
@@ -126,16 +125,16 @@ export default function DaySceneHeader({ firstName }: Props) {
             {/* Warm horizon glow — morning + evening */}
             {scene === 'morning' && (<>
               <radialGradient id="horizonGlow" cx="50%" cy="100%" r="72%">
-                <stop offset="0%"   stopColor="#FFBA4D" stopOpacity="0.70"/>
-                <stop offset="32%"  stopColor="#F07030" stopOpacity="0.35"/>
-                <stop offset="100%" stopColor="#C84010" stopOpacity="0"/>
+                <stop offset="0%"   stopColor="#FFD980" stopOpacity="0.80"/>
+                <stop offset="38%"  stopColor="#FFAA50" stopOpacity="0.40"/>
+                <stop offset="100%" stopColor="#FF8020" stopOpacity="0"/>
               </radialGradient>
-              {/* Soft sun orb — low on horizon, slightly off-centre */}
+              {/* Soft sun orb — bright morning bloom */}
               <radialGradient id="sunOrb" cx="50%" cy="50%" r="50%">
-                <stop offset="0%"   stopColor="#FFF4B0" stopOpacity="0.95"/>
-                <stop offset="18%"  stopColor="#FFD84A" stopOpacity="0.70"/>
-                <stop offset="45%"  stopColor="#FF8C20" stopOpacity="0.32"/>
-                <stop offset="100%" stopColor="#FF5500" stopOpacity="0"/>
+                <stop offset="0%"   stopColor="#FFFCE0" stopOpacity="1.00"/>
+                <stop offset="20%"  stopColor="#FFE878" stopOpacity="0.80"/>
+                <stop offset="50%"  stopColor="#FFBE40" stopOpacity="0.40"/>
+                <stop offset="100%" stopColor="#FF9030" stopOpacity="0"/>
               </radialGradient>
             </>)}
             {scene === 'evening' && (

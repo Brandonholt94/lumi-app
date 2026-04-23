@@ -568,7 +568,7 @@ export default function ChatPage() {
             }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
                 <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '12px', fontWeight: 800, color: '#9895B0', letterSpacing: '0.06em' }}>
-                  LUMI JUDGE
+                  DECODE
                 </span>
                 <button
                   onClick={() => { setJudgeOpen(false); setJudgePaste('') }}
@@ -653,7 +653,7 @@ export default function ChatPage() {
               }}
             >
               <span style={{ fontSize: '11px' }}>🔍</span>
-              Judge
+              Decode
             </button>
 
             <textarea

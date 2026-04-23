@@ -313,7 +313,7 @@ export async function POST(req: Request) {
   try {
     const { userId: uid } = await auth()
     if (!uid) return new Response('Unauthorized', { status: 401 })
-    userId = uid
+    userId = uid!
   } catch (err) {
     return streamText200(`DEBUG: auth() threw — ${err}`)
   }

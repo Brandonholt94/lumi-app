@@ -485,7 +485,7 @@ export async function POST(req: Request) {
 
   } catch (err) {
     // Top-level catch — surfaces any crash (Supabase, Clerk, etc.) as a debug stream message
-    const msg = err instanceof Error ? `${err.message}\n${err.stack ?? ''}` : String(err)
+    const msg = String(err)
     console.error('[Lumi chat] unhandled error:', msg)
     return streamText200(`DEBUG: ${msg}`)
   }

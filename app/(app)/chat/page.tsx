@@ -326,6 +326,47 @@ export default function ChatPage() {
               }}>
                 What&apos;s on your mind?
               </p>
+
+              {/* ── Suggested prompts ── */}
+              <div style={{ marginTop: 28, display: 'flex', flexDirection: 'column', gap: 10, width: '100%', maxWidth: 320 }}>
+                {[
+                  { emoji: '🔍', label: 'Decode a message', prompt: "Can you read this message and tell me the actual tone? I want to know if I'm reading it right or if my RSD is kicking in.\n\n[Paste message here]" },
+                  { emoji: '🧠', label: "I'm overwhelmed", prompt: "I'm overwhelmed and don't know where to start. Can you help me figure out what to do first?" },
+                  { emoji: '✦',  label: 'Help me focus',   prompt: "I'm struggling to start. Can you help me pick one thing to focus on right now?" },
+                ].map(({ emoji, label, prompt }) => (
+                  <button
+                    key={label}
+                    onClick={() => {
+                      setInput(prompt)
+                      if (inputRef.current) {
+                        inputRef.current.style.height = '44px'
+                        inputRef.current.style.height = Math.min(inputRef.current.scrollHeight, 120) + 'px'
+                        inputRef.current.focus()
+                      }
+                    }}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 10,
+                      padding: '12px 16px', borderRadius: 16,
+                      background: 'rgba(255,248,244,0.55)',
+                      backdropFilter: 'blur(20px)',
+                      WebkitBackdropFilter: 'blur(20px)',
+                      border: '1px solid rgba(255,255,255,0.70)',
+                      boxShadow: '0 2px 12px rgba(244,165,130,0.12)',
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                      fontFamily: 'var(--font-nunito-sans)',
+                      WebkitTapHighlightColor: 'transparent',
+                      width: '100%',
+                    }}
+                  >
+                    <span style={{ fontSize: '16px', flexShrink: 0 }}>{emoji}</span>
+                    <span style={{ fontSize: '14px', fontWeight: 700, color: '#2D2A3E' }}>{label}</span>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ marginLeft: 'auto', flexShrink: 0 }}>
+                      <path d="M9 18l6-6-6-6" stroke="rgba(244,165,130,0.7)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </button>
+                ))}
+              </div>
             </div>
           ) : (
             /* ── MESSAGES — anchored to bottom ── */

@@ -21,7 +21,7 @@ export async function GET(req: Request) {
     .single()
 
   const plan = profile?.plan ?? 'free'
-  if (plan === 'free' || plan === 'starter') {
+  if (plan === 'free') {
     redirect('/me/subscription')
   }
 

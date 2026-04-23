@@ -5,8 +5,6 @@ import { redirect } from 'next/navigation'
 import WelcomeScreen from './_components/WelcomeScreen'
 
 const PRICE_TO_PLAN: Record<string, string> = {
-  [process.env.STRIPE_STARTER_MONTHLY_PRICE_ID ?? '']: 'starter',
-  [process.env.STRIPE_STARTER_ANNUAL_PRICE_ID  ?? '']: 'starter',
   [process.env.STRIPE_CORE_MONTHLY_PRICE_ID    ?? '']: 'core',
   [process.env.STRIPE_CORE_ANNUAL_PRICE_ID     ?? '']: 'core',
   [process.env.STRIPE_COMPANION_MONTHLY_PRICE_ID ?? '']: 'companion',
@@ -38,7 +36,7 @@ export default async function WelcomePage({
         expand: ['subscription'],
       })
 
-      let plan = 'starter'
+      let plan = 'core'
       const sub = session.subscription as Stripe.Subscription | null
       if (sub) {
         const priceId = sub.items.data[0]?.price?.id
@@ -71,5 +69,5 @@ export default async function WelcomePage({
 
   if (!profile) redirect('/onboarding')
 
-  return <WelcomeScreen name={profile.display_name ?? 'there'} plan={profile.plan ?? 'starter'} />
+  return <WelcomeScreen name={profile.display_name ?? 'there'} plan={profile.plan ?? 'core'} />
 }

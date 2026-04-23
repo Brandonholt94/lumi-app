@@ -23,7 +23,7 @@ export async function POST() {
     .eq('clerk_user_id', userId)
     .single()
 
-  if (!profile || profile.plan === 'free' || profile.plan === 'starter') {
+  if (!profile || profile.plan === 'free') {
     return NextResponse.json({ error: 'Upgrade required' }, { status: 403 })
   }
 

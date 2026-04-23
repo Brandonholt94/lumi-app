@@ -14,23 +14,6 @@ type BillingCycle = 'monthly' | 'annual'
 
 const PLANS = [
   {
-    key: 'starter',
-    name: 'Starter',
-    monthly: 7,
-    annual: 4,
-    annualTotal: 48,
-    description: 'A gentle place to begin',
-    features: [
-      'Lumi chat (20 messages/day)',
-      'Brain Dump (unlimited)',
-      'Daily mood check-in',
-      'One Focus task',
-    ],
-    cta: 'Start 7-day free trial',
-    gradient: `linear-gradient(135deg, ${GOLD}, ${PEACH})`,
-    popular: false,
-  },
-  {
     key: 'core',
     name: 'Core',
     monthly: 14,

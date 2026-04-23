@@ -19,7 +19,6 @@ const FEATURES = [
 ]
 
 const PLAN_BANNER: Record<string, string> = {
-  starter:   "Your trial starts now. Everything you need to get started.",
   core:      "Your trial starts now. Unlimited Lumi, full context, every day.",
   companion: "Your trial starts now. You've got the full Lumi experience.",
 }
@@ -103,7 +102,7 @@ export default function WelcomeScreen({ name, plan }: { name: string; plan: stri
             fontSize: '13px', fontWeight: 700,
             color: DARK, margin: 0, lineHeight: 1.4,
           }}>
-            You&apos;re all set! {PLAN_BANNER[plan] ?? PLAN_BANNER.starter}
+            You&apos;re all set! {PLAN_BANNER[plan] ?? PLAN_BANNER.core}
           </p>
         </div>
       )}

@@ -326,7 +326,7 @@ export async function POST(req: Request) {
 
   // ── Plan-based feature gates ───────────────────────────────
   const plan = (userContext.plan ?? 'free') as string
-  const isStarter = plan === 'free' || plan === 'starter'
+  const isStarter = plan === 'free'
   const isCompanion = plan === 'companion'
 
   // Starter/Free: strip sleep context — Core+ only

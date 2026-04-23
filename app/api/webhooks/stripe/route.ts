@@ -12,8 +12,6 @@ function getServiceClient() {
 
 function planFromPriceId(priceId: string): string {
   const map: Record<string, string> = {
-    [process.env.STRIPE_STARTER_MONTHLY_PRICE_ID!]:   'starter',
-    [process.env.STRIPE_STARTER_ANNUAL_PRICE_ID!]:    'starter',
     [process.env.STRIPE_CORE_MONTHLY_PRICE_ID!]:      'core',
     [process.env.STRIPE_CORE_ANNUAL_PRICE_ID!]:       'core',
     [process.env.STRIPE_COMPANION_MONTHLY_PRICE_ID!]: 'companion',
@@ -57,7 +55,7 @@ export async function POST(req: Request) {
       }
 
       // Resolve plan from subscription's price
-      let plan = 'starter' // default to starter (safest fallback)
+      let plan = 'core' // default to core (safest fallback)
       if (session.subscription) {
         const sub = await stripe.subscriptions.retrieve(session.subscription as string)
         const priceId = sub.items.data[0]?.price?.id
@@ -83,7 +81,7 @@ export async function POST(req: Request) {
       const sub        = event.data.object as Stripe.Subscription
       const customerId = sub.customer as string
       const priceId    = sub.items.data[0]?.price?.id
-      const plan       = priceId ? planFromPriceId(priceId) : 'starter'
+      const plan       = priceId ? planFromPriceId(priceId) : 'core'
       const status     = sub.status
       const clerkUserId = sub.metadata?.clerk_user_id
 

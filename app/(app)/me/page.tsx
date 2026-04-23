@@ -187,7 +187,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 // ─── Plan badge colors ───────────────────────────────────────────────────────
 
 const PLAN_LABELS: Record<string, string> = {
-  free: 'Free', starter: 'Starter', core: 'Core', companion: 'Companion',
+  free: 'Free', core: 'Core', companion: 'Companion',
 }
 
 // ─── Page ───────────────────────────────────────────────────────────────────
@@ -308,8 +308,9 @@ export default async function MePage() {
         </Section>
 
         <Section title="HEALTH">
-          <Row icon={icons.pill} label="Medication log" href="/me/medication" />
-          <Row icon={icons.moon} label="Sleep log"      href="/me/sleep"      last />
+          <Row icon={icons.pill} label="Medication log"  href="/me/medication" />
+          <Row icon={icons.moon} label="Sleep log"       href="/me/sleep" />
+          <Row icon={icons.clipboard} label="Doctor report" href="/me/doctor" last />
         </Section>
 
         <Section title="ACCOUNT">

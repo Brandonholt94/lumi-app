@@ -31,7 +31,7 @@ export async function POST(req: Request) {
     .single()
 
   const plan = profile?.plan ?? 'free'
-  const isStarter = plan === 'free' || plan === 'starter'
+  const isStarter = plan === 'free'
 
   // ── Starter: enforce 3 breakdowns/day ──────────────────────
   const today = new Date().toISOString().slice(0, 10)

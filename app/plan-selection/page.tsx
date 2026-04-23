@@ -13,7 +13,7 @@ const MUTED  = '#7A7890'
 const BG     = '#FBF8F5'
 
 // ── Plan data ────────────────────────────────────────────────
-type PlanKey = 'starter' | 'core' | 'companion'
+type PlanKey = 'core' | 'companion'
 type Billing = 'monthly' | 'annual'
 
 const PLANS: Record<PlanKey, {
@@ -25,20 +25,6 @@ const PLANS: Record<PlanKey, {
   features: string[]
   gradient: string
 }> = {
-  starter: {
-    name: 'Starter',
-    monthly: 7,
-    annual: 4,
-    annualTotal: 48,
-    tagline: 'A gentle place to start',
-    features: [
-      'Lumi chat (20 messages/day)',
-      'Brain Dump — unlimited captures',
-      'Daily mood check-in',
-      'One Focus task selection',
-    ],
-    gradient: `linear-gradient(135deg, ${GOLD}, ${PEACH})`,
-  },
   core: {
     name: 'Core',
     monthly: 14,
@@ -114,7 +100,7 @@ function Check() {
 
 // ── Page ─────────────────────────────────────────────────────
 export default function PlanSelectionPage() {
-  const [plan, setPlan]       = useState<PlanKey>('companion')
+  const [plan, setPlan]       = useState<PlanKey>('core')
   const [billing, setBilling] = useState<Billing>('annual')
   const [loading, setLoading] = useState(false)
   const [error, setError]     = useState<string | null>(null)
@@ -197,7 +183,7 @@ export default function PlanSelectionPage() {
             gap: 4,
             animation: 'lumiIn 0.45s ease both',
           }}>
-            {(['starter', 'core', 'companion'] as PlanKey[]).map(p => (
+            {(['core', 'companion'] as PlanKey[]).map(p => (
               <button
                 key={p}
                 onClick={() => setPlan(p)}

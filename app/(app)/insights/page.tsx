@@ -25,7 +25,7 @@ interface DayDetail {
 }
 
 interface InsightsData {
-  plan: 'free' | 'starter' | 'core' | 'companion'
+  plan: 'free' | 'core' | 'companion'
   week: { start: string; end: string }
   captures: {
     total: number
@@ -791,7 +791,7 @@ function WinsCard({ completedTasks }: { completedTasks: { text: string; created_
 }
 
 // ── Brain Report card ─────────────────────────────────────
-function BrainReportCard({ plan, daysWithData }: { plan: 'free' | 'starter' | 'core' | 'companion'; daysWithData: number }) {
+function BrainReportCard({ plan, daysWithData }: { plan: 'free' | 'core' | 'companion'; daysWithData: number }) {
   const [status,  setStatus]  = useState<'idle' | 'loading' | 'done' | 'error'>('idle')
   const [report,  setReport]  = useState<string | null>(null)
   const isPaid = plan === 'core' || plan === 'companion'

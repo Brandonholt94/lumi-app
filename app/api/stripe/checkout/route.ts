@@ -6,8 +6,6 @@ import { NextResponse } from 'next/server'
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
 const PRICE_MAP: Record<string, string | undefined> = {
-  'starter-monthly':   process.env.STRIPE_STARTER_MONTHLY_PRICE_ID,
-  'starter-annual':    process.env.STRIPE_STARTER_ANNUAL_PRICE_ID,
   'core-monthly':      process.env.STRIPE_CORE_MONTHLY_PRICE_ID,
   'core-annual':       process.env.STRIPE_CORE_ANNUAL_PRICE_ID,
   'companion-monthly': process.env.STRIPE_COMPANION_MONTHLY_PRICE_ID,

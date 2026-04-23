@@ -9,12 +9,11 @@ const DARK  = '#2D2A3E'
 const DARKER = '#1E1C2E'
 const MUTED  = '#9895B0'
 
-type Plan = 'free' | 'starter' | 'core' | 'companion'
+type Plan = 'free' | 'core' | 'companion'
 type BillingCycle = 'monthly' | 'annual'
 
 const PLAN_LABELS: Record<Plan, string> = {
   free:      'Free',
-  starter:   'Starter',
   core:      'Core',
   companion: 'Companion',
 }
@@ -167,51 +166,8 @@ export default function SubscriptionClient({ currentPlan }: { currentPlan: Plan 
             ))}
           </div>
 
-          {/* Starter upgrade card */}
-          {currentPlan === 'free' && (
-            <div style={{
-              background: 'white', borderRadius: 16,
-              border: '1px solid rgba(45,42,62,0.08)',
-              padding: '20px', marginBottom: 16,
-            }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
-                <div>
-                  <p style={{ fontFamily: 'var(--font-aegora)', fontSize: '18px', fontWeight: 900, color: DARKER, marginBottom: 3 }}>Starter</p>
-                  <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 600, color: MUTED }}>A gentle place to begin</p>
-                </div>
-                <div style={{ textAlign: 'right' }}>
-                  <span style={{ fontSize: '22px', fontWeight: 900, color: DARKER }}>{billing === 'annual' ? '$4' : '$7'}</span>
-                  <span style={{ fontSize: '13px', color: MUTED, fontWeight: 600 }}>/mo</span>
-                  {billing === 'annual' && (
-                    <p style={{ fontSize: '11px', color: MUTED, fontWeight: 600, marginTop: 2 }}>billed $48/yr</p>
-                  )}
-                </div>
-              </div>
-              <div style={{ marginBottom: 16 }}>
-                <PlanFeature text="Lumi chat (20 messages/day)" />
-                <PlanFeature text="Unlimited Brain Dump" />
-                <PlanFeature text="Daily mood check-in" />
-                <PlanFeature text="One Focus task" />
-              </div>
-              <button
-                onClick={() => handleUpgrade('starter')}
-                disabled={!!loading}
-                style={{
-                  width: '100%', padding: '14px', borderRadius: 12,
-                  background: `linear-gradient(135deg, ${GOLD}, ${PEACH})`,
-                  border: 'none', cursor: loading ? 'wait' : 'pointer',
-                  fontFamily: 'var(--font-nunito-sans)', fontSize: '15px',
-                  fontWeight: 800, color: DARKER,
-                  opacity: loading && loading !== 'starter' ? 0.6 : 1,
-                }}
-              >
-                {loading === 'starter' ? 'Redirecting…' : 'Start 7-day free trial'}
-              </button>
-            </div>
-          )}
-
           {/* Core upgrade card */}
-          {(currentPlan === 'free' || currentPlan === 'starter') && (
+          {currentPlan === 'free' && (
             <div style={{
               background: `linear-gradient(135deg, ${DARKER} 0%, ${DARK} 100%)`,
               borderRadius: 20, padding: '24px 20px',

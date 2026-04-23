@@ -4,11 +4,9 @@ import Stripe from 'stripe'
 import MeHeader from '../_components/MeHeader'
 import SubscriptionClient from './SubscriptionClient'
 
-type Plan = 'free' | 'starter' | 'core' | 'companion'
+type Plan = 'free' | 'core' | 'companion'
 
 const PRICE_TO_PLAN: Record<string, Plan> = {
-  [process.env.STRIPE_STARTER_MONTHLY_PRICE_ID ?? '']: 'starter',
-  [process.env.STRIPE_STARTER_ANNUAL_PRICE_ID   ?? '']: 'starter',
   [process.env.STRIPE_CORE_MONTHLY_PRICE_ID     ?? '']: 'core',
   [process.env.STRIPE_CORE_ANNUAL_PRICE_ID      ?? '']: 'core',
   [process.env.STRIPE_COMPANION_MONTHLY_PRICE_ID ?? '']: 'companion',
@@ -77,7 +75,7 @@ export default async function SubscriptionPage({
         .eq('clerk_user_id', userId)
         .single()
 
-      if (data && ['starter', 'core', 'companion'].includes(data.plan)) {
+      if (data && ['core', 'companion'].includes(data.plan)) {
         currentPlan = data.plan as Plan
       }
     }

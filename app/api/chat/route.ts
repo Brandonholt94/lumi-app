@@ -302,7 +302,8 @@ export async function POST(req: Request) {
   if (!userId) return new Response('Unauthorized', { status: 401 })
 
   // Client sends messages + lightweight context it owns (mood, focusTask)
-  let messages: ChatMessage[], clientContext: Record<string, unknown> | undefined
+  let messages: ChatMessage[]
+  let clientContext: { plan?: string; mood?: string; focusTask?: string; focusTaskCompleted?: boolean } | undefined
   try {
     const body = await req.json()
     messages = body.messages

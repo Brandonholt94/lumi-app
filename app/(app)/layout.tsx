@@ -2,6 +2,7 @@ import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import { createClient } from '@supabase/supabase-js'
 import NavBar from './_components/NavBar'
+import DesktopSidebar from './_components/DesktopSidebar'
 import SplashScreen from './_components/SplashScreen'
 import PageTransition from './_components/PageTransition'
 import { MoodProvider } from './_components/MoodContext'
@@ -35,14 +36,21 @@ export default async function AppLayout({
     <MoodProvider>
       <ActivityTracker />
       <LowBatteryOverlay />
-      <div className="h-dvh bg-[#FBF8F5] flex flex-col max-w-md mx-auto relative overflow-hidden">
-        <SplashScreen />
-        <TimezoneSync />
-        <NotificationBanner />
-        <main className="flex-1 min-h-0 flex flex-col overflow-hidden">
-          <PageTransition>{children}</PageTransition>
-        </main>
-        <NavBar />
+      {/* Full-viewport shell — desktop: sidebar + content side-by-side */}
+      <div className="h-dvh bg-[#FBF8F5] flex overflow-hidden">
+        {/* Sidebar — desktop only (hidden on mobile) */}
+        <DesktopSidebar />
+        {/* Content column — mobile: centered max-w-md; desktop: fills remaining space */}
+        <div className="flex-1 min-w-0 flex flex-col overflow-hidden max-w-md mx-auto md:max-w-none md:mx-0 relative">
+          <SplashScreen />
+          <TimezoneSync />
+          <NotificationBanner />
+          <main className="flex-1 min-h-0 flex flex-col overflow-hidden">
+            <PageTransition>{children}</PageTransition>
+          </main>
+          {/* Bottom nav — mobile only */}
+          <NavBar />
+        </div>
       </div>
     </MoodProvider>
   )

@@ -284,16 +284,23 @@ export default function ChatPage() {
         .lumi-input::placeholder { color: #B0ADBE; }
         .lumi-scroll::-webkit-scrollbar { display:none; }
         .lumi-scroll { -ms-overflow-style:none; scrollbar-width:none; }
+        /* Mobile: extra padding for bottom nav bar; desktop: just safe area + small gap */
+        .input-bar-pad { padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 96px + 12px); }
+        @media (min-width: 768px) {
+          .input-bar-pad { padding-bottom: 16px; }
+        }
       `}</style>
 
       <div
-        className="fixed z-40 flex flex-col"
+        className="flex flex-col"
         style={{
-          top: 0, bottom: 0, left: 0, right: 0,
-          maxWidth: '28rem',
+          flex: 1,
+          minHeight: 0,
+          height: '100%',
+          maxWidth: '32rem',
           marginLeft: 'auto',
           marginRight: 'auto',
-          height: '100dvh',
+          width: '100%',
           background: 'radial-gradient(ellipse 90% 55% at 70% 45%, rgba(244,165,130,0.24) 0%, rgba(245,201,138,0.12) 50%, #FBF8F5 78%)',
         }}
       >
@@ -528,9 +535,8 @@ export default function ChatPage() {
 
         {/* ── INPUT BAR ── */}
         <div
-          className="flex-shrink-0 px-4 pt-3"
+          className="flex-shrink-0 px-4 pt-3 input-bar-pad"
           style={{
-            paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 96px + 12px)',
             background: '#FBF8F5',
             borderTop: '1px solid rgba(45,42,62,0.07)',
           }}

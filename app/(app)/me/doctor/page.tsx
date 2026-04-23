@@ -32,7 +32,7 @@ export default function DoctorReportPage() {
           doctor_name:  d.doctor_name  ?? '',
           doctor_email: d.doctor_email ?? '',
         })
-        setPlan(d.plan ?? 'core')
+        setPlan((d.plan ?? 'core').toLowerCase())
         setLoading(false)
       })
       .catch(() => setLoading(false))

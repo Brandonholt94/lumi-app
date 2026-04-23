@@ -345,25 +345,9 @@ export async function POST(req: Request) {
   }
 
   // ── Plan-based feature gates ───────────────────────────────
-  const plan = (userContext.plan ?? 'free') as string
-  const isStarter = plan === 'free'
-  const isCompanion = plan === 'companion'
-
-  // Starter/Free: strip sleep context — Core+ only
-  if (isStarter) {
-    userContext.sleepLastNight = null
-  }
-
-  // Starter/Free: enforce 20 messages/day
-  if (isStarter) {
-    const userMsgCount = (messages as ChatMessage[]).filter(m => m.role === 'user').length
-    if (userMsgCount > 20) {
-      return new Response(
-        JSON.stringify({ error: 'Daily message limit reached', limitReached: true }),
-        { status: 429, headers: { 'Content-Type': 'application/json' } }
-      )
-    }
-  }
+  // Plans: core (default) | companion. Starter plan has been retired.
+  const plan = (userContext.plan ?? 'core') as string
+  const isCompanion = plan.toLowerCase() === 'companion'
 
   // ── Context summarization ─────────────────────────────────
   // Compress old messages when history grows long to control token costs

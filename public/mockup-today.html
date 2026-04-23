@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lumi — Today Page Mockup v2</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;500;600;700;800&family=Quicksand:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+
+  body {
+    background: #1a1828;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding: 48px 32px 80px;
+    gap: 52px;
+    flex-wrap: wrap;
+  }
+
+  .variant-wrap { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  .variant-label {
+    font-family: 'Nunito Sans', sans-serif;
+    font-size: 11px; font-weight: 700;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 0.1em;
+    text-align: center;
+  }
+
+  /* ── Phone shell ── */
+  .phone {
+    width: 393px;
+    background: #FBF8F5;
+    border-radius: 54px;
+    overflow: hidden;
+    box-shadow:
+      0 0 0 11px #2a2740,
+      0 0 0 13px #3a3756,
+      0 48px 96px rgba(0,0,0,0.65);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 852px;
+  }
+
+  /* Dynamic Island */
+  .island {
+    position: absolute;
+    top: 12px; left: 50%;
+    transform: translateX(-50%);
+    width: 120px; height: 34px;
+    background: #0d0c18;
+    border-radius: 20px;
+    z-index: 20;
+  }
+
+  /* Status bar */
+  .status {
+    height: 54px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 0 28px 10px;
+    position: relative;
+    z-index: 5;
+    flex-shrink: 0;
+  }
+  .status-time {
+    font-family: 'Nunito Sans', sans-serif;
+    font-size: 15px; font-weight: 800;
+  }
+  .status-icons { display: flex; align-items: center; gap: 5px; }
+
+  /* ── Sky scene ── */
+  .sky-scene {
+    width: 100%;
+    height: 138px;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .sky-scene svg { display: block; width: 100%; height: 100%; }
+
+  /* Beige dome */
+  .dome {
+    background: #FBF8F5;
+    border-radius: 50% 50% 0 0 / 28px 28px 0 0;
+    margin-top: -28px;
+    padding: 40px 22px 0;
+    position: relative;
+    z-index: 2;
+    flex-shrink: 0;
+  }
+  .greeting-name {
+    font-family: 'Nunito Sans', sans-serif;
+    font-size: 27px; font-weight: 900;
+    color: #1E1C2E;
+    line-height: 1.1;
+    margin-bottom: 3px;
+    letter-spacing: -0.3px;
+  }
+  .greeting-name span {
+    background: linear-gradient(90deg, #F4A582, #F5C98A, #8FAAE0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .greeting-sub {
+    font-family: 'Nunito Sans', sans-serif;
+    font-size: 12px; font-weight: 500;
+    color: #9895B0;
+  }
+
+  /* ── Scrollable body ── */
+  .body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 22px 100px;
+    scrollbar-width: none;
+  }
+  .body::-webkit-scrollbar { display: none; }
+
+  /* Section header */
+  .sh {
+    font-family: 'Nunito Sans', sans-serif;
+    font-size: 10px; font-weight: 800;
+    letter-spacing: 0.11em;
+    color: #9895B0;
+    margin-bottom: 9px;
+  }
+
+  /* ── Mood selector — expanded ── */
+  .mood-card {
+    border-radius: 18px;
+    border: 1.5px solid rgba(45,42,62,0.08);
+    background: white;
+    padding: 14px 12px 12px;
+    margin-bottom: 18px;
+  }
+  .mood-prompt {
+    font-family: 'Nunito Sans', sans-serif;
+    font-size: 11px; font-weight: 700;
+    color: #9895B0;
+    text-align: center;
+    margin-bottom: 12px;
+    letter-spacing: 0.03em;
+  }
+  .mood-chips { display: flex; gap: 5px; }
+  .mood-chip {
+    flex: 1;
+    display: flex; flex-direction: column;
+    align-items: center; gap: 6px;
+    padding: 10px 3px 8px;
+    border-radius: 14px;
+    border: 1.5px solid transparent;
+    background: transparent;
+    cursor: pointer;
+  }
+  .mood-chip.sel { border-color: rgba(200,160,48,0.34); background: rgba(245,201,138,0.18); }
+  .mood-icon { display: flex; align-items: center; justify-content: center; }
+  .mood-label {
+    font-family: 'Nunito Sans', sans-serif;
+    font-size: 9px; font-weight: 800;
+    color: rgba(45,42,62,0.28);
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+  }
+  .mood-chip.sel .mood-label { color: #C8A030; }
+
+  /* Mood collapsed pill */
+  .mood-pill {
+    display: flex; align-items: center; gap: 10px;
+    padding: 11px 14px;
+    border-radius: 14px;
+    border: 1.5px solid rgba(200,160,48,0.27);
+    background: rgba(245,201,138,0.18);
+    margin-bottom: 18px;
+    cursor: pointer;
+  }
+  .mood-pill-label {
+    font-family: 'Nunito Sans', sans-serif;
+    font-size: 13px; font-weight: 800;
+    color: #C8A030; flex: 1;
+  }
+  .mood-pill-change {
+    font-family: 'Nunito Sans', sans-serif;
+    font-size: 11px; font-weight: 500;
+    color: rgba(200,160,48,0.5);
+  }
+
+  /* ── Timeline ── */
+  .timeline-card {
+    background: white;
+    border-radius: 20px;
+    border: 1px solid rgba(45,42,62,0.07);
+    overflow: hidden;
+    margin-bottom: 18px;
+  }
+  .tl-row {
+    display: flex;
+    align-items: stretch;
+    position: relative;
+  }
+  .tl-time {
+    width: 50px; flex-shrink: 0;
+    padding: 13px 7px 13px 14px;
+    font-family: 'Nunito Sans', sans-serif;
+    font-size: 10px; font-weight: 700;
+    color: #C5C2D4;
+    line-height: 1;
+  }
+  .tl-line {
+    width: 1px;
+    background: rgba(45,42,62,0.055);
+    flex-shrink: 0;
+    align-self: stretch;
+  }
+  .tl-content {
+    flex: 1;
+    padding: 8px 12px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+  .ev {
+    width: 100%;
+    border-radius: 10px;
+    padding: 8px 11px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .ev-cal   { background: rgba(143,170,224,0.12); border-left: 3px solid #8FAAE0; }
+  .ev-focus { background: rgba(244,165,130,0.12); border-left: 3px solid #F4A582; }
+  .ev-done  { background: rgba(99,190,123,0.09);  border-left: 3px solid #63BE7B; }
+  .ev-free  { background: rgba(245,201,138,0.09);  border: 1.5px dashed rgba(245,201,138,0.45); }
+  .ev-title {
+    font-family: 'Nunito Sans', sans-serif;
+    font-size: 12px; font-weight: 700;
+    color: #2D2A3E;
+  }
+  .ev-sub {
+    font-family: 'Nunito Sans', sans-serif;
+    font-size: 10px; font-weight: 500;
+    color: #9895B0; margin-top: 1px;
+  }
+  .ev-dur {
+    font-family: 'Nunito Sans', sans-serif;
+    font-size: 10px; font-weight: 700;
+    color: #9895B0; white-space: nowrap;
+  }
+  /* Now line */
+  .tl-now {
+    display: flex; align-items: center;
+    margin: 0 12px 0 0;
+  }
+  .tl-now-lbl {
+    width: 50px; flex-shrink: 0;
+    padding: 0 7px 0 14px;
+    font-family: 'Nunito Sans', sans-serif;
+    font-size: 10px; font-weight: 800;
+    color: #F4A582;
+  }
+  .tl-now-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%; background: #F4A582;
+    flex-shrink: 0; position: relative; left: -4px;
+  }
+  .tl-now-bar { flex: 1; height: 1.5px; background: #F4A582; opacity: 0.55; }
+
+  /* Morning anchors */
+  .anch-row { display: flex; gap: 6px; align-items: center; }
+  .anch-tag {
+    display: flex; align-items: center; gap: 4px;
+    background: rgba(99,190,123,0.1);
+    border: 1px solid rgba(99,190,123,0.22);
+    border-radius: 8px; padding: 4px 9px;
+    font-family: 'Nunito Sans', sans-serif;
+    font-size: 10px; font-weight: 700;
+    color: #3DA85A;
+  }
+
+  /* ── One Focus ── */
+  .focus-card {
+    background: linear-gradient(135deg, rgba(244,165,130,0.13), rgba(245,201,138,0.13));
+    border: 1.5px solid rgba(244,165,130,0.24);
+    border-radius: 20px;
+    padding: 16px 18px;
+    margin-bottom: 18px;
+  }
+  .focus-eye {
+    font-family: 'Nunito Sans', sans-serif;
+    font-size: 10px; font-weight: 800;
+    letter-spacing: 0.1em;
+    color: #F4A582; margin-bottom: 6px;
+  }
+  .focus-task {
+    font-family: 'Nunito Sans', sans-serif;
+    font-size: 19px; font-weight: 900;
+    color: #1E1C2E; margin-bottom: 14px;
+    line-height: 1.25;
+  }
+  .focus-btns { display: flex; gap: 8px; }
+  .focus-btn {
+    display: flex; align-items: center; gap: 6px;
+    padding: 9px 16px; border-radius: 11px;
+    font-family: 'Nunito Sans', sans-serif;
+    font-size: 12px; font-weight: 800;
+    border: none; cursor: pointer;
+  }
+  .focus-btn-primary { background: linear-gradient(135deg,#F4A582,#F5C98A); color: #1E1C2E; flex: 1; }
+  .focus-btn-sec { background: white; color: #9895B0; border: 1.5px solid rgba(45,42,62,0.1); }
+
+  /* ── Habits ── */
+  .habits-card {
+    background: white;
+    border-radius: 20px;
+    border: 1px solid rgba(45,42,62,0.07);
+    overflow: hidden;
+    margin-bottom: 18px;
+  }
+  .habit-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 13px 16px;
+    border-bottom: 1px solid rgba(45,42,62,0.05);
+  }
+  .habit-row:last-child { border-bottom: none; }
+  .hcheck {
+    width: 22px; height: 22px;
+    border-radius: 7px;
+    border: 2px solid rgba(45,42,62,0.14);
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .hcheck.done { background: #63BE7B; border-color: #63BE7B; }
+  .hcheck.done::after {
+    content: '✓'; color: white;
+    font-size: 12px; font-weight: 900;
+    font-family: 'Nunito Sans', sans-serif;
+  }
+  .htext {
+    font-family: 'Nunito Sans', sans-serif;
+    font-size: 13px; font-weight: 700;
+    color: #2D2A3E; flex: 1;
+  }
+  .htext.done { color: #B8B5C8; text-decoration: line-through; }
+  .hstreak {
+    font-family: 'Nunito Sans', sans-serif;
+    font-size: 11px; font-weight: 700;
+    color: #C5C2D4;
+  }
+  .hstreak.active { color: #F5C98A; }
+
+  /* ── Lumi callout ── */
+  .lumi-card {
+    background: linear-gradient(135deg, #2D2A3E, #382e50);
+    border-radius: 20px;
+    padding: 16px 18px;
+    display: flex; gap: 13px; align-items: center;
+    margin-bottom: 18px;
+    text-decoration: none;
+  }
+  .lumi-av {
+    width: 38px; height: 38px;
+    border-radius: 11px;
+    background: linear-gradient(135deg, #F4A582, #E8A0BF);
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+  .lumi-msg-text {
+    font-family: 'Quicksand', sans-serif;
+    font-size: 13px; font-weight: 600;
+    color: rgba(255,255,255,0.92);
+    line-height: 1.45;
+  }
+  .lumi-cta {
+    font-family: 'Nunito Sans', sans-serif;
+    font-size: 11px; font-weight: 800;
+    color: #F4A582; margin-top: 6px;
+  }
+
+  /* ── Quick actions (exact current style) ── */
+  .qa-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 12px; margin-bottom: 12px;
+  }
+  .qa-card {
+    display: flex; flex-direction: column; align-items: flex-start;
+    padding: 16px 14px 14px;
+    border-radius: 20px;
+    text-decoration: none;
+  }
+  .qa-gold { background: rgba(245,201,138,0.16); border: 1.5px solid rgba(245,201,138,0.36); }
+  .qa-pink { background: rgba(232,160,191,0.14); border: 1.5px solid rgba(232,160,191,0.34); }
+  .qa-icon {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 12px;
+  }
+  .qa-icon-gold { background: rgba(245,201,138,0.22); }
+  .qa-icon-pink { background: rgba(232,160,191,0.20); }
+  .qa-title {
+    font-family: 'Nunito Sans', sans-serif;
+    font-size: 16px; font-weight: 900;
+    color: #1E1C2E; margin-bottom: 2px; line-height: 1.2;
+  }
+  .qa-sub {
+    font-family: 'Nunito Sans', sans-serif;
+    font-size: 11px; font-weight: 500; color: #9895B0;
+  }
+
+  /* Talk to Lumi card */
+  .lumi-qa {
+    display: flex; align-items: center;
+    padding: 16px 18px; gap: 16px;
+    background: linear-gradient(135deg,rgba(244,165,130,0.18),rgba(245,201,138,0.14));
+    border: 1.5px solid rgba(244,165,130,0.30);
+    border-radius: 20px;
+    text-decoration: none;
+    margin-bottom: 4px;
+  }
+  .lumi-qa-icon {
+    width: 48px; height: 48px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #F4A582, #F5C98A);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .lumi-qa-title {
+    font-family: 'Nunito Sans', sans-serif;
+    font-size: 17px; font-weight: 900;
+    color: #1E1C2E; margin-bottom: 2px; line-height: 1.2;
+  }
+  .lumi-qa-sub {
+    font-family: 'Nunito Sans', sans-serif;
+    font-size: 12px; font-weight: 500; color: #9895B0;
+  }
+
+  /* ── Bottom nav ── */
+  .nav {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 84px;
+    background: rgba(251,248,245,0.97);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid rgba(45,42,62,0.07);
+    display: flex; align-items: flex-start;
+    padding: 10px 6px 0;
+    z-index: 10;
+  }
+  .nav-item {
+    flex: 1; display: flex;
+    flex-direction: column; align-items: center;
+    gap: 4px; padding: 4px 0;
+    cursor: pointer; position: relative;
+  }
+  .nav-lbl {
+    font-family: 'Nunito Sans', sans-serif;
+    font-size: 10px; font-weight: 700; color: #C5C2D4;
+  }
+  .nav-item.active .nav-lbl { color: #F4A582; }
+  .nav-dot {
+    width: 4px; height: 4px;
+    border-radius: 50%; background: #F4A582;
+    position: absolute; bottom: -2px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ PHONE 1 — Afternoon, mood selected, task in progress ═══════════════ -->
+<div class="variant-wrap">
+  <div class="variant-label">AFTERNOON STATE · MOOD SELECTED</div>
+  <div class="phone">
+    <div class="island"></div>
+
+    <!-- Status — text colour matches sky -->
+    <div class="status" style="color:#7EC5F0;">
+      <span class="status-time" style="color:#f0f4ff;">2:15</span>
+      <div class="status-icons">
+        <!-- signal -->
+        <svg width="17" height="12" viewBox="0 0 17 12" fill="none">
+          <rect x="0" y="3" width="3" height="9" rx="1" fill="white" opacity="0.9"/>
+          <rect x="4.5" y="1.5" width="3" height="10.5" rx="1" fill="white" opacity="0.9"/>
+          <rect x="9" y="0" width="3" height="12" rx="1" fill="white" opacity="0.9"/>
+          <rect x="13.5" y="0" width="3" height="12" rx="1" fill="white" opacity="0.3"/>
+        </svg>
+        <!-- wifi -->
+        <svg width="16" height="12" viewBox="0 0 20 14" fill="none">
+          <path d="M10 3C13.2 3 16.1 4.3 18.2 6.5L19.5 5.1C17 2.5 13.7 1 10 1C6.3 1 3 2.5 0.5 5.1L1.8 6.5C3.9 4.3 6.8 3 10 3Z" fill="white" opacity="0.9"/>
+          <path d="M10 7C12 7 13.8 7.8 15.1 9.1L16.4 7.7C14.8 6.1 12.5 5 10 5C7.5 5 5.2 6.1 3.6 7.7L4.9 9.1C6.2 7.8 8 7 10 7Z" fill="white" opacity="0.9"/>
+          <circle cx="10" cy="12" r="2" fill="white" opacity="0.9"/>
+        </svg>
+        <!-- battery -->
+        <svg width="26" height="12" viewBox="0 0 26 12" fill="none">
+          <rect x="0.5" y="0.5" width="22" height="11" rx="3.5" stroke="white" stroke-opacity="0.45"/>
+          <rect x="2" y="2" width="16" height="8" rx="2" fill="white" opacity="0.9"/>
+          <path d="M24 4.5V7.5C24.8 7.2 25.5 6.4 25.5 6C25.5 5.6 24.8 4.8 24 4.5Z" fill="white" opacity="0.4"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Sky scene — afternoon -->
+    <div class="sky-scene">
+      <svg viewBox="0 0 393 180" preserveAspectRatio="xMidYMin slice">
+        <defs>
+          <linearGradient id="sky1" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%"   stop-color="#1473C8"/>
+            <stop offset="35%"  stop-color="#3D9BE0"/>
+            <stop offset="58%"  stop-color="#7EC5F0"/>
+            <stop offset="70%"  stop-color="#C8E8F5"/>
+            <stop offset="76%"  stop-color="#EEF2D8"/>
+            <stop offset="100%" stop-color="#F5F0C8"/>
+          </linearGradient>
+          <radialGradient id="sun1" cx="50%" cy="50%" r="50%">
+            <stop offset="0%"   stop-color="#FFFDE7" stop-opacity="1"/>
+            <stop offset="30%"  stop-color="#FFE082" stop-opacity="0.55"/>
+            <stop offset="100%" stop-color="#FFC107" stop-opacity="0"/>
+          </radialGradient>
+          <filter id="cb" x="-40%" y="-80%" width="180%" height="260%">
+            <feGaussianBlur stdDeviation="0.7"/>
+          </filter>
+        </defs>
+        <rect width="393" height="180" fill="url(#sky1)"/>
+        <!-- Sun upper right -->
+        <g transform="translate(308,34)">
+          <circle cx="0" cy="0" r="36" fill="url(#sun1)"/>
+          <line x1="19" y1="0"  x2="27" y2="0"  stroke="#FFD600" stroke-width="2.5" stroke-linecap="round" stroke-opacity="0.85"/>
+          <line x1="-19" y1="0" x2="-27" y2="0" stroke="#FFD600" stroke-width="2.5" stroke-linecap="round" stroke-opacity="0.85"/>
+          <line x1="0" y1="19"  x2="0" y2="27"  stroke="#FFD600" stroke-width="2.5" stroke-linecap="round" stroke-opacity="0.85"/>
+          <line x1="0" y1="-19" x2="0" y2="-27" stroke="#FFD600" stroke-width="2.5" stroke-linecap="round" stroke-opacity="0.85"/>
+          <line x1="13.5" y1="13.5" x2="19" y2="19" stroke="#FFD600" stroke-width="2.5" stroke-linecap="round" stroke-opacity="0.85"/>
+          <line x1="-13.5" y1="13.5" x2="-19" y2="19" stroke="#FFD600" stroke-width="2.5" stroke-linecap="round" stroke-opacity="0.85"/>
+          <line x1="13.5" y1="-13.5" x2="19" y2="-19" stroke="#FFD600" stroke-width="2.5" stroke-linecap="round" stroke-opacity="0.85"/>
+          <line x1="-13.5" y1="-13.5" x2="-19" y2="-19" stroke="#FFD600" stroke-width="2.5" stroke-linecap="round" stroke-opacity="0.85"/>
+          <circle cx="0" cy="0" r="13" fill="#FFF9C4"/>
+          <circle cx="0" cy="0" r="10" fill="#FFE040"/>
+        </g>
+        <!-- Clouds -->
+        <g transform="translate(-8,100)" filter="url(#cb)" opacity="0.96">
+          <g transform="scale(1.3)">
+            <circle cx="0" cy="0" r="22" fill="#DCF0FF"/>
+            <circle cx="26" cy="-14" r="28" fill="#DCF0FF"/>
+            <circle cx="60" cy="-10" r="24" fill="#DCF0FF"/>
+            <circle cx="88" cy="-4"  r="19" fill="#DCF0FF"/>
+            <circle cx="-18" cy="6"  r="18" fill="#DCF0FF"/>
+            <circle cx="112" cy="4"  r="16" fill="#DCF0FF"/>
+            <rect x="-18" y="0" width="130" height="30" fill="#DCF0FF" rx="4"/>
+          </g>
+        </g>
+        <g transform="translate(312,103)" filter="url(#cb)" opacity="0.93">
+          <g transform="scale(1.1)">
+            <circle cx="0" cy="0" r="22" fill="#DCF0FF"/>
+            <circle cx="26" cy="-14" r="28" fill="#DCF0FF"/>
+            <circle cx="60" cy="-10" r="24" fill="#DCF0FF"/>
+            <circle cx="88" cy="-4"  r="19" fill="#DCF0FF"/>
+            <circle cx="-18" cy="6"  r="18" fill="#DCF0FF"/>
+            <circle cx="112" cy="4"  r="16" fill="#DCF0FF"/>
+            <rect x="-18" y="0" width="130" height="30" fill="#DCF0FF" rx="4"/>
+          </g>
+        </g>
+      </svg>
+    </div>
+
+    <!-- Dome + greeting -->
+    <div class="dome">
+      <div class="greeting-name">Afternoon, <span>Brandon.</span></div>
+      <div class="greeting-sub">Tuesday, April 22 · Let's find your one thing.</div>
+    </div>
+
+    <!-- Body -->
+    <div class="body">
+
+      <!-- HOW'S YOUR BRAIN TODAY? -->
+      <div class="sh" style="margin-top:4px;">HOW'S YOUR BRAIN TODAY?</div>
+
+      <!-- Mood — collapsed (already checked in) -->
+      <div class="mood-pill">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="color:#C8A030;flex-shrink:0">
+          <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.8"/>
+          <path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M17.66 6.34l-1.41 1.41M6.34 17.66l-1.41 1.41" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+        <span class="mood-pill-label">Okay</span>
+        <span class="mood-pill-change">Change</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="color:rgba(200,160,48,0.5)">
+          <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+
+      <!-- YOUR DAY -->
+      <div class="sh">YOUR DAY</div>
+      <div class="timeline-card">
+
+        <!-- 8am anchors -->
+        <div class="tl-row">
+          <div class="tl-time">8 AM</div>
+          <div class="tl-line"></div>
+          <div class="tl-content" style="padding:10px 12px;">
+            <div class="anch-row">
+              <div class="anch-tag">✓ Coffee</div>
+              <div class="anch-tag">✓ Meds</div>
+              <div class="anch-tag">✓ Open Lumi</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 10am standup (done) -->
+        <div class="tl-row">
+          <div class="tl-time">10 AM</div>
+          <div class="tl-line"></div>
+          <div class="tl-content">
+            <div class="ev ev-done">
+              <div>
+                <div class="ev-title">Team standup</div>
+                <div class="ev-sub">Google Calendar</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;">
+                <span class="ev-dur">30m</span>
+                <span style="color:#3DA85A;font-size:13px;font-weight:900;">✓</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 11am One Focus in progress -->
+        <div class="tl-row">
+          <div class="tl-time">11 AM</div>
+          <div class="tl-line"></div>
+          <div class="tl-content">
+            <div class="ev ev-focus">
+              <div>
+                <div class="ev-title">Clean the house</div>
+                <div class="ev-sub">One Focus · in progress</div>
+              </div>
+              <span class="ev-dur">3h</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- NOW line -->
+        <div class="tl-now">
+          <div class="tl-now-lbl">Now</div>
+          <div class="tl-now-dot"></div>
+          <div class="tl-now-bar"></div>
+        </div>
+
+        <!-- 2:30 calendar event -->
+        <div class="tl-row">
+          <div class="tl-time">2:30</div>
+          <div class="tl-line"></div>
+          <div class="tl-content">
+            <div class="ev ev-cal">
+              <div>
+                <div class="ev-title">1:1 with manager</div>
+                <div class="ev-sub">Outlook · in 15 min</div>
+              </div>
+              <span class="ev-dur">60m</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4pm free window -->
+        <div class="tl-row">
+          <div class="tl-time">4 PM</div>
+          <div class="tl-line"></div>
+          <div class="tl-content">
+            <div class="ev ev-free">
+              <div>
+                <div class="ev-title" style="color:#9895B0;font-weight:600;">Free · 2 hours</div>
+                <div class="ev-sub">Good window for deep work</div>
+              </div>
+              <span style="font-size:13px;color:#C5C2D4;">✦</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Evening -->
+        <div class="tl-row">
+          <div class="tl-time">7 PM</div>
+          <div class="tl-line"></div>
+          <div class="tl-content">
+            <span style="font-family:'Nunito Sans',sans-serif;font-size:11px;font-weight:600;color:#D0CDD8;">Evening wind-down</span>
+          </div>
+        </div>
+
+      </div><!-- /timeline -->
+
+      <!-- ONE FOCUS -->
+      <div class="sh">ONE FOCUS</div>
+      <div class="focus-card">
+        <div class="focus-eye">TODAY'S FOCUS</div>
+        <div class="focus-task">Clean the house 🏠</div>
+        <div class="focus-btns">
+          <button class="focus-btn focus-btn-primary">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none"><polygon points="5,3 19,12 5,21" fill="#1E1C2E"/></svg>
+            Start Focus
+          </button>
+          <button class="focus-btn focus-btn-sec">✓ Done</button>
+        </div>
+      </div>
+
+      <!-- TODAY'S HABITS -->
+      <div class="sh">TODAY'S HABITS</div>
+      <div class="habits-card">
+        <div class="habit-row">
+          <div class="hcheck done"></div>
+          <span class="htext done">Take medications</span>
+          <span class="hstreak active">🔥 12d</span>
+        </div>
+        <div class="habit-row">
+          <div class="hcheck"></div>
+          <span class="htext">Drink water</span>
+          <span class="hstreak">5d</span>
+        </div>
+        <div class="habit-row">
+          <div class="hcheck"></div>
+          <span class="htext">10 min walk</span>
+          <span class="hstreak">2d</span>
+        </div>
+      </div>
+
+      <!-- LUMI proactive card -->
+      <div class="sh">LUMI</div>
+      <div class="lumi-card">
+        <div class="lumi-av">✦</div>
+        <div>
+          <div class="lumi-msg-text">Hey Brandon — your 1:1 is in 15 minutes. How's the house cleaning going?</div>
+          <div class="lumi-cta">Reply to Lumi →</div>
+        </div>
+      </div>
+
+      <!-- QUICK ACTIONS -->
+      <div class="sh">QUICK ACTIONS</div>
+      <div class="qa-grid">
+        <div class="qa-card qa-gold">
+          <div class="qa-icon qa-icon-gold">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="13.5" r="7.5" stroke="#C49820" stroke-width="1.8"/>
+              <path d="M12 10V13.8L14.2 15.2" stroke="#C49820" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M9.5 3H14.5" stroke="#C49820" stroke-width="1.8" stroke-linecap="round"/>
+              <path d="M12 3V5.5" stroke="#C49820" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <span class="qa-title">Focus</span>
+          <span class="qa-sub">Start a session</span>
+        </div>
+        <div class="qa-card qa-pink">
+          <div class="qa-icon qa-icon-pink">
+            <svg width="26" height="26" viewBox="0 0 256 256">
+              <path fill="#B86090" d="M248,124a56.11,56.11,0,0,0-32-50.61V72a48,48,0,0,0-88-26.49A48,48,0,0,0,40,72v1.39a56,56,0,0,0,0,101.2V176a48,48,0,0,0,88,26.49A48,48,0,0,0,216,176v-1.41A56.09,56.09,0,0,0,248,124ZM88,208a32,32,0,0,1-31.81-28.56A55.87,55.87,0,0,0,64,180h8a8,8,0,0,0,0-16H64A40,40,0,0,1,50.67,86.27,8,8,0,0,0,56,78.73V72a32,32,0,0,1,64,0v68.26A47.8,47.8,0,0,0,88,128a8,8,0,0,0,0,16,32,32,0,0,1,0,64Zm104-44h-8a8,8,0,0,0,0,16h8a55.87,55.87,0,0,0,7.81-.56A32,32,0,1,1,168,144a8,8,0,0,0,0-16,47.8,47.8,0,0,0-32,12.26V72a32,32,0,0,1,64,0v6.73a8,8,0,0,0,5.33,7.54A40,40,0,0,1,192,164Z"/>
+            </svg>
+          </div>
+          <span class="qa-title">Brain Dump</span>
+          <span class="qa-sub">Clear your head</span>
+        </div>
+      </div>
+
+      <div class="lumi-qa">
+        <div class="lumi-qa-icon">
+          <svg width="28" height="25" viewBox="0 0 166.9 151.3" fill="none">
+            <circle cx="83.8" cy="91" r="37.5" fill="white"/>
+            <rect x="37.7" y="30.8" width="12.3" height="27.8" rx="4.9" transform="translate(-18.5 38.7) rotate(-40)" fill="white"/>
+            <rect x="77.6" y="10.4" width="12.3" height="33.9" rx="4.9" fill="white"/>
+            <rect x="14.9" y="61.5" width="13.2" height="24.7" rx="5.2" transform="translate(-55.4 74.1) rotate(-74)" fill="white"/>
+            <rect x="132.6" y="67.3" width="24.7" height="13.2" rx="5.2" transform="translate(-14.7 42.8) rotate(-16)" fill="white"/>
+            <rect x="108.6" y="38.6" width="27.8" height="12.3" rx="4.9" transform="translate(9.5 109.8) rotate(-50)" fill="white"/>
+            <rect x="10" y="133.4" width="147.6" height="7.9" rx="3.1" fill="white" opacity="0.75"/>
+          </svg>
+        </div>
+        <div style="flex:1;">
+          <div class="lumi-qa-title">Talk to Lumi</div>
+          <div class="lumi-qa-sub">167 hours a week — whenever you need</div>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="flex-shrink:0">
+          <path d="M9 18l6-6-6-6" stroke="rgba(244,165,130,0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+
+    </div><!-- /body -->
+
+    <!-- Nav -->
+    <div class="nav">
+      <div class="nav-item active">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="9" stroke="#F4A582" stroke-width="2"/>
+          <path d="M12 7v5l3 2" stroke="#F4A582" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <span class="nav-lbl" style="color:#F4A582;">Today</span>
+        <div class="nav-dot"></div>
+      </div>
+      <div class="nav-item">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <polygon points="5,3 19,12 5,21" stroke="#C5C2D4" stroke-width="2" fill="none" stroke-linejoin="round"/>
+        </svg>
+        <span class="nav-lbl">Focus</span>
+      </div>
+      <div class="nav-item">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M12 5v14M5 12h14" stroke="#C5C2D4" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+        <span class="nav-lbl">Capture</span>
+      </div>
+      <div class="nav-item">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M3 17L9 11L13 15L21 7" stroke="#C5C2D4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="nav-lbl">Insights</span>
+      </div>
+      <div class="nav-item">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="8" r="4" stroke="#C5C2D4" stroke-width="2"/>
+          <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="#C5C2D4" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <span class="nav-lbl">Me</span>
+      </div>
+    </div>
+
+  </div><!-- /phone -->
+</div>
+
+
+<!-- ═══════════════ PHONE 2 — Morning, mood expanded (not yet selected) ═══════════════ -->
+<div class="variant-wrap">
+  <div class="variant-label">MORNING STATE · MOOD NOT YET SELECTED</div>
+  <div class="phone">
+    <div class="island"></div>
+
+    <div class="status" style="color:#FFBB4A;">
+      <span class="status-time" style="color:#FFE4A0;">8:30</span>
+      <div class="status-icons">
+        <svg width="17" height="12" viewBox="0 0 17 12" fill="none">
+          <rect x="0" y="3" width="3" height="9" rx="1" fill="white" opacity="0.9"/>
+          <rect x="4.5" y="1.5" width="3" height="10.5" rx="1" fill="white" opacity="0.9"/>
+          <rect x="9" y="0" width="3" height="12" rx="1" fill="white" opacity="0.9"/>
+          <rect x="13.5" y="0" width="3" height="12" rx="1" fill="white" opacity="0.3"/>
+        </svg>
+        <svg width="26" height="12" viewBox="0 0 26 12" fill="none">
+          <rect x="0.5" y="0.5" width="22" height="11" rx="3.5" stroke="white" stroke-opacity="0.45"/>
+          <rect x="2" y="2" width="16" height="8" rx="2" fill="white" opacity="0.9"/>
+          <path d="M24 4.5V7.5C24.8 7.2 25.5 6.4 25.5 6C25.5 5.6 24.8 4.8 24 4.5Z" fill="white" opacity="0.4"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Morning sky -->
+    <div class="sky-scene">
+      <svg viewBox="0 0 393 180" preserveAspectRatio="xMidYMin slice">
+        <defs>
+          <linearGradient id="sky2" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%"   stop-color="#0D1E38"/>
+            <stop offset="25%"  stop-color="#1C3A6E"/>
+            <stop offset="50%"  stop-color="#6B3525"/>
+            <stop offset="66%"  stop-color="#C85A20"/>
+            <stop offset="78%"  stop-color="#F08A3A"/>
+            <stop offset="100%" stop-color="#FFBB4A"/>
+          </linearGradient>
+          <radialGradient id="hglow2" cx="50%" cy="100%" r="72%">
+            <stop offset="0%"   stop-color="#FFBA4D" stop-opacity="0.70"/>
+            <stop offset="32%"  stop-color="#F07030" stop-opacity="0.35"/>
+            <stop offset="100%" stop-color="#C84010" stop-opacity="0"/>
+          </radialGradient>
+          <radialGradient id="sorb2" cx="50%" cy="50%" r="50%">
+            <stop offset="0%"   stop-color="#FFF4B0" stop-opacity="0.95"/>
+            <stop offset="18%"  stop-color="#FFD84A" stop-opacity="0.70"/>
+            <stop offset="45%"  stop-color="#FF8C20" stop-opacity="0.32"/>
+            <stop offset="100%" stop-color="#FF5500" stop-opacity="0"/>
+          </radialGradient>
+          <filter id="cb2" x="-40%" y="-80%" width="180%" height="260%">
+            <feGaussianBlur stdDeviation="0.7"/>
+          </filter>
+        </defs>
+        <rect width="393" height="180" fill="url(#sky2)"/>
+        <ellipse cx="196" cy="145" rx="240" ry="105" fill="url(#hglow2)"/>
+        <circle cx="210" cy="100" r="90" fill="url(#sorb2)"/>
+        <!-- Clouds -->
+        <g transform="translate(30,80)" filter="url(#cb2)" opacity="0.70">
+          <g transform="scale(0.9)">
+            <circle cx="0" cy="0" r="22" fill="#FFCCA0"/>
+            <circle cx="26" cy="-14" r="28" fill="#FFCCA0"/>
+            <circle cx="60" cy="-10" r="24" fill="#FFCCA0"/>
+            <circle cx="88" cy="-4"  r="19" fill="#FFCCA0"/>
+            <circle cx="-18" cy="6"  r="18" fill="#FFCCA0"/>
+            <rect x="-18" y="0" width="110" height="28" fill="#FFCCA0" rx="4"/>
+          </g>
+        </g>
+        <g transform="translate(268,86)" filter="url(#cb2)" opacity="0.55">
+          <g transform="scale(0.75)">
+            <circle cx="0" cy="0" r="22" fill="#FFCCA0"/>
+            <circle cx="26" cy="-14" r="28" fill="#FFCCA0"/>
+            <circle cx="60" cy="-10" r="24" fill="#FFCCA0"/>
+            <rect x="-18" y="0" width="90" height="26" fill="#FFCCA0" rx="4"/>
+          </g>
+        </g>
+      </svg>
+    </div>
+
+    <div class="dome">
+      <div class="greeting-name">Morning, <span>Brandon.</span></div>
+      <div class="greeting-sub">Tuesday, April 22 · Let's find your one thing.</div>
+    </div>
+
+    <div class="body">
+
+      <div class="sh" style="margin-top:4px;">HOW'S YOUR BRAIN TODAY?</div>
+
+      <!-- Mood expanded (not selected yet) -->
+      <div class="mood-card">
+        <div class="mood-prompt">TAP TO CHECK IN</div>
+        <div class="mood-chips">
+          <!-- Drained -->
+          <div class="mood-chip">
+            <div class="mood-icon">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" style="color:rgba(45,42,62,0.22)">
+                <rect x="1" y="6.5" width="18" height="11" rx="2" stroke="currentColor" stroke-width="1.8"/>
+                <path d="M19 10v4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+                <rect x="3" y="8.5" width="4" height="7" rx="1" fill="currentColor" opacity="0.5"/>
+              </svg>
+            </div>
+            <span class="mood-label">Drained</span>
+          </div>
+          <!-- Low -->
+          <div class="mood-chip">
+            <div class="mood-icon">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" style="color:rgba(45,42,62,0.22)">
+                <path d="M20 17H4a4 4 0 010-8h.5A6.5 6.5 0 0120 12.5V17z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                <path d="M4 17h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <span class="mood-label">Low</span>
+          </div>
+          <!-- Okay -->
+          <div class="mood-chip sel">
+            <div class="mood-icon">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" style="color:#C8A030">
+                <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.8"/>
+                <path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M17.66 6.34l-1.41 1.41M6.34 17.66l-1.41 1.41" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <span class="mood-label" style="color:#C8A030;">Okay</span>
+          </div>
+          <!-- Bright -->
+          <div class="mood-chip">
+            <div class="mood-icon">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" style="color:rgba(45,42,62,0.22)">
+                <path d="M12 3l2.2 6.2H21l-5.6 4.1 2.1 6.4L12 16l-5.5 3.7 2.1-6.4L3 9.2h6.8z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <span class="mood-label">Bright</span>
+          </div>
+          <!-- Wired -->
+          <div class="mood-chip">
+            <div class="mood-icon">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" style="color:rgba(45,42,62,0.22)">
+                <path d="M13 3L5.5 13H11.5L10.5 21L18.5 11H12.5L13 3Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <span class="mood-label">Wired</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- YOUR DAY — morning -->
+      <div class="sh">YOUR DAY</div>
+      <div class="timeline-card">
+
+        <!-- Anchors — not done yet -->
+        <div class="tl-row">
+          <div class="tl-time">8 AM</div>
+          <div class="tl-line"></div>
+          <div class="tl-content" style="padding:10px 12px;">
+            <div class="anch-row">
+              <div class="anch-tag" style="background:rgba(143,170,224,0.1);border-color:rgba(143,170,224,0.2);color:#8FAAE0;">○ Coffee</div>
+              <div class="anch-tag" style="background:rgba(143,170,224,0.1);border-color:rgba(143,170,224,0.2);color:#8FAAE0;">○ Meds</div>
+              <div class="anch-tag" style="background:rgba(99,190,123,0.09);border-color:rgba(99,190,123,0.2);color:#3DA85A;">✓ Open Lumi</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Now line (early morning) -->
+        <div class="tl-now">
+          <div class="tl-now-lbl">Now</div>
+          <div class="tl-now-dot"></div>
+          <div class="tl-now-bar"></div>
+        </div>
+
+        <div class="tl-row">
+          <div class="tl-time">10 AM</div>
+          <div class="tl-line"></div>
+          <div class="tl-content">
+            <div class="ev ev-cal">
+              <div>
+                <div class="ev-title">Team standup</div>
+                <div class="ev-sub">Google Calendar · in 1h 30m</div>
+              </div>
+              <span class="ev-dur">30m</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="tl-row">
+          <div class="tl-time">12 PM</div>
+          <div class="tl-line"></div>
+          <div class="tl-content">
+            <div class="ev ev-free">
+              <div>
+                <div class="ev-title" style="color:#9895B0;font-weight:600;">Free · 2.5 hours</div>
+                <div class="ev-sub">Good window for your focus task</div>
+              </div>
+              <span style="font-size:13px;color:#C5C2D4;">✦</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="tl-row">
+          <div class="tl-time">2:30</div>
+          <div class="tl-line"></div>
+          <div class="tl-content">
+            <div class="ev ev-cal">
+              <div>
+                <div class="ev-title">1:1 with manager</div>
+                <div class="ev-sub">Outlook</div>
+              </div>
+              <span class="ev-dur">60m</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="tl-row">
+          <div class="tl-time">7 PM</div>
+          <div class="tl-line"></div>
+          <div class="tl-content">
+            <span style="font-family:'Nunito Sans',sans-serif;font-size:11px;font-weight:600;color:#D0CDD8;">Evening wind-down</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ONE FOCUS — not set -->
+      <div class="sh">ONE FOCUS</div>
+      <div style="background:white;border-radius:20px;border:1.5px dashed rgba(244,165,130,0.35);padding:18px;display:flex;align-items:center;gap:14px;margin-bottom:18px;">
+        <div style="width:40px;height:40px;border-radius:12px;background:rgba(244,165,130,0.1);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">✦</div>
+        <div>
+          <div style="font-family:'Nunito Sans',sans-serif;font-size:13px;font-weight:700;color:#2D2A3E;margin-bottom:3px;">What's the one thing today?</div>
+          <div style="font-family:'Nunito Sans',sans-serif;font-size:11px;font-weight:500;color:#9895B0;">Lumi will help you start it</div>
+        </div>
+        <div style="margin-left:auto;color:#F4A582;font-size:20px;font-weight:300;">›</div>
+      </div>
+
+      <!-- HABITS — first time (inline setup) -->
+      <div class="sh">TODAY'S HABITS</div>
+      <div style="background:white;border-radius:20px;border:1.5px dashed rgba(245,201,138,0.4);padding:16px 18px;display:flex;align-items:center;gap:12px;margin-bottom:18px;cursor:pointer;">
+        <div style="font-size:24px;flex-shrink:0;">🌱</div>
+        <div style="flex:1;">
+          <div style="font-family:'Nunito Sans',sans-serif;font-size:13px;font-weight:700;color:#2D2A3E;margin-bottom:2px;">Add up to 3 daily habits</div>
+          <div style="font-family:'Nunito Sans',sans-serif;font-size:11px;font-weight:500;color:#9895B0;">Small things. No streaks. Just checking in.</div>
+        </div>
+        <div style="color:#F5C98A;font-size:20px;font-weight:300;">›</div>
+      </div>
+
+      <!-- LUMI morning message -->
+      <div class="sh">LUMI</div>
+      <div class="lumi-card">
+        <div class="lumi-av">✦</div>
+        <div>
+          <div class="lumi-msg-text">Morning, Brandon. You've got standup at 10. Want to set a focus for today before it starts?</div>
+          <div class="lumi-cta">Open Lumi →</div>
+        </div>
+      </div>
+
+      <!-- QUICK ACTIONS -->
+      <div class="sh">QUICK ACTIONS</div>
+      <div class="qa-grid">
+        <div class="qa-card qa-gold">
+          <div class="qa-icon qa-icon-gold">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="13.5" r="7.5" stroke="#C49820" stroke-width="1.8"/>
+              <path d="M12 10V13.8L14.2 15.2" stroke="#C49820" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M9.5 3H14.5" stroke="#C49820" stroke-width="1.8" stroke-linecap="round"/>
+              <path d="M12 3V5.5" stroke="#C49820" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <span class="qa-title">Focus</span>
+          <span class="qa-sub">Start a session</span>
+        </div>
+        <div class="qa-card qa-pink">
+          <div class="qa-icon qa-icon-pink">
+            <svg width="26" height="26" viewBox="0 0 256 256">
+              <path fill="#B86090" d="M248,124a56.11,56.11,0,0,0-32-50.61V72a48,48,0,0,0-88-26.49A48,48,0,0,0,40,72v1.39a56,56,0,0,0,0,101.2V176a48,48,0,0,0,88,26.49A48,48,0,0,0,216,176v-1.41A56.09,56.09,0,0,0,248,124ZM88,208a32,32,0,0,1-31.81-28.56A55.87,55.87,0,0,0,64,180h8a8,8,0,0,0,0-16H64A40,40,0,0,1,50.67,86.27,8,8,0,0,0,56,78.73V72a32,32,0,0,1,64,0v68.26A47.8,47.8,0,0,0,88,128a8,8,0,0,0,0,16,32,32,0,0,1,0,64Zm104-44h-8a8,8,0,0,0,0,16h8a55.87,55.87,0,0,0,7.81-.56A32,32,0,1,1,168,144a8,8,0,0,0,0-16,47.8,47.8,0,0,0-32,12.26V72a32,32,0,0,1,64,0v6.73a8,8,0,0,0,5.33,7.54A40,40,0,0,1,192,164Z"/>
+            </svg>
+          </div>
+          <span class="qa-title">Brain Dump</span>
+          <span class="qa-sub">Clear your head</span>
+        </div>
+      </div>
+      <div class="lumi-qa">
+        <div class="lumi-qa-icon">
+          <svg width="28" height="25" viewBox="0 0 166.9 151.3" fill="none">
+            <circle cx="83.8" cy="91" r="37.5" fill="white"/>
+            <rect x="37.7" y="30.8" width="12.3" height="27.8" rx="4.9" transform="translate(-18.5 38.7) rotate(-40)" fill="white"/>
+            <rect x="77.6" y="10.4" width="12.3" height="33.9" rx="4.9" fill="white"/>
+            <rect x="14.9" y="61.5" width="13.2" height="24.7" rx="5.2" transform="translate(-55.4 74.1) rotate(-74)" fill="white"/>
+            <rect x="132.6" y="67.3" width="24.7" height="13.2" rx="5.2" transform="translate(-14.7 42.8) rotate(-16)" fill="white"/>
+            <rect x="108.6" y="38.6" width="27.8" height="12.3" rx="4.9" transform="translate(9.5 109.8) rotate(-50)" fill="white"/>
+            <rect x="10" y="133.4" width="147.6" height="7.9" rx="3.1" fill="white" opacity="0.75"/>
+          </svg>
+        </div>
+        <div style="flex:1;">
+          <div class="lumi-qa-title">Talk to Lumi</div>
+          <div class="lumi-qa-sub">167 hours a week — whenever you need</div>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M9 18l6-6-6-6" stroke="rgba(244,165,130,0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+
+    </div><!-- /body -->
+
+    <!-- Nav -->
+    <div class="nav">
+      <div class="nav-item active">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="9" stroke="#F4A582" stroke-width="2"/>
+          <path d="M12 7v5l3 2" stroke="#F4A582" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <span class="nav-lbl" style="color:#F4A582;">Today</span>
+        <div class="nav-dot"></div>
+      </div>
+      <div class="nav-item">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <polygon points="5,3 19,12 5,21" stroke="#C5C2D4" stroke-width="2" fill="none" stroke-linejoin="round"/>
+        </svg>
+        <span class="nav-lbl">Focus</span>
+      </div>
+      <div class="nav-item">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M12 5v14M5 12h14" stroke="#C5C2D4" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+        <span class="nav-lbl">Capture</span>
+      </div>
+      <div class="nav-item">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M3 17L9 11L13 15L21 7" stroke="#C5C2D4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="nav-lbl">Insights</span>
+      </div>
+      <div class="nav-item">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="8" r="4" stroke="#C5C2D4" stroke-width="2"/>
+          <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="#C5C2D4" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <span class="nav-lbl">Me</span>
+      </div>
+    </div>
+
+  </div><!-- /phone -->
+</div>
+
+</body>
+</html>

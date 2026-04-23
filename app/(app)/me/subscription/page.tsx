@@ -75,8 +75,10 @@ export default async function SubscriptionPage({
         .eq('clerk_user_id', userId)
         .single()
 
-      if (data && ['core', 'companion'].includes(data.plan)) {
-        currentPlan = data.plan as Plan
+      // Normalize to lowercase — handles 'Companion', 'Core', null, etc.
+      const normalized = (data?.plan ?? '').toLowerCase() as Plan
+      if (['core', 'companion'].includes(normalized)) {
+        currentPlan = normalized
       }
     }
   }

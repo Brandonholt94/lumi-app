@@ -30,7 +30,7 @@ export async function POST(req: Request) {
     .eq('clerk_user_id', userId)
     .maybeSingle()
 
-  if (profile?.plan !== 'companion') {
+  if (profile?.plan?.toLowerCase() !== 'companion') {
     return NextResponse.json({ error: 'Companion plan required' }, { status: 403 })
   }
 

@@ -20,13 +20,27 @@ export async function GET(req: Request) {
   const hourStr = String(currentHour).padStart(2, '0')   // "08", "14", etc.
 
   const supabase = getServiceClient()
-  const { data: meds } = await supabase
-    .from('medications')
-    .select('clerk_user_id, name, scheduled_time')
-    .in('clerk_user_id', userIds)
-    .like('scheduled_time', `${hourStr}:%`)   // matches "08:00", "08:30", etc.
 
+  // Fetch names + meds in parallel
+  const [profilesRes, medsRes] = await Promise.all([
+    supabase
+      .from('profiles')
+      .select('clerk_user_id, display_name')
+      .in('clerk_user_id', userIds),
+    supabase
+      .from('medications')
+      .select('clerk_user_id, name, scheduled_time')
+      .in('clerk_user_id', userIds)
+      .like('scheduled_time', `${hourStr}:%`),
+  ])
+
+  const meds = medsRes.data
   if (!meds || meds.length === 0) return NextResponse.json({ sent: 0, total: 0 })
+
+  const nameMap: Record<string, string> = {}
+  for (const p of profilesRes.data ?? []) {
+    nameMap[p.clerk_user_id] = p.display_name ?? 'there'
+  }
 
   // Group by user so we send one notification per user (even with multiple meds)
   const byUser: Record<string, string[]> = {}
@@ -37,12 +51,13 @@ export async function GET(req: Request) {
 
   const results = await Promise.allSettled(
     Object.entries(byUser).map(([userId, names]) => {
+      const name = nameMap[userId] ?? 'there'
       const medList = names.length === 1
         ? names[0]
         : `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}`
       return sendPushToUser(userId, {
-        title: 'Medication reminder 💊',
-        body: `Time for ${medList} — just a gentle nudge from Lumi.`,
+        title: `Hey ${name} — med check 💊`,
+        body: `Time for ${medList}. Lumi's got you.`,
         url: '/me/medication',
       })
     })

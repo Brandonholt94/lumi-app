@@ -43,6 +43,27 @@ function PlanFeature({ text }: { text: string }) {
 export default function SubscriptionClient({ currentPlan }: { currentPlan: Plan }) {
   const [billing, setBilling] = useState<BillingCycle>('annual')
   const [loading, setLoading] = useState<string | null>(null)
+  const [syncing, setSyncing] = useState(false)
+  const [syncMsg, setSyncMsg] = useState<string | null>(null)
+
+  async function syncPlan() {
+    setSyncing(true)
+    setSyncMsg(null)
+    try {
+      const res = await fetch('/api/stripe/sync-plan', { method: 'POST' })
+      const d = await res.json()
+      if (d.synced) {
+        setSyncMsg(`✓ Synced — reloading…`)
+        setTimeout(() => window.location.reload(), 800)
+      } else {
+        setSyncMsg(d.error ?? 'Could not sync. Check Stripe.')
+      }
+    } catch {
+      setSyncMsg('Network error — try again.')
+    } finally {
+      setSyncing(false)
+    }
+  }
 
   async function handleUpgrade(planKey: string) {
     const priceKey = `${planKey}-${billing}`
@@ -121,6 +142,38 @@ export default function SubscriptionClient({ currentPlan }: { currentPlan: Plan 
             </button>
           )}
         </div>
+      </div>
+
+      {/* Plan sync — shown when plan looks wrong */}
+      <div style={{
+        background: 'rgba(45,42,62,0.03)',
+        borderRadius: 14, padding: '14px 16px',
+        marginBottom: 20,
+        border: '1px solid rgba(45,42,62,0.07)',
+      }}>
+        <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '12px', fontWeight: 700, color: DARK, marginBottom: 3 }}>
+          Plan not showing correctly?
+        </p>
+        <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '12px', fontWeight: 500, color: MUTED, marginBottom: 10 }}>
+          Sync from Stripe if you recently subscribed or changed plans.
+        </p>
+        <button
+          onClick={syncPlan}
+          disabled={syncing}
+          style={{
+            padding: '8px 16px', borderRadius: 10, border: 'none',
+            background: syncing ? 'rgba(45,42,62,0.05)' : `linear-gradient(135deg, ${PEACH}, ${GOLD})`,
+            fontFamily: 'var(--font-nunito-sans)', fontSize: '12px', fontWeight: 800,
+            color: syncing ? MUTED : DARKER, cursor: syncing ? 'wait' : 'pointer',
+          }}
+        >
+          {syncing ? 'Syncing…' : 'Sync plan from Stripe'}
+        </button>
+        {syncMsg && (
+          <p style={{ fontSize: '12px', fontWeight: 600, color: syncMsg.startsWith('✓') ? '#4A9A55' : '#C84040', marginTop: 8 }}>
+            {syncMsg}
+          </p>
+        )}
       </div>
 
       {/* Only show upgrade options if not on Companion */}

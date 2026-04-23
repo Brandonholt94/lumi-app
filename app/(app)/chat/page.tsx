@@ -284,23 +284,11 @@ export default function ChatPage() {
         .lumi-input::placeholder { color: #B0ADBE; }
         .lumi-scroll::-webkit-scrollbar { display:none; }
         .lumi-scroll { -ms-overflow-style:none; scrollbar-width:none; }
-        /* Mobile: extra padding for bottom nav bar; desktop: just safe area + small gap */
-        .input-bar-pad { padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 96px + 12px); }
-        @media (min-width: 768px) {
-          .input-bar-pad { padding-bottom: 16px; }
-        }
       `}</style>
 
       <div
-        className="flex flex-col"
+        className="lumi-chat-outer"
         style={{
-          flex: 1,
-          minHeight: 0,
-          height: '100%',
-          maxWidth: '32rem',
-          marginLeft: 'auto',
-          marginRight: 'auto',
-          width: '100%',
           background: 'radial-gradient(ellipse 90% 55% at 70% 45%, rgba(244,165,130,0.24) 0%, rgba(245,201,138,0.12) 50%, #FBF8F5 78%)',
         }}
       >
@@ -389,14 +377,17 @@ export default function ChatPage() {
             /* ── MESSAGES — anchored to bottom, scrollable up ── */
             <div
               className="lumi-scroll"
-              style={{
-                flex: 1,
-                overflowY: 'auto',
-                display: 'flex',
-                flexDirection: 'column',
-                padding: '20px 16px 12px',
-              }}
+              style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}
             >
+              <div
+                className="lumi-chat-inner"
+                style={{
+                  flex: 1,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  padding: '20px 16px 12px',
+                }}
+              >
               {/* Spacer pushes messages to bottom when list is short;
                   collapses automatically when content overflows so scroll works */}
               <div style={{ flex: 1 }} />
@@ -529,18 +520,17 @@ export default function ChatPage() {
               )}
 
               <div ref={bottomRef} />
+              </div>{/* lumi-chat-inner messages */}
             </div>
           )}
         </div>
 
         {/* ── INPUT BAR ── */}
         <div
-          className="flex-shrink-0 px-4 pt-3 input-bar-pad"
-          style={{
-            background: '#FBF8F5',
-            borderTop: '1px solid rgba(45,42,62,0.07)',
-          }}
+          className="flex-shrink-0"
+          style={{ background: '#FBF8F5', borderTop: '1px solid rgba(45,42,62,0.07)' }}
         >
+        <div className="lumi-chat-inner px-4 pt-3 input-bar-pad">
           {limitReached ? (
             <a
               href="/upgrade"
@@ -742,7 +732,8 @@ export default function ChatPage() {
           )}
           </>
           )}
-        </div>
+        </div>{/* lumi-chat-inner */}
+        </div>{/* INPUT BAR outer */}
       </div>
     </>
   )

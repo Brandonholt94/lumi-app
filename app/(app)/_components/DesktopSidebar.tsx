@@ -109,7 +109,7 @@ export default function DesktopSidebar() {
 
   return (
     <aside
-      className="hidden md:flex flex-col flex-shrink-0"
+      className="lumi-desktop-sidebar flex-col flex-shrink-0"
       style={{
         width: 220,
         height: '100%',

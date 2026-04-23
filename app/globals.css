@@ -38,3 +38,47 @@ body {
   from { opacity: 0; transform: translateY(-4px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+
+/* ── Desktop / Mobile layout switches ── */
+.lumi-desktop-sidebar { display: none !important; }
+.lumi-mobile-nav      { display: flex !important; }
+.lumi-content-col     { max-width: 28rem; margin-left: auto; margin-right: auto; }
+
+@media (min-width: 768px) {
+  .lumi-desktop-sidebar { display: flex !important; }
+  .lumi-mobile-nav      { display: none !important; }
+  .lumi-content-col     { max-width: none; margin-left: 0; margin-right: 0; }
+}
+
+/* ── Chat input bar bottom padding ── */
+.input-bar-pad { padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 96px + 12px); }
+@media (min-width: 768px) { .input-bar-pad { padding-bottom: 24px; } }
+
+/* ── Chat page container ── */
+/* Mobile: constrained width; Desktop: full-width with inner content cap */
+.lumi-chat-outer {
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+  width: 100%;
+  max-width: 32rem;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  flex-direction: column;
+}
+.lumi-chat-inner {
+  width: 100%;
+  max-width: 100%;
+}
+@media (min-width: 768px) {
+  .lumi-chat-outer {
+    max-width: none;
+  }
+  .lumi-chat-inner {
+    max-width: 720px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+  }
+}

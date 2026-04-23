@@ -31,7 +31,7 @@ export default function NavBar() {
 
   return (
     <nav
-      className="w-full flex-shrink-0 z-50 md:hidden"
+      className="lumi-mobile-nav w-full flex-shrink-0 z-50"
       style={{ background: isSleepPage ? '#0D0C1A' : 'transparent', overflow: 'visible', transition: 'background 0.3s' }}
     >
       <style>{`

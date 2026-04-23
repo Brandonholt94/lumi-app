@@ -41,7 +41,7 @@ export default async function AppLayout({
         {/* Sidebar — desktop only (hidden on mobile) */}
         <DesktopSidebar />
         {/* Content column — mobile: centered max-w-md; desktop: fills remaining space */}
-        <div className="flex-1 min-w-0 flex flex-col overflow-hidden max-w-md mx-auto md:max-w-none md:mx-0 relative">
+        <div className="lumi-content-col flex-1 min-w-0 flex flex-col overflow-hidden relative">
           <SplashScreen />
           <TimezoneSync />
           <NotificationBanner />

@@ -308,8 +308,14 @@ export async function POST(req: Request) {
     return streamText200(`DEBUG: Failed to init Anthropic provider — ${err}`)
   }
 
-  const { userId } = await auth()
-  if (!userId) return new Response('Unauthorized', { status: 401 })
+  let userId: string
+  try {
+    const session = await auth()
+    if (!session.userId) return new Response('Unauthorized', { status: 401 })
+    userId = session.userId
+  } catch (err) {
+    return streamText200(`DEBUG: auth() threw — ${err}`)
+  }
 
   // Client sends messages + lightweight context it owns (mood, focusTask)
   let messages: ChatMessage[]
@@ -321,6 +327,9 @@ export async function POST(req: Request) {
   } catch (e) {
     return streamText200(`DEBUG: Failed to parse request body — ${e}`)
   }
+
+  // ── Wrap entire handler so any crash surfaces as a debug stream ──
+  try {
 
   // Get the last user message for crisis detection
   const lastUserMessage = [...messages]
@@ -472,4 +481,11 @@ export async function POST(req: Request) {
   return new Response(readable, {
     headers: { 'Content-Type': 'text/plain; charset=utf-8' },
   })
+
+  } catch (err) {
+    // Top-level catch — surfaces any crash (Supabase, Clerk, etc.) as a debug stream message
+    const msg = err instanceof Error ? `${err.message}\n${err.stack ?? ''}` : String(err)
+    console.error('[Lumi chat] unhandled error:', msg)
+    return streamText200(`DEBUG: ${msg}`)
+  }
 }

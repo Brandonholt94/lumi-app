@@ -45,8 +45,9 @@ export default function SleepCard() {
       .catch(() => setLog(null))
   }, [])
 
-  // Don't render anything while loading
+  // Don't render anything while loading or once sleep is logged
   if (log === 'loading') return null
+  if (log) return null
 
   return (
     <Link

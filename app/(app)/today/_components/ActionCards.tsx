@@ -134,7 +134,7 @@ export default function ActionCards() {
   const ALL_CARDS: CardDef[] = [
     {
       id:          'notifications',
-      title:       'Stay in sync',
+      title:       'Enable reminders',
       description: 'Get gentle nudges from Lumi',
       color:       '#F4A582',
       href:        '/me/notifications',
@@ -142,7 +142,7 @@ export default function ActionCards() {
     },
     {
       id:          'calendar',
-      title:       'Connect calendar',
+      title:       'Connect your calendar',
       description: 'Lumi sees what\'s coming up',
       color:       '#8FAAE0',
       href:        '/me/calendar',
@@ -232,7 +232,7 @@ export default function ActionCards() {
                 flexDirection:  'column',
                 justifyContent: 'flex-end',
                 width:          148,
-                height:         148,
+                height:         130,
                 borderRadius:   22,
                 background:     `${card.color}1A`,
                 border:         `1.5px solid ${card.color}38`,
@@ -259,11 +259,11 @@ export default function ActionCards() {
 
               {/* Title */}
               <p style={{
-                fontFamily: 'var(--font-nunito-sans)',
-                fontSize:   14,
-                fontWeight: 800,
+                fontFamily: 'var(--font-aegora)',
+                fontSize:   15,
+                fontWeight: 700,
                 color:      '#1E1C2E',
-                lineHeight: 1.25,
+                lineHeight: 1.2,
                 marginTop:  10,
               }}>
                 {card.title}

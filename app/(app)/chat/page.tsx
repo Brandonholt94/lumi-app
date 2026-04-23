@@ -89,6 +89,9 @@ export default function ChatPage() {
   const [focusCtx, setFocusCtx] = useState<FocusContext>({ task: null, completed: false })
   const [started, setStarted] = useState(false) // true once messages exist
   const [limitReached, setLimitReached] = useState(false)
+  const [judgeMode, setJudgeMode] = useState(false)
+  const [judgePaste, setJudgePaste] = useState('')
+  const judgePasteRef = useRef<HTMLTextAreaElement>(null)
 
   const bottomRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
@@ -327,45 +330,128 @@ export default function ChatPage() {
                 What&apos;s on your mind?
               </p>
 
-              {/* ── Suggested prompts ── */}
-              <div style={{ marginTop: 28, display: 'flex', flexDirection: 'column', gap: 10, width: '100%', maxWidth: 320 }}>
-                {[
-                  { emoji: '🔍', label: 'Decode a message', prompt: "Can you read this message and tell me the actual tone? I want to know if I'm reading it right or if my RSD is kicking in.\n\n[Paste message here]" },
-                  { emoji: '🧠', label: "I'm overwhelmed", prompt: "I'm overwhelmed and don't know where to start. Can you help me figure out what to do first?" },
-                  { emoji: '✦',  label: 'Help me focus',   prompt: "I'm struggling to start. Can you help me pick one thing to focus on right now?" },
-                ].map(({ emoji, label, prompt }) => (
-                  <button
-                    key={label}
-                    onClick={() => {
-                      setInput(prompt)
-                      if (inputRef.current) {
-                        inputRef.current.style.height = '44px'
-                        inputRef.current.style.height = Math.min(inputRef.current.scrollHeight, 120) + 'px'
-                        inputRef.current.focus()
-                      }
-                    }}
-                    style={{
-                      display: 'flex', alignItems: 'center', gap: 10,
-                      padding: '12px 16px', borderRadius: 16,
-                      background: 'rgba(255,248,244,0.55)',
-                      backdropFilter: 'blur(20px)',
-                      WebkitBackdropFilter: 'blur(20px)',
-                      border: '1px solid rgba(255,255,255,0.70)',
-                      boxShadow: '0 2px 12px rgba(244,165,130,0.12)',
-                      cursor: 'pointer',
-                      textAlign: 'left',
-                      fontFamily: 'var(--font-nunito-sans)',
-                      WebkitTapHighlightColor: 'transparent',
-                      width: '100%',
-                    }}
-                  >
-                    <span style={{ fontSize: '16px', flexShrink: 0 }}>{emoji}</span>
-                    <span style={{ fontSize: '14px', fontWeight: 700, color: '#2D2A3E' }}>{label}</span>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ marginLeft: 'auto', flexShrink: 0 }}>
-                      <path d="M9 18l6-6-6-6" stroke="rgba(244,165,130,0.7)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </button>
-                ))}
+              {/* ── Suggested prompts / Lumi Judge panel ── */}
+              <div style={{ marginTop: 28, width: '100%', maxWidth: 320 }}>
+                {judgeMode ? (
+                  /* ── Lumi Judge paste panel ── */
+                  <div style={{
+                    background: 'rgba(255,248,244,0.75)',
+                    backdropFilter: 'blur(24px)',
+                    WebkitBackdropFilter: 'blur(24px)',
+                    border: '1px solid rgba(255,255,255,0.80)',
+                    borderRadius: 20,
+                    padding: '18px 16px 14px',
+                    boxShadow: '0 4px 24px rgba(244,165,130,0.16)',
+                  }}>
+                    {/* Header */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span style={{ fontSize: '15px' }}>🔍</span>
+                        <span style={{ fontFamily: 'var(--font-aegora)', fontSize: '15px', fontWeight: 700, color: '#1E1C2E' }}>
+                          Lumi Judge
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => { setJudgeMode(false); setJudgePaste('') }}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9895B0', padding: 4 }}
+                      >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                          <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
+                        </svg>
+                      </button>
+                    </div>
+
+                    <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '12px', fontWeight: 500, color: '#9895B0', marginBottom: 10, lineHeight: 1.4 }}>
+                      Paste the message and I&apos;ll give you the real read — no filter.
+                    </p>
+
+                    <textarea
+                      ref={judgePasteRef}
+                      value={judgePaste}
+                      onChange={e => setJudgePaste(e.target.value)}
+                      placeholder="Paste the message here…"
+                      rows={4}
+                      style={{
+                        display: 'block', width: '100%', boxSizing: 'border-box',
+                        padding: '10px 12px', borderRadius: 12, resize: 'none',
+                        fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 500, color: '#2D2A3E',
+                        background: 'white', border: '1.5px solid rgba(45,42,62,0.10)',
+                        outline: 'none', lineHeight: 1.5,
+                        marginBottom: 10,
+                      }}
+                    />
+
+                    <button
+                      disabled={!judgePaste.trim()}
+                      onClick={() => {
+                        const msg = `Decode this message for me — give me the real, objective read on the tone. I want to know what it actually says, what might be ambiguous, and what my brain could be adding:\n\n"${judgePaste.trim()}"`
+                        setJudgeMode(false)
+                        setJudgePaste('')
+                        sendMessage(msg)
+                      }}
+                      style={{
+                        width: '100%', padding: '11px',
+                        borderRadius: 12, border: 'none',
+                        background: judgePaste.trim()
+                          ? 'linear-gradient(135deg, #F4A582, #F5C98A)'
+                          : 'rgba(45,42,62,0.06)',
+                        fontFamily: 'var(--font-nunito-sans)',
+                        fontSize: '13px', fontWeight: 800,
+                        color: judgePaste.trim() ? '#1E1C2E' : '#9895B0',
+                        cursor: judgePaste.trim() ? 'pointer' : 'not-allowed',
+                        transition: 'all 0.2s',
+                      }}
+                    >
+                      Decode this →
+                    </button>
+                  </div>
+                ) : (
+                  /* ── Normal chips ── */
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    {[
+                      { emoji: '🔍', label: 'Lumi Judge', isJudge: true },
+                      { emoji: '🧠', label: "I'm overwhelmed", prompt: "I'm overwhelmed and don't know where to start. Can you help me figure out what to do first?" },
+                      { emoji: '✦',  label: 'Help me focus',   prompt: "I'm struggling to start. Can you help me pick one thing to focus on right now?" },
+                    ].map(({ emoji, label, prompt, isJudge }) => (
+                      <button
+                        key={label}
+                        onClick={() => {
+                          if (isJudge) {
+                            setJudgeMode(true)
+                            setTimeout(() => judgePasteRef.current?.focus(), 80)
+                          } else {
+                            setInput(prompt ?? '')
+                            if (inputRef.current) {
+                              inputRef.current.style.height = '44px'
+                              inputRef.current.style.height = Math.min(inputRef.current.scrollHeight, 120) + 'px'
+                              inputRef.current.focus()
+                            }
+                          }
+                        }}
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: 10,
+                          padding: '12px 16px', borderRadius: 16,
+                          background: 'rgba(255,248,244,0.55)',
+                          backdropFilter: 'blur(20px)',
+                          WebkitBackdropFilter: 'blur(20px)',
+                          border: '1px solid rgba(255,255,255,0.70)',
+                          boxShadow: '0 2px 12px rgba(244,165,130,0.12)',
+                          cursor: 'pointer',
+                          textAlign: 'left',
+                          fontFamily: 'var(--font-nunito-sans)',
+                          WebkitTapHighlightColor: 'transparent',
+                          width: '100%',
+                        }}
+                      >
+                        <span style={{ fontSize: '16px', flexShrink: 0 }}>{emoji}</span>
+                        <span style={{ fontSize: '14px', fontWeight: 700, color: '#2D2A3E' }}>{label}</span>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ marginLeft: 'auto', flexShrink: 0 }}>
+                          <path d="M9 18l6-6-6-6" stroke="rgba(244,165,130,0.7)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           ) : (

@@ -465,122 +465,148 @@ export default function DayTimeline({ plan }: { plan: string }) {
 
       {/* Timeline rows */}
       {hasContent && (
-        <div style={{ paddingTop: 10, paddingBottom: 2 }}>
-          {rows.map((row, idx) => {
+        <div style={{ padding: '10px 12px 4px' }}>
+          {rows.map((row) => {
             // Now marker
             if ('isNow' in row && row.isNow) {
               return (
                 <div
                   key="now"
                   ref={nowRef}
-                  style={{ display: 'flex', alignItems: 'center', padding: '0 16px', gap: 10, margin: '4px 0' }}
+                  style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '6px 4px' }}
                 >
                   <span style={{
                     fontFamily: 'var(--font-nunito-sans)', fontSize: '10px', fontWeight: 800,
-                    letterSpacing: '0.07em', color: '#F4A582', width: 44, flexShrink: 0,
+                    letterSpacing: '0.07em', color: '#F4A582', width: 40, flexShrink: 0,
                   }}>
                     NOW
                   </span>
-                  <div style={{ flex: 1, height: 2, background: 'linear-gradient(90deg, #F4A582, transparent)', borderRadius: 1 }} />
                   <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#F4A582', flexShrink: 0 }} />
+                  <div style={{ flex: 1, height: 1.5, background: 'linear-gradient(90deg, #F4A582 0%, rgba(244,165,130,0.15) 100%)', borderRadius: 1 }} />
                 </div>
               )
             }
 
-            const r        = row as RawRow
-            const isPast   = r.type === 'past-cal' || r.type === 'past-task'
-            const isTask   = r.type === 'task' || r.type === 'past-task'
-            const isFree   = r.key  === 'free'
+            const r      = row as RawRow
+            const isPast = r.type === 'past-cal' || r.type === 'past-task'
+            const isTask = r.type === 'task'     || r.type === 'past-task'
+            const isFree = r.key  === 'free'
 
+            // Free time block — dashed card
             if (isFree) {
               return (
-                <div key="free" style={{ display: 'flex', alignItems: 'center', padding: '8px 16px', gap: 12, opacity: 0.7 }}>
-                  <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 700, color: '#9895B0', width: 44, flexShrink: 0 }}>—</span>
-                  <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'rgba(245,201,138,0.7)', flexShrink: 0 }} />
-                  <div>
-                    <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 700, color: '#C4A030' }}>Free time</p>
-                    <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 500, color: '#9895B0', marginTop: 1 }}>Good window for your focus task</p>
+                <div key="free" style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8, opacity: 0.85 }}>
+                  <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 700, color: '#9895B0', width: 40, flexShrink: 0, lineHeight: 1.2, textAlign: 'right' }}>
+                    —
+                  </span>
+                  <div style={{
+                    flex: 1,
+                    border: '1.5px dashed rgba(245,201,138,0.55)',
+                    borderRadius: 12,
+                    padding: '10px 12px',
+                    background: 'rgba(245,201,138,0.07)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  }}>
+                    <div>
+                      <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 700, color: '#C4A030' }}>Free time</p>
+                      <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 500, color: '#9895B0', marginTop: 1 }}>Good window for your focus task</p>
+                    </div>
+                    <span style={{ color: 'rgba(196,160,48,0.5)', fontSize: 16, flexShrink: 0 }}>✦</span>
                   </div>
                 </div>
               )
             }
 
+            // Calendar event card or task card
+            const accentColor = isPast
+              ? 'rgba(45,42,62,0.15)'
+              : isTask ? '#F4A582' : '#8FAAE0'
+
+            const cardBg = isPast
+              ? 'rgba(45,42,62,0.03)'
+              : isTask
+                ? 'rgba(244,165,130,0.07)'
+                : 'rgba(143,170,224,0.10)'
+
             return (
               <div
                 key={r.key}
                 style={{
-                  display:      'flex',
-                  alignItems:   'center',
-                  padding:      '8px 16px',
-                  gap:          12,
-                  opacity:      isPast ? 0.45 : 1,
-                  borderBottom: idx < rows.length - 1 ? '1px solid rgba(45,42,62,0.04)' : 'none',
+                  display:    'flex',
+                  alignItems: 'center',
+                  gap:        10,
+                  marginBottom: 8,
+                  opacity:    isPast ? 0.5 : 1,
                 }}
               >
-                {/* Time */}
+                {/* Time label */}
                 <span style={{
                   fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 700,
-                  color: '#9895B0', width: 44, flexShrink: 0, lineHeight: 1.2,
+                  color: '#9895B0', width: 40, flexShrink: 0, lineHeight: 1.2, textAlign: 'right',
                 }}>
                   {r.time}
                 </span>
 
-                {/* Dot */}
+                {/* Card */}
                 <div style={{
-                  width: 8, height: 8, borderRadius: '50%', flexShrink: 0,
-                  background: isPast
-                    ? 'rgba(45,42,62,0.15)'
-                    : isTask
-                      ? '#F4A582'
-                      : '#8FAAE0',
-                }} />
-
-                {/* Content */}
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{
-                    fontFamily:    'var(--font-nunito-sans)',
-                    fontSize:      '13px',
-                    fontWeight:    700,
-                    color:         r.done ? '#9895B0' : '#1E1C2E',
-                    lineHeight:    1.3,
-                    whiteSpace:    'nowrap',
-                    overflow:      'hidden',
-                    textOverflow:  'ellipsis',
-                    textDecoration: r.done ? 'line-through' : 'none',
-                  }}>
-                    {r.label}
-                  </p>
-                  {r.sub && (
-                    <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 500, color: '#9895B0', lineHeight: 1.3, marginTop: 1 }}>
-                      {r.sub}
+                  flex:         1,
+                  background:   cardBg,
+                  borderRadius: 12,
+                  borderLeft:   `3.5px solid ${accentColor}`,
+                  padding:      '10px 12px',
+                  display:      'flex',
+                  alignItems:   'center',
+                  gap:          8,
+                  minWidth:     0,
+                }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{
+                      fontFamily:     'var(--font-nunito-sans)',
+                      fontSize:       '13px',
+                      fontWeight:     700,
+                      color:          r.done ? '#9895B0' : '#1E1C2E',
+                      lineHeight:     1.3,
+                      overflow:       'hidden',
+                      textOverflow:   'ellipsis',
+                      whiteSpace:     'nowrap',
+                      textDecoration: r.done ? 'line-through' : 'none',
+                    }}>
+                      {r.label}
                     </p>
+                    {r.sub && (
+                      <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 500, color: '#9895B0', lineHeight: 1.3, marginTop: 2 }}>
+                        {r.sub}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Duration (calendar) */}
+                  {!isTask && r.duration && (
+                    <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 600, color: '#9895B0', flexShrink: 0 }}>
+                      {r.duration}
+                    </span>
+                  )}
+
+                  {/* Checkbox (task) */}
+                  {isTask && r.taskId && (
+                    <button
+                      onClick={() => toggleTask(r.taskId!, !r.done)}
+                      style={{
+                        width: 24, height: 24, borderRadius: '50%', flexShrink: 0,
+                        border: `2px solid ${r.done ? '#F4A582' : 'rgba(45,42,62,0.18)'}`,
+                        background: r.done ? '#F4A582' : 'rgba(255,255,255,0.8)',
+                        cursor: 'pointer',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      }}
+                    >
+                      {r.done && (
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
+                          <path d="M5 12l5 5L20 7" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      )}
+                    </button>
                   )}
                 </div>
-
-                {/* Duration (calendar) or check (task) */}
-                {!isTask && r.duration && (
-                  <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 600, color: '#9895B0', flexShrink: 0 }}>
-                    {r.duration}
-                  </span>
-                )}
-                {isTask && r.taskId && (
-                  <button
-                    onClick={() => toggleTask(r.taskId!, !r.done)}
-                    style={{
-                      width: 22, height: 22, borderRadius: '50%', flexShrink: 0,
-                      border: `2px solid ${r.done ? '#F4A582' : 'rgba(45,42,62,0.18)'}`,
-                      background: r.done ? '#F4A582' : 'transparent',
-                      cursor: 'pointer',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    }}
-                  >
-                    {r.done && (
-                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
-                        <path d="M5 12l5 5L20 7" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    )}
-                  </button>
-                )}
               </div>
             )
           })}

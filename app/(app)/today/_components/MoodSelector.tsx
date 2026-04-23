@@ -30,8 +30,8 @@ const MOODS: {
   {
     key: 'low',
     label: 'Low',
-    color: '#B8AECC',
-    bg: 'rgba(184,174,204,0.15)',
+    color: '#9895B0',
+    bg: 'rgba(152,149,176,0.15)',
     icon: (size) => (
       <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
         <path d="M20 17H4a4 4 0 010-8h.5A6.5 6.5 0 0120 12.5V17z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"/>
@@ -55,7 +55,7 @@ const MOODS: {
   {
     key: 'bright',
     label: 'Bright',
-    color: '#C86040',
+    color: '#F4A582',
     bg: 'rgba(244,165,130,0.18)',
     icon: (size) => (
       <svg width={size} height={size} viewBox="0 0 24 24" fill="none">

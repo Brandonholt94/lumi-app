@@ -87,14 +87,14 @@ export default async function TodayPage() {
         </p>
         <DayTimeline plan={plan} />
 
+        {/* Lumi contextual nudge — lives directly under calendar, time-blindness aware */}
+        <LumiNudge firstName={firstName} plan={plan} />
+
         {/* Evening wind-down — shows after 8pm, right below the day view */}
         <EveningBrainClear />
 
         {/* ── ONE FOCUS (label + card rendered together inside OneFocusCard) ── */}
         <OneFocusCard />
-
-        {/* Lumi contextual nudge — context-aware, replaces Heads Up alert */}
-        <LumiNudge firstName={firstName} plan={plan} />
 
         {/* ── QUICK ACTIONS ── */}
         <p

@@ -324,15 +324,15 @@ export default function DayTimeline({ plan }: { plan: string }) {
                       padding:     '5px 11px 5px 8px',
                       borderRadius: 20,
                       border:      done ? 'none' : '1.5px solid rgba(45,42,62,0.12)',
-                      background:  done ? 'rgba(94,194,105,0.12)' : 'rgba(45,42,62,0.04)',
+                      background:  done ? 'rgba(244,165,130,0.15)' : 'rgba(45,42,62,0.04)',
                       cursor:      'pointer',
                       WebkitTapHighlightColor: 'transparent',
                     }}
                   >
                     {done ? (
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
-                        <circle cx="12" cy="12" r="10" fill="#5EC269" opacity="0.25"/>
-                        <path d="M7 12.5l3.5 3.5L17 9" stroke="#3DA85A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <circle cx="12" cy="12" r="10" fill="#F4A582" opacity="0.30"/>
+                        <path d="M7 12.5l3.5 3.5L17 9" stroke="#C8784A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>
                     ) : (
                       <div style={{
@@ -344,7 +344,7 @@ export default function DayTimeline({ plan }: { plan: string }) {
                       fontFamily:     'var(--font-nunito-sans)',
                       fontSize:       '12px',
                       fontWeight:     done ? 700 : 600,
-                      color:          done ? '#3DA85A' : '#2D2A3E',
+                      color:          done ? '#C8784A' : '#2D2A3E',
                       textDecoration: done ? 'line-through' : 'none',
                       whiteSpace:     'nowrap',
                     }}>
@@ -399,9 +399,9 @@ export default function DayTimeline({ plan }: { plan: string }) {
               return (
                 <div key="free" style={{ display: 'flex', alignItems: 'center', padding: '8px 16px', gap: 12, opacity: 0.7 }}>
                   <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 700, color: '#9895B0', width: 44, flexShrink: 0 }}>—</span>
-                  <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'rgba(94,194,105,0.6)', flexShrink: 0 }} />
+                  <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'rgba(245,201,138,0.7)', flexShrink: 0 }} />
                   <div>
-                    <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 700, color: '#5EC269' }}>Free time</p>
+                    <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 700, color: '#C4A030' }}>Free time</p>
                     <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 500, color: '#9895B0', marginTop: 1 }}>Good window for your focus task</p>
                   </div>
                 </div>

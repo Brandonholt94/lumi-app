@@ -115,7 +115,7 @@ export default function OneFocusCard() {
             That&apos;s the one.
           </p>
           <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '12.5px', fontWeight: 500, color: '#9895B0', lineHeight: 1.5 }}>
-            <span style={{ color: '#C8784A', fontWeight: 700 }}>Lumi: </span>
+            <span style={{ color: '#F4A582', fontWeight: 700 }}>Lumi: </span>
             You did it. That&apos;s not nothing — that&apos;s the whole thing.
           </p>
           <button
@@ -156,15 +156,15 @@ export default function OneFocusCard() {
             className="absolute pointer-events-none"
             style={{ top: '-40px', right: '-40px', width: '120px', height: '120px', background: 'radial-gradient(circle, rgba(244,165,130,0.14) 0%, transparent 70%)' }}
           />
-          <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '9.5px', fontWeight: 800, letterSpacing: '0.13em', color: '#C8784A', marginBottom: 8 }}>
+          <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '9.5px', fontWeight: 800, letterSpacing: '0.13em', color: '#F4A582', marginBottom: 8 }}>
             TODAY&apos;S FOCUS
           </p>
           <p style={{ fontFamily: 'var(--font-aegora)', fontSize: '17px', fontWeight: 700, color: 'rgba(45,42,62,0.40)', lineHeight: 1.3, marginBottom: 12 }}>
             Nothing in the queue yet.
           </p>
           <div className="rounded-[11px] p-[10px_12px] mb-3" style={{ background: 'rgba(200,120,74,0.08)' }}>
-            <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11.5px', fontWeight: 500, color: '#6B5840', lineHeight: 1.55 }}>
-              <span style={{ color: '#C8784A', fontWeight: 700 }}>Lumi: </span>
+            <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11.5px', fontWeight: 500, color: '#7A6050', lineHeight: 1.55 }}>
+              <span style={{ color: '#F4A582', fontWeight: 700 }}>Lumi: </span>
               {focus?.lumi_message ?? "Add something to Brain Dump and I'll pick your one thing."}
             </p>
           </div>
@@ -194,7 +194,7 @@ export default function OneFocusCard() {
       />
 
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-        <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '9.5px', fontWeight: 800, letterSpacing: '0.13em', color: '#C8784A' }}>
+        <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '9.5px', fontWeight: 800, letterSpacing: '0.13em', color: '#F4A582' }}>
           TODAY&apos;S FOCUS
         </p>
         {(mood === 'drained' || mood === 'low') && (
@@ -212,8 +212,8 @@ export default function OneFocusCard() {
       </p>
 
       <div className="rounded-[11px] p-[10px_12px] mb-3" style={{ background: 'rgba(200,120,74,0.08)' }}>
-        <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11.5px', fontWeight: 500, color: '#6B5840', lineHeight: 1.55 }}>
-          <span style={{ color: '#C8784A', fontWeight: 700 }}>Lumi: </span>
+        <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11.5px', fontWeight: 500, color: '#7A6050', lineHeight: 1.55 }}>
+          <span style={{ color: '#F4A582', fontWeight: 700 }}>Lumi: </span>
           {focus.lumi_message}
         </p>
       </div>

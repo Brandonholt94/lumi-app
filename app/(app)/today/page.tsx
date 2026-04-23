@@ -41,13 +41,16 @@ export default async function TodayPage() {
     <>
       <div className="lumi-today-root">
 
-        {/* ════ LEFT COLUMN — 70% on desktop, full width on mobile ════
-            Desktop: scene header + 3-day calendar + mood
-            Mobile:  scene header + full content flow                   */}
-        <div className="lumi-today-left">
+        {/* ════ SCENE HEADER — full width above both columns ════ */}
+        <DaySceneHeader firstName={firstName} />
 
-          {/* Scene (shared) */}
-          <DaySceneHeader firstName={firstName} />
+        {/* ════ TWO-COLUMN BODY ════ */}
+        <div className="lumi-today-body">
+
+        {/* ════ LEFT COLUMN — 70% on desktop, full width on mobile ════
+            Desktop: 3-day calendar + mood
+            Mobile:  full content flow                                   */}
+        <div className="lumi-today-left">
 
           {/* ── DESKTOP: calendar + mood ── */}
           <div className="desktop-only" style={{ padding: '0 28px 32px', flex: 1 }}>
@@ -129,7 +132,7 @@ export default async function TodayPage() {
 
             <ActionCards plan={plan} />
           </div>
-        </div>
+        </div>{/* end lumi-today-left */}
 
         {/* ════ RIGHT COLUMN — 30% on desktop only ════
             Focus card + Lumi nudge + quick action links  */}
@@ -187,7 +190,9 @@ export default async function TodayPage() {
 
             <ActionCards plan={plan} />
           </div>
-        </div>
+        </div>{/* end lumi-today-right */}
+
+        </div>{/* end lumi-today-body */}
 
       </div>
 

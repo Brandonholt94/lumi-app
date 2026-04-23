@@ -98,8 +98,9 @@ export default function DayTimeline({ plan }: { plan: string }) {
   const [taskName,  setTaskName]  = useState('')
   const [taskTime,  setTaskTime]  = useState('')
   const [saving,    setSaving]    = useState(false)
-  const nowRef  = useRef<HTMLDivElement>(null)
-  const inputRef = useRef<HTMLInputElement>(null)
+  const nowRef       = useRef<HTMLDivElement>(null)
+  const scrollRef    = useRef<HTMLDivElement>(null)
+  const inputRef     = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     const now   = new Date()
@@ -165,10 +166,17 @@ export default function DayTimeline({ plan }: { plan: string }) {
     })
   }
 
-  // Scroll "Now" into view
+  // Scroll "Now" into view within the scrollable container
   useEffect(() => {
     if (!loading) {
-      setTimeout(() => nowRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' }), 200)
+      setTimeout(() => {
+        const container = scrollRef.current
+        const nowEl     = nowRef.current
+        if (container && nowEl) {
+          const offset = nowEl.offsetTop - container.offsetTop - container.clientHeight / 2 + nowEl.clientHeight / 2
+          container.scrollTo({ top: Math.max(0, offset), behavior: 'smooth' })
+        }
+      }, 200)
     }
   }, [loading])
 
@@ -373,6 +381,7 @@ export default function DayTimeline({ plan }: { plan: string }) {
         overflow:     'hidden',
       }}
     >
+      <style>{`.lumi-timeline-scroll::-webkit-scrollbar { display: none; }`}</style>
       {/* Morning anchors — pill row at top of card */}
       {anchors && anchors.anchors.length > 0 && (() => {
         const hour    = new Date().getHours()
@@ -529,9 +538,18 @@ export default function DayTimeline({ plan }: { plan: string }) {
         </div>
       )}
 
-      {/* Timeline rows */}
+      {/* Timeline rows — scrollable, max ~4 cards visible */}
       {hasContent && (
-        <div style={{ padding: '10px 12px 4px' }}>
+        <div
+          ref={scrollRef}
+          className="lumi-timeline-scroll"
+          style={{
+            padding:          '10px 12px 4px',
+            maxHeight:        340,
+            overflowY:        'auto',
+            scrollbarWidth:   'none',
+            WebkitOverflowScrolling: 'touch',
+          } as React.CSSProperties}>
           {rows.map((row) => {
             // Now marker
             if ('isNow' in row && row.isNow) {

@@ -12,7 +12,6 @@ import SleepCard from './_components/SleepCard'
 import ActionCards from './_components/ActionCards'
 import MorningAnchors from './_components/MorningAnchors'
 import DayTimeline from './_components/DayTimeline'
-import TodaysHabits from './_components/TodaysHabits'
 
 function getServiceClient() {
   return createClient(
@@ -93,9 +92,6 @@ export default async function TodayPage() {
 
         {/* Evening wind-down — shows after 8pm, right below the day view */}
         <EveningBrainClear />
-
-        {/* ── TODAY'S HABITS ── */}
-        <TodaysHabits />
 
         {/* ── ONE FOCUS (label + card rendered together inside OneFocusCard) ── */}
         <OneFocusCard />

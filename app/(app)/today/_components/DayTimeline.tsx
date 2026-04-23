@@ -68,10 +68,18 @@ interface AnchorState {
   checked: number[]
 }
 
+interface Habit {
+  id:   string
+  name: string
+  emoji: string
+  done: boolean
+}
+
 export default function DayTimeline({ plan }: { plan: string }) {
   const [events,    setEvents]    = useState<CalEvent[]>([])
   const [tasks,     setTasks]     = useState<PersonalTask[]>([])
   const [anchors,   setAnchors]   = useState<AnchorState | null>(null)
+  const [habits,    setHabits]    = useState<Habit[]>([])
   const [loading,   setLoading]   = useState(true)
   const [adding,    setAdding]    = useState(false)
   const [taskName,  setTaskName]  = useState('')
@@ -85,31 +93,47 @@ export default function DayTimeline({ plan }: { plan: string }) {
     const nextH = now.getHours() + 1
     setTaskTime(`${nextH.toString().padStart(2, '0')}:00`)
 
-    const fetches: Promise<unknown>[] = [
+    const baseFetches: Promise<unknown>[] = [
       fetch('/api/timeline-tasks').then(r => r.json()).catch(() => []),
       fetch('/api/morning-anchors').then(r => r.json()).catch(() => null),
+      fetch('/api/habits').then(r => r.json()).catch(() => ({ habits: [] })),
     ]
 
     if (plan.toLowerCase() === 'companion') {
-      fetches.unshift(
-        fetch('/api/calendar/events?hours=24').then(r => r.json()).catch(() => ({}))
-      )
-      Promise.all(fetches).then(([calData, taskData, anchorData]) => {
+      const fetches = [
+        fetch('/api/calendar/events?hours=24').then(r => r.json()).catch(() => ({})),
+        ...baseFetches,
+      ]
+      Promise.all(fetches).then(([calData, taskData, anchorData, habitData]) => {
         const evts = Array.isArray(calData) ? calData : ((calData as { events?: CalEvent[] })?.events ?? [])
         setEvents(evts)
         setTasks(Array.isArray(taskData) ? taskData as PersonalTask[] : [])
         if (anchorData) setAnchors(anchorData as AnchorState)
+        setHabits((habitData as { habits?: Habit[] })?.habits ?? [])
         setLoading(false)
       })
     } else {
-      Promise.all(fetches).then(([taskData, anchorData]) => {
+      Promise.all(baseFetches).then(([taskData, anchorData, habitData]) => {
         setEvents([])
         setTasks(Array.isArray(taskData) ? taskData as PersonalTask[] : [])
         if (anchorData) setAnchors(anchorData as AnchorState)
+        setHabits((habitData as { habits?: Habit[] })?.habits ?? [])
         setLoading(false)
       })
     }
   }, [])
+
+  async function toggleHabit(id: string) {
+    const habit = habits.find(h => h.id === id)
+    if (!habit) return
+    const newDone = !habit.done
+    setHabits(prev => prev.map(h => h.id === id ? { ...h, done: newDone } : h))
+    await fetch('/api/habits/log', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ habitId: id, done: newDone }),
+    })
+  }
 
   async function toggleAnchor(index: number) {
     if (!anchors) return
@@ -366,6 +390,70 @@ export default function DayTimeline({ plan }: { plan: string }) {
           </div>
         )
       })()}
+
+      {/* Habits pill row */}
+      {habits.length > 0 && (
+        <div style={{
+          padding:      '10px 14px 10px',
+          borderBottom: '1px solid rgba(45,42,62,0.05)',
+        }}>
+          <p style={{
+            fontFamily:    'var(--font-nunito-sans)',
+            fontSize:      '9px',
+            fontWeight:    800,
+            letterSpacing: '0.1em',
+            color:         '#C4A882',
+            marginBottom:  8,
+          }}>
+            TODAY&apos;S HABITS
+          </p>
+          <div style={{
+            display:        'flex',
+            gap:            7,
+            overflowX:      'auto',
+            paddingBottom:  2,
+            scrollbarWidth: 'none',
+          }}>
+            {habits.map(habit => (
+              <button
+                key={habit.id}
+                onClick={() => toggleHabit(habit.id)}
+                style={{
+                  flexShrink:  0,
+                  display:     'flex',
+                  alignItems:  'center',
+                  gap:         5,
+                  padding:     '5px 11px 5px 8px',
+                  borderRadius: 20,
+                  border:      habit.done ? 'none' : '1.5px solid rgba(45,42,62,0.12)',
+                  background:  habit.done ? 'rgba(232,160,191,0.18)' : 'rgba(45,42,62,0.04)',
+                  cursor:      'pointer',
+                  WebkitTapHighlightColor: 'transparent',
+                }}
+              >
+                {habit.done ? (
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="10" fill="#E8A0BF" opacity="0.30"/>
+                    <path d="M7 12.5l3.5 3.5L17 9" stroke="#B86090" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                ) : (
+                  <span style={{ fontSize: '12px', lineHeight: 1 }}>{habit.emoji}</span>
+                )}
+                <span style={{
+                  fontFamily:     'var(--font-nunito-sans)',
+                  fontSize:       '12px',
+                  fontWeight:     habit.done ? 700 : 600,
+                  color:          habit.done ? '#B86090' : '#2D2A3E',
+                  textDecoration: habit.done ? 'line-through' : 'none',
+                  whiteSpace:     'nowrap',
+                }}>
+                  {habit.name}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {!hasContent && !adding && (
         <div style={{ padding: '16px', textAlign: 'center' }}>

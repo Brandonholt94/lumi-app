@@ -47,7 +47,7 @@ export async function POST() {
       .order('created_at', { ascending: true }),
     supabase
       .from('focus_sessions')
-      .select('duration_minutes, completed')
+      .select('actual_duration, completed')
       .eq('clerk_user_id', userId)
       .gte('started_at', monday.toISOString()),
   ])
@@ -66,7 +66,7 @@ export async function POST() {
   for (const m of moods) moodFreq[m.mood] = (moodFreq[m.mood] ?? 0) + 1
   const dominantMood = Object.entries(moodFreq).sort((a, b) => b[1] - a[1])[0]?.[0] ?? null
 
-  const focusMinutes = focusSessions.reduce((s, f) => s + (f.duration_minutes ?? 0), 0)
+  const focusMinutes = Math.round(focusSessions.reduce((s, f) => s + (f.actual_duration ?? 0), 0) / 60)
 
   const sampleCaptures = captures
     .slice(0, 10)

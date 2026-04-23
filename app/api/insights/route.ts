@@ -76,7 +76,7 @@ export async function GET(req: Request) {
   const captures      = capturesRes.data  ?? []
   const moods         = moodsRes.data     ?? []
   const focusSessions = focusRes.data     ?? []
-  const plan          = profileRes.data?.plan ?? 'free'
+  const plan          = profileRes.data?.plan ?? 'starter'
   const completedTasks = (completedRes.data ?? []).map(c => ({
     text: c.text,
     created_at: c.completed_at as string,

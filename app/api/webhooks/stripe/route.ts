@@ -17,7 +17,7 @@ function planFromPriceId(priceId: string): string {
     [process.env.STRIPE_COMPANION_MONTHLY_PRICE_ID!]: 'companion',
     [process.env.STRIPE_COMPANION_ANNUAL_PRICE_ID!]:  'companion',
   }
-  return map[priceId] ?? 'free'
+  return map[priceId] ?? 'starter'
 }
 
 export async function POST(req: Request) {
@@ -122,11 +122,11 @@ export async function POST(req: Request) {
       const sub        = event.data.object as Stripe.Subscription
       const customerId = sub.customer as string
       const priceId    = sub.items.data[0]?.price?.id
-      const plan       = priceId ? planFromPriceId(priceId) : 'free'
+      const plan       = priceId ? planFromPriceId(priceId) : 'starter'
       const status     = sub.status // active, trialing, past_due, canceled, etc.
 
-      // If subscription is no longer active, downgrade to free
-      const activePlan = ['active', 'trialing'].includes(status) ? plan : 'free'
+      // If subscription is no longer active, downgrade to starter
+      const activePlan = ['active', 'trialing'].includes(status) ? plan : 'starter'
 
       const { data: profile } = await supabase
         .from('profiles')
@@ -156,7 +156,7 @@ export async function POST(req: Request) {
 
       if (profile?.clerk_user_id) {
         await supabase.from('profiles')
-          .update({ plan: 'free', updated_at: new Date().toISOString() })
+          .update({ plan: 'starter', updated_at: new Date().toISOString() })
           .eq('clerk_user_id', profile.clerk_user_id)
       }
 

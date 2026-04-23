@@ -1,6 +1,5 @@
 import { auth } from '@clerk/nextjs/server'
 import { createClient } from '@supabase/supabase-js'
-import { createAnthropic } from '@ai-sdk/anthropic'
 import { generateText } from 'ai'
 import { buildFocusSelectionPrompt } from '@/lib/ai/focus-prompt'
 import { NextResponse } from 'next/server'
@@ -124,8 +123,6 @@ export async function GET(req: Request) {
     })
   }
 
-  const anthropic = createAnthropic({ apiKey: process.env.ANTHROPIC_API_KEY! })
-
   const prompt = buildFocusSelectionPrompt({
     mood,
     tasks: filteredTasks,
@@ -134,7 +131,7 @@ export async function GET(req: Request) {
 
   try {
     const { text } = await generateText({
-      model: anthropic('claude-sonnet-4-6'),
+      model: 'anthropic/claude-sonnet-4.6',
       prompt,
       maxOutputTokens: 300,
     })

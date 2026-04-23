@@ -56,9 +56,9 @@ export async function POST(req: Request) {
       .order('created_at', { ascending: false }),
     supabase
       .from('focus_sessions')
-      .select('duration_minutes, completed, created_at')
+      .select('actual_duration, completed, started_at')
       .eq('clerk_user_id', userId)
-      .gte('created_at', thirtyDaysAgo.toISOString()),
+      .gte('started_at', thirtyDaysAgo.toISOString()),
     supabase
       .from('habit_logs')
       .select('habit_id, log_date')
@@ -93,7 +93,7 @@ export async function POST(req: Request) {
       }, 0) / sleepLogs.length).toFixed(1)
     : 'N/A'
 
-  const totalFocusMin = focusSessions.reduce((a, b) => a + (b.duration_minutes ?? 0), 0)
+  const totalFocusMin = Math.round(focusSessions.reduce((a, b) => a + (b.actual_duration ?? 0), 0) / 60)
   const completedFocus = focusSessions.filter(s => s.completed).length
 
   const moodFreq: Record<string, number> = {}

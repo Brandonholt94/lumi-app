@@ -20,7 +20,7 @@ export async function GET(req: Request) {
     .eq('clerk_user_id', userId)
     .single()
 
-  const plan = profile?.plan ?? 'free'
+  const plan = (profile?.plan ?? '').toLowerCase()
   if (plan !== 'companion') {
     redirect('/upgrade?feature=calendar')
   }

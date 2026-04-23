@@ -1,4 +1,3 @@
-import { createAnthropic } from '@ai-sdk/anthropic'
 import { streamText, generateText, stepCountIs, tool, type ModelMessage } from 'ai'
 import { auth, currentUser } from '@clerk/nextjs/server'
 import { createClient } from '@supabase/supabase-js'
@@ -8,9 +7,6 @@ import { getMicrosoftUpcomingEvents } from '@/lib/microsoft-calendar'
 import { detectCrisis, CRISIS_RESPONSE, DISTRESS_CONTEXT } from '@/lib/ai/crisis-detection'
 import { z } from 'zod'
 
-const anthropic = createAnthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-})
 
 // ── Model routing ──────────────────────────────────────────
 // Sonnet: emotional states, RSD, distress, re-entry, first message
@@ -79,7 +75,7 @@ async function summarizeHistory(messages: ChatMessage[]): Promise<{
 
   try {
     const { text } = await generateText({
-      model: anthropic('claude-haiku-4.5'),
+      model: 'anthropic/claude-haiku-4.5',
       messages: [
         {
           role: 'user',
@@ -336,7 +332,7 @@ export async function POST(req: Request) {
 
   const userContext: LumiUserContext = {
     name,
-    plan: clientContext?.plan ?? 'free',
+    plan: clientContext?.plan ?? 'starter',
     mood: resolvedMood,
     focusTask: clientContext?.focusTask ?? undefined,
     ...serverContext,
@@ -387,8 +383,8 @@ export async function POST(req: Request) {
     userContext.isReturningAfterAbsence,
   )
   const model = useSonnet
-    ? anthropic('claude-sonnet-4.6')
-    : anthropic('claude-haiku-4.5')
+    ? 'anthropic/claude-sonnet-4.6'
+    : 'anthropic/claude-haiku-4.5'
 
   // ── Stream Lumi's response ─────────────────────────────────
   const result = streamText({

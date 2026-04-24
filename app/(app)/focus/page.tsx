@@ -731,9 +731,9 @@ export default function FocusPage() {
       }} />
 
       {/* ── All content sits above grain ── */}
-      <div className="flex flex-col flex-1" style={{ position: 'relative', zIndex: 2 }}>
-      {/* ── Body ── */}
-      <div className="flex flex-col flex-1 px-6 pb-8" style={{ paddingTop: 48 }}>
+      <div className="flex flex-col flex-1" style={{ position: 'relative', zIndex: 2, alignItems: 'center' }}>
+      {/* ── Body — centered column, max 520px ── */}
+      <div className="flex flex-col flex-1 px-6 pb-12" style={{ paddingTop: 56, width: '100%', maxWidth: 520 }}>
 
         {/* IDLE — task picker + duration */}
         {state === 'idle' && (

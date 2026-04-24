@@ -45,7 +45,7 @@ export default function NavBar() {
       `}</style>
 
       <div
-        className="flex items-end"
+        className="flex items-end w-full"
         style={{
           padding: '0 14px',
           paddingBottom: 'calc(14px + env(safe-area-inset-bottom, 0px))',

@@ -77,7 +77,8 @@ const MeIcon = () => (
   </svg>
 )
 
-// Lumi brandmark icon — gradient circle with white brandmark, rendered as pure SVG
+// Lumi brandmark icon — gradient circle with white brandmark
+// Uses nested <svg> so the browser handles scaling automatically (no manual transform math)
 const LumiNavIcon = ({ active }: { active: boolean }) => (
   <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg"
     style={{ flexShrink: 0, filter: active ? 'drop-shadow(0 0 4px rgba(244,165,130,0.55))' : 'drop-shadow(0 2px 4px rgba(244,165,130,0.40))' }}
@@ -87,15 +88,11 @@ const LumiNavIcon = ({ active }: { active: boolean }) => (
         <stop offset="0%" stopColor="#F4A582"/>
         <stop offset="100%" stopColor="#F5C98A"/>
       </linearGradient>
-      {/* Clip brandmark paths to the circle */}
-      <clipPath id="lumi-sidebar-clip">
-        <circle cx="14" cy="14" r="14"/>
-      </clipPath>
     </defs>
-    {/* Background circle */}
+    {/* Gradient circle background */}
     <circle cx="14" cy="14" r="14" fill="url(#lumi-sidebar-grad)"/>
-    {/* Brandmark scaled to fit inside 28×28 — original viewBox 166.9×151.3, scale ~0.152 */}
-    <g clipPath="url(#lumi-sidebar-clip)" transform="translate(1.4, 1.4) scale(0.152)">
+    {/* Nested SVG — browser auto-scales the brandmark viewBox into the 20×20 box */}
+    <svg x="4" y="4" width="20" height="20" viewBox="0 0 166.9 151.3">
       <circle cx="83.8" cy="91" r="37.5" fill="white"/>
       <rect x="37.7" y="30.8" width="12.3" height="27.8" rx="4.9"
         transform="translate(-18.5 38.7) rotate(-40)" fill="white"/>
@@ -107,7 +104,7 @@ const LumiNavIcon = ({ active }: { active: boolean }) => (
       <rect x="108.6" y="38.6" width="27.8" height="12.3" rx="4.9"
         transform="translate(9.5 109.8) rotate(-50)" fill="white"/>
       <rect x="10" y="133.4" width="147.6" height="7.9" rx="3.1" fill="white" opacity="0.72"/>
-    </g>
+    </svg>
   </svg>
 )
 

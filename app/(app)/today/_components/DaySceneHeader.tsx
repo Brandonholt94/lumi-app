@@ -35,9 +35,9 @@ const SKY_STOPS: Record<Scene, { color: string; offset: string }[]> = {
     { color: '#1473C8', offset: '0%'  },
     { color: '#3D9BE0', offset: '35%' },
     { color: '#7EC5F0', offset: '58%' },
-    { color: '#C8E8F5', offset: '70%' },
-    { color: '#EEF2D8', offset: '76%' },
-    { color: '#F5F0C8', offset: '100%'},
+    { color: '#BDE4F5', offset: '74%' },
+    { color: '#DFF2FB', offset: '88%' },
+    { color: '#EEF8FD', offset: '100%'},
   ],
   evening: [
     { color: '#0C0D28', offset: '0%'  },

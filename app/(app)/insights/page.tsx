@@ -1360,8 +1360,8 @@ export default function InsightsPage() {
             {/* ── Lumi Library ── */}
             <ResourcesSection />
 
-            </div>{/* end lumi-insights-right */}
-            </div>{/* end lumi-insights-layout */}
+            </div>
+            </div>
             )}
           </>
         ) : (

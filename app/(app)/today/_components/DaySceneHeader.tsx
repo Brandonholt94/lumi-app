@@ -112,22 +112,28 @@ const CLOUD_COLOR: Record<Scene, string> = {
 // Drift values are SVG units — also larger to be perceptible on wide canvas.
 const CLOUDS_DESKTOP: Record<Scene, { x: number; y: number; s: number; o: number; driftX: number; dur: number }[]> = {
   morning:   [
-    { x: 55,  y: 54, s: 1.80, o: 0.72, driftX:  38, dur: 32 },  // left, large
-    { x: 820, y: 60, s: 1.60, o: 0.62, driftX: -30, dur: 27 },  // right, large
-    { x: 460, y: 40, s: 1.10, o: 0.44, driftX:  20, dur: 42 },  // centre, further back
+    { x: 40,  y: 52, s: 1.85, o: 0.72, driftX:  36, dur: 32 },  // left, large
+    { x: 820, y: 58, s: 1.65, o: 0.64, driftX: -28, dur: 27 },  // right, large
+    { x: 440, y: 36, s: 1.15, o: 0.42, driftX:  18, dur: 44 },  // centre, mid-distance
+    { x: 200, y: 125, s: 0.60, o: 0.35, driftX: 14, dur: 50 },  // horizon left
+    { x: 680, y: 120, s: 0.55, o: 0.30, driftX:-12, dur: 46 },  // horizon right
   ],
   afternoon: [
-    { x: 20,  y: 65, s: 2.00, o: 0.92, driftX:  32, dur: 30 },
-    { x: 840, y: 68, s: 1.75, o: 0.88, driftX: -26, dur: 25 },
-    { x: 430, y: 28, s: 1.10, o: 0.72, driftX:  18, dur: 38 },
+    { x: 20,  y: 62, s: 2.00, o: 0.92, driftX:  32, dur: 30 },
+    { x: 840, y: 66, s: 1.75, o: 0.88, driftX: -26, dur: 25 },
+    { x: 430, y: 26, s: 1.15, o: 0.70, driftX:  18, dur: 38 },
+    { x: 280, y: 122, s: 0.58, o: 0.40, driftX: 12, dur: 52 }, // horizon
+    { x: 700, y: 118, s: 0.50, o: 0.35, driftX:-10, dur: 48 }, // horizon
   ],
   evening:   [
-    { x: 60,  y: 50, s: 1.65, o: 0.58, driftX:  30, dur: 34 },
-    { x: 810, y: 44, s: 1.45, o: 0.46, driftX: -24, dur: 28 },
+    { x: 50,  y: 48, s: 1.70, o: 0.58, driftX:  28, dur: 34 },
+    { x: 820, y: 42, s: 1.50, o: 0.48, driftX: -22, dur: 28 },
+    { x: 350, y: 120, s: 0.55, o: 0.28, driftX: 12, dur: 50 }, // horizon
   ],
   night:     [
-    { x: 120, y: 60, s: 1.40, o: 0.24, driftX:  22, dur: 36 },
-    { x: 800, y: 64, s: 1.20, o: 0.18, driftX: -18, dur: 30 },
+    { x: 100, y: 58, s: 1.45, o: 0.24, driftX:  20, dur: 36 },
+    { x: 800, y: 62, s: 1.25, o: 0.18, driftX: -16, dur: 30 },
+    { x: 440, y: 118, s: 0.50, o: 0.12, driftX: 10, dur: 54 }, // horizon
   ],
 }
 
@@ -341,15 +347,19 @@ export default function DaySceneHeader({ firstName }: Props) {
                   />
                 )}
                 <g transform={`scale(${c.s})`}>
-                  {/* Puff circles — varying sizes for organic shape */}
+                  {/* Bottom row — overlapping circles seal the base without a flat rect */}
+                  <circle cx={-8}  cy={16} r={16} fill={f}/>
+                  <circle cx={22}  cy={18} r={18} fill={f}/>
+                  <circle cx={54}  cy={17} r={17} fill={f}/>
+                  <circle cx={84}  cy={15} r={15} fill={f}/>
+                  <circle cx={110} cy={13} r={13} fill={f}/>
+                  {/* Top puffs */}
+                  <circle cx={-18} cy={6}   r={18} fill={f}/>
                   <circle cx={0}   cy={0}   r={22} fill={f}/>
                   <circle cx={26}  cy={-14} r={28} fill={f}/>
                   <circle cx={60}  cy={-10} r={24} fill={f}/>
                   <circle cx={88}  cy={-4}  r={19} fill={f}/>
-                  <circle cx={-18} cy={6}   r={18} fill={f}/>
                   <circle cx={112} cy={4}   r={16} fill={f}/>
-                  {/* Flat base fills gaps between circles */}
-                  <rect x={-18} y={0} width={130} height={30} fill={f} rx={4}/>
                 </g>
               </g>
             )

@@ -77,10 +77,22 @@ const MeIcon = () => (
   </svg>
 )
 
-// Simple message bubble icon for Chat nav
-const MessageIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor">
-    <path d="M216,48H40A16,16,0,0,0,24,64V224a15.85,15.85,0,0,0,9.24,14.5A16.13,16.13,0,0,0,40,240a15.89,15.89,0,0,0,10.25-3.78.69.69,0,0,0,.13-.11L82.5,208H216a16,16,0,0,0,16-16V64A16,16,0,0,0,216,48ZM40,224h0ZM216,192H80a16,16,0,0,0-10.25,3.78.69.69,0,0,0-.13.11L40,224V64H216Z"/>
+// Lumi brandmark icon for the "Lumi" nav item
+const LumiNavIcon = ({ active }: { active: boolean }) => (
+  <svg width="20" height="20" viewBox="0 0 236.5 68.1" fill="none">
+    <defs>
+      <linearGradient id="lumi-nav-grad" x1="25.6" y1="28.3" x2="45.8" y2="48.5" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stopColor="#f5c98a"/>
+        <stop offset=".6" stopColor="#f4a582"/>
+        <stop offset="1" stopColor="#e8a0bf"/>
+      </linearGradient>
+    </defs>
+    <circle fill="url(#lumi-nav-grad)" cx="35.7" cy="38.4" r="14.3"/>
+    <rect fill={active ? '#f4a582' : 'currentColor'} x="18.1" y="15.5" width="4.7" height="10.6" rx="2.4" transform="translate(-8.5 18) rotate(-40)"/>
+    <rect fill={active ? '#f4a582' : 'currentColor'} x="33.3" y="7.7" width="4.7" height="12.9" rx="2.4"/>
+    <rect fill={active ? '#f4a582' : 'currentColor'} x="9.4" y="27.2" width="5" height="9.4" rx="2.5" transform="translate(-22 34.6) rotate(-74)"/>
+    <rect fill={active ? '#f4a582' : 'currentColor'} x="56.5" y="27.2" width="5" height="9.4" rx="2.5" transform="translate(73.4 -33.6) rotate(74)"/>
+    <rect fill={active ? '#f4a582' : 'currentColor'} x="48.1" y="15.5" width="4.7" height="10.6" rx="2.4" transform="translate(25.1 -27.6) rotate(40)"/>
   </svg>
 )
 
@@ -116,7 +128,7 @@ export default function DesktopSidebar() {
       {/* ── Nav ── */}
       <nav style={{ flex: 1, padding: '4px 12px', display: 'flex', flexDirection: 'column', gap: 2 }}>
         <NavItem href="/today"    label="Today"      active={is('/today')}    icon={<TodayIcon />} />
-        <NavItem href="/chat"     label="Chat"       active={is('/chat')}     icon={<MessageIcon />} />
+        <NavItem href="/chat"     label="Lumi"       active={is('/chat')}     icon={<LumiNavIcon active={is('/chat')} />} />
         <NavItem href="/focus"    label="Focus"      active={is('/focus')}    icon={<FocusIcon />} />
         <NavItem href="/capture"  label="Brain Dump" active={is('/capture')}  icon={<CaptureIcon />} />
         <NavItem href="/insights" label="Insights"   active={is('/insights')} icon={<InsightsIcon />} />

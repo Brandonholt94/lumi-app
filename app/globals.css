@@ -68,7 +68,7 @@ body {
 /* Desktop calendar column — flex, fills left column height */
 .lumi-today-desktop-col {
   display:        none;          /* hidden on mobile — no inline style can override */
-  padding:        0 28px 24px;
+  padding:        24px 28px 24px;
   flex:           1;
   flex-direction: column;
   min-height:     0;
@@ -143,6 +143,10 @@ body {
   }
 }
 
+/* Hour slot click zones in DesktopCalendar */
+.lumi-hour-slot { cursor: pointer; }
+.lumi-hour-slot:hover { background: rgba(244,165,130,0.04); }
+
 /* Scene header — height + dome */
 .lumi-scene-svg  { display: block; width: 100%; height: 138px; }
 .lumi-scene-dome {
@@ -157,7 +161,7 @@ body {
 }
 @media (min-width: 768px) {
   .lumi-scene-svg  { height: 200px; }
-  .lumi-scene-dome { border-radius: 0; margin-top: -2px; padding-top: 24px; }
+  .lumi-scene-dome { border-radius: 0; margin-top: -2px; padding-top: 24px; padding-bottom: 20px; }
 }
 
 /* Mobile-only floating Brain Dump FAB (removed on desktop — Add Task is inline) */

@@ -63,13 +63,21 @@ export async function PATCH(req: Request) {
   const { userId } = await auth()
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { id, completed } = await req.json()
+  const body = await req.json()
+  const { id } = body
   if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 })
+
+  // Support toggling completion OR rescheduling (or both)
+  const updates: Record<string, unknown> = {}
+  if (body.completed   !== undefined) updates.completed   = body.completed
+  if (body.scheduled_at !== undefined) updates.scheduled_at = body.scheduled_at
+  if (Object.keys(updates).length === 0)
+    return NextResponse.json({ error: 'No fields to update' }, { status: 400 })
 
   const supabase = getServiceClient()
   const { error } = await supabase
     .from('captures')
-    .update({ completed })
+    .update(updates)
     .eq('id', id)
     .eq('clerk_user_id', userId)
 

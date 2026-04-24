@@ -16,6 +16,7 @@ import MedCheckIn from './MedCheckIn'
 import SleepCard from './SleepCard'
 import MorningAnchors from './MorningAnchors'
 import LumiNudge from './LumiNudge'
+import MoodSelector from './MoodSelector'
 import EveningBrainClear from './EveningBrainClear'
 import OneFocusCard from './OneFocusCard'
 import ActionCards from './ActionCards'
@@ -44,6 +45,14 @@ export default function TodaySideCards({ firstName, plan, desktop = false }: Pro
 
       {/* ── Morning anchors (own visibility logic) ── */}
       <MorningAnchors />
+
+      {/* ── Brain check-in (desktop: moved here from calendar bottom) ── */}
+      <p className="lumi-section-label" style={{ marginTop: desktop ? 4 : 4 }}>
+        HOW&apos;S YOUR BRAIN TODAY?
+      </p>
+      <div style={{ marginBottom: desktop ? 10 : 12 }}>
+        <MoodSelector />
+      </div>
 
       {/* ── Lumi contextual nudge ── */}
       <LumiNudge firstName={firstName} plan={plan} />
@@ -84,10 +93,8 @@ export default function TodaySideCards({ firstName, plan, desktop = false }: Pro
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             marginBottom: desktop ? 10 : 12,
           }}>
-            <svg width={iconSvg} height={iconSvg} viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="13.5" r="7.5" stroke="#C49820" strokeWidth="1.8"/>
-              <path d="M12 10V13.8L14.2 15.2" stroke="#C49820" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M9.5 3H14.5M12 3V5.5" stroke="#C49820" strokeWidth="1.8" strokeLinecap="round"/>
+            <svg width={iconSvg} height={iconSvg} viewBox="0 0 256 256" fill="#C49820">
+              <path d="M236,128a108,108,0,0,1-216,0c0-42.52,24.73-81.34,63-98.9A12,12,0,1,1,93,50.91C63.24,64.57,44,94.83,44,128a84,84,0,0,0,168,0c0-33.17-19.24-63.43-49-77.09A12,12,0,1,1,173,29.1C211.27,46.66,236,85.48,236,128Z"/>
             </svg>
           </div>
           <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: labelSize, fontWeight: 700, color: '#1E1C2E', marginBottom: 3 }}>

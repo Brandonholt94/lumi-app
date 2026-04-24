@@ -270,14 +270,23 @@ export default function DaySceneHeader({ firstName }: Props) {
 
           {/* Afternoon sun — crisp disk + rays + soft glow, upper right */}
           {scene === 'afternoon' && (() => {
-            const cx = isDesktop ? vbW - 280 : 308, cy = 34
+            const cx = isDesktop ? vbW - 210 : 308
+            const cy = isDesktop ? 46 : 34
+            // Scale sun size proportionally to viewBox width so it reads the same on mobile and desktop
+            const scale = isDesktop ? 3.2 : 1
+            const glowR  = 36 * scale
+            const innerR = 13 * scale
+            const coreR  = 10 * scale
+            const r1     = 19 * scale   // ray start
+            const r2     = 28 * scale   // ray end
+            const sw     = isDesktop ? 8 : 2.5
             const rays = Array.from({ length: 8 }, (_, i) => {
               const a = (i * 45) * Math.PI / 180
-              return { x1: Math.cos(a) * 19, y1: Math.sin(a) * 19, x2: Math.cos(a) * 27, y2: Math.sin(a) * 27 }
+              return { x1: Math.cos(a) * r1, y1: Math.sin(a) * r1, x2: Math.cos(a) * r2, y2: Math.sin(a) * r2 }
             })
             return (
               <g transform={`translate(${cx},${cy})`}>
-                <circle cx={0} cy={0} r={36} fill="url(#sunGlow)"/>
+                <circle cx={0} cy={0} r={glowR} fill="url(#sunGlow)"/>
                 {/* Rays rotate slowly — one full turn every 90 seconds */}
                 <g>
                   <animateTransform
@@ -290,11 +299,11 @@ export default function DaySceneHeader({ firstName }: Props) {
                   />
                   {rays.map((r, i) => (
                     <line key={i} x1={r.x1} y1={r.y1} x2={r.x2} y2={r.y2}
-                      stroke="#FFD600" strokeWidth="2.5" strokeLinecap="round" strokeOpacity="0.85"/>
+                      stroke="#FFD600" strokeWidth={sw} strokeLinecap="round" strokeOpacity="0.90"/>
                   ))}
                 </g>
-                <circle cx={0} cy={0} r={13} fill="#FFF9C4"/>
-                <circle cx={0} cy={0} r={10} fill="#FFE040"/>
+                <circle cx={0} cy={0} r={innerR} fill="#FFF9C4"/>
+                <circle cx={0} cy={0} r={coreR}  fill="#FFE040"/>
               </g>
             )
           })()}

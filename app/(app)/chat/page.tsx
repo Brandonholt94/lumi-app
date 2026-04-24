@@ -684,7 +684,7 @@ export default function ChatPage() {
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: 5,
+                gap: 8,
                 padding: '6px 14px',
                 borderRadius: 20,
                 background: judgeOpen ? '#F4A582' : 'rgba(244,165,130,0.14)',

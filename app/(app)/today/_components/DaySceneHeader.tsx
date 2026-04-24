@@ -107,10 +107,19 @@ const CLOUD_COLOR: Record<Scene, string> = {
   night:     '#1A2850',
 }
 
+// ── Desktop cloud positions (wider 1200-unit canvas) ─────────
+const CLOUDS_DESKTOP: Record<Scene, { x: number; y: number; s: number; o: number }[]> = {
+  morning:   [{ x: 60,  y: 50,  s: 0.60, o: 0.65 }, { x: 780, y: 55,  s: 0.50, o: 0.50 }, { x: 420, y: 38,  s: 0.42, o: 0.42 }],
+  afternoon: [{ x: 20,  y: 65,  s: 0.95, o: 0.92 }, { x: 820, y: 68,  s: 0.85, o: 0.88 }, { x: 400, y: 28,  s: 0.55, o: 0.72 }],
+  evening:   [{ x: 70,  y: 52,  s: 0.65, o: 0.58 }, { x: 780, y: 46,  s: 0.55, o: 0.45 }],
+  night:     [{ x: 150, y: 62,  s: 0.58, o: 0.25 }, { x: 780, y: 65,  s: 0.48, o: 0.18 }],
+}
+
 export default function DaySceneHeader({ firstName }: Props) {
   const [scene,    setScene]    = useState<Scene | null>(null)
   const [greeting, setGreeting] = useState<string | null>(null)
   const [date,     setDate]     = useState('')
+  const [isDesktop, setIsDesktop] = useState(false)
 
   useEffect(() => {
     const hour = new Date().getHours()
@@ -119,9 +128,19 @@ export default function DaySceneHeader({ firstName }: Props) {
     setDate(new Date().toLocaleDateString('en-US', {
       weekday: 'long', month: 'long', day: 'numeric',
     }))
+    const check = () => setIsDesktop(window.innerWidth >= 768)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
   }, [])
 
   const isNightish = scene === 'evening' || scene === 'night'
+  const vbW = isDesktop ? 1200 : 390
+  const clouds = isDesktop ? (scene ? CLOUDS_DESKTOP[scene] : []) : (scene ? CLOUDS[scene] : [])
+  // Morning sun center — sits at horizon bottom, visible as a rising disk
+  const sunCX = isDesktop ? vbW / 2 : 210
+  const sunCY = isDesktop ? 162 : 100
+  const sunR  = isDesktop ? 52  : 90
 
   return (
     <div style={{ width: '100%', flexShrink: 0 }}>
@@ -129,7 +148,7 @@ export default function DaySceneHeader({ firstName }: Props) {
       {/* ── Sky scene ── */}
       <div style={{ position: 'relative' }}>
         <svg
-          viewBox="0 0 390 180"
+          viewBox={`0 0 ${vbW} 180`}
           preserveAspectRatio="xMidYMin slice"
           className="lumi-scene-svg"
         >
@@ -203,28 +222,33 @@ export default function DaySceneHeader({ firstName }: Props) {
           </defs>
 
           {/* Sky fill */}
-          <rect width="390" height="180" fill="url(#skyGrad)"/>
+          <rect width={vbW} height="180" fill="url(#skyGrad)"/>
 
           {/* Horizon glow */}
           {(scene === 'morning' || scene === 'evening') && (
-            <ellipse cx="195" cy="145" rx="240" ry="105" fill="url(#horizonGlow)"/>
+            <ellipse cx={vbW / 2} cy="145" rx={vbW * 0.62} ry="105" fill="url(#horizonGlow)"/>
           )}
 
-          {/* Morning sun orb — soft radial bloom with gentle pulse */}
+          {/* Morning sun — rises from horizon, clipped to show only above */}
           {scene === 'morning' && (
-            <circle cx="210" cy="100" r="90" fill="url(#sunOrb)">
-              <animate
-                attributeName="opacity"
-                values="0.88;1;0.88"
-                dur="7s"
-                repeatCount="indefinite"
-              />
-            </circle>
+            <g>
+              <defs>
+                <clipPath id="sunClip">
+                  <rect x="0" y="0" width={vbW} height={sunCY}/>
+                </clipPath>
+              </defs>
+              {/* Soft glow halo behind sun */}
+              <circle cx={sunCX} cy={sunCY} r={sunR * 2.2} fill="url(#sunOrb)" opacity="0.55"/>
+              {/* Crisp sun disk, clipped at horizon */}
+              <circle cx={sunCX} cy={sunCY} r={sunR} fill="url(#sunOrb)" clipPath="url(#sunClip)">
+                <animate attributeName="opacity" values="0.90;1;0.90" dur="7s" repeatCount="indefinite"/>
+              </circle>
+            </g>
           )}
 
           {/* Afternoon sun — crisp disk + rays + soft glow, upper right */}
           {scene === 'afternoon' && (() => {
-            const cx = 308, cy = 34
+            const cx = isDesktop ? vbW - 280 : 308, cy = 34
             const rays = Array.from({ length: 8 }, (_, i) => {
               const a = (i * 45) * Math.PI / 180
               return { x1: Math.cos(a) * 19, y1: Math.sin(a) * 19, x2: Math.cos(a) * 27, y2: Math.sin(a) * 27 }
@@ -282,8 +306,8 @@ export default function DaySceneHeader({ firstName }: Props) {
           </>}
 
           {/* Circle-cluster clouds — natural puffy shape */}
-          {scene && CLOUDS[scene].map((c, i) => {
-            const f = CLOUD_COLOR[scene]
+          {clouds.map((c, i) => {
+            const f = scene ? CLOUD_COLOR[scene] : '#FFFFFF'
             // Morning + afternoon clouds drift slowly left→right→left
             const drifting = scene === 'morning' || scene === 'afternoon'
             const driftX   = [10, -8, 6][i] ?? 8

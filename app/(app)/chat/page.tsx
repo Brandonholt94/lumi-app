@@ -617,8 +617,8 @@ export default function ChatPage() {
             </div>
           )}
 
-          {/* Decode pill — floats above the input bar */}
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 6 }}>
+          {/* Decode pill — floats above input bar on mobile only */}
+          <div className="mobile-only" style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 6 }}>
             <button
               onClick={() => { setJudgeOpen(o => !o); setJudgePaste('') }}
               style={{
@@ -676,6 +676,32 @@ export default function ChatPage() {
                 alignSelf: 'center',
               }}
             />
+
+            {/* Decode — desktop only, inline before mic */}
+            <button
+              className="desktop-only"
+              onClick={() => { setJudgeOpen(o => !o); setJudgePaste('') }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 5,
+                padding: '6px 14px',
+                borderRadius: 20,
+                background: judgeOpen ? '#F4A582' : 'rgba(244,165,130,0.14)',
+                border: '1.5px solid rgba(244,165,130,0.35)',
+                cursor: 'pointer',
+                fontFamily: 'var(--font-nunito-sans)',
+                fontSize: '12px',
+                fontWeight: 800,
+                color: judgeOpen ? '#1E1C2E' : '#C47A5A',
+                flexShrink: 0,
+                transition: 'all 0.15s',
+                WebkitTapHighlightColor: 'transparent',
+              }}
+            >
+              <span style={{ fontSize: '11px' }}>🔍</span>
+              Decode
+            </button>
 
             {/* Mic — always visible */}
             <button

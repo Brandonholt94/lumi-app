@@ -65,17 +65,26 @@ body {
 .desktop-only { display: none; }
 .mobile-only  { display: block; }
 
-/* Outer wrapper */
+/* Outer wrapper — scene header sits here full-width, then body splits */
 .lumi-today-root {
   display: flex;
   flex-direction: column;
   height: 100%;
-  overflow-y: auto;
+  overflow-y: auto;        /* mobile: whole page scrolls */
   background: #FBF8F5;
 }
 
-/* Two-column body (below scene header) */
-.lumi-today-body { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+/* Scene header is a direct child — always full-width */
+.lumi-today-root > .lumi-today-scene { flex-shrink: 0; }
+
+/* Body below the scene */
+.lumi-today-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;  /* mobile: single column */
+}
+
 .lumi-today-left  { flex: 1; min-width: 0; }
 .lumi-today-right { display: none; }
 
@@ -90,22 +99,30 @@ body {
 }
 
 @media (min-width: 768px) {
-  .desktop-only  { display: block; }
-  .mobile-only   { display: none; }
+  .desktop-only { display: block; }
+  .mobile-only  { display: none;  }
 
+  /* Desktop: root stops scrolling — columns scroll individually */
   .lumi-today-root { overflow: hidden; }
-  .lumi-today-body { flex-direction: row; flex: 1; overflow: hidden; }
 
-  /* Left rail — 70%, scene header lives inside it */
+  /* Body becomes a side-by-side row BELOW the full-width scene */
+  .lumi-today-body {
+    flex-direction: row;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* Left 70% — calendar fills full height, no column scroll */
   .lumi-today-left {
     flex: 0 0 70%;
-    overflow-y: auto;
+    min-width: 0;
+    overflow: hidden;
     border-right: 1px solid rgba(45,42,62,0.07);
     display: flex;
     flex-direction: column;
   }
 
-  /* Right rail — 30%, focus + context */
+  /* Right 30% — focus + context, own scroll */
   .lumi-today-right {
     display: flex;
     flex: 0 0 30%;

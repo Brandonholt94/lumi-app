@@ -167,12 +167,13 @@ export default function DesktopCalendar({ plan }: { plan: string }) {
   // ── Loading skeleton ──────────────────────────────────────────
   if (loading) {
     return (
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, marginBottom: 24 }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, flex: 1, minHeight: 0 }}>
         {[0, 1, 2].map(i => (
           <div key={i} style={{
             background: 'white', borderRadius: 16,
             border: '1px solid rgba(45,42,62,0.07)',
-            padding: 16, height: 340,
+            padding: 16,
           }}>
             <div style={{ height: 10, width: '45%', borderRadius: 6, background: 'rgba(45,42,62,0.07)', marginBottom: 18 }} />
             {[75, 60, 85, 50].map((w, j) => (
@@ -184,6 +185,7 @@ export default function DesktopCalendar({ plan }: { plan: string }) {
           </div>
         ))}
       </div>
+      </div>
     )
   }
 
@@ -191,7 +193,7 @@ export default function DesktopCalendar({ plan }: { plan: string }) {
   const isCompanion = plan.toLowerCase() === 'companion'
 
   return (
-  <>
+  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
     {/* ── Navigation arrows ─────────────────────────────────── */}
     <div style={{
       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -249,7 +251,7 @@ export default function DesktopCalendar({ plan }: { plan: string }) {
     </div>
 
     {/* ── 3-day grid ────────────────────────────────────────── */}
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, marginBottom: 0 }}>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, flex: 1, minHeight: 0 }}>
       {days.map((day, di) => {
         const absOffset = dayOffset + di
         const isToday   = absOffset === 0
@@ -347,7 +349,7 @@ export default function DesktopCalendar({ plan }: { plan: string }) {
             <div style={{
               flex: 1, overflowY: 'auto',
               padding: '10px 14px 14px',
-              maxHeight: 420, scrollbarWidth: 'none',
+              minHeight: 0, scrollbarWidth: 'none',
             }}>
               {isEmpty && !isCompanion && isToday ? (
                 <div style={{ paddingTop: 8 }}>
@@ -579,6 +581,6 @@ export default function DesktopCalendar({ plan }: { plan: string }) {
         </div>
       </div>
     )}
-  </>
+  </div>
   )
 }

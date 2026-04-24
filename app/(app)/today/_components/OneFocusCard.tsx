@@ -247,7 +247,12 @@ export default function OneFocusCard() {
           className="flex-1 block text-center rounded-full py-[13px] transition-opacity hover:opacity-90 active:scale-[0.98]"
           style={{ background: 'linear-gradient(135deg, #F4A582, #F5C98A)', fontFamily: 'var(--font-nunito-sans)', fontSize: '14px', fontWeight: 800, color: '#1E1C2E' }}
         >
-          ▶ Start Focus
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7 }}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 256 256" fill="#1E1C2E">
+              <path d="M234.49,111.07,90.41,22.94A20,20,0,0,0,60,39.87V216.13a20,20,0,0,0,30.41,16.93l144.08-88.13a19.82,19.82,0,0,0,0-33.86ZM84,208.85V47.15L216.16,128Z"/>
+            </svg>
+            Start Focus
+          </span>
         </Link>
         <button
           onClick={handleDone}

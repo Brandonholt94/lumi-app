@@ -40,18 +40,15 @@ export default async function AppLayout({
       <div className="h-dvh bg-[#FBF8F5] flex overflow-hidden">
         {/* Sidebar — desktop only (hidden on mobile) */}
         <DesktopSidebar />
-        {/* Outer column — fills all space after sidebar; NavBar lives here at full width */}
-        <div className="flex-1 min-w-0 flex flex-col overflow-hidden">
-          {/* Content column — mobile: centered max-w-md; desktop: fills remaining space */}
-          <div className="lumi-content-col flex-1 min-h-0 flex flex-col overflow-hidden relative">
-            <SplashScreen />
-            <TimezoneSync />
-            <NotificationBanner />
-            <main className="flex-1 min-h-0 flex flex-col overflow-hidden">
-              <PageTransition>{children}</PageTransition>
-            </main>
-          </div>
-          {/* Bottom nav — outside content col so it spans full device width on mobile */}
+        {/* Content column — mobile: centered max-w-md; desktop: fills remaining space */}
+        <div className="lumi-content-col flex-1 min-w-0 flex flex-col overflow-hidden relative">
+          <SplashScreen />
+          <TimezoneSync />
+          <NotificationBanner />
+          <main className="flex-1 min-h-0 flex flex-col overflow-hidden">
+            <PageTransition>{children}</PageTransition>
+          </main>
+          {/* Bottom nav — mobile only */}
           <NavBar />
         </div>
       </div>

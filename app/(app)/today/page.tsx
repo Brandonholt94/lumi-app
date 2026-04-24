@@ -1,6 +1,5 @@
 import { auth } from '@clerk/nextjs/server'
 import { createClient } from '@supabase/supabase-js'
-import Link from 'next/link'
 import DaySceneHeader from './_components/DaySceneHeader'
 import MoodSelector from './_components/MoodSelector'
 import DayTimeline from './_components/DayTimeline'
@@ -77,15 +76,6 @@ export default async function TodayPage() {
 
       </div>
 
-      {/* Mobile-only floating FAB */}
-      <Link href="/capture" className="lumi-fab" aria-label="Brain Dump">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M8 2v12M2 8h12" stroke="#1E1C2E" strokeWidth="2.5" strokeLinecap="round"/>
-        </svg>
-        <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 800, color: '#1E1C2E' }}>
-          Brain Dump
-        </span>
-      </Link>
     </>
   )
 }

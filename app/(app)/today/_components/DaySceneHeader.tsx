@@ -107,12 +107,28 @@ const CLOUD_COLOR: Record<Scene, string> = {
   night:     '#1A2850',
 }
 
-// ── Desktop cloud positions (wider 1200-unit canvas) ─────────
-const CLOUDS_DESKTOP: Record<Scene, { x: number; y: number; s: number; o: number }[]> = {
-  morning:   [{ x: 60,  y: 50,  s: 0.60, o: 0.65 }, { x: 780, y: 55,  s: 0.50, o: 0.50 }, { x: 420, y: 38,  s: 0.42, o: 0.42 }],
-  afternoon: [{ x: 20,  y: 65,  s: 0.95, o: 0.92 }, { x: 820, y: 68,  s: 0.85, o: 0.88 }, { x: 400, y: 28,  s: 0.55, o: 0.72 }],
-  evening:   [{ x: 70,  y: 52,  s: 0.65, o: 0.58 }, { x: 780, y: 46,  s: 0.55, o: 0.45 }],
-  night:     [{ x: 150, y: 62,  s: 0.58, o: 0.25 }, { x: 780, y: 65,  s: 0.48, o: 0.18 }],
+// ── Desktop cloud positions (1200-unit canvas) ───────────────
+// Scale ~1.6–2.0 so clouds read at similar visual weight to mobile.
+// Drift values are SVG units — also larger to be perceptible on wide canvas.
+const CLOUDS_DESKTOP: Record<Scene, { x: number; y: number; s: number; o: number; driftX: number; dur: number }[]> = {
+  morning:   [
+    { x: 55,  y: 54, s: 1.80, o: 0.72, driftX:  38, dur: 32 },  // left, large
+    { x: 820, y: 60, s: 1.60, o: 0.62, driftX: -30, dur: 27 },  // right, large
+    { x: 460, y: 40, s: 1.10, o: 0.44, driftX:  20, dur: 42 },  // centre, further back
+  ],
+  afternoon: [
+    { x: 20,  y: 65, s: 2.00, o: 0.92, driftX:  32, dur: 30 },
+    { x: 840, y: 68, s: 1.75, o: 0.88, driftX: -26, dur: 25 },
+    { x: 430, y: 28, s: 1.10, o: 0.72, driftX:  18, dur: 38 },
+  ],
+  evening:   [
+    { x: 60,  y: 50, s: 1.65, o: 0.58, driftX:  30, dur: 34 },
+    { x: 810, y: 44, s: 1.45, o: 0.46, driftX: -24, dur: 28 },
+  ],
+  night:     [
+    { x: 120, y: 60, s: 1.40, o: 0.24, driftX:  22, dur: 36 },
+    { x: 800, y: 64, s: 1.20, o: 0.18, driftX: -18, dur: 30 },
+  ],
 }
 
 export default function DaySceneHeader({ firstName }: Props) {
@@ -308,13 +324,12 @@ export default function DaySceneHeader({ firstName }: Props) {
           {/* Circle-cluster clouds — natural puffy shape */}
           {clouds.map((c, i) => {
             const f = scene ? CLOUD_COLOR[scene] : '#FFFFFF'
-            // Morning + afternoon clouds drift slowly left→right→left
-            const drifting = scene === 'morning' || scene === 'afternoon'
-            const driftX   = [10, -8, 6][i] ?? 8
-            const driftDur = [28, 22, 35][i] ?? 28
+            const drifting = scene === 'morning' || scene === 'afternoon' || scene === 'evening'
+            // Desktop clouds carry their own drift values; mobile uses fixed fallbacks
+            const driftX   = isDesktop ? (c as typeof CLOUDS_DESKTOP.morning[0]).driftX  : ([10, -8, 6][i]  ?? 8)
+            const driftDur = isDesktop ? (c as typeof CLOUDS_DESKTOP.morning[0]).dur      : ([28, 22, 35][i] ?? 28)
             return (
               <g key={i} transform={`translate(${c.x},${c.y})`} filter="url(#cloudBlur)" opacity={c.o}>
-                {/* additive="sum" drifts on top of the static translate above */}
                 {drifting && (
                   <animateTransform
                     attributeName="transform"

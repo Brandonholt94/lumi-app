@@ -62,8 +62,18 @@ body {
    ══════════════════════════════════════════════════════════════ */
 
 /* Utility: show/hide per breakpoint */
-.desktop-only { display: none; }
-.mobile-only  { display: block; }
+.desktop-only { display: none !important; }
+.mobile-only  { display: block !important; }
+
+/* Desktop calendar column — flex, fills left column height */
+.lumi-today-desktop-col {
+  display:        none;          /* hidden on mobile — no inline style can override */
+  padding:        0 28px 24px;
+  flex:           1;
+  flex-direction: column;
+  min-height:     0;
+  overflow:       hidden;
+}
 
 /* Outer wrapper — scene header sits here full-width, then body splits */
 .lumi-today-root {
@@ -99,8 +109,10 @@ body {
 }
 
 @media (min-width: 768px) {
-  .desktop-only { display: block; }
-  .mobile-only  { display: none;  }
+  .desktop-only { display: block !important; }
+  .mobile-only  { display: none  !important; }
+
+  .lumi-today-desktop-col { display: flex; } /* show as flex on desktop */
 
   /* Desktop: root stops scrolling — columns scroll individually */
   .lumi-today-root { overflow: hidden; }

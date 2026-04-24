@@ -44,7 +44,7 @@ export default async function TodayPage() {
           <div className="lumi-today-left">
 
             {/* ── DESKTOP: 3-day calendar + mood (left column only) ── */}
-            <div className="desktop-only" style={{ padding: '0 28px 24px', flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'hidden' }}>
+            <div className="lumi-today-desktop-col">
               <p className="lumi-section-label" style={{ marginBottom: 12 }}>YOUR WEEK</p>
               <DesktopCalendar plan={plan} />
             </div>

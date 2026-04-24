@@ -144,8 +144,7 @@ export default function DesktopSidebar() {
         <NavItem href="/capture"  label="Brain Dump" active={is('/capture')}  icon={<CaptureIcon />} />
         <NavItem href="/insights" label="Insights"   active={is('/insights')} icon={<InsightsIcon />} />
 
-        {/* ── Lumi — pinned at bottom of nav, above Profile ── */}
-        <div style={{ flex: 1 }} />
+        {/* ── Lumi — highlighted, sits right below Insights ── */}
         <Link
           href="/chat"
           style={{

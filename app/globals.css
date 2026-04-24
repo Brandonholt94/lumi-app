@@ -208,20 +208,17 @@ body {
 
 @media (min-width: 768px) {
   .lumi-capture-outer {
-    padding: 44px 48px 0 !important;
-    max-width: 1140px;
-    margin-left: auto;
-    margin-right: auto;
+    padding: 44px 40px 0 !important;
   }
   .lumi-capture-layout {
     flex-direction: row;
     align-items: flex-start;
-    gap: 36px;
+    gap: 32px;
   }
   .lumi-capture-left {
     display: flex;
     flex-direction: column;
-    flex: 0 0 400px;
+    flex: 0 0 42%;
     position: sticky;
     top: 24px;
   }
@@ -247,9 +244,6 @@ body {
 
 @media (min-width: 768px) {
   .lumi-insights-body {
-    max-width: 1140px;
-    margin-left: auto;
-    margin-right: auto;
     width: 100%;
   }
   .lumi-insights-layout {
@@ -285,10 +279,7 @@ body {
 
 @media (min-width: 768px) {
   .lumi-profile-outer {
-    max-width: 1000px;
-    margin-left: auto;
-    margin-right: auto;
-    padding: 32px 48px 0 !important;
+    padding: 32px 40px 0 !important;
   }
   .lumi-profile-grid {
     flex-direction: row;

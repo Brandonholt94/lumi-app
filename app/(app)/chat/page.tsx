@@ -687,7 +687,7 @@ export default function ChatPage() {
                 display: 'flex',
                 alignItems: 'center',
                 gap: 8,
-                padding: '6px 14px',
+                padding: '6px 18px',
                 borderRadius: 20,
                 background: judgeOpen ? '#F4A582' : 'rgba(244,165,130,0.14)',
                 border: '1.5px solid rgba(244,165,130,0.35)',
@@ -697,6 +697,7 @@ export default function ChatPage() {
                 fontWeight: 800,
                 color: judgeOpen ? '#1E1C2E' : '#C47A5A',
                 flexShrink: 0,
+                whiteSpace: 'nowrap',
                 transition: 'all 0.15s',
                 WebkitTapHighlightColor: 'transparent',
               }}

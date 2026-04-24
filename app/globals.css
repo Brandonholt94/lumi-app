@@ -71,8 +71,6 @@ body {
   padding:        24px 28px 24px;
   flex:           1;
   flex-direction: column;
-  min-height:     0;
-  overflow:       hidden;
 }
 
 /* Outer wrapper — scene header sits here full-width, then body splits */
@@ -114,32 +112,29 @@ body {
 
   .lumi-today-desktop-col { display: flex; } /* show as flex on desktop */
 
-  /* Desktop: root stops scrolling — columns scroll individually */
-  .lumi-today-root { overflow: hidden; }
+  /* Desktop: whole page scrolls — no column-level overflow locks */
+  .lumi-today-root { overflow-y: auto; }
 
   /* Body becomes a side-by-side row BELOW the full-width scene */
   .lumi-today-body {
     flex-direction: row;
     flex: 1;
-    overflow: hidden;
   }
 
-  /* Left 70% — calendar fills full height, no column scroll */
+  /* Left 70% — natural height, page scroll handles it */
   .lumi-today-left {
     flex: 0 0 70%;
     min-width: 0;
-    overflow: hidden;
     border-right: 1px solid rgba(45,42,62,0.07);
     display: flex;
     flex-direction: column;
   }
 
-  /* Right 30% — focus + context, own scroll */
+  /* Right 30% — flows naturally with page scroll */
   .lumi-today-right {
     display: flex;
     flex: 0 0 30%;
     flex-direction: column;
-    overflow-y: auto;
   }
 }
 

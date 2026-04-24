@@ -305,8 +305,8 @@ export default function DesktopCalendar({ plan }: { plan: string }) {
           })}
         </div>
 
-        {/* Scrollable time body */}
-        <div className="hide-scrollbar" style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
+        {/* Time body — no internal scroll, page scrolls instead */}
+        <div style={{ flex: 1 }}>
           <div style={{
             display: 'grid', gridTemplateColumns: '34px 1fr 1fr 1fr',
             gap: '0 8px', height: TOTAL_H,

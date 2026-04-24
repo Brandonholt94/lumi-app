@@ -281,7 +281,9 @@ export default function CaptureInput() {
   return (
     <>
       {/* ── Beige body ── */}
-      <div style={{ background: 'radial-gradient(ellipse 100% 55% at 100% 0%, rgba(244,165,130,0.28) 0%, transparent 62%), radial-gradient(ellipse 100% 55% at 0% 0%, rgba(245,201,138,0.20) 0%, transparent 62%), #FBF8F5', padding: '44px 20px 0' }}>
+      <div className="lumi-capture-outer" style={{ background: 'radial-gradient(ellipse 100% 55% at 100% 0%, rgba(244,165,130,0.28) 0%, transparent 62%), radial-gradient(ellipse 100% 55% at 0% 0%, rgba(245,201,138,0.20) 0%, transparent 62%), #FBF8F5', padding: '44px 20px 0' }}>
+      <div className="lumi-capture-layout">
+      <div className="lumi-capture-left">
 
       {/* Lumi hint */}
       <div
@@ -511,6 +513,9 @@ export default function CaptureInput() {
       >
         {saving ? 'Saving…' : 'Capture it'}
       </button>
+
+      </div>{/* end lumi-capture-left */}
+      <div className="lumi-capture-right">
 
       {/* Filter pill + label row */}
       <div className="flex items-center gap-3 mb-[10px]">
@@ -862,6 +867,8 @@ export default function CaptureInput() {
           to { transform: translateY(0); }
         }
       `}</style>
+      </div>{/* end lumi-capture-right */}
+      </div>{/* end lumi-capture-layout */}
       </div>{/* end beige body */}
 
       {/* ── Breakdown bottom sheet ── */}

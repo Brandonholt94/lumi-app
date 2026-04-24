@@ -183,6 +183,124 @@ body {
 .lumi-fab:active { transform: scale(0.95); }
 @media (min-width: 768px) { .lumi-fab { display: none; } }
 
+/* ══════════════════════════════════════════════════════════════
+   FOCUS PAGE — center idle state on desktop
+   ══════════════════════════════════════════════════════════════ */
+.lumi-focus-body { /* mobile: paddingTop 56 stays via inline style */ }
+@media (min-width: 768px) {
+  .lumi-focus-body-idle {
+    justify-content: center !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   BRAIN DUMP — 2-column desktop layout
+   Left: sticky input (hint + card + button)
+   Right: filter + captures list (scrolls with page)
+   ══════════════════════════════════════════════════════════════ */
+.lumi-capture-outer { /* outer beige div — mobile unchanged */ }
+.lumi-capture-layout { display: flex; flex-direction: column; }
+/* On mobile: columns transparent to layout — items appear in DOM order */
+.lumi-capture-left  { display: contents; }
+.lumi-capture-right { display: contents; }
+
+@media (min-width: 768px) {
+  .lumi-capture-outer {
+    padding: 44px 48px 0 !important;
+    max-width: 1140px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .lumi-capture-layout {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 36px;
+  }
+  .lumi-capture-left {
+    display: flex;
+    flex-direction: column;
+    flex: 0 0 400px;
+    position: sticky;
+    top: 24px;
+  }
+  .lumi-capture-right {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+    padding-bottom: 48px;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   INSIGHTS — 2-column desktop layout
+   Left 52%: stats + Lumi highlight + Brain Report
+   Right 48%: activity charts + sleep + captures + resources
+   ══════════════════════════════════════════════════════════════ */
+.lumi-insights-body { /* mobile: inherits flex column from parent classes */ }
+.lumi-insights-layout { display: flex; flex-direction: column; gap: 24px; }
+/* On mobile: columns transparent — children flow in DOM order */
+.lumi-insights-left  { display: contents; }
+.lumi-insights-right { display: contents; }
+
+@media (min-width: 768px) {
+  .lumi-insights-body {
+    max-width: 1140px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+  }
+  .lumi-insights-layout {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 28px;
+  }
+  .lumi-insights-left {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    flex: 0 0 52%;
+    min-width: 0;
+  }
+  .lumi-insights-right {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   PROFILE / ME — 2-column desktop grid
+   Row 1: YOU | HEALTH
+   Row 2: ACCOUNT | COMMUNITY
+   Full width: SUPPORT, LEGAL
+   ══════════════════════════════════════════════════════════════ */
+.lumi-profile-outer { /* mobile: existing padding inline */ }
+.lumi-profile-grid  { display: flex; flex-direction: column; }
+.lumi-profile-col   { /* mobile: no change */ }
+
+@media (min-width: 768px) {
+  .lumi-profile-outer {
+    max-width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 32px 48px 0 !important;
+  }
+  .lumi-profile-grid {
+    flex-direction: row;
+    gap: 20px;
+    align-items: flex-start;
+  }
+  .lumi-profile-col {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
 /* ── Chat page container ── */
 /* Mobile: constrained width; Desktop: full-width with inner content cap */
 .lumi-chat-outer {

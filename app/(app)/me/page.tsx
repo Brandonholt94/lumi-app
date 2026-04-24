@@ -300,32 +300,45 @@ export default async function MePage() {
       </div>
 
       {/* ── Settings list ── */}
-      <div style={{ padding: '24px 16px 0' }}>
+      <div className="lumi-profile-outer" style={{ padding: '24px 16px 0' }}>
 
-        <Section title="YOU">
-          <Row icon={icons.sparkle}   label="How Lumi addresses you"  href="/me/lumi-preferences" />
-          <Row icon={icons.clipboard} label="Onboarding answers"       href="/me/onboarding"       last />
-        </Section>
+        {/* Row 1: YOU | HEALTH */}
+        <div className="lumi-profile-grid">
+          <div className="lumi-profile-col">
+            <Section title="YOU">
+              <Row icon={icons.sparkle}   label="How Lumi addresses you"  href="/me/lumi-preferences" />
+              <Row icon={icons.clipboard} label="Onboarding answers"       href="/me/onboarding"       last />
+            </Section>
+          </div>
+          <div className="lumi-profile-col">
+            <Section title="HEALTH">
+              <Row icon={icons.pill} label="Medication log"  href="/me/medication" />
+              <Row icon={icons.moon} label="Sleep log"       href="/me/sleep" />
+              <Row icon={icons.clipboard} label="Doctor report" href="/me/doctor" last />
+            </Section>
+          </div>
+        </div>
 
-        <Section title="HEALTH">
-          <Row icon={icons.pill} label="Medication log"  href="/me/medication" />
-          <Row icon={icons.moon} label="Sleep log"       href="/me/sleep" />
-          <Row icon={icons.clipboard} label="Doctor report" href="/me/doctor" last />
-        </Section>
+        {/* Row 2: ACCOUNT | COMMUNITY */}
+        <div className="lumi-profile-grid">
+          <div className="lumi-profile-col">
+            <Section title="ACCOUNT">
+              <Row icon={icons.crown}    label="Your plan"     value={planLabel} valueDim={planLabel === 'Free'} href="/me/subscription" />
+              <Row icon={icons.bell}     label="Notifications"                   href="/me/notifications" />
+              <Row icon={icons.calendar} label="Calendar"                        href="/me/calendar"  last />
+            </Section>
+          </div>
+          <div className="lumi-profile-col">
+            <Section title="COMMUNITY">
+              <Row icon={icons.paperPlane} label="Share feedback"       href="mailto:hey@lumimind.app"          external />
+              <Row icon={icons.instagram}  label="Follow on Instagram"  href="https://instagram.com/lumiforadhd"         external />
+              <Row icon={icons.question}   label="FAQ"                  href="https://lumimind.app/faq"                  external />
+              <Row icon={icons.star}       label="Rate the app"         href="#" value="Coming soon" valueDim             last />
+            </Section>
+          </div>
+        </div>
 
-        <Section title="ACCOUNT">
-          <Row icon={icons.crown}    label="Your plan"     value={planLabel} valueDim={planLabel === 'Free'} href="/me/subscription" />
-          <Row icon={icons.bell}     label="Notifications"                   href="/me/notifications" />
-          <Row icon={icons.calendar} label="Calendar"                        href="/me/calendar"  last />
-        </Section>
-
-        <Section title="COMMUNITY">
-          <Row icon={icons.paperPlane} label="Share feedback"       href="mailto:hey@lumimind.app"          external />
-          <Row icon={icons.instagram}  label="Follow on Instagram"  href="https://instagram.com/lumiforadhd"         external />
-          <Row icon={icons.question}   label="FAQ"                  href="https://lumimind.app/faq"                  external />
-          <Row icon={icons.star}       label="Rate the app"         href="#" value="Coming soon" valueDim             last />
-        </Section>
-
+        {/* Full-width rows */}
         <Section title="SUPPORT">
           <Row icon={icons.heart}  label="Crisis resources" href="/me/crisis"  />
           <Row icon={icons.chat}   label="Contact us"       href="/me/contact" />

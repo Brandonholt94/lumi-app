@@ -1147,7 +1147,7 @@ export default function InsightsPage() {
     <div className="flex flex-col h-full overflow-y-auto" style={{ background: 'radial-gradient(ellipse 100% 55% at 100% 0%, rgba(244,165,130,0.28) 0%, transparent 62%), radial-gradient(ellipse 100% 55% at 0% 0%, rgba(245,201,138,0.20) 0%, transparent 62%), #FBF8F5' }}>
 
       {/* Body */}
-      <div className="flex flex-col flex-1 px-5 pb-8" style={{ paddingTop: 24, gap: 24, display: 'flex', flexDirection: 'column' }}>
+      <div className="lumi-insights-body flex flex-col flex-1 px-5 pb-8" style={{ paddingTop: 24, gap: 24, display: 'flex', flexDirection: 'column' }}>
 
         {/* Date strip — always render once data loaded */}
         {!loading && data && (
@@ -1233,7 +1233,8 @@ export default function InsightsPage() {
                 </p>
               </div>
             ) : (
-            <>
+            <div className="lumi-insights-layout">
+            <div className="lumi-insights-left">
             {/* ── Stat cards ── */}
             <div>
               <SectionLabel>THIS WEEK</SectionLabel>
@@ -1301,6 +1302,9 @@ export default function InsightsPage() {
               <BrainReportCard plan={data.plan} daysWithData={daysWithData} />
             </div>
 
+            </div>{/* end lumi-insights-left */}
+            <div className="lumi-insights-right">
+
             {/* ── Daily activity chart ── */}
             <div>
               <SectionLabel>DAILY ACTIVITY</SectionLabel>
@@ -1356,7 +1360,8 @@ export default function InsightsPage() {
             {/* ── Lumi Library ── */}
             <ResourcesSection />
 
-</>
+            </div>{/* end lumi-insights-right */}
+            </div>{/* end lumi-insights-layout */}
             )}
           </>
         ) : (

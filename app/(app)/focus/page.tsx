@@ -733,7 +733,7 @@ export default function FocusPage() {
       {/* ── All content sits above grain ── */}
       <div className="flex flex-col flex-1" style={{ position: 'relative', zIndex: 2 }}>
       {/* ── Body — centered column, max 520px on desktop ── */}
-      <div className="flex flex-col flex-1 px-6 pb-12" style={{ paddingTop: 56, width: '100%', maxWidth: 520, marginLeft: 'auto', marginRight: 'auto' }}>
+      <div className={`flex flex-col flex-1 px-6 pb-12${state === 'idle' ? ' lumi-focus-body-idle' : ''}`} style={{ paddingTop: 56, width: '100%', maxWidth: 520, marginLeft: 'auto', marginRight: 'auto' }}>
 
         {/* IDLE — task picker + duration */}
         {state === 'idle' && (

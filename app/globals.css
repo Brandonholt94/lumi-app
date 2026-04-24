@@ -62,8 +62,9 @@ body {
    ══════════════════════════════════════════════════════════════ */
 
 /* Utility: show/hide per breakpoint */
-.desktop-only { display: none !important; }
-.mobile-only  { display: block !important; }
+.desktop-only      { display: none  !important; }
+.desktop-only-flex { display: none  !important; }
+.mobile-only       { display: block !important; }
 
 /* Desktop calendar column — flex, fills left column height */
 .lumi-today-desktop-col {
@@ -107,8 +108,9 @@ body {
 }
 
 @media (min-width: 768px) {
-  .desktop-only { display: block !important; }
-  .mobile-only  { display: none  !important; }
+  .desktop-only      { display: block !important; }
+  .desktop-only-flex { display: flex  !important; }
+  .mobile-only       { display: none  !important; }
 
   .lumi-today-desktop-col { display: flex; } /* show as flex on desktop */
 

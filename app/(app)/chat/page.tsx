@@ -681,7 +681,7 @@ export default function ChatPage() {
 
             {/* Decode — desktop only, inline before mic */}
             <button
-              className="desktop-only"
+              className="desktop-only-flex"
               onClick={() => { setJudgeOpen(o => !o); setJudgePaste('') }}
               style={{
                 display: 'flex',

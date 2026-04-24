@@ -1233,6 +1233,7 @@ export default function InsightsPage() {
                 </p>
               </div>
             ) : (
+            <>
             <div className="lumi-insights-layout">
             <div className="lumi-insights-left">
             {/* ── Stat cards ── */}
@@ -1360,8 +1361,8 @@ export default function InsightsPage() {
             </div>
             </div>
 
-            {/* ── Lumi Library — full width below 2-col layout ── */}
             <ResourcesSection desktop />
+            </>
 
             )}
           </>

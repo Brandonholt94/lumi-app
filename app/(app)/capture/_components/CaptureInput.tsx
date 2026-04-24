@@ -64,10 +64,23 @@ export default function CaptureInput() {
   const [fadingIds, setFadingIds] = useState<Set<string>>(new Set())
   const [showDone, setShowDone] = useState(false)
   const [suggestedTag, setSuggestedTag] = useState<Tag>(null)
+  const [showAll, setShowAll] = useState(false)
+  const [isDesktop, setIsDesktop] = useState(false)
   const classifyTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const recognitionRef = useRef<any>(null)
+
+  // Desktop detection
+  useEffect(() => {
+    const check = () => setIsDesktop(window.innerWidth >= 768)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
+
+  // Reset showAll when filter changes
+  useEffect(() => { setShowAll(false) }, [filter])
 
   // Load captures from Supabase on mount
   useEffect(() => {
@@ -273,6 +286,10 @@ export default function CaptureInput() {
   })
   const filtered = allFiltered.filter(c => !c.completed || fadingIds.has(c.id))
   const completedToday = allFiltered.filter(c => c.completed && !fadingIds.has(c.id) && isToday(c.created_at))
+
+  const DESKTOP_LIMIT = 5
+  const visibleCaptures = isDesktop && !showAll ? filtered.slice(0, DESKTOP_LIMIT) : filtered
+  const hiddenCount = filtered.length - DESKTOP_LIMIT
 
   const activeFilter = FILTER_OPTIONS.find(o => o.value === filter)
 
@@ -679,7 +696,7 @@ export default function CaptureInput() {
               Nothing {filter === 'none' ? 'untagged' : `tagged as ${activeFilter?.label.toLowerCase()}`} yet.
             </p>
           )}
-          {filtered.map(capture => {
+          {visibleCaptures.map(capture => {
             const s = capture.tag ? TAG_STYLES[capture.tag] : null
             return (
               <div
@@ -797,6 +814,68 @@ export default function CaptureInput() {
               </div>
             )
           })}
+
+          {/* ── Show more / Show less — desktop only ── */}
+          {isDesktop && hiddenCount > 0 && !showAll && (
+            <button
+              onClick={() => setShowAll(true)}
+              style={{
+                width: '100%',
+                marginTop: 4,
+                padding: '13px',
+                background: 'white',
+                border: '1px solid rgba(45,42,62,0.08)',
+                borderRadius: 20,
+                fontFamily: 'var(--font-nunito-sans)',
+                fontSize: '13px',
+                fontWeight: 700,
+                color: '#7A7890',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 6,
+                transition: 'color 0.15s, border-color 0.15s',
+              }}
+              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#F4A582'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(244,165,130,0.3)' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#7A7890'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(45,42,62,0.08)' }}
+            >
+              <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
+                <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              Show {hiddenCount} more
+            </button>
+          )}
+          {isDesktop && showAll && filtered.length > DESKTOP_LIMIT && (
+            <button
+              onClick={() => setShowAll(false)}
+              style={{
+                width: '100%',
+                marginTop: 4,
+                padding: '13px',
+                background: 'white',
+                border: '1px solid rgba(45,42,62,0.08)',
+                borderRadius: 20,
+                fontFamily: 'var(--font-nunito-sans)',
+                fontSize: '13px',
+                fontWeight: 700,
+                color: '#7A7890',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 6,
+                transition: 'color 0.15s, border-color 0.15s',
+              }}
+              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#F4A582'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(244,165,130,0.3)' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#7A7890'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(45,42,62,0.08)' }}
+            >
+              <svg width="14" height="14" viewBox="0 0 12 12" fill="none" style={{ transform: 'rotate(180deg)' }}>
+                <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              Show less
+            </button>
+          )}
         </div>
       )}
 

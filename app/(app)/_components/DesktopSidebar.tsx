@@ -140,10 +140,41 @@ export default function DesktopSidebar() {
       {/* ── Nav ── */}
       <nav style={{ flex: 1, padding: '4px 12px', display: 'flex', flexDirection: 'column', gap: 2 }}>
         <NavItem href="/today"    label="Today"      active={is('/today')}    icon={<TodayIcon />} />
-        <NavItem href="/chat"     label="Lumi"       active={is('/chat')}     icon={<LumiNavIcon active={is('/chat')} />} />
         <NavItem href="/focus"    label="Focus"      active={is('/focus')}    icon={<FocusIcon />} />
         <NavItem href="/capture"  label="Brain Dump" active={is('/capture')}  icon={<CaptureIcon />} />
         <NavItem href="/insights" label="Insights"   active={is('/insights')} icon={<InsightsIcon />} />
+
+        {/* ── Lumi — pinned at bottom of nav, above Profile ── */}
+        <div style={{ flex: 1 }} />
+        <Link
+          href="/chat"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10,
+            padding: '11px 12px',
+            borderRadius: 14,
+            background: is('/chat')
+              ? 'linear-gradient(135deg, rgba(244,165,130,0.18), rgba(245,201,138,0.14))'
+              : 'linear-gradient(135deg, rgba(244,165,130,0.10), rgba(245,201,138,0.08))',
+            border: `1.5px solid ${is('/chat') ? 'rgba(244,165,130,0.40)' : 'rgba(244,165,130,0.22)'}`,
+            textDecoration: 'none',
+            marginBottom: 8,
+            transition: 'background 0.15s, border-color 0.15s',
+            WebkitTapHighlightColor: 'transparent',
+          }}
+        >
+          <LumiNavIcon active={is('/chat')} />
+          <span style={{
+            fontFamily: 'var(--font-nunito-sans)',
+            fontSize: '14px',
+            fontWeight: 700,
+            color: is('/chat') ? '#2D2A3E' : 'rgba(45,42,62,0.70)',
+            transition: 'color 0.15s',
+          }}>
+            Lumi
+          </span>
+        </Link>
       </nav>
 
       {/* ── Profile ── */}

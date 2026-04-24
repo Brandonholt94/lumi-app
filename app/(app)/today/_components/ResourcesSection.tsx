@@ -13,7 +13,7 @@ interface ResourceItem {
   url: string
 }
 
-export default function ResourcesSection() {
+export default function ResourcesSection({ desktop = false }: { desktop?: boolean }) {
   const [resources, setResources] = useState<ResourceItem[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -27,15 +27,40 @@ export default function ResourcesSection() {
 
   if (!loading && resources.length === 0) return null
 
+  // Desktop Insights: full-width 3-column grid
+  if (desktop) {
+    const displayItems = loading ? Array.from({ length: 3 }) : resources.slice(0, 3)
+    return (
+      <div style={{ marginTop: 8, paddingBottom: 40 }}>
+        <p style={{
+          fontFamily: 'var(--font-nunito-sans)',
+          fontSize: 10, fontWeight: 800, letterSpacing: '0.1em',
+          color: '#9895B0', marginBottom: 14,
+        }}>
+          FROM THE LUMI LIBRARY
+        </p>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(3, 1fr)',
+          gap: 20,
+        }}>
+          {displayItems.map((r, i) =>
+            loading
+              ? <SkeletonCard key={i} tall />
+              : <ResourceCard key={(r as ResourceItem).id} resource={r as ResourceItem} tall />
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  // Mobile / Today: horizontal scroll strip
   return (
     <div style={{ marginBottom: 24 }}>
       <p style={{
         fontFamily: 'var(--font-nunito-sans)',
-        fontSize: 10,
-        fontWeight: 800,
-        letterSpacing: '0.1em',
-        color: '#9895B0',
-        marginBottom: 10,
+        fontSize: 10, fontWeight: 800, letterSpacing: '0.1em',
+        color: '#9895B0', marginBottom: 10,
       }}>
         FROM THE LUMI LIBRARY
       </p>
@@ -56,50 +81,52 @@ export default function ResourcesSection() {
         className="hide-scrollbar"
       >
         {loading
-          ? Array.from({ length: 3 }).map((_, i) => (
-              <SkeletonCard key={i} />
-            ))
-          : resources.map(r => (
-              <ResourceCard key={r.id} resource={r} />
-            ))
+          ? Array.from({ length: 3 }).map((_, i) => <SkeletonCard key={i} />)
+          : resources.map(r => <ResourceCard key={r.id} resource={r} />)
         }
       </div>
     </div>
   )
 }
 
-function ResourceCard({ resource }: { resource: ResourceItem }) {
+function ResourceCard({ resource, tall = false }: { resource: ResourceItem; tall?: boolean }) {
+  const imgH = tall ? 180 : 96
+  const cardW = tall ? undefined : 160  // grid cards: full column width; scroll cards: fixed 160
+
   return (
     <a
       href={resource.url}
       target="_blank"
       rel="noopener noreferrer"
       style={{
-        flexShrink: 0,
-        width: 160,
+        flexShrink: tall ? undefined : 0,
+        width: cardW,
         borderRadius: 16,
         background: 'white',
         border: '1px solid rgba(45,42,62,0.07)',
-        boxShadow: '0 1px 4px rgba(45,42,62,0.04)',
+        boxShadow: '0 2px 8px rgba(45,42,62,0.06)',
         textDecoration: 'none',
         display: 'block',
-        transition: 'transform 0.15s ease',
+        transition: 'transform 0.15s ease, box-shadow 0.15s ease',
         padding: '8px 8px 0',
+        overflow: 'hidden',
       }}
-      onMouseDown={e => (e.currentTarget.style.transform = 'scale(0.97)')}
-      onMouseUp={e => (e.currentTarget.style.transform = 'scale(1)')}
+      onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(-2px)'; (e.currentTarget as HTMLAnchorElement).style.boxShadow = '0 6px 20px rgba(45,42,62,0.10)' }}
+      onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(0)'; (e.currentTarget as HTMLAnchorElement).style.boxShadow = '0 2px 8px rgba(45,42,62,0.06)' }}
+      onMouseDown={e => (e.currentTarget.style.transform = 'scale(0.98)')}
+      onMouseUp={e => (e.currentTarget.style.transform = 'translateY(-2px)')}
       onTouchStart={e => (e.currentTarget.style.transform = 'scale(0.97)')}
       onTouchEnd={e => (e.currentTarget.style.transform = 'scale(1)')}
     >
-      {/* Thumbnail — inset with matching padding on left, right, top */}
-      <div style={{ width: '100%', height: 96, background: '#F3EFE9', position: 'relative', overflow: 'hidden', borderRadius: 10 }}>
+      {/* Thumbnail */}
+      <div style={{ width: '100%', height: imgH, background: '#F3EFE9', position: 'relative', overflow: 'hidden', borderRadius: 10 }}>
         {resource.thumbnailUrl ? (
           <Image
             src={resource.thumbnailUrl}
             alt={resource.title}
             fill
             style={{ objectFit: 'cover' }}
-            sizes="160px"
+            sizes={tall ? '33vw' : '160px'}
             unoptimized
           />
         ) : (
@@ -116,28 +143,24 @@ function ResourceCard({ resource }: { resource: ResourceItem }) {
       </div>
 
       {/* Text */}
-      <div style={{ padding: '10px 3px 12px' }}>
+      <div style={{ padding: tall ? '12px 6px 16px' : '10px 3px 12px' }}>
         {resource.categoryName && (
           <p style={{
             fontFamily: 'var(--font-nunito-sans)',
-            fontSize: 9,
-            fontWeight: 800,
-            letterSpacing: '0.08em',
-            color: '#F4A582',
-            marginBottom: 4,
-            textTransform: 'uppercase',
+            fontSize: 9, fontWeight: 800, letterSpacing: '0.08em',
+            color: '#F4A582', marginBottom: 5, textTransform: 'uppercase',
           }}>
             {resource.categoryName}
           </p>
         )}
         <p style={{
           fontFamily: 'var(--font-nunito-sans)',
-          fontSize: 12,
+          fontSize: tall ? 14 : 12,
           fontWeight: 700,
           color: '#2D2A3E',
           lineHeight: 1.35,
           display: '-webkit-box',
-          WebkitLineClamp: 3,
+          WebkitLineClamp: tall ? 2 : 3,
           WebkitBoxOrient: 'vertical',
           overflow: 'hidden',
         }}>
@@ -148,17 +171,17 @@ function ResourceCard({ resource }: { resource: ResourceItem }) {
   )
 }
 
-function SkeletonCard() {
+function SkeletonCard({ tall = false }: { tall?: boolean }) {
   return (
     <div style={{
-      flexShrink: 0,
-      width: 160,
+      flexShrink: tall ? undefined : 0,
+      width: tall ? undefined : 160,
       borderRadius: 16,
       background: 'white',
       border: '1px solid rgba(45,42,62,0.07)',
       padding: '8px 8px 0',
     }}>
-      <div style={{ width: '100%', height: 96, borderRadius: 10, background: '#F0EDE8', animation: 'pulse 1.5s ease-in-out infinite' }} />
+      <div style={{ width: '100%', height: tall ? 180 : 96, borderRadius: 10, background: '#F0EDE8', animation: 'pulse 1.5s ease-in-out infinite' }} />
       <div style={{ padding: '10px 11px 12px', display: 'flex', flexDirection: 'column', gap: 6 }}>
         <div style={{ height: 8, width: '50%', borderRadius: 4, background: '#F0EDE8', animation: 'pulse 1.5s ease-in-out infinite' }} />
         <div style={{ height: 10, width: '90%', borderRadius: 4, background: '#F0EDE8', animation: 'pulse 1.5s ease-in-out 0.1s infinite' }} />

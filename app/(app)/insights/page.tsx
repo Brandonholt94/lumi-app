@@ -1357,11 +1357,12 @@ export default function InsightsPage() {
               </div>
             )}
 
-            {/* ── Lumi Library ── */}
-            <ResourcesSection />
+            </div>
+            </div>
 
-            </div>
-            </div>
+            {/* ── Lumi Library — full width below 2-col layout ── */}
+            <ResourcesSection desktop />
+
             )}
           </>
         ) : (

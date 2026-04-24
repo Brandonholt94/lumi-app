@@ -5,20 +5,25 @@ import { usePathname } from 'next/navigation'
 
 function LumiBrandmark() {
   return (
-    <svg width="32" height="24" viewBox="0 0 400 295" fill="none">
+    <svg width="56" height="42" viewBox="0 0 400 300" fill="none">
       <defs>
-        <linearGradient id="ds-grad" x1="0" y1="0" x2="400" y2="295" gradientUnits="userSpaceOnUse">
+        <linearGradient id="ds-grad" x1="0" y1="0" x2="400" y2="300" gradientUnits="userSpaceOnUse">
           <stop offset="0%" stopColor="#F5C98A"/>
           <stop offset="50%" stopColor="#F4A582"/>
           <stop offset="100%" stopColor="#E8A0BF"/>
         </linearGradient>
       </defs>
+      {/* 5 rays */}
       <rect x="85.6" y="53.1" width="29.4" height="66.2" rx="14.7" transform="translate(-31.9 84.6) rotate(-40)" fill="url(#ds-grad)"/>
       <rect x="180.5" y="4.4" width="29.4" height="80.9" rx="14.7" fill="url(#ds-grad)"/>
       <rect x="31.2" y="126.2" width="31.4" height="58.8" rx="15.7" transform="translate(-115.6 157.8) rotate(-74)" fill="url(#ds-grad)"/>
       <rect x="325.1" y="126.2" width="31.4" height="58.8" rx="15.7" transform="translate(396.4 -214.9) rotate(74)" fill="url(#ds-grad)"/>
       <rect x="272.7" y="53.2" width="29.4" height="66.2" rx="14.7" transform="translate(122.7 -164.6) rotate(40)" fill="url(#ds-grad)"/>
+      {/* Sun */}
       <circle cx="195.2" cy="196.4" r="89.3" fill="url(#ds-grad)"/>
+      {/* Horizon — two segments with gap where sun sits */}
+      <path d="M0 274 L130 274" stroke="url(#ds-grad)" strokeWidth="14" strokeLinecap="round"/>
+      <path d="M260 274 L400 274" stroke="url(#ds-grad)" strokeWidth="14" strokeLinecap="round"/>
     </svg>
   )
 }
@@ -118,18 +123,31 @@ export default function DesktopSidebar() {
       }}
     >
       {/* ── Logo ── */}
-      <div style={{ padding: '24px 20px 16px', display: 'flex', alignItems: 'center', gap: 10 }}>
-        <LumiBrandmark />
+      <div style={{ padding: '28px 20px 18px', display: 'flex', flexDirection: 'column', gap: 4 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <LumiBrandmark />
+          <span style={{
+            fontFamily: 'var(--font-aegora)',
+            fontSize: '24px',
+            fontWeight: 900,
+            background: 'linear-gradient(135deg, #F5C98A 0%, #F4A582 50%, #E8A0BF 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+            lineHeight: 1,
+          }}>
+            Lumi
+          </span>
+        </div>
         <span style={{
-          fontFamily: 'var(--font-aegora)',
-          fontSize: '22px',
-          fontWeight: 900,
-          background: 'linear-gradient(135deg, #F4A582 0%, #F5C98A 50%, #E8A0BF 100%)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          backgroundClip: 'text',
+          fontFamily: 'var(--font-nunito-sans)',
+          fontSize: '11px',
+          fontWeight: 500,
+          color: 'rgba(45,42,62,0.42)',
+          letterSpacing: '0.01em',
+          paddingLeft: 2,
         }}>
-          Lumi
+          A new day for your brain.
         </span>
       </div>
 

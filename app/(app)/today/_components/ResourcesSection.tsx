@@ -43,29 +43,47 @@ export default function ResourcesSection({ desktop = false }: { desktop?: boolea
           FROM THE LUMI LIBRARY
         </p>
         <style>{`
+          /* Hide Swiper's default arrows — we use custom buttons */
           .lumi-resources-swiper .swiper-button-prev,
-          .lumi-resources-swiper .swiper-button-next {
+          .lumi-resources-swiper .swiper-button-next { display: none !important; }
+
+          /* Custom nav buttons */
+          .lumi-swiper-prev, .lumi-swiper-next {
+            position: absolute;
+            top: 42%;
+            transform: translateY(-50%);
+            z-index: 10;
             width: 36px;
             height: 36px;
             border-radius: 50%;
             background: white;
             border: 1px solid rgba(45,42,62,0.10);
-            box-shadow: 0 2px 8px rgba(45,42,62,0.10);
-            top: 42%;
+            box-shadow: 0 2px 10px rgba(45,42,62,0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: box-shadow 0.15s, opacity 0.2s;
           }
-          .lumi-resources-swiper .swiper-button-prev::after,
-          .lumi-resources-swiper .swiper-button-next::after {
-            font-size: 12px;
-            font-weight: 800;
-            color: #2D2A3E;
+          .lumi-swiper-prev:hover, .lumi-swiper-next:hover {
+            box-shadow: 0 4px 16px rgba(45,42,62,0.16);
           }
-          .lumi-resources-swiper .swiper-button-disabled {
-            opacity: 0 !important;
-          }
-          .lumi-resources-swiper .swiper-button-prev { left: -14px; }
-          .lumi-resources-swiper .swiper-button-next { right: -14px; }
+          .lumi-swiper-prev { left: -18px; }
+          .lumi-swiper-next { right: -18px; }
+          .lumi-swiper-prev.swiper-button-disabled,
+          .lumi-swiper-next.swiper-button-disabled { opacity: 0; pointer-events: none; }
         `}</style>
-        <div style={{ position: 'relative', margin: '0 16px' }}>
+        <div style={{ position: 'relative', margin: '0 20px' }}>
+          <button className="lumi-swiper-prev">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="#2D2A3E" viewBox="0 0 256 256">
+              <path d="M168.49,199.51a12,12,0,0,1-17,17l-80-80a12,12,0,0,1,0-17l80-80a12,12,0,0,1,17,17L97,128Z"/>
+            </svg>
+          </button>
+          <button className="lumi-swiper-next">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="#2D2A3E" viewBox="0 0 256 256">
+              <path d="M184.49,136.49l-80,80a12,12,0,0,1-17-17L159,128,87.51,56.49a12,12,0,1,1,17-17l80,80A12,12,0,0,1,184.49,136.49Z"/>
+            </svg>
+          </button>
           {loading ? (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
               {Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} tall />)}
@@ -73,7 +91,7 @@ export default function ResourcesSection({ desktop = false }: { desktop?: boolea
           ) : (
             <Swiper
               modules={[Navigation]}
-              navigation
+              navigation={{ prevEl: '.lumi-swiper-prev', nextEl: '.lumi-swiper-next' }}
               slidesPerView={4}
               spaceBetween={16}
               className="lumi-resources-swiper"

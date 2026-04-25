@@ -337,15 +337,17 @@ export default function SleepPage() {
 
       {/* ── Page content (above background) ── */}
       <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', flex: 1 }}>
+      <div style={{ width: '100%', maxWidth: 600, marginLeft: 'auto', marginRight: 'auto', display: 'flex', flexDirection: 'column', flex: 1 }}>
 
-      {/* ── Custom dark header ── */}
-      <div style={{ padding: '20px 20px 8px', display: 'flex', alignItems: 'center', gap: 8 }}>
-        <Link href="/me" style={{ display: 'inline-flex', alignItems: 'center', gap: 4, textDecoration: 'none' }}>
-          <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
-            <path d="M13 4L7 10L13 16" stroke={D.muted} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-          <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '12px', fontWeight: 700, color: D.muted }}>Back</span>
+      {/* ── Custom dark header — breadcrumb ── */}
+      <div style={{ padding: '20px 24px 8px', display: 'flex', alignItems: 'center', gap: 6 }}>
+        <Link href="/me" style={{ textDecoration: 'none' }}>
+          <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '12px', fontWeight: 700, color: D.muted }}>Profile</span>
         </Link>
+        <svg width="10" height="10" viewBox="0 0 256 256" fill={D.faint}>
+          <path d="M184.49,136.49l-80,80a12,12,0,0,1-17-17L159,128,87.51,56.49a12,12,0,1,1,17-17l80,80A12,12,0,0,1,184.49,136.49Z"/>
+        </svg>
+        <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '12px', fontWeight: 700, color: 'rgba(245,242,238,0.75)' }}>Sleep log</span>
       </div>
 
       <div style={{ padding: '8px 24px 0', textAlign: 'center' }}>
@@ -511,6 +513,7 @@ export default function SleepPage() {
         <SleepHistoryChart history={history} today={todayLog} />
       )}
 
+      </div>{/* end max-width center */}
       </div>{/* end content wrapper */}
     </div>
   )

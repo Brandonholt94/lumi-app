@@ -53,7 +53,7 @@ export default async function WinsPage() {
 
       <MeHeader title="Your wins" subtitle={`${wins.length} ${wins.length === 1 ? 'task' : 'tasks'} completed`} />
 
-      <div className="px-5" style={{ paddingTop: 20 }}>
+      <div className="lumi-me-content" style={{ paddingTop: 20 }}>
 
         {wins.length === 0 ? (
           <div style={{

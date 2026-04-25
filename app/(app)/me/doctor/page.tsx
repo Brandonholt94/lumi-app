@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
 const PEACH  = '#F4A582'
 const GOLD   = '#F5C98A'
@@ -77,20 +78,20 @@ export default function DoctorReportPage() {
   }
 
   return (
-    <div style={{ padding: '24px 20px 60px', maxWidth: 480, margin: '0 auto' }}>
+    <div className="flex flex-col h-full overflow-y-auto" style={{ background: '#FBF8F5' }}>
 
-      {/* Back */}
-      <button
-        onClick={() => router.back()}
-        style={{
-          background: 'none', border: 'none', cursor: 'pointer',
-          color: MUTED, fontSize: '14px', fontWeight: 600,
-          padding: '0 0 20px', display: 'flex', alignItems: 'center', gap: 6,
-          fontFamily: 'var(--font-nunito-sans)',
-        }}
-      >
-        ← Back
-      </button>
+      {/* Breadcrumb header */}
+      <div style={{ padding: '16px 20px 14px', borderBottom: '1px solid rgba(45,42,62,0.06)', display: 'flex', alignItems: 'center', gap: 6 }}>
+        <Link href="/me" style={{ textDecoration: 'none' }}>
+          <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '12px', fontWeight: 700, color: MUTED }}>Profile</span>
+        </Link>
+        <svg width="10" height="10" viewBox="0 0 256 256" fill="#C4C1D4">
+          <path d="M184.49,136.49l-80,80a12,12,0,0,1-17-17L159,128,87.51,56.49a12,12,0,1,1,17-17l80,80A12,12,0,0,1,184.49,136.49Z"/>
+        </svg>
+        <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '12px', fontWeight: 700, color: '#2D2A3E' }}>Doctor report</span>
+      </div>
+
+      <div className="lumi-me-content" style={{ paddingTop: 28, paddingBottom: 60 }}>
 
       {/* Header */}
       <div style={{ marginBottom: 28 }}>
@@ -306,6 +307,7 @@ export default function DoctorReportPage() {
           </p>
         </>
       )}
+      </div>{/* end lumi-me-content */}
     </div>
   )
 }

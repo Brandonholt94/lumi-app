@@ -50,7 +50,7 @@ export default function AnchorsPage() {
     <div className="flex flex-col h-full overflow-y-auto" style={{ background: '#FBF8F5' }}>
       <MeHeader title="Morning Anchors" />
 
-      <div className="px-5" style={{ paddingTop: 20, paddingBottom: 48 }}>
+      <div className="lumi-me-content" style={{ paddingTop: 20, paddingBottom: 48 }}>
 
         <p style={{
           fontFamily: 'var(--font-nunito-sans)',

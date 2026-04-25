@@ -38,7 +38,7 @@ export default function EditProfilePage() {
 
       <MeHeader title="Edit name" />
 
-      <div className="px-5" style={{ paddingTop: 20 }}>
+      <div className="lumi-me-content" style={{ paddingTop: 20 }}>
 
         <div style={{ marginBottom: 24 }}>
           <label style={{

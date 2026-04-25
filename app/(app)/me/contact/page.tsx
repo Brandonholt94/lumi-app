@@ -59,7 +59,7 @@ export default function ContactPage() {
 
       <MeHeader title="Contact us" />
 
-      <div className="px-5" style={{ paddingTop: 20 }}>
+      <div className="lumi-me-content" style={{ paddingTop: 20 }}>
 
         {/* Topic */}
         <p style={{

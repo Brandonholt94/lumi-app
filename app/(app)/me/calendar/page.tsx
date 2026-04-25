@@ -228,7 +228,7 @@ export default function CalendarPage() {
     <div className="flex flex-col h-full overflow-y-auto" style={{ background: '#FBF8F5', paddingBottom: 48 }}>
       <MeHeader title="Calendar" />
 
-      <div className="px-5" style={{ paddingTop: 20 }}>
+      <div className="lumi-me-content" style={{ paddingTop: 20 }}>
 
         {/* Just-connected banner */}
         {justConnected && (

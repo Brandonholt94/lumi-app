@@ -135,7 +135,7 @@ export default async function OnboardingPage() {
     <div className="flex flex-col h-full overflow-y-auto" style={{ background: '#FBF8F5', paddingBottom: 48 }}>
       <MeHeader title="Onboarding answers" subtitle="How Lumi learned about you" />
 
-      <div className="px-5" style={{ paddingTop: 20 }}>
+      <div className="lumi-me-content" style={{ paddingTop: 20 }}>
         {completed && answers.length > 0 ? (
           <>
             <p style={{

@@ -77,7 +77,7 @@ export default function CrisisPage() {
       <MeHeader title="Crisis resources" />
 
       {/* Warm intro */}
-      <div className="px-5" style={{ paddingTop: 20, paddingBottom: 4 }}>
+      <div className="lumi-me-content" style={{ paddingTop: 20, paddingBottom: 4 }}>
         <div style={{
           background: 'linear-gradient(135deg, rgba(244,165,130,0.1), rgba(245,201,138,0.1))',
           borderRadius: 14,

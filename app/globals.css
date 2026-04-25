@@ -292,6 +292,20 @@ body {
   }
 }
 
+/* ── Me sub-page content container — centered on desktop ── */
+.lumi-me-content {
+  width: 100%;
+  padding: 0 20px;
+}
+@media (min-width: 768px) {
+  .lumi-me-content {
+    max-width: 720px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0 32px;
+  }
+}
+
 /* ── Chat page container ── */
 /* Mobile: constrained width; Desktop: full-width with inner content cap */
 .lumi-chat-outer {
@@ -314,7 +328,7 @@ body {
     max-width: none;
   }
   .lumi-chat-inner {
-    max-width: 720px;
+    max-width: 900px;
     margin-left: auto;
     margin-right: auto;
     width: 100%;

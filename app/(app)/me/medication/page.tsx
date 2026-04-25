@@ -89,8 +89,9 @@ export default function MedicationPage() {
 
       <MeHeader title="Medication log" />
 
+      <div className="lumi-me-content" style={{ paddingTop: 16 }}>
       {!loading && meds.length > 0 && (
-        <div className="px-5" style={{ paddingTop: 16 }}>
+        <div style={{ paddingTop: 0 }}>
           <div style={{
             background: takenCount === meds.length
               ? 'linear-gradient(135deg, rgba(244,165,130,0.15), rgba(245,201,138,0.15))'
@@ -402,6 +403,7 @@ export default function MedicationPage() {
         </p>
 
       </div>
+      </div>{/* end lumi-me-content */}
     </div>
   )
 }

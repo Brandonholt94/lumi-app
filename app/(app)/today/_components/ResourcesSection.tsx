@@ -2,6 +2,10 @@
 
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
+import { Swiper, SwiperSlide } from 'swiper/react'
+import { Navigation } from 'swiper/modules'
+import 'swiper/css'
+import 'swiper/css/navigation'
 
 interface ResourceItem {
   id: string
@@ -27,9 +31,8 @@ export default function ResourcesSection({ desktop = false }: { desktop?: boolea
 
   if (!loading && resources.length === 0) return null
 
-  // Desktop Insights: full-width 3-column grid
+  // Desktop Insights: 4-card Swiper slider
   if (desktop) {
-    const displayItems = loading ? Array.from({ length: 3 }) : resources.slice(0, 3)
     return (
       <div style={{ marginTop: 8, paddingBottom: 40 }}>
         <p style={{
@@ -39,15 +42,48 @@ export default function ResourcesSection({ desktop = false }: { desktop?: boolea
         }}>
           FROM THE LUMI LIBRARY
         </p>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)',
-          gap: 20,
-        }}>
-          {displayItems.map((r, i) =>
-            loading
-              ? <SkeletonCard key={i} tall />
-              : <ResourceCard key={(r as ResourceItem).id} resource={r as ResourceItem} tall />
+        <style>{`
+          .lumi-resources-swiper .swiper-button-prev,
+          .lumi-resources-swiper .swiper-button-next {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: white;
+            border: 1px solid rgba(45,42,62,0.10);
+            box-shadow: 0 2px 8px rgba(45,42,62,0.10);
+            top: 42%;
+          }
+          .lumi-resources-swiper .swiper-button-prev::after,
+          .lumi-resources-swiper .swiper-button-next::after {
+            font-size: 12px;
+            font-weight: 800;
+            color: #2D2A3E;
+          }
+          .lumi-resources-swiper .swiper-button-disabled {
+            opacity: 0 !important;
+          }
+          .lumi-resources-swiper .swiper-button-prev { left: -14px; }
+          .lumi-resources-swiper .swiper-button-next { right: -14px; }
+        `}</style>
+        <div style={{ position: 'relative', margin: '0 16px' }}>
+          {loading ? (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
+              {Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} tall />)}
+            </div>
+          ) : (
+            <Swiper
+              modules={[Navigation]}
+              navigation
+              slidesPerView={4}
+              spaceBetween={16}
+              className="lumi-resources-swiper"
+            >
+              {resources.map(r => (
+                <SwiperSlide key={r.id}>
+                  <ResourceCard resource={r} tall />
+                </SwiperSlide>
+              ))}
+            </Swiper>
           )}
         </div>
       </div>

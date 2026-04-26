@@ -108,20 +108,21 @@ export async function getEligibleUsersForPreferredHour(
 ): Promise<string[]> {
   const supabase = getServiceClient()
 
-  // Fetch users with this pref enabled + their preferred hour
+  // Fetch users with this pref enabled + both hour columns (static select avoids TS parser error)
   const { data: prefRows } = await supabase
     .from('notification_preferences')
-    .select(`clerk_user_id, ${hourColumn}`)
+    .select('clerk_user_id, morning_hour, evening_hour')
     .eq(prefKey, true)
 
   if (!prefRows || prefRows.length === 0) return []
 
   const userIds = prefRows.map(r => r.clerk_user_id)
 
-  // Build per-user hour map
+  // Build per-user hour map — access the right column dynamically via cast
   const hourMap: Record<string, number> = {}
   for (const row of prefRows) {
-    hourMap[row.clerk_user_id] = row[hourColumn] ?? defaultHour
+    const val = (row as Record<string, unknown>)[hourColumn]
+    hourMap[row.clerk_user_id] = typeof val === 'number' ? val : defaultHour
   }
 
   // Fetch timezones

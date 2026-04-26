@@ -20,7 +20,7 @@ export async function POST(req: Request) {
   }
 
   const supabase = getServiceClient()
-  await supabase.from('push_subscriptions').upsert(
+  const { error } = await supabase.from('push_subscriptions').upsert(
     {
       clerk_user_id: userId,
       endpoint,
@@ -29,6 +29,11 @@ export async function POST(req: Request) {
     },
     { onConflict: 'clerk_user_id,endpoint' }
   )
+
+  if (error) {
+    console.error('[notifications/subscribe] upsert error:', error.message)
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
 
   return NextResponse.json({ ok: true })
 }

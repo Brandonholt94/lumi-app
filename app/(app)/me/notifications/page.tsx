@@ -55,15 +55,43 @@ function urlBase64ToUint8Array(base64String: string) {
   return Uint8Array.from([...rawData].map(c => c.charCodeAt(0)))
 }
 
+async function registerAndSubscribe(): Promise<boolean> {
+  try {
+    if ('serviceWorker' in navigator) {
+      await navigator.serviceWorker.register('/sw.js')
+    }
+    const reg = await navigator.serviceWorker.ready
+    // Force a fresh subscription (unsubscribe first if stale)
+    const existing = await reg.pushManager.getSubscription()
+    const sub = existing ?? await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(
+        process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!
+      ),
+    })
+    const res = await fetch('/api/notifications/subscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ endpoint: sub.endpoint, keys: sub.toJSON().keys }),
+    })
+    return res.ok
+  } catch {
+    return false
+  }
+}
+
 export default function NotificationsPage() {
-  const [prefs,      setPrefs]      = useState<Prefs>(DEFAULTS)
-  const [permission, setPermission] = useState<NotificationPermission | 'unsupported'>('default')
-  const [enabling,   setEnabling]   = useState(false)
-  const [saving,     setSaving]     = useState(false)
-  const [saved,      setSaved]      = useState(false)
-  const [testing,    setTesting]    = useState(false)
-  const [testSent,   setTestSent]   = useState(false)
-  const [testError,  setTestError]  = useState<string | null>(null)
+  const [prefs,          setPrefs]         = useState<Prefs>(DEFAULTS)
+  const [permission,     setPermission]    = useState<NotificationPermission | 'unsupported'>('default')
+  const [enabling,       setEnabling]      = useState(false)
+  const [saving,         setSaving]        = useState(false)
+  const [saved,          setSaved]         = useState(false)
+  const [testing,        setTesting]       = useState(false)
+  const [testSent,       setTestSent]      = useState(false)
+  const [testError,      setTestError]     = useState<string | null>(null)
+  const [hasSubscription,setHasSubscription] = useState<boolean | null>(null)
+  const [reregistering,  setReregistering] = useState(false)
+  const [reregDone,      setReregDone]     = useState(false)
 
   useEffect(() => {
     if (!('Notification' in window)) { setPermission('unsupported'); return }
@@ -75,32 +103,36 @@ export default function NotificationsPage() {
       .catch(() => {})
   }, [])
 
+  // Check subscription status whenever permission is granted
+  useEffect(() => {
+    if (permission !== 'granted') return
+    fetch('/api/notifications/status')
+      .then(r => r.json())
+      .then(d => setHasSubscription(d.hasSubscription ?? false))
+      .catch(() => {})
+  }, [permission])
+
   async function handleEnablePush() {
     setEnabling(true)
     try {
-      if ('serviceWorker' in navigator) {
-        await navigator.serviceWorker.register('/sw.js')
-      }
       const result = await Notification.requestPermission()
       setPermission(result)
-
       if (result === 'granted') {
-        const reg = await navigator.serviceWorker.ready
-        const existing = await reg.pushManager.getSubscription()
-        const sub = existing ?? await reg.pushManager.subscribe({
-          userVisibleOnly: true,
-          applicationServerKey: urlBase64ToUint8Array(
-            process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!
-          ),
-        })
-        await fetch('/api/notifications/subscribe', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ endpoint: sub.endpoint, keys: sub.toJSON().keys }),
-        })
+        const ok = await registerAndSubscribe()
+        setHasSubscription(ok)
       }
     } catch { /* ignore */ }
     setEnabling(false)
+  }
+
+  async function handleReregister() {
+    setReregistering(true)
+    setReregDone(false)
+    const ok = await registerAndSubscribe()
+    setHasSubscription(ok)
+    setReregDone(ok)
+    if (ok) setTimeout(() => setReregDone(false), 3000)
+    setReregistering(false)
   }
 
   async function save(updated: Prefs) {
@@ -138,8 +170,8 @@ export default function NotificationsPage() {
         setTestSent(true)
         setTimeout(() => setTestSent(false), 4000)
       } else {
-        setTestError(d.error ?? 'No subscription found — try re-enabling notifications.')
-        setTimeout(() => setTestError(null), 5000)
+        setTestError(d.error ?? 'Something went wrong.')
+        setTimeout(() => setTestError(null), 6000)
       }
     } catch {
       setTestError('Something went wrong.')
@@ -150,6 +182,7 @@ export default function NotificationsPage() {
 
   const pushGranted = permission === 'granted'
   const pushDenied  = permission === 'denied'
+  const notRegistered = pushGranted && hasSubscription === false
 
   return (
     <div className="flex flex-col h-full overflow-y-auto" style={{ background: '#FBF8F5', paddingBottom: 48 }}>
@@ -194,6 +227,49 @@ export default function NotificationsPage() {
                 {enabling ? 'Enabling…' : 'Turn on notifications'}
               </button>
             )}
+          </div>
+        )}
+
+        {/* ── Not registered warning (permission granted but no DB subscription) ── */}
+        {notRegistered && (
+          <div style={{
+            background:   'rgba(244,165,130,0.10)',
+            borderRadius: 14,
+            border:       '1px solid rgba(244,165,130,0.30)',
+            padding:      '14px 16px',
+            marginBottom: 16,
+            display:      'flex',
+            alignItems:   'center',
+            gap:          12,
+          }}>
+            <span style={{ fontSize: 18, flexShrink: 0 }}>⚠️</span>
+            <div style={{ flex: 1 }}>
+              <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 700, color: '#2D2A3E', marginBottom: 2 }}>
+                This device isn&apos;t registered yet
+              </p>
+              <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '12px', fontWeight: 500, color: '#9895B0', lineHeight: 1.4 }}>
+                Lumi can&apos;t reach you until you register.
+              </p>
+            </div>
+            <button
+              onClick={handleReregister}
+              disabled={reregistering}
+              style={{
+                padding:     '7px 14px',
+                borderRadius: 10,
+                background:  reregDone ? 'rgba(94,194,105,0.15)' : 'linear-gradient(135deg, #F4A582, #F5C98A)',
+                border:      'none',
+                cursor:      reregistering ? 'default' : 'pointer',
+                fontFamily:  'var(--font-nunito-sans)',
+                fontSize:    '12px',
+                fontWeight:  700,
+                color:       reregDone ? '#4A9A55' : '#1E1C2E',
+                flexShrink:  0,
+                whiteSpace:  'nowrap',
+              }}
+            >
+              {reregistering ? 'Registering…' : reregDone ? '✓ Done!' : 'Register now'}
+            </button>
           </div>
         )}
 
@@ -308,9 +384,33 @@ export default function NotificationsPage() {
           </p>
         )}
 
-        {/* Test push notification */}
+        {/* ── Test push + re-register ── */}
         {pushGranted && (
-          <div style={{ marginBottom: 20, textAlign: 'center' }}>
+          <div style={{ marginBottom: 20, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+
+            {/* Subscription status pill */}
+            {hasSubscription !== null && (
+              <div style={{
+                display:      'flex',
+                alignItems:   'center',
+                gap:          6,
+                background:   hasSubscription ? 'rgba(94,194,105,0.10)' : 'rgba(244,165,130,0.10)',
+                border:       `1px solid ${hasSubscription ? 'rgba(94,194,105,0.25)' : 'rgba(244,165,130,0.30)'}`,
+                borderRadius: 20,
+                padding:      '5px 12px',
+              }}>
+                <div style={{
+                  width: 7, height: 7, borderRadius: '50%',
+                  background: hasSubscription ? '#5EC269' : '#F4A582',
+                  flexShrink: 0,
+                }} />
+                <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 700, color: hasSubscription ? '#4A9A55' : '#C07040' }}>
+                  {hasSubscription ? 'Device registered' : 'Device not registered'}
+                </span>
+              </div>
+            )}
+
+            {/* Test button */}
             <button
               onClick={sendTestPush}
               disabled={testing}
@@ -329,11 +429,32 @@ export default function NotificationsPage() {
             >
               {testing ? 'Sending…' : testSent ? '✓ Check your notifications!' : 'Send a test notification'}
             </button>
+
             {testError && (
-              <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '12px', fontWeight: 600, color: '#C84040', marginTop: 8 }}>
+              <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '12px', fontWeight: 600, color: '#C84040', textAlign: 'center', maxWidth: 280, lineHeight: 1.4 }}>
                 {testError}
               </p>
             )}
+
+            {/* Re-register button — always available when permission granted */}
+            <button
+              onClick={handleReregister}
+              disabled={reregistering}
+              style={{
+                background:  'none',
+                border:      'none',
+                padding:     '4px 0',
+                cursor:      reregistering ? 'default' : 'pointer',
+                fontFamily:  'var(--font-nunito-sans)',
+                fontSize:    '11px',
+                fontWeight:  600,
+                color:       reregDone ? '#4A9A55' : 'rgba(45,42,62,0.35)',
+                textDecoration: 'underline',
+                textUnderlineOffset: '2px',
+              }}
+            >
+              {reregistering ? 'Re-registering…' : reregDone ? '✓ Registered!' : 'Re-register notifications'}
+            </button>
           </div>
         )}
 

@@ -122,11 +122,11 @@ export async function POST(req: Request) {
       const sub        = event.data.object as Stripe.Subscription
       const customerId = sub.customer as string
       const priceId    = sub.items.data[0]?.price?.id
-      const plan       = priceId ? planFromPriceId(priceId) : 'starter'
+      const plan       = priceId ? planFromPriceId(priceId) : 'core'
       const status     = sub.status // active, trialing, past_due, canceled, etc.
 
-      // If subscription is no longer active, downgrade to starter
-      const activePlan = ['active', 'trialing'].includes(status) ? plan : 'starter'
+      // If subscription is no longer active, downgrade to core (starter doesn't exist as a plan)
+      const activePlan = ['active', 'trialing'].includes(status) ? plan : 'core'
 
       const { data: profile } = await supabase
         .from('profiles')

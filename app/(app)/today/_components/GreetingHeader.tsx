@@ -40,7 +40,7 @@ export default function GreetingHeader({ firstName }: Props) {
             style={{
               fontFamily: 'var(--font-aegora)',
               fontSize: '26px',
-              fontWeight: 900,
+              fontWeight: 500,
               color: '#1E1C2E',
               lineHeight: 1.1,
               marginBottom: 3,

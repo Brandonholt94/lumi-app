@@ -44,7 +44,7 @@ function AnchorSetup({ onSaved }: { onSaved: (anchors: string[]) => void }) {
         <p style={{
           fontFamily: 'var(--font-aegora)',
           fontSize: '15px',
-          fontWeight: 700,
+          fontWeight: 500,
           color: '#1E1C2E',
           marginBottom: 4,
         }}>
@@ -93,7 +93,7 @@ function AnchorSetup({ onSaved }: { onSaved: (anchors: string[]) => void }) {
       <p style={{
         fontFamily: 'var(--font-aegora)',
         fontSize: '15px',
-        fontWeight: 700,
+        fontWeight: 500,
         color: '#1E1C2E',
         marginBottom: 4,
       }}>

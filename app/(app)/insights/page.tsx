@@ -322,7 +322,7 @@ function DateStrip({
             <span style={{
               fontFamily: 'var(--font-aegora)',
               fontSize: '16px',
-              fontWeight: 700,
+              fontWeight: 500,
               lineHeight: 1,
               width: 28,
               height: 28,
@@ -384,7 +384,7 @@ function DayDetailPanel({
         <span style={{
           fontFamily: 'var(--font-aegora)',
           fontSize: '18px',
-          fontWeight: 700,
+          fontWeight: 500,
           color: '#1E1C2E',
         }}>
           {formatted}
@@ -661,7 +661,7 @@ function FocusCard({ sessions, minutes }: { sessions: number; minutes: number })
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 12 }}>
         <div>
-          <span style={{ fontFamily: 'var(--font-aegora)', fontSize: '32px', fontWeight: 900, color: '#1E1C2E', lineHeight: 1 }}>
+          <span style={{ fontFamily: 'var(--font-aegora)', fontSize: '32px', fontWeight: 500, color: '#1E1C2E', lineHeight: 1 }}>
             {minutes}
           </span>
           <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 700, color: '#9895B0', marginLeft: 4 }}>
@@ -825,7 +825,7 @@ function BrainReportCard({ plan, daysWithData }: { plan: 'free' | 'core' | 'comp
               WEEKLY BRAIN REPORT
             </p>
           </div>
-          <p style={{ fontFamily: 'var(--font-aegora)', fontSize: '20px', fontWeight: 900, color: '#F5F2EE', lineHeight: 1.2, marginBottom: 16 }}>
+          <p style={{ fontFamily: 'var(--font-aegora)', fontSize: '20px', fontWeight: 500, color: '#F5F2EE', lineHeight: 1.2, marginBottom: 16 }}>
             Your week, through Lumi&apos;s eyes.
           </p>
           <div style={{ position: 'relative', marginBottom: 20 }}>
@@ -883,7 +883,7 @@ function BrainReportCard({ plan, daysWithData }: { plan: 'free' | 'core' | 'comp
 
         {status === 'idle' && daysWithData < 3 && (
           <>
-            <p style={{ fontFamily: 'var(--font-aegora)', fontSize: '20px', fontWeight: 900, color: '#F5F2EE', lineHeight: 1.2, marginBottom: 10 }}>
+            <p style={{ fontFamily: 'var(--font-aegora)', fontSize: '20px', fontWeight: 500, color: '#F5F2EE', lineHeight: 1.2, marginBottom: 10 }}>
               Your week, through Lumi&apos;s eyes.
             </p>
             <div style={{ background: 'rgba(255,255,255,0.06)', borderRadius: 12, padding: '14px 16px', marginBottom: 4 }}>
@@ -896,7 +896,7 @@ function BrainReportCard({ plan, daysWithData }: { plan: 'free' | 'core' | 'comp
 
         {status === 'idle' && daysWithData >= 3 && daysWithData < 7 && (
           <>
-            <p style={{ fontFamily: 'var(--font-aegora)', fontSize: '20px', fontWeight: 900, color: '#F5F2EE', lineHeight: 1.2, marginBottom: 8 }}>
+            <p style={{ fontFamily: 'var(--font-aegora)', fontSize: '20px', fontWeight: 500, color: '#F5F2EE', lineHeight: 1.2, marginBottom: 8 }}>
               Your week, through Lumi&apos;s eyes.
             </p>
             <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 500, color: 'rgba(245,242,238,0.5)', lineHeight: 1.5, marginBottom: 16 }}>
@@ -927,7 +927,7 @@ function BrainReportCard({ plan, daysWithData }: { plan: 'free' | 'core' | 'comp
 
         {status === 'idle' && daysWithData >= 7 && (
           <>
-            <p style={{ fontFamily: 'var(--font-aegora)', fontSize: '20px', fontWeight: 900, color: '#F5F2EE', lineHeight: 1.2, marginBottom: 8 }}>
+            <p style={{ fontFamily: 'var(--font-aegora)', fontSize: '20px', fontWeight: 500, color: '#F5F2EE', lineHeight: 1.2, marginBottom: 8 }}>
               Your week, through Lumi&apos;s eyes.
             </p>
             <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 500, color: 'rgba(245,242,238,0.5)', lineHeight: 1.5, marginBottom: 18 }}>
@@ -1220,7 +1220,7 @@ export default function InsightsPage() {
                   </svg>
                 </div>
                 <p style={{
-                  fontFamily: 'var(--font-aegora)', fontSize: '20px', fontWeight: 700,
+                  fontFamily: 'var(--font-aegora)', fontSize: '20px', fontWeight: 500,
                   color: '#1E1C2E', marginBottom: 10, lineHeight: 1.2,
                 }}>
                   Your insights are on their way
@@ -1248,7 +1248,7 @@ export default function InsightsPage() {
                     <path d="M13 3.5L5.5 13H11.5L10.5 20.5L18.5 11H12.5L13 3.5Z" stroke="#E8A0BF" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                   <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '10px', fontWeight: 800, color: '#9895B0', letterSpacing: '0.04em' }}>CAPTURES</p>
-                  <p style={{ fontFamily: 'var(--font-aegora)', fontSize: '26px', fontWeight: 900, color: '#1E1C2E', lineHeight: 1 }}>{data.captures.total}</p>
+                  <p style={{ fontFamily: 'var(--font-aegora)', fontSize: '26px', fontWeight: 500, color: '#1E1C2E', lineHeight: 1 }}>{data.captures.total}</p>
                   <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 500, color: '#9895B0' }}>thoughts this week</p>
                 </div>
 
@@ -1261,7 +1261,7 @@ export default function InsightsPage() {
                     <path d="M12 3V5.5" stroke="#F5C98A" strokeWidth="1.8" strokeLinecap="round"/>
                   </svg>
                   <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '10px', fontWeight: 800, color: '#9895B0', letterSpacing: '0.04em' }}>FOCUS TIME</p>
-                  <p style={{ fontFamily: 'var(--font-aegora)', fontSize: '26px', fontWeight: 900, color: '#1E1C2E', lineHeight: 1 }}>
+                  <p style={{ fontFamily: 'var(--font-aegora)', fontSize: '26px', fontWeight: 500, color: '#1E1C2E', lineHeight: 1 }}>
                     {data.focus.minutes}<span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 700, color: '#9895B0' }}> min</span>
                   </p>
                   <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 500, color: '#9895B0' }}>{data.focus.sessions} {data.focus.sessions === 1 ? 'session' : 'sessions'}</p>
@@ -1274,7 +1274,7 @@ export default function InsightsPage() {
                     <path d="M8.5 12L11 14.5L15.5 9.5" stroke="#8FAAE0" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                   <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '10px', fontWeight: 800, color: '#9895B0', letterSpacing: '0.04em' }}>TASKS DONE</p>
-                  <p style={{ fontFamily: 'var(--font-aegora)', fontSize: '26px', fontWeight: 900, color: '#1E1C2E', lineHeight: 1 }}>{data.captures.completedTasks.length}</p>
+                  <p style={{ fontFamily: 'var(--font-aegora)', fontSize: '26px', fontWeight: 500, color: '#1E1C2E', lineHeight: 1 }}>{data.captures.completedTasks.length}</p>
                   <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 500, color: '#9895B0' }}>completed</p>
                 </div>
 
@@ -1287,7 +1287,7 @@ export default function InsightsPage() {
                     <circle cx="14.5" cy="10.5" r="1" fill="#F4A582"/>
                   </svg>
                   <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '10px', fontWeight: 800, color: '#9895B0', letterSpacing: '0.04em' }}>TOP MOOD</p>
-                  <p style={{ fontFamily: 'var(--font-aegora)', fontSize: '22px', fontWeight: 900, color: topMood ? MOOD_META[topMood].color : '#1E1C2E', lineHeight: 1 }}>{topMood ? MOOD_META[topMood].label : '—'}</p>
+                  <p style={{ fontFamily: 'var(--font-aegora)', fontSize: '22px', fontWeight: 500, color: topMood ? MOOD_META[topMood].color : '#1E1C2E', lineHeight: 1 }}>{topMood ? MOOD_META[topMood].label : '—'}</p>
                   <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 500, color: '#9895B0' }}>most logged</p>
                 </div>
 

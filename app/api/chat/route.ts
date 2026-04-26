@@ -1,11 +1,13 @@
 import { streamText, generateText, stepCountIs, tool, type ModelMessage } from 'ai'
 import { createAnthropic } from '@ai-sdk/anthropic'
 import { auth, currentUser } from '@clerk/nextjs/server'
+import { after } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { buildLumiSystemPrompt, LumiUserContext } from '@/lib/ai/lumi-prompt'
 import { getUpcomingEvents } from '@/lib/google-calendar'
 import { getMicrosoftUpcomingEvents } from '@/lib/microsoft-calendar'
 import { detectCrisis, CRISIS_RESPONSE, DISTRESS_CONTEXT } from '@/lib/ai/crisis-detection'
+import { sendPushToUser } from '@/lib/push'
 import { z } from 'zod'
 
 
@@ -482,6 +484,35 @@ export async function POST(req: Request) {
         controller.close()
       }
     },
+  })
+
+  // After the full response streams to the client, send a push notification —
+  // but only if the user hasn't sent another message in the last 2 minutes.
+  // This prevents a flood of "Lumi replied" banners during active conversations.
+  // The service worker suppresses it automatically if the app window is focused,
+  // so it only surfaces when the user has actually left.
+  after(async () => {
+    try {
+      const supabase = getServiceClient()
+      const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000).toISOString()
+
+      // Check last_seen_at — if user was active in the last 2 min, skip the push.
+      // They're mid-conversation; the SW focus-check is a secondary guard.
+      const { data: activity } = await supabase
+        .from('user_activity')
+        .select('last_seen_at')
+        .eq('clerk_user_id', userId)
+        .single()
+
+      const lastSeen = activity?.last_seen_at
+      if (lastSeen && new Date(lastSeen) > new Date(twoMinutesAgo)) return
+
+      await sendPushToUser(userId, {
+        title: 'Lumi replied 💬',
+        body: 'Tap to continue your conversation.',
+        url: '/chat',
+      })
+    } catch { /* never let push failure surface */ }
   })
 
   return new Response(readable, {

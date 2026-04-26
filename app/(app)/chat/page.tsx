@@ -310,7 +310,7 @@ export default function ChatPage() {
               <p style={{
                 fontFamily: 'var(--font-aegora)',
                 fontSize: '36px',
-                fontWeight: 900,
+                fontWeight: 500,
                 lineHeight: 1.15,
                 textAlign: 'center',
                 background: 'linear-gradient(135deg, #F4A582 0%, #F5C98A 40%, #8FAAE0 100%)',

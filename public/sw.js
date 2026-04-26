@@ -12,13 +12,20 @@ self.addEventListener('push', (event) => {
 
   const { title = 'Lumi', body = '', url = '/today', icon = '/icons/icon-192.png' } = payload
 
+  // Suppress the notification if the user already has the app open and focused.
+  // This prevents a redundant "Lumi replied" banner while they're actively chatting.
   event.waitUntil(
-    self.registration.showNotification(title, {
-      body,
-      icon,
-      badge: '/icons/icon-192.png',
-      data: { url },
-      vibrate: [100, 50, 100],
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+      const appIsFocused = clientList.some(c => c.focused)
+      if (appIsFocused) return // Swallow — user is already looking at the app
+
+      return self.registration.showNotification(title, {
+        body,
+        icon,
+        badge: '/icons/icon-192.png',
+        data: { url },
+        vibrate: [100, 50, 100],
+      })
     })
   )
 })

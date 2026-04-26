@@ -111,7 +111,7 @@ export default function OneFocusCard() {
           style={{ background: '#1E1C2E' }}
         >
           <span style={{ fontSize: '26px', lineHeight: 1 }}>✦</span>
-          <p style={{ fontFamily: 'var(--font-aegora)', fontSize: '18px', fontWeight: 700, color: 'rgba(245,243,240,0.92)', lineHeight: 1.3 }}>
+          <p style={{ fontFamily: 'var(--font-aegora)', fontSize: '18px', fontWeight: 500, color: 'rgba(245,243,240,0.92)', lineHeight: 1.3 }}>
             That&apos;s the one.
           </p>
           <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '12.5px', fontWeight: 500, color: 'rgba(245,243,240,0.50)', lineHeight: 1.5 }}>
@@ -159,7 +159,7 @@ export default function OneFocusCard() {
           <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '9.5px', fontWeight: 800, letterSpacing: '0.13em', color: '#F4A582', marginBottom: 8 }}>
             TODAY&apos;S FOCUS
           </p>
-          <p style={{ fontFamily: 'var(--font-aegora)', fontSize: '17px', fontWeight: 700, color: 'rgba(245,243,240,0.35)', lineHeight: 1.3, marginBottom: 12 }}>
+          <p style={{ fontFamily: 'var(--font-aegora)', fontSize: '17px', fontWeight: 500, color: 'rgba(245,243,240,0.35)', lineHeight: 1.3, marginBottom: 12 }}>
             Nothing in the queue yet.
           </p>
           <div className="rounded-[11px] p-[10px_12px] mb-3" style={{ background: 'rgba(255,255,255,0.06)' }}>
@@ -207,7 +207,7 @@ export default function OneFocusCard() {
         )}
       </div>
 
-      <p style={{ fontFamily: 'var(--font-aegora)', fontSize: '18px', fontWeight: 700, color: 'rgba(245,243,240,0.92)', lineHeight: 1.25, marginBottom: 12 }}>
+      <p style={{ fontFamily: 'var(--font-aegora)', fontSize: '18px', fontWeight: 500, color: 'rgba(245,243,240,0.92)', lineHeight: 1.25, marginBottom: 12 }}>
         {focus.task}
       </p>
 

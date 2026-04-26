@@ -102,7 +102,7 @@ export default function UpgradePage() {
         </button>
         <h1 style={{
           fontFamily: 'var(--font-aegora)',
-          fontSize: '28px', fontWeight: 900,
+          fontSize: '28px', fontWeight: 500,
           color: DARKER, marginBottom: 8,
         }}>
           Upgrade Lumi
@@ -204,7 +204,7 @@ export default function UpgradePage() {
                 <div>
                   <h2 style={{
                     fontFamily: 'var(--font-aegora)',
-                    fontSize: '20px', fontWeight: 900,
+                    fontSize: '20px', fontWeight: 500,
                     color: DARKER, marginBottom: 3,
                   }}>
                     {plan.name}

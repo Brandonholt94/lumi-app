@@ -263,7 +263,7 @@ export default function ActionCards({ plan }: { plan: string }) {
               <p style={{
                 fontFamily: 'var(--font-aegora)',
                 fontSize:   15,
-                fontWeight: 700,
+                fontWeight: 500,
                 color:      '#1E1C2E',
                 lineHeight: 1.2,
                 marginTop:  10,

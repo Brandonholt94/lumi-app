@@ -36,20 +36,24 @@ export default async function AppLayout({
     <MoodProvider>
       <ActivityTracker />
       <LowBatteryOverlay />
-      {/* Full-viewport shell — desktop: sidebar + content side-by-side */}
-      <div className="h-dvh bg-[#FBF8F5] flex overflow-hidden">
-        {/* Sidebar — desktop only (hidden on mobile) */}
-        <DesktopSidebar />
-        {/* Content column — mobile: centered max-w-md; desktop: fills remaining space */}
-        <div className="lumi-content-col flex-1 min-w-0 flex flex-col overflow-hidden relative">
-          <SplashScreen />
-          <TimezoneSync />
-          <NotificationBanner />
-          <main className="flex-1 min-h-0 flex flex-col overflow-hidden">
-            <PageTransition>{children}</PageTransition>
-          </main>
-          {/* Bottom nav — mobile only */}
-          <NavBar />
+      {/* Full-viewport shell */}
+      <div className="h-dvh bg-[#FBF8F5] flex flex-col overflow-hidden">
+        {/* Notification banner — full viewport width, above sidebar+content */}
+        <NotificationBanner />
+        {/* Desktop: sidebar + content side-by-side */}
+        <div className="flex flex-1 min-h-0 overflow-hidden">
+          {/* Sidebar — desktop only (hidden on mobile) */}
+          <DesktopSidebar />
+          {/* Content column — mobile: centered max-w-md; desktop: fills remaining space */}
+          <div className="lumi-content-col flex-1 min-w-0 flex flex-col overflow-hidden relative">
+            <SplashScreen />
+            <TimezoneSync />
+            <main className="flex-1 min-h-0 flex flex-col overflow-hidden">
+              <PageTransition>{children}</PageTransition>
+            </main>
+            {/* Bottom nav — mobile only */}
+            <NavBar />
+          </div>
         </div>
       </div>
     </MoodProvider>

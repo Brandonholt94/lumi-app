@@ -13,52 +13,75 @@ export async function GET(req: Request) {
   const userIds = await getEligibleUsers('med_reminder')
   if (userIds.length === 0) return NextResponse.json({ sent: 0, total: 0 })
 
-  // Current UTC hour — meds with scheduled_time matching this hour get a nudge
-  // scheduled_time is stored as "HH:MM" (24h). We match on hour only.
-  const nowUtc = new Date()
-  const currentHour = nowUtc.getUTCHours()
-  const hourStr = String(currentHour).padStart(2, '0')   // "08", "14", etc.
-
   const supabase = getServiceClient()
 
-  // Fetch names + meds in parallel
+  // Fetch profiles (display_name + timezone) and all scheduled meds in parallel
   const [profilesRes, medsRes] = await Promise.all([
     supabase
       .from('profiles')
-      .select('clerk_user_id, display_name')
+      .select('clerk_user_id, display_name, timezone')
       .in('clerk_user_id', userIds),
     supabase
       .from('medications')
       .select('clerk_user_id, name, scheduled_time')
       .in('clerk_user_id', userIds)
-      .like('scheduled_time', `${hourStr}:%`),
+      .not('scheduled_time', 'is', null),
   ])
 
-  const meds = medsRes.data
-  if (!meds || meds.length === 0) return NextResponse.json({ sent: 0, total: 0 })
+  const allMeds = medsRes.data ?? []
+  if (allMeds.length === 0) return NextResponse.json({ sent: 0, total: 0 })
 
-  const nameMap: Record<string, string> = {}
+  const now = new Date()
+
+  // Build a per-user map of profile info
+  const profileMap: Record<string, { name: string; timezone: string }> = {}
   for (const p of profilesRes.data ?? []) {
-    nameMap[p.clerk_user_id] = p.display_name ?? 'there'
+    profileMap[p.clerk_user_id] = {
+      name:     p.display_name ?? 'there',
+      timezone: p.timezone     ?? 'America/New_York',
+    }
   }
 
-  // Group by user so we send one notification per user (even with multiple meds)
+  // For each user, compute their current local hour and match against scheduled_time
   const byUser: Record<string, string[]> = {}
-  for (const med of meds) {
+
+  for (const med of allMeds) {
+    const profile = profileMap[med.clerk_user_id]
+    if (!profile || !med.scheduled_time) continue
+
+    // Get current local hour for this user's timezone
+    let localHour: number
+    try {
+      const localHourStr = new Intl.DateTimeFormat('en-US', {
+        hour:     'numeric',
+        hour12:   false,
+        timeZone: profile.timezone,
+      }).format(now)
+      localHour = parseInt(localHourStr) % 24
+    } catch {
+      continue
+    }
+
+    // scheduled_time is stored as "HH:MM" (24h) in the user's local time
+    const scheduledHour = parseInt(med.scheduled_time.split(':')[0])
+    if (localHour !== scheduledHour) continue
+
     if (!byUser[med.clerk_user_id]) byUser[med.clerk_user_id] = []
     byUser[med.clerk_user_id].push(med.name)
   }
 
+  if (Object.keys(byUser).length === 0) return NextResponse.json({ sent: 0, total: 0 })
+
   const results = await Promise.allSettled(
     Object.entries(byUser).map(([userId, names]) => {
-      const name = nameMap[userId] ?? 'there'
+      const name    = profileMap[userId]?.name ?? 'there'
       const medList = names.length === 1
         ? names[0]
         : `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}`
       return sendPushToUser(userId, {
         title: `Hey ${name} — med check 💊`,
-        body: `Time for ${medList}. Lumi's got you.`,
-        url: '/me/medication',
+        body:  `Time for ${medList}. Lumi's got you.`,
+        url:   '/me/medication',
       })
     })
   )

@@ -61,7 +61,7 @@ export default function WelcomeScreen({ name, plan }: { name: string; plan: stri
       {/* Greeting */}
       <h1 style={{
         fontFamily: 'var(--font-aegora)',
-        fontSize: '36px', fontWeight: 900,
+        fontSize: '36px', fontWeight: 500,
         color: DARKER, textAlign: 'center',
         lineHeight: 1.15, marginBottom: 12,
         opacity: phase >= 1 ? 1 : 0,

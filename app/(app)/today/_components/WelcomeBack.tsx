@@ -46,7 +46,7 @@ export default function WelcomeBack() {
         <div>
           <p style={{
             fontFamily: 'var(--font-aegora)',
-            fontSize: 15, fontWeight: 700,
+            fontSize: 15, fontWeight: 500,
             color: '#1E1C2E', lineHeight: 1.2, marginBottom: 2,
           }}>
             Welcome back.

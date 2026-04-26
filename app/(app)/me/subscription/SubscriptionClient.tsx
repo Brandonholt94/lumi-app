@@ -111,7 +111,7 @@ export default function SubscriptionClient({ currentPlan }: { currentPlan: Plan 
           }}>CURRENT PLAN</p>
           <p style={{
             fontFamily: 'var(--font-aegora)', fontSize: '22px',
-            fontWeight: 900, color: DARKER,
+            fontWeight: 500, color: DARKER,
           }}>
             {PLAN_LABELS[currentPlan]}
           </p>
@@ -239,7 +239,7 @@ export default function SubscriptionClient({ currentPlan }: { currentPlan: Plan 
               }}>LUMI CORE</p>
               <p style={{
                 fontFamily: 'var(--font-aegora)', fontSize: '26px',
-                fontWeight: 900, color: 'white', marginBottom: 2,
+                fontWeight: 500, color: 'white', marginBottom: 2,
               }}>
                 {billing === 'annual' ? '$10' : '$14'}
                 <span style={{ fontSize: '14px', fontWeight: 600, color: 'rgba(255,255,255,0.5)' }}>/mo</span>
@@ -282,7 +282,7 @@ export default function SubscriptionClient({ currentPlan }: { currentPlan: Plan 
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
               <div>
-                <p style={{ fontFamily: 'var(--font-aegora)', fontSize: '18px', fontWeight: 900, color: DARKER, marginBottom: 3 }}>Companion</p>
+                <p style={{ fontFamily: 'var(--font-aegora)', fontSize: '18px', fontWeight: 500, color: DARKER, marginBottom: 3 }}>Companion</p>
                 <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 600, color: MUTED }}>Lumi at its fullest</p>
               </div>
               <div style={{ textAlign: 'right' }}>

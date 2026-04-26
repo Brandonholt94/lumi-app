@@ -14,7 +14,6 @@ const aegora = localFont({
   src: [
     { path: '../public/fonts/aegora-regular.woff2', weight: '400', style: 'normal' },
     { path: '../public/fonts/aegora-medium.woff2',  weight: '500', style: 'normal' },
-    { path: '../public/fonts/aegora-bold.woff2',    weight: '700', style: 'normal' },
   ],
   variable: '--font-aegora',
 })

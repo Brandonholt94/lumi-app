@@ -670,7 +670,7 @@ export default function CaptureInput() {
             </svg>
           </div>
           <p style={{
-            fontFamily: 'var(--font-aegora)', fontSize: '18px', fontWeight: 700,
+            fontFamily: 'var(--font-aegora)', fontSize: '18px', fontWeight: 500,
             color: '#1E1C2E', marginBottom: 8,
           }}>
             Head&apos;s clear
@@ -976,7 +976,7 @@ export default function CaptureInput() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
               <div style={{ flex: 1, paddingRight: 12 }}>
                 <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: 11, fontWeight: 800, letterSpacing: '0.08em', color: '#9895B0', marginBottom: 4 }}>BREAKING DOWN</p>
-                <p style={{ fontFamily: 'var(--font-aegora)', fontSize: 18, fontWeight: 900, color: '#1E1C2E', lineHeight: 1.3 }}>{breakdownTask}</p>
+                <p style={{ fontFamily: 'var(--font-aegora)', fontSize: 18, fontWeight: 500, color: '#1E1C2E', lineHeight: 1.3 }}>{breakdownTask}</p>
               </div>
               <button
                 onClick={() => setBreakdownForId(null)}
@@ -1085,7 +1085,7 @@ export default function CaptureInput() {
 
             {/* Task label */}
             <p style={{
-              fontFamily: 'var(--font-aegora)', fontSize: 16, fontWeight: 900,
+              fontFamily: 'var(--font-aegora)', fontSize: 16, fontWeight: 500,
               color: '#1E1C2E', lineHeight: 1.3, marginBottom: 20, padding: '0 4px',
             }}>
               {actionSheetFor.text}

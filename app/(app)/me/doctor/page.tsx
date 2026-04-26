@@ -22,8 +22,9 @@ export default function DoctorReportPage() {
   const [saved, setSaved]     = useState(false)
   const [sent, setSent]       = useState(false)
   const [error, setError]     = useState<string | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [plan, setPlan]       = useState<string>('core')
+  const [loading, setLoading]   = useState(true)
+  const [plan, setPlan]         = useState<string>('core')
+  const [syncing, setSyncing]   = useState(false)
 
   useEffect(() => {
     fetch('/api/profile')
@@ -97,7 +98,7 @@ export default function DoctorReportPage() {
       <div style={{ marginBottom: 28 }}>
         <h1 style={{
           fontFamily: 'var(--font-aegora)',
-          fontSize: '26px', fontWeight: 900,
+          fontSize: '26px', fontWeight: 500,
           color: DARKER, marginBottom: 6,
         }}>
           Doctor Report
@@ -124,7 +125,7 @@ export default function DoctorReportPage() {
           <p style={{
             fontFamily:    'var(--font-aegora)',
             fontSize:      '20px',
-            fontWeight:    900,
+            fontWeight: 500,
             color:         DARKER,
             marginBottom:  10,
             lineHeight:    1.3,
@@ -158,6 +159,30 @@ export default function DoctorReportPage() {
           >
             Upgrade to Companion
           </a>
+          <p style={{ marginTop: 16, marginBottom: 0 }}>
+            <button
+              onClick={async () => {
+                setSyncing(true)
+                try {
+                  const res = await fetch('/api/profile/sync-plan', { method: 'POST' })
+                  const d = await res.json()
+                  if (d.plan) setPlan(d.plan.toLowerCase())
+                } finally {
+                  setSyncing(false)
+                }
+              }}
+              disabled={syncing}
+              style={{
+                background: 'none', border: 'none', cursor: 'pointer',
+                fontFamily: 'var(--font-nunito-sans)',
+                fontSize: '12px', fontWeight: 600,
+                color: MUTED, textDecoration: 'underline',
+                padding: 0,
+              }}
+            >
+              {syncing ? 'Checking…' : 'Already on Companion? Refresh your plan'}
+            </button>
+          </p>
         </div>
       )}
 

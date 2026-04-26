@@ -381,7 +381,7 @@ export default function DaySceneHeader({ firstName }: Props) {
       <div className="lumi-scene-dome">
         <h1 style={{
           fontFamily: 'var(--font-aegora)',
-          fontSize: 26, fontWeight: 900,
+          fontSize: 26, fontWeight: 500,
           color: '#1E1C2E',
           lineHeight: 1.1, marginBottom: 3,
         }}>

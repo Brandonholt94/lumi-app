@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { verifyCronAuth, getEligibleUsersForLocalHour, getServiceClient } from '@/lib/cron-auth'
+import { verifyCronAuth, getEligibleUsersForPreferredHour, getServiceClient } from '@/lib/cron-auth'
 import { sendPushToUser } from '@/lib/push'
 
 export const runtime = 'nodejs'
@@ -11,7 +11,7 @@ export async function GET(req: Request) {
   }
 
   // Fire for users where it's currently 7pm in their local timezone
-  const userIds = await getEligibleUsersForLocalHour('evening_checkin', 19)
+  const userIds = await getEligibleUsersForPreferredHour('evening_checkin', 'evening_hour', 19)
   if (userIds.length === 0) return NextResponse.json({ sent: 0, total: 0 })
 
   const supabase = getServiceClient()

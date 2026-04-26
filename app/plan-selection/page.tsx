@@ -161,7 +161,7 @@ export default function PlanSelectionPage() {
           <div style={{ textAlign: 'center', marginBottom: 28, animation: 'lumiIn 0.4s ease both' }}>
             <h1 style={{
               fontFamily: 'var(--font-aegora)',
-              fontSize: 24, fontWeight: 900,
+              fontSize: 24, fontWeight: 500,
               color: DARKER, lineHeight: 1.2,
               marginBottom: 8,
             }}>
@@ -297,7 +297,7 @@ export default function PlanSelectionPage() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
                 <span style={{
                   fontFamily: 'var(--font-aegora)',
-                  fontSize: 22, fontWeight: 900, color: DARKER,
+                  fontSize: 22, fontWeight: 500, color: DARKER,
                 }}>
                   {selected.name}
                 </span>
@@ -328,7 +328,7 @@ export default function PlanSelectionPage() {
             {/* Price */}
             <div style={{ marginBottom: 20 }}>
               <div style={{ display: 'flex', alignItems: 'flex-end', gap: 4, marginBottom: 4 }}>
-                <span style={{ fontFamily: 'var(--font-aegora)', fontSize: 48, fontWeight: 900, color: DARKER, lineHeight: 1 }}>
+                <span style={{ fontFamily: 'var(--font-aegora)', fontSize: 48, fontWeight: 500, color: DARKER, lineHeight: 1 }}>
                   ${price}
                 </span>
                 <span style={{ fontSize: 15, fontWeight: 600, color: MUTED, paddingBottom: 6 }}>/mo</span>

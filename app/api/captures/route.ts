@@ -1,6 +1,7 @@
 import { auth } from '@clerk/nextjs/server'
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse, type NextRequest } from 'next/server'
+import { sendPushToUser } from '@/lib/push'
 
 // Use service role to bypass RLS — we filter by clerk_user_id manually
 function getServiceClient() {
@@ -98,6 +99,16 @@ export async function PATCH(req: Request) {
       .update({ completed_at: new Date().toISOString() })
       .eq('id', id)
       .eq('clerk_user_id', userId)
+  }
+
+  // 🎉 One Focus celebration push — fires when the user completes their pinned focus task
+  if (!error && updates.completed === true && data?.is_one_focus === true) {
+    const taskName = data.text ?? 'your focus task'
+    void sendPushToUser(userId, {
+      title: 'You did it! 🎉',
+      body: `"${taskName.slice(0, 50)}${taskName.length > 50 ? '…' : ''}" — that's a real win. How are you feeling?`,
+      url: '/chat',
+    }).catch(() => {})
   }
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })

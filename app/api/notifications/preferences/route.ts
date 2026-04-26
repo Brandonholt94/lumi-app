@@ -20,13 +20,16 @@ export async function GET() {
     .eq('clerk_user_id', userId)
     .single()
 
-  // Return defaults if no row yet
+  // Return defaults if no row yet — these mirror the onboarding seed values
   return NextResponse.json(data ?? {
     morning_checkin: true,
-    focus_reminder: true,
-    med_reminder: false,
-    evening_checkin: false,
-    weekly_report: true,
+    focus_reminder:  true,
+    med_reminder:    false,
+    evening_checkin: true,
+    weekly_report:   true,
+    habit_reminder:  false,
+    morning_hour:    8,
+    evening_hour:    19,
   })
 }
 

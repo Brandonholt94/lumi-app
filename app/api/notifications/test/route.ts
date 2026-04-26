@@ -35,6 +35,7 @@ export async function POST() {
       title: 'Lumi is here 👋',
       body: "Notifications are working. You'll hear from me when it matters.",
       url: '/today',
+      test: true,  // bypasses the "app is open" suppression in the service worker
     })
     return NextResponse.json({ ok: true })
   } catch (err: unknown) {

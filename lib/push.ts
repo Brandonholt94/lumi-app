@@ -23,6 +23,7 @@ export interface PushPayload {
   title: string
   body: string
   url?: string
+  test?: boolean  // if true, service worker shows notification even when app is open
 }
 
 // Send a push notification to all of a user's subscribed devices

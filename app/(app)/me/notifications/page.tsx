@@ -166,12 +166,17 @@ export default function NotificationsPage() {
     try {
       const res = await fetch('/api/notifications/test', { method: 'POST' })
       const d = await res.json()
-      if (res.ok) {
+      if (res.ok && d.ok) {
         setTestSent(true)
         setTimeout(() => setTestSent(false), 4000)
       } else {
-        setTestError(d.error ?? 'Something went wrong.')
-        setTimeout(() => setTestError(null), 6000)
+        // Show verbose detail if available (statusCode + error from push service)
+        const detail = d.detail?.[0]
+        const msg = detail
+          ? `Push service returned ${detail.statusCode}: ${detail.error ?? 'unknown'}`
+          : (d.error ?? 'Something went wrong.')
+        setTestError(msg)
+        setTimeout(() => setTestError(null), 10000)
       }
     } catch {
       setTestError('Something went wrong.')

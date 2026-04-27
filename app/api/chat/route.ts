@@ -432,7 +432,7 @@ export async function POST(req: Request) {
     userContext.isReturningAfterAbsence,
   )
   const model = useSonnet
-    ? anthropic('claude-sonnet-4-6')
+    ? anthropic('claude-sonnet-4.6')
     : anthropic('claude-haiku-4-5')
 
   // ── Stream Lumi's response ─────────────────────────────────

@@ -797,6 +797,20 @@ function BrainReportCard({ plan, daysWithData }: { plan: 'free' | 'core' | 'comp
   const isPaid = plan === 'core' || plan === 'companion'
   const router = useRouter()
 
+  // Auto-load pre-generated report on Sunday (or any day it exists)
+  useEffect(() => {
+    if (!isPaid) return
+    fetch('/api/insights/brain-report')
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {
+        if (d?.report) {
+          setReport(d.report)
+          setStatus('done')
+        }
+      })
+      .catch(() => {})
+  }, [isPaid])
+
   async function generate() {
     setStatus('loading')
     try {

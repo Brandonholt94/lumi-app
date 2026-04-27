@@ -3,6 +3,8 @@ import { verifyCronAuth, getEligibleUsersForLocalHour, getServiceClient } from '
 import { sendPushToUser } from '@/lib/push'
 import { Resend } from 'resend'
 import { clerkClient } from '@clerk/nextjs/server'
+import { generateText } from 'ai'
+import { anthropic } from '@ai-sdk/anthropic'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -280,10 +282,65 @@ export async function GET(req: Request) {
       // First name
       const firstName = info.name.split(' ')[0] ?? 'there'
 
-      // Push notification (keep existing behavior)
+      // ── Generate AI narrative and store it ──────────────────────────────
+      const byTag = { task: 0, idea: 0, worry: 0, reminder: 0 }
+      for (const c of userCaptures) {
+        const k = (c as Record<string, unknown>).tag as keyof typeof byTag
+        if (k && k in byTag) byTag[k]++
+      }
+
+      const weekStartDate = new Date(now)
+      weekStartDate.setDate(now.getDate() - 6)
+      weekStartDate.setHours(0, 0, 0, 0)
+      const weekStartStr = weekStartDate.toISOString().slice(0, 10)
+
+      try {
+        const sampleCaptures = userCaptures
+          .slice(0, 10)
+          .map(c => `- [${(c as Record<string, unknown>).tag ?? 'untagged'}] ${(c as Record<string, unknown>).text}`)
+          .join('\n')
+
+        const { text: reportText } = await generateText({
+          model: anthropic('claude-sonnet-4.6'),
+          prompt: `You are Lumi, a warm and deeply understanding AI companion built for adults with ADHD.
+
+Write a Weekly Brain Report for this user. It's a short personal narrative — 3 paragraphs, around 150 words. Reflect on their week using the data below.
+
+Lumi's voice rules:
+- Warm, specific, human. Never clinical.
+- Celebrate small wins. Never shame.
+- Speak directly to the user ("you", "your brain").
+- Never use the word "productivity", "just", or "chatbot".
+- No bullet points. No headers. Pure prose.
+
+WEEK DATA:
+- Captures total: ${userCaptures.length}
+- Tasks: ${byTag.task} | Ideas: ${byTag.idea} | Worries: ${byTag.worry} | Reminders: ${byTag.reminder}
+- Mood check-ins: ${userMoods.length}${topMood ? ` (most common: ${topMood})` : ''}
+- Focus sessions: ${userFocus.length} (${focusMinutes} min total)
+- Active days: ${activeDaySet.size}
+
+Sample captures this week (for context, do not quote directly):
+${sampleCaptures || '(none yet)'}
+
+Lead with something specific and human. End with one grounding observation for next week.`,
+          maxOutputTokens: 400,
+        })
+
+        await supabase.from('weekly_brain_reports').upsert(
+          { clerk_user_id: userId, week_start: weekStartStr, report_text: reportText.trim() },
+          { onConflict: 'clerk_user_id,week_start' }
+        )
+
+        console.log('[weekly-report] stored AI report for', userId)
+      } catch (err) {
+        console.error('[weekly-report] AI report generation failed for', userId, err)
+      }
+
+      // Push notification — tell them it's ready
       void sendPushToUser(userId, {
-        title: 'Your Weekly Brain Report 📊',
-        body:  'See how your week looked — wins, moods, and what your brain was up to.',
+        title: 'Your Weekly Brain Report is ready 📊',
+        body:  `${firstName}, Lumi wrote your week up. Tap to read it.`,
         url:   '/insights',
       }).catch(() => {})
 

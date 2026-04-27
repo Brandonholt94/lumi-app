@@ -11,6 +11,30 @@ function getServiceClient() {
   )
 }
 
+// GET — fetch this week's pre-generated report (stored by the Sunday cron)
+export async function GET() {
+  const { userId } = await auth()
+  if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const supabase = getServiceClient()
+  const now = new Date()
+  const dow = now.getDay()
+  const monday = new Date(now)
+  monday.setDate(now.getDate() - (dow === 0 ? 6 : dow - 1))
+  monday.setHours(0, 0, 0, 0)
+  const weekStart = monday.toISOString().slice(0, 10)
+
+  const { data } = await supabase
+    .from('weekly_brain_reports')
+    .select('report_text')
+    .eq('clerk_user_id', userId)
+    .eq('week_start', weekStart)
+    .maybeSingle()
+
+  if (!data) return NextResponse.json({ report: null })
+  return NextResponse.json({ report: data.report_text })
+}
+
 export async function POST() {
   const { userId } = await auth()
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -96,13 +120,23 @@ ${sampleCaptures || '(none yet)'}
 
 Lead with something specific and human. End with one grounding observation for next week.`
 
+  const weekStart = monday.toISOString().slice(0, 10)
+
   try {
     const { text } = await generateText({
-      model: anthropic('claude-sonnet-4-6'),
+      model: anthropic('claude-sonnet-4.6'),
       prompt,
       maxOutputTokens: 400,
     })
-    return NextResponse.json({ report: text.trim() })
+    const report = text.trim()
+
+    // Store so it persists across page loads and future GETs
+    await supabase.from('weekly_brain_reports').upsert(
+      { clerk_user_id: userId, week_start: weekStart, report_text: report },
+      { onConflict: 'clerk_user_id,week_start' }
+    )
+
+    return NextResponse.json({ report })
   } catch (err) {
     console.error('[brain-report] generation failed:', err)
     return NextResponse.json({ error: 'Failed to generate report' }, { status: 500 })

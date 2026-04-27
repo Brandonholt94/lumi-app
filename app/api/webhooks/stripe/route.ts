@@ -160,7 +160,7 @@ export async function POST(req: Request) {
 
       if (profile?.clerk_user_id) {
         await supabase.from('profiles')
-          .update({ plan: 'starter', updated_at: new Date().toISOString() })
+          .update({ plan: 'core', updated_at: new Date().toISOString() })
           .eq('clerk_user_id', profile.clerk_user_id)
       }
 

@@ -14,8 +14,6 @@ function getServiceClient() {
 
 function planFromPriceId(priceId: string): string {
   const entries: Array<[string | undefined, string]> = [
-    [process.env.STRIPE_STARTER_MONTHLY_PRICE_ID,   'starter'],
-    [process.env.STRIPE_STARTER_ANNUAL_PRICE_ID,    'starter'],
     [process.env.STRIPE_CORE_MONTHLY_PRICE_ID,      'core'],
     [process.env.STRIPE_CORE_ANNUAL_PRICE_ID,       'core'],
     [process.env.STRIPE_COMPANION_MONTHLY_PRICE_ID, 'companion'],

@@ -13,13 +13,19 @@ function getServiceClient() {
 }
 
 function planFromPriceId(priceId: string): string {
-  const map: Record<string, string> = {
-    [process.env.STRIPE_CORE_MONTHLY_PRICE_ID!]:      'core',
-    [process.env.STRIPE_CORE_ANNUAL_PRICE_ID!]:       'core',
-    [process.env.STRIPE_COMPANION_MONTHLY_PRICE_ID!]: 'companion',
-    [process.env.STRIPE_COMPANION_ANNUAL_PRICE_ID!]:  'companion',
+  const entries: Array<[string | undefined, string]> = [
+    [process.env.STRIPE_STARTER_MONTHLY_PRICE_ID,   'starter'],
+    [process.env.STRIPE_STARTER_ANNUAL_PRICE_ID,    'starter'],
+    [process.env.STRIPE_CORE_MONTHLY_PRICE_ID,      'core'],
+    [process.env.STRIPE_CORE_ANNUAL_PRICE_ID,       'core'],
+    [process.env.STRIPE_COMPANION_MONTHLY_PRICE_ID, 'companion'],
+    [process.env.STRIPE_COMPANION_ANNUAL_PRICE_ID,  'companion'],
+  ]
+  for (const [id, plan] of entries) {
+    if (id && id === priceId) return plan
   }
-  return map[priceId] ?? 'core'
+  console.warn('[planFromPriceId] unrecognised priceId:', priceId)
+  return 'core'
 }
 
 // POST — sync the authenticated user's plan from Stripe and update their profile.

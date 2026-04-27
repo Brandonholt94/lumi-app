@@ -27,20 +27,35 @@ export default function DoctorReportPage() {
   const [syncing, setSyncing]   = useState(false)
 
   useEffect(() => {
-    fetch('/api/profile')
-      .then(r => r.json())
-      .then(d => {
+    async function loadProfile() {
+      try {
+        const r = await fetch('/api/profile')
+        const d = await r.json()
         setInfo({
           doctor_name:  d.doctor_name  ?? '',
           doctor_email: d.doctor_email ?? '',
         })
-        setPlan((d.plan ?? 'core').toLowerCase())
-        setLoading(false)
-      })
-      .catch(() => {
+        const profilePlan = (d.plan ?? '').toLowerCase()
+
+        // If plan isn't companion in DB, auto-sync from Stripe to catch stale values
+        if (profilePlan !== 'companion') {
+          try {
+            const syncRes = await fetch('/api/profile/sync-plan', { method: 'POST' })
+            const syncData = await syncRes.json()
+            setPlan((syncData.plan ?? profilePlan).toLowerCase())
+          } catch {
+            setPlan(profilePlan || 'core')
+          }
+        } else {
+          setPlan('companion')
+        }
+      } catch {
         setPlan('companion') // fail open — real auth enforced by /api/doctor-report
+      } finally {
         setLoading(false)
-      })
+      }
+    }
+    loadProfile()
   }, [])
 
   async function saveContact() {

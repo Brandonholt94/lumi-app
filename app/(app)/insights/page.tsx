@@ -894,7 +894,7 @@ function BrainReportCard({ plan, daysWithData }: { plan: 'free' | 'core' | 'comp
           </>
         )}
 
-        {status === 'idle' && daysWithData >= 3 && daysWithData < 7 && (
+        {status === 'idle' && daysWithData >= 3 && daysWithData < 7 && new Date().getDay() !== 0 && (
           <>
             <p style={{ fontFamily: 'var(--font-aegora)', fontSize: '20px', fontWeight: 500, color: '#F5F2EE', lineHeight: 1.2, marginBottom: 8 }}>
               Your week, through Lumi&apos;s eyes.
@@ -925,7 +925,7 @@ function BrainReportCard({ plan, daysWithData }: { plan: 'free' | 'core' | 'comp
           </>
         )}
 
-        {status === 'idle' && daysWithData >= 7 && (
+        {status === 'idle' && daysWithData >= 3 && (daysWithData >= 7 || new Date().getDay() === 0) && (
           <>
             <p style={{ fontFamily: 'var(--font-aegora)', fontSize: '20px', fontWeight: 500, color: '#F5F2EE', lineHeight: 1.2, marginBottom: 8 }}>
               Your week, through Lumi&apos;s eyes.

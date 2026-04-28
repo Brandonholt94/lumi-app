@@ -50,8 +50,10 @@ body {
   .lumi-content-col     { max-width: none; margin-left: 0; margin-right: 0; }
 }
 
-/* ── Chat input bar bottom padding ── */
-.input-bar-pad { padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 96px + 12px); }
+/* ── Chat input bar bottom padding ──
+   Nav bar is a natural flex item below this (not fixed/overlaid), so we only
+   need a tiny breathing room + the iPhone safe-area inset. ── */
+.input-bar-pad { padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 12px); }
 @media (min-width: 768px) { .input-bar-pad { padding-bottom: 24px; } }
 
 /* ══════════════════════════════════════════════════════════════

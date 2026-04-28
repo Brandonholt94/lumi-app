@@ -2,6 +2,7 @@ import { auth } from '@clerk/nextjs/server'
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse, type NextRequest } from 'next/server'
 import { sendPushToUser } from '@/lib/push'
+import { generateTaskEmoji, prependEmoji } from '@/lib/ai/task-emoji'
 
 // Use service role to bypass RLS — we filter by clerk_user_id manually
 function getServiceClient() {
@@ -39,12 +40,19 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Text is required' }, { status: 400 })
   }
 
+  // Auto-emoji ONLY for task-tagged captures. Brain dump thoughts/feelings stay clean.
+  let finalText = text.trim()
+  if (tag === 'task') {
+    const emoji = await generateTaskEmoji(text)
+    finalText = prependEmoji(emoji, text)
+  }
+
   const supabase = getServiceClient()
   const { data, error } = await supabase
     .from('captures')
     .insert({
       clerk_user_id: userId,
-      text: text.trim(),
+      text: finalText,
       tag: tag ?? null,
     })
     .select()

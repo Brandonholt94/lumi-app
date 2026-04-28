@@ -1,6 +1,7 @@
 import { auth } from '@clerk/nextjs/server'
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
+import { generateTaskEmoji, prependEmoji } from '@/lib/ai/task-emoji'
 
 function getServiceClient() {
   return createClient(
@@ -41,12 +42,17 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
   }
 
+  // Auto-generate an emoji unless the user already prepended one via the picker.
+  // Helper returns '' on failure or if text already starts with an emoji — never blocks.
+  const emoji = await generateTaskEmoji(content)
+  const finalText = prependEmoji(emoji, content)
+
   const supabase = getServiceClient()
   const { data, error } = await supabase
     .from('captures')
     .insert({
       clerk_user_id: userId,
-      text:          content.trim(),
+      text:          finalText,
       tag:           'task',        // makes it eligible for One Focus
       scheduled_at,
       completed:     false,

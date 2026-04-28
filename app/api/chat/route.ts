@@ -7,6 +7,7 @@ import { buildLumiSystemPrompt, LumiUserContext } from '@/lib/ai/lumi-prompt'
 import { getUpcomingEvents } from '@/lib/google-calendar'
 import { getMicrosoftUpcomingEvents } from '@/lib/microsoft-calendar'
 import { detectCrisis, CRISIS_RESPONSE, DISTRESS_CONTEXT } from '@/lib/ai/crisis-detection'
+import { generateTaskEmoji, prependEmoji } from '@/lib/ai/task-emoji'
 import { sendPushToUser } from '@/lib/push'
 import { z } from 'zod'
 
@@ -452,16 +453,25 @@ export async function POST(req: Request) {
           })),
         }),
         execute: async ({ items }: { items: Array<{ text: string; tag: string }> }) => {
+          // Auto-emoji for task-tagged items only — parallel to keep latency low
+          const itemsWithEmoji = await Promise.all(
+            items.map(async (item: { text: string; tag: string }) => {
+              if (item.tag !== 'task') return item
+              const emoji = await generateTaskEmoji(item.text)
+              return { ...item, text: prependEmoji(emoji, item.text) }
+            })
+          )
+
           const supabase = getServiceClient()
           await supabase.from('captures').insert(
-            items.map((item: { text: string; tag: string }) => ({
+            itemsWithEmoji.map((item: { text: string; tag: string }) => ({
               clerk_user_id: userId,
               text: item.text,
               tag: item.tag,
               completed: false,
             }))
           )
-          return { created: items.length, items: items.map((i: { text: string }) => i.text) }
+          return { created: itemsWithEmoji.length, items: itemsWithEmoji.map((i: { text: string }) => i.text) }
         },
       }),
     },

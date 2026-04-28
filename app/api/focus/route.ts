@@ -69,15 +69,30 @@ export async function GET(req: Request) {
       .maybeSingle()
 
     if (pinned) {
-      const daysPinned = pinned.one_focus_pinned_at
-        ? Math.floor((Date.now() - new Date(pinned.one_focus_pinned_at).getTime()) / 86_400_000)
-        : 0
-      return NextResponse.json({
-        capture_id: pinned.id,
-        task: pinned.text,
-        lumi_message: "You picked this one. Let's make it happen.",
-        days_pinned: daysPinned,
-      })
+      // Auto-reset stale pins — if pinned on a previous calendar day, quietly clear it.
+      // Zero shame: the task just disappears. If it still matters, they'll re-add it.
+      const pinnedDate = pinned.one_focus_pinned_at
+        ? new Date(pinned.one_focus_pinned_at).toDateString()
+        : new Date().toDateString()
+      const isStale = pinnedDate !== new Date().toDateString()
+
+      if (isStale) {
+        await supabase
+          .from('captures')
+          .update({ is_one_focus: false })
+          .eq('id', pinned.id)
+        // Fall through to AI selection for today
+      } else {
+        const daysPinned = pinned.one_focus_pinned_at
+          ? Math.floor((Date.now() - new Date(pinned.one_focus_pinned_at).getTime()) / 86_400_000)
+          : 0
+        return NextResponse.json({
+          capture_id: pinned.id,
+          task: pinned.text,
+          lumi_message: "You picked this one. Let's make it happen.",
+          days_pinned: daysPinned,
+        })
+      }
     }
   } else {
     // Get the pinned task id so we can exclude it from the bypass results

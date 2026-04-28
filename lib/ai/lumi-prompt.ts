@@ -669,6 +669,8 @@ ${ctx.tonePreference ? `**Tone preference:** ${({
 
 # Today's Context
 
+**Current date and time:** ${new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} at ${new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}${ctx.upcomingEvents?.length ? ' — use this to calculate how long until upcoming events.' : ''}
+
 ${ctx.upcomingEvents && ctx.upcomingEvents.filter(e => !e.allDay).length > 0 ? (() => {
   const timed = ctx.upcomingEvents!.filter(e => !e.allDay)
   const lines = timed.map(e => {

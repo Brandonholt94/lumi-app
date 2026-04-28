@@ -97,7 +97,7 @@ export default function MoodSelector() {
   // ── Collapsed pill ──────────────────────────────────────────────
   if (!expanded && activeMood) {
     return (
-      <div style={{ marginBottom: 16 }}>
+      <div data-tour="mood" style={{ marginBottom: 16 }}>
         <button
           onClick={() => setExpanded(true)}
           style={{
@@ -145,7 +145,7 @@ export default function MoodSelector() {
 
   // ── Expanded tappable chips ────────────────────────────────────
   return (
-    <div style={{ marginBottom: 16 }}>
+    <div data-tour="mood" style={{ marginBottom: 16 }}>
       <style>{`
         @keyframes moodPop {
           0%   { transform: scale(1); }

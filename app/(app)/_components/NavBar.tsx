@@ -59,6 +59,7 @@ export default function NavBar() {
           className="flex-shrink-0"
           style={{ marginBottom: 2 }}
           onClick={() => tap('chat')}
+          data-tour="nav-chat"
         >
           <div className={tapped === 'chat' ? 'tab-pop' : ''}>
             <LumiTabIcon active={is('/chat')} />
@@ -96,6 +97,7 @@ export default function NavBar() {
             className={`flex items-center justify-center flex-1 rounded-[20px] ${tapped === 'focus' ? 'tab-pop' : ''}`}
             style={{ height: 44, background: is('/focus') ? 'rgba(244,165,130,0.14)' : 'transparent', transition: 'background 0.2s' }}
             onClick={() => tap('focus')}
+            data-tour="nav-focus"
           >
             <svg width="22" height="22" viewBox="0 0 256 256" style={iconScale('/focus')}>
               <path fill={iconColor('/focus')} style={{ transition: 'fill 0.2s' }}
@@ -110,6 +112,7 @@ export default function NavBar() {
             className={`flex items-center justify-center flex-1 rounded-[20px] ${tapped === 'capture' ? 'tab-pop' : ''}`}
             style={{ height: 44, background: is('/capture') ? 'rgba(244,165,130,0.14)' : 'transparent', transition: 'background 0.2s' }}
             onClick={() => tap('capture')}
+            data-tour="nav-capture"
           >
             <svg width="22" height="22" viewBox="0 0 256 256" style={iconScale('/capture')}>
               <path fill={iconColor('/capture')} style={{ transition: 'fill 0.2s' }}
@@ -124,6 +127,7 @@ export default function NavBar() {
             className={`flex items-center justify-center flex-1 rounded-[20px] ${tapped === 'insights' ? 'tab-pop' : ''}`}
             style={{ height: 44, background: is('/insights') ? 'rgba(244,165,130,0.14)' : 'transparent', transition: 'background 0.2s' }}
             onClick={() => tap('insights')}
+            data-tour="nav-insights"
           >
             <svg width="22" height="22" viewBox="0 0 256 256" style={iconScale('/insights')}>
               <path fill={iconColor('/insights')} style={{ transition: 'fill 0.2s' }}

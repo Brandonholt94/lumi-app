@@ -2,58 +2,15 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useEffect, useState } from 'react'
 
+const EXPANDED_W  = 220
+const COLLAPSED_W = 64
 
-function NavItem({
-  href, label, active, icon,
-}: {
-  href: string
-  label: string
-  active: boolean
-  icon: React.ReactNode
-}) {
-  return (
-    <Link
-      href={href}
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 10,
-        padding: '10px 12px',
-        borderRadius: 12,
-        background: active ? 'rgba(244,165,130,0.12)' : 'transparent',
-        transition: 'background 0.15s',
-        textDecoration: 'none',
-        WebkitTapHighlightColor: 'transparent',
-      }}
-    >
-      <span style={{ color: active ? '#F4A582' : 'rgba(45,42,62,0.38)', transition: 'color 0.15s', display: 'flex' }}>
-        {icon}
-      </span>
-      <span style={{
-        fontFamily: 'var(--font-nunito-sans)',
-        fontSize: '14px',
-        fontWeight: active ? 700 : 500,
-        color: active ? '#2D2A3E' : 'rgba(45,42,62,0.55)',
-        transition: 'color 0.15s, font-weight 0.15s',
-      }}>
-        {label}
-      </span>
-    </Link>
-  )
-}
-
-// ── Icons (same SVG paths as NavBar) ──────────────────────────
+// ── Icons ──────────────────────────────────────────────────────
 const TodayIcon = () => (
   <svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor">
     <path d="M208,28H188V24a12,12,0,0,0-24,0v4H92V24a12,12,0,0,0-24,0v4H48A20,20,0,0,0,28,48V208a20,20,0,0,0,20,20H208a20,20,0,0,0,20-20V48A20,20,0,0,0,208,28ZM68,52a12,12,0,0,0,24,0h72a12,12,0,0,0,24,0h16V76H52V52ZM52,204V100H204V204Zm92-76a16,16,0,1,1-16-16A16,16,0,0,1,144,128Zm48,0a16,16,0,1,1-16-16A16,16,0,0,1,192,128ZM96,176a16,16,0,1,1-16-16A16,16,0,0,1,96,176Zm48,0a16,16,0,1,1-16-16A16,16,0,0,1,144,176Zm48,0a16,16,0,1,1-16-16A16,16,0,0,1,192,176Z"/>
-  </svg>
-)
-const ChatIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 400 295" fill="currentColor">
-    <path d="M85.6,53.1 L115,119.3 L85.6,53.1Z" opacity="0"/>
-    {/* Use a chat bubble icon instead */}
-    <circle cx="195.2" cy="196.4" r="89.3"/>
   </svg>
 )
 const FocusIcon = () => (
@@ -77,8 +34,6 @@ const MeIcon = () => (
   </svg>
 )
 
-// Lumi brandmark icon — gradient circle with white brandmark
-// Uses nested <svg> so the browser handles scaling automatically (no manual transform math)
 const LumiNavIcon = ({ active }: { active: boolean }) => (
   <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg"
     style={{ flexShrink: 0, filter: active ? 'drop-shadow(0 0 4px rgba(244,165,130,0.55))' : 'drop-shadow(0 2px 4px rgba(244,165,130,0.40))' }}
@@ -89,9 +44,7 @@ const LumiNavIcon = ({ active }: { active: boolean }) => (
         <stop offset="100%" stopColor="#F5C98A"/>
       </linearGradient>
     </defs>
-    {/* Gradient circle background */}
     <circle cx="14" cy="14" r="14" fill="url(#lumi-sidebar-grad)"/>
-    {/* Nested SVG — browser auto-scales the brandmark viewBox into the 20×20 box */}
     <svg x="4" y="4" width="20" height="20" viewBox="0 0 166.9 151.3">
       <circle cx="83.8" cy="91" r="37.5" fill="white"/>
       <rect x="37.7" y="30.8" width="12.3" height="27.8" rx="4.9"
@@ -108,78 +61,228 @@ const LumiNavIcon = ({ active }: { active: boolean }) => (
   </svg>
 )
 
+// Chevron used for the collapse toggle
+const ChevronIcon = ({ collapsed }: { collapsed: boolean }) => (
+  <svg
+    width="14" height="14" viewBox="0 0 24 24" fill="none"
+    style={{ transition: 'transform 0.25s', transform: collapsed ? 'rotate(180deg)' : 'rotate(0deg)' }}
+  >
+    <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+)
+
+// ── NavItem ────────────────────────────────────────────────────
+function NavItem({
+  href, label, active, icon, collapsed,
+}: {
+  href: string; label: string; active: boolean; icon: React.ReactNode; collapsed: boolean
+}) {
+  return (
+    <Link
+      href={href}
+      title={collapsed ? label : undefined}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: collapsed ? 'center' : 'flex-start',
+        gap: 10,
+        padding: collapsed ? '10px 0' : '10px 12px',
+        borderRadius: 12,
+        background: active ? 'rgba(244,165,130,0.12)' : 'transparent',
+        transition: 'background 0.15s, padding 0.25s',
+        textDecoration: 'none',
+        WebkitTapHighlightColor: 'transparent',
+        overflow: 'hidden',
+      }}
+    >
+      <span style={{
+        color: active ? '#F4A582' : 'rgba(45,42,62,0.38)',
+        transition: 'color 0.15s',
+        display: 'flex', flexShrink: 0,
+      }}>
+        {icon}
+      </span>
+      <span style={{
+        fontFamily: 'var(--font-nunito-sans)',
+        fontSize: '14px',
+        fontWeight: active ? 700 : 500,
+        color: active ? '#2D2A3E' : 'rgba(45,42,62,0.55)',
+        transition: 'opacity 0.15s, max-width 0.25s',
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        maxWidth: collapsed ? 0 : 160,
+        opacity: collapsed ? 0 : 1,
+      }}>
+        {label}
+      </span>
+    </Link>
+  )
+}
+
+// ── Sidebar ────────────────────────────────────────────────────
 export default function DesktopSidebar() {
   const pathname = usePathname()
   const is = (path: string) => pathname === path || pathname.startsWith(path + '/')
+
+  const [collapsed, setCollapsed] = useState(false)
+  const [mounted, setMounted] = useState(false)
+
+  // Load persisted preference on mount
+  useEffect(() => {
+    const stored = localStorage.getItem('lumi-sidebar-collapsed')
+    if (stored === 'true') setCollapsed(true)
+    setMounted(true)
+  }, [])
+
+  function toggle() {
+    setCollapsed(c => {
+      localStorage.setItem('lumi-sidebar-collapsed', String(!c))
+      return !c
+    })
+  }
+
+  const w = mounted ? (collapsed ? COLLAPSED_W : EXPANDED_W) : EXPANDED_W
 
   return (
     <aside
       className="lumi-desktop-sidebar flex-col flex-shrink-0"
       style={{
-        width: 220,
+        width: w,
         height: '100%',
         background: '#FFFFFF',
         borderRight: '1px solid rgba(45,42,62,0.07)',
+        transition: 'width 0.25s cubic-bezier(0.4,0,0.2,1)',
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
       }}
     >
-      {/* ── Logo ── */}
-      <div style={{ padding: '28px 20px 18px', display: 'flex', flexDirection: 'column', gap: 6 }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/lumi-logo.svg" alt="Lumi" style={{ width: 160, height: 'auto' }} />
-        <span style={{
-          fontFamily: 'var(--font-nunito-sans)',
-          fontSize: '11px',
-          fontWeight: 500,
-          color: 'rgba(45,42,62,0.42)',
-          letterSpacing: '0.01em',
-        }}>
-          A new day for your brain.
-        </span>
+      {/* ── Logo / brand ── */}
+      <div style={{
+        padding: collapsed ? '24px 0 18px' : '28px 20px 18px',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: collapsed ? 'center' : 'flex-start',
+        gap: 6,
+        transition: 'padding 0.25s',
+        flexShrink: 0,
+      }}>
+        {collapsed ? (
+          /* Collapsed: just the Lumi icon */
+          <Link href="/chat" title="Lumi" style={{ display: 'flex' }}>
+            <LumiNavIcon active={is('/chat')} />
+          </Link>
+        ) : (
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/lumi-logo.svg" alt="Lumi" style={{ width: 160, height: 'auto' }} />
+            <span style={{
+              fontFamily: 'var(--font-nunito-sans)',
+              fontSize: '11px', fontWeight: 500,
+              color: 'rgba(45,42,62,0.42)', letterSpacing: '0.01em',
+              whiteSpace: 'nowrap',
+            }}>
+              A new day for your brain.
+            </span>
+          </>
+        )}
       </div>
 
       {/* ── Nav ── */}
-      <nav style={{ flex: 1, padding: '4px 12px', display: 'flex', flexDirection: 'column', gap: 2 }}>
-        <NavItem href="/today"    label="Today"      active={is('/today')}    icon={<TodayIcon />} />
-        <NavItem href="/focus"    label="Focus"      active={is('/focus')}    icon={<FocusIcon />} />
-        <NavItem href="/capture"  label="Brain Dump" active={is('/capture')}  icon={<CaptureIcon />} />
-        <NavItem href="/insights" label="Insights"   active={is('/insights')} icon={<InsightsIcon />} />
+      <nav style={{
+        flex: 1,
+        padding: collapsed ? '4px 8px' : '4px 12px',
+        display: 'flex', flexDirection: 'column', gap: 2,
+        transition: 'padding 0.25s',
+      }}>
+        <NavItem href="/today"    label="Today"      active={is('/today')}    icon={<TodayIcon />}    collapsed={collapsed} />
+        <NavItem href="/focus"    label="Focus"      active={is('/focus')}    icon={<FocusIcon />}    collapsed={collapsed} />
+        <NavItem href="/capture"  label="Brain Dump" active={is('/capture')}  icon={<CaptureIcon />}  collapsed={collapsed} />
+        <NavItem href="/insights" label="Insights"   active={is('/insights')} icon={<InsightsIcon />} collapsed={collapsed} />
 
-        {/* ── Lumi — highlighted, sits right below Insights ── */}
-        <Link
-          href="/chat"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 10,
-            padding: '11px 12px',
-            borderRadius: 14,
-            background: is('/chat')
-              ? 'linear-gradient(135deg, rgba(244,165,130,0.18), rgba(245,201,138,0.14))'
-              : 'linear-gradient(135deg, rgba(244,165,130,0.10), rgba(245,201,138,0.08))',
-            border: `1.5px solid ${is('/chat') ? 'rgba(244,165,130,0.40)' : 'rgba(244,165,130,0.22)'}`,
-            textDecoration: 'none',
-            marginBottom: 8,
-            transition: 'background 0.15s, border-color 0.15s',
-            WebkitTapHighlightColor: 'transparent',
-          }}
-        >
-          <LumiNavIcon active={is('/chat')} />
-          <span style={{
-            fontFamily: 'var(--font-nunito-sans)',
-            fontSize: '14px',
-            fontWeight: 700,
-            color: is('/chat') ? '#2D2A3E' : 'rgba(45,42,62,0.70)',
-            transition: 'color 0.15s',
-          }}>
-            Lumi
-          </span>
-        </Link>
+        {/* ── Lumi chat ── */}
+        {!collapsed ? (
+          <Link
+            href="/chat"
+            style={{
+              display: 'flex', alignItems: 'center', gap: 10,
+              padding: '11px 12px', borderRadius: 14,
+              background: is('/chat')
+                ? 'linear-gradient(135deg, rgba(244,165,130,0.18), rgba(245,201,138,0.14))'
+                : 'linear-gradient(135deg, rgba(244,165,130,0.10), rgba(245,201,138,0.08))',
+              border: `1.5px solid ${is('/chat') ? 'rgba(244,165,130,0.40)' : 'rgba(244,165,130,0.22)'}`,
+              textDecoration: 'none', marginBottom: 8,
+              transition: 'background 0.15s, border-color 0.15s',
+              WebkitTapHighlightColor: 'transparent',
+            }}
+          >
+            <LumiNavIcon active={is('/chat')} />
+            <span style={{
+              fontFamily: 'var(--font-nunito-sans)', fontSize: '14px', fontWeight: 700,
+              color: is('/chat') ? '#2D2A3E' : 'rgba(45,42,62,0.70)',
+              whiteSpace: 'nowrap',
+            }}>Lumi</span>
+          </Link>
+        ) : (
+          /* Collapsed Lumi — centered icon, pill border */
+          <Link
+            href="/chat"
+            title="Lumi"
+            style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              padding: '10px 0', borderRadius: 14, marginBottom: 8,
+              background: is('/chat')
+                ? 'linear-gradient(135deg, rgba(244,165,130,0.18), rgba(245,201,138,0.14))'
+                : 'linear-gradient(135deg, rgba(244,165,130,0.10), rgba(245,201,138,0.08))',
+              border: `1.5px solid ${is('/chat') ? 'rgba(244,165,130,0.40)' : 'rgba(244,165,130,0.22)'}`,
+              textDecoration: 'none',
+              transition: 'background 0.15s, border-color 0.15s',
+              WebkitTapHighlightColor: 'transparent',
+            }}
+          >
+            <LumiNavIcon active={is('/chat')} />
+          </Link>
+        )}
       </nav>
 
       {/* ── Profile ── */}
-      <div style={{ padding: '12px', borderTop: '1px solid rgba(45,42,62,0.07)' }}>
-        <NavItem href="/me" label="Profile" active={is('/me')} icon={<MeIcon />} />
+      <div style={{
+        padding: collapsed ? '12px 8px' : '12px',
+        borderTop: '1px solid rgba(45,42,62,0.07)',
+        transition: 'padding 0.25s',
+        flexShrink: 0,
+      }}>
+        <NavItem href="/me" label="Profile" active={is('/me')} icon={<MeIcon />} collapsed={collapsed} />
       </div>
+
+      {/* ── Collapse toggle ── */}
+      <button
+        onClick={toggle}
+        title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        style={{
+          display: 'flex', alignItems: 'center',
+          justifyContent: collapsed ? 'center' : 'flex-end',
+          gap: 6, padding: '10px 16px',
+          background: 'transparent', border: 'none',
+          borderTop: '1px solid rgba(45,42,62,0.05)',
+          cursor: 'pointer', color: 'rgba(45,42,62,0.28)',
+          transition: 'color 0.15s, padding 0.25s',
+          flexShrink: 0,
+          width: '100%',
+        }}
+        onMouseEnter={e => (e.currentTarget.style.color = 'rgba(45,42,62,0.55)')}
+        onMouseLeave={e => (e.currentTarget.style.color = 'rgba(45,42,62,0.28)')}
+      >
+        {!collapsed && (
+          <span style={{
+            fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 600,
+            whiteSpace: 'nowrap', letterSpacing: '0.01em',
+          }}>
+            Collapse
+          </span>
+        )}
+        <ChevronIcon collapsed={collapsed} />
+      </button>
     </aside>
   )
 }

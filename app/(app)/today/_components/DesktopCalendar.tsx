@@ -2,6 +2,12 @@
 
 import { useEffect, useRef, useState } from 'react'
 
+const QUICK_EMOJIS = [
+  '🏠','🧹','🛒','💼','📝','📞','🍳','🏋️','🚗',
+  '🎯','⭐','💊','📚','✈️','💪','🔧','💰','🎂',
+  '🌱','🐕','🎮','🧘','🚿','🌿','🎵','🏃','🧺','🛁',
+]
+
 const HOUR_START = 7
 const HOUR_END   = 22
 const HOUR_PX    = 56
@@ -32,9 +38,70 @@ interface DayData {
 interface InlineAdd {
   dayIdx: number
   hour: number
+  minute: number
   text: string
 }
 
+// ── Collision-aware layout ─────────────────────────────────────────────────
+interface LayoutItem {
+  id: string
+  startMins: number
+  endMins: number
+  col: number
+  totalCols: number
+  type: 'event' | 'task'
+  eventData?: CalEvent
+  taskData?: PersonalTask
+}
+
+function computeColumnLayout(events: CalEvent[], tasks: PersonalTask[]): LayoutItem[] {
+  type RawItem = Omit<LayoutItem, 'col' | 'totalCols'>
+
+  const items: RawItem[] = []
+
+  for (const e of events) {
+    const start = new Date(e.start)
+    const end   = e.end ? new Date(e.end) : new Date(start.getTime() + 60 * 60 * 1000)
+    const sMins = start.getHours() * 60 + start.getMinutes()
+    const eMins = end.getHours()   * 60 + end.getMinutes()
+    items.push({ id: e.id, startMins: sMins, endMins: Math.max(eMins, sMins + 30), type: 'event', eventData: e })
+  }
+
+  for (const t of tasks) {
+    const start = new Date(t.scheduled_at)
+    const sMins = start.getHours() * 60 + start.getMinutes()
+    items.push({ id: t.id, startMins: sMins, endMins: sMins + 30, type: 'task', taskData: t })
+  }
+
+  // Sort by start; break ties by duration desc (longer items get earlier columns)
+  items.sort((a, b) =>
+    a.startMins - b.startMins || (b.endMins - b.startMins) - (a.endMins - a.startMins)
+  )
+
+  // Greedy column assignment
+  const colEnds: number[] = []
+  const withCols = items.map(item => {
+    let col = -1
+    for (let c = 0; c < colEnds.length; c++) {
+      if (colEnds[c] <= item.startMins) { col = c; colEnds[c] = item.endMins; break }
+    }
+    if (col === -1) { col = colEnds.length; colEnds.push(item.endMins) }
+    return { ...item, col }
+  })
+
+  // totalCols per item = max col+1 among all items that overlap this one
+  return withCols.map(item => {
+    let maxCol = item.col
+    for (const other of withCols) {
+      if (other.startMins < item.endMins && other.endMins > item.startMins) {
+        maxCol = Math.max(maxCol, other.col)
+      }
+    }
+    return { ...item, totalCols: maxCol + 1 }
+  })
+}
+
+// ── Helpers ────────────────────────────────────────────────────────────────
 function sameDay(a: Date, b: Date) {
   return (
     a.getFullYear() === b.getFullYear() &&
@@ -69,6 +136,11 @@ function topPx(mins: number) {
   return Math.max(0, (mins - HOUR_START * 60) / 60 * HOUR_PX)
 }
 
+/** Convert a column fraction to a CSS calc() string for left/right positioning */
+function colEdge(frac: number) {
+  return `calc(${(frac * 100).toFixed(2)}% + 3px)`
+}
+
 export default function DesktopCalendar({ plan }: { plan: string }) {
   const [allTasks,   setAllTasks]   = useState<PersonalTask[]>([])
   const [allEvents,  setAllEvents]  = useState<CalEvent[]>([])
@@ -78,9 +150,21 @@ export default function DesktopCalendar({ plan }: { plan: string }) {
   const [dayOffset,  setDayOffset]  = useState(0)
   const [inlineAdd,  setInlineAdd]  = useState<InlineAdd | null>(null)
   const [saving,     setSaving]     = useState(false)
-  const [dropTarget, setDropTarget] = useState<{ dayIdx: number; hour: number } | null>(null)
+  const [dropTarget,   setDropTarget]   = useState<{ dayIdx: number; hour: number } | null>(null)
+  const [emojiOpen,    setEmojiOpen]    = useState(false)
+  const [hoveredTask,  setHoveredTask]  = useState<string | null>(null)
   const dragTaskId = useRef<string | null>(null)
   const inlineRef  = useRef<HTMLInputElement>(null)
+  const emojiRef   = useRef<HTMLDivElement>(null)
+
+  // close emoji picker on outside click
+  useEffect(() => {
+    function handle(e: MouseEvent) {
+      if (emojiRef.current && !emojiRef.current.contains(e.target as Node)) setEmojiOpen(false)
+    }
+    if (emojiOpen) document.addEventListener('mousedown', handle)
+    return () => document.removeEventListener('mousedown', handle)
+  }, [emojiOpen])
 
   // Tick every minute for the NOW line
   useEffect(() => {
@@ -144,7 +228,7 @@ export default function DesktopCalendar({ plan }: { plan: string }) {
     try {
       const target = new Date()
       target.setDate(target.getDate() + dayOffset + inlineAdd.dayIdx)
-      target.setHours(inlineAdd.hour, 0, 0, 0)
+      target.setHours(inlineAdd.hour, inlineAdd.minute, 0, 0)
       const res = await fetch('/api/timeline-tasks', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -164,15 +248,22 @@ export default function DesktopCalendar({ plan }: { plan: string }) {
   }
 
   async function rescheduleTask(taskId: string, newDate: Date) {
-    // Optimistic update
     setAllTasks(prev =>
       prev.map(t => t.id === taskId ? { ...t, scheduled_at: newDate.toISOString() } : t)
     )
-    // Persist
     await fetch('/api/timeline-tasks', {
       method:  'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify({ id: taskId, scheduled_at: newDate.toISOString() }),
+    })
+  }
+
+  async function deleteTask(taskId: string) {
+    setAllTasks(prev => prev.filter(t => t.id !== taskId))
+    await fetch('/api/timeline-tasks', {
+      method:  'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ id: taskId }),
     })
   }
 
@@ -305,7 +396,7 @@ export default function DesktopCalendar({ plan }: { plan: string }) {
           })}
         </div>
 
-        {/* Time body — no internal scroll, page scrolls instead */}
+        {/* Time body */}
         <div style={{ flex: 1 }}>
           <div style={{
             display: 'grid', gridTemplateColumns: '34px 1fr 1fr 1fr',
@@ -334,6 +425,9 @@ export default function DesktopCalendar({ plan }: { plan: string }) {
             {days.map((day, di) => {
               const absOffset = dayOffset + di
               const isToday   = absOffset === 0
+
+              // Build collision-aware layout for this day
+              const layout = computeColumnLayout(day.events, day.tasks)
 
               return (
                 <div
@@ -368,7 +462,7 @@ export default function DesktopCalendar({ plan }: { plan: string }) {
                     setDropTarget(null)
                   }}
                 >
-                  {/* Hour grid lines — also serve as click-to-add zones */}
+                  {/* Hour grid lines / click-to-add zones */}
                   {Array.from({ length: HOUR_END - HOUR_START }, (_, i) => {
                     const hour     = HOUR_START + i
                     const isActive = inlineAdd?.dayIdx === di && inlineAdd?.hour === hour
@@ -376,7 +470,7 @@ export default function DesktopCalendar({ plan }: { plan: string }) {
                       <div
                         key={hour}
                         className="lumi-hour-slot"
-                        onClick={() => { if (!isActive) setInlineAdd({ dayIdx: di, hour, text: '' }) }}
+                        onClick={() => { if (!isActive) setInlineAdd({ dayIdx: di, hour, minute: 0, text: '' }) }}
                         style={{
                           position: 'absolute', top: i * HOUR_PX,
                           left: 0, right: 0, height: HOUR_PX,
@@ -387,7 +481,7 @@ export default function DesktopCalendar({ plan }: { plan: string }) {
                     )
                   })}
 
-                  {/* Drop indicator — 2px peach line at target hour */}
+                  {/* Drop indicator */}
                   {dropTarget?.dayIdx === di && (
                     <div style={{
                       position: 'absolute',
@@ -414,64 +508,67 @@ export default function DesktopCalendar({ plan }: { plan: string }) {
                     </div>
                   )}
 
-                  {/* Calendar events */}
-                  {day.events.map(e => {
-                    const start  = new Date(e.start)
-                    const sMins  = start.getHours() * 60 + start.getMinutes()
-                    const endDt  = e.end ? new Date(e.end) : new Date(start.getTime() + 60 * 60 * 1000)
-                    const eMins  = endDt.getHours() * 60 + endDt.getMinutes()
-                    const height = Math.max(26, (eMins - sMins) / 60 * HOUR_PX - 4)
-                    const isPast = isToday && sMins < nowMins
-                    return (
-                      <div key={e.id} style={{
-                        position: 'absolute',
-                        top: topPx(sMins) + 2, left: 5, right: 5, height,
-                        borderRadius: 8,
-                        background: 'rgba(143,170,224,0.13)',
-                        borderLeft: '3px solid rgba(143,170,224,0.65)',
-                        padding: '3px 7px',
-                        zIndex: 3, overflow: 'hidden',
-                        opacity: isPast ? 0.45 : 1,
-                      }}>
-                        <p style={{
-                          fontFamily: 'var(--font-nunito-sans)',
-                          fontSize: '11px', fontWeight: 700,
-                          color: isPast ? '#9895B0' : '#1E1C2E',
-                          lineHeight: 1.3,
-                          overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis',
-                        }}>{e.title}</p>
-                        {height > 34 && (
+                  {/* ── All items via collision-aware layout ── */}
+                  {layout.map(item => {
+                    const leftStyle  = colEdge(item.col / item.totalCols)
+                    const rightStyle = colEdge((item.totalCols - item.col - 1) / item.totalCols)
+
+                    if (item.type === 'event') {
+                      const e      = item.eventData!
+                      const height = Math.max(26, (item.endMins - item.startMins) / 60 * HOUR_PX - 4)
+                      const isPast = isToday && item.startMins < nowMins
+                      return (
+                        <div key={e.id} style={{
+                          position: 'absolute',
+                          top: topPx(item.startMins) + 2,
+                          left: leftStyle, right: rightStyle, height,
+                          borderRadius: 8,
+                          background: 'rgba(143,170,224,0.13)',
+                          borderLeft: '3px solid rgba(143,170,224,0.65)',
+                          padding: '3px 7px',
+                          zIndex: 3, overflow: 'hidden',
+                          opacity: isPast ? 0.45 : 1,
+                        }}>
                           <p style={{
                             fontFamily: 'var(--font-nunito-sans)',
-                            fontSize: '10px', fontWeight: 500, color: '#9895B0', marginTop: 1,
-                          }}>{fmt12(start)}</p>
-                        )}
-                      </div>
-                    )
-                  })}
+                            fontSize: '11px', fontWeight: 700,
+                            color: isPast ? '#9895B0' : '#1E1C2E',
+                            lineHeight: 1.3,
+                            overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis',
+                          }}>{e.title}</p>
+                          {height > 34 && (
+                            <p style={{
+                              fontFamily: 'var(--font-nunito-sans)',
+                              fontSize: '10px', fontWeight: 500, color: '#9895B0', marginTop: 1,
+                            }}>{fmt12(new Date(e.start))}</p>
+                          )}
+                        </div>
+                      )
+                    }
 
-                  {/* Personal tasks — draggable */}
-                  {day.tasks.map(t => {
-                    const start  = new Date(t.scheduled_at)
-                    const sMins  = start.getHours() * 60 + start.getMinutes()
-                    const isPast = isToday && sMins < nowMins
+                    // Personal task
+                    const t      = item.taskData!
+                    const isPast = isToday && item.startMins < nowMins
                     return (
                       <div
                         key={t.id}
                         draggable
-                        onDragStart={e => {
+                        onMouseEnter={() => setHoveredTask(t.id)}
+                        onMouseLeave={() => setHoveredTask(null)}
+                        onDragStart={ev => {
                           dragTaskId.current = t.id
-                          e.dataTransfer.effectAllowed = 'move'
-                          e.dataTransfer.setData('text/plain', t.id)
+                          ev.dataTransfer.effectAllowed = 'move'
+                          ev.dataTransfer.setData('text/plain', t.id)
                         }}
                         onDragEnd={() => { setDropTarget(null); dragTaskId.current = null }}
                         style={{
                           position: 'absolute',
-                          top: topPx(sMins) + 2, left: 5, right: 5, height: 28,
+                          top: topPx(item.startMins) + 2,
+                          left: leftStyle, right: rightStyle, height: 28,
                           borderRadius: 7,
                           background: isPast ? 'rgba(45,42,62,0.04)' : 'rgba(244,165,130,0.11)',
                           borderLeft: `3px solid ${isPast ? 'rgba(45,42,62,0.15)' : 'rgba(244,165,130,0.60)'}`,
-                          padding: '0 8px 0 9px',
+                          padding: '0 4px 0 9px',
                           zIndex: 4, overflow: 'hidden',
                           opacity: isPast ? 0.50 : 1,
                           cursor: 'grab',
@@ -486,11 +583,26 @@ export default function DesktopCalendar({ plan }: { plan: string }) {
                           overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis',
                           flex: 1,
                         }}>{t.text}</p>
+                        {hoveredTask === t.id && (
+                          <button
+                            onClick={ev => { ev.stopPropagation(); deleteTask(t.id) }}
+                            style={{
+                              flexShrink: 0, width: 18, height: 18, borderRadius: 4,
+                              border: 'none', background: 'rgba(45,42,62,0.10)',
+                              cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              marginRight: 2,
+                            }}
+                          >
+                            <svg width="9" height="9" viewBox="0 0 24 24" fill="none">
+                              <path d="M18 6L6 18M6 6l12 12" stroke="#7A7890" strokeWidth="2.5" strokeLinecap="round"/>
+                            </svg>
+                          </button>
+                        )}
                       </div>
                     )
                   })}
 
-                  {/* Inline add input — appears at the clicked hour */}
+                  {/* Inline add input */}
                   {inlineAdd?.dayIdx === di && (
                     <div style={{
                       position: 'absolute',
@@ -501,21 +613,82 @@ export default function DesktopCalendar({ plan }: { plan: string }) {
                         background: 'white',
                         border: '1.5px dashed rgba(244,165,130,0.55)',
                         borderRadius: 8,
-                        padding: '4px 8px',
+                        padding: '4px 6px',
                         boxShadow: '0 2px 10px rgba(244,165,130,0.18)',
+                        display: 'flex', alignItems: 'center', gap: 4,
                       }}>
+                        {/* Time picker */}
+                        <input
+                          type="time"
+                          value={`${String(inlineAdd.hour).padStart(2,'0')}:${String(inlineAdd.minute).padStart(2,'0')}`}
+                          onChange={e => {
+                            const [h, m] = e.target.value.split(':').map(Number)
+                            if (!isNaN(h) && !isNaN(m)) setInlineAdd(prev => prev ? { ...prev, hour: h, minute: m } : null)
+                          }}
+                          style={{
+                            fontFamily: 'var(--font-nunito-sans)',
+                            fontSize: '11px', fontWeight: 700,
+                            color: '#F4A582',
+                            background: 'rgba(244,165,130,0.08)',
+                            border: '1px solid rgba(244,165,130,0.25)',
+                            borderRadius: 5, padding: '2px 5px',
+                            outline: 'none', flexShrink: 0,
+                            cursor: 'pointer', width: 72,
+                          }}
+                        />
+
+                        {/* Emoji picker */}
+                        <div ref={emojiRef} style={{ position: 'relative', flexShrink: 0 }}>
+                          <button
+                            type="button"
+                            onClick={() => setEmojiOpen(o => !o)}
+                            style={{
+                              width: 22, height: 22, borderRadius: 5, border: 'none',
+                              background: emojiOpen ? 'rgba(244,165,130,0.15)' : 'transparent',
+                              cursor: 'pointer', fontSize: '13px',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            }}
+                          >😊</button>
+                          {emojiOpen && (
+                            <div style={{
+                              position: 'absolute', top: 'calc(100% + 4px)', left: 0, zIndex: 200,
+                              background: 'white', borderRadius: 12,
+                              border: '1px solid rgba(45,42,62,0.10)',
+                              boxShadow: '0 8px 24px rgba(45,42,62,0.14)',
+                              padding: 8, display: 'grid',
+                              gridTemplateColumns: 'repeat(7, 1fr)', gap: 2, width: 210,
+                            }}>
+                              {QUICK_EMOJIS.map(emoji => (
+                                <button
+                                  key={emoji}
+                                  onMouseDown={e => {
+                                    e.preventDefault()
+                                    setInlineAdd(prev => prev ? { ...prev, text: prev.text ? `${emoji} ${prev.text}` : emoji + ' ' } : null)
+                                    setEmojiOpen(false)
+                                    inlineRef.current?.focus()
+                                  }}
+                                  style={{
+                                    width: 26, height: 26, fontSize: '14px', borderRadius: 5,
+                                    border: 'none', background: 'transparent', cursor: 'pointer',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                  }}
+                                >{emoji}</button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
                         <input
                           ref={inlineRef}
                           value={inlineAdd.text}
                           onChange={e => setInlineAdd(prev => prev ? { ...prev, text: e.target.value } : null)}
                           onKeyDown={e => {
-                            if (e.key === 'Enter')  saveInlineTask()
-                            if (e.key === 'Escape') setInlineAdd(null)
+                            if (e.key === 'Enter')  { setEmojiOpen(false); saveInlineTask() }
+                            if (e.key === 'Escape') { setEmojiOpen(false); setInlineAdd(null) }
                           }}
-                          onBlur={() => { if (!inlineAdd.text.trim()) setInlineAdd(null) }}
-                          placeholder={`${fmtHour(inlineAdd.hour)} — add task…`}
+                          onBlur={() => { if (!inlineAdd.text.trim() && !emojiOpen) setInlineAdd(null) }}
+                          placeholder="add task…"
                           style={{
-                            display: 'block', width: '100%',
+                            flex: 1,
                             fontFamily: 'var(--font-nunito-sans)',
                             fontSize: '11px', fontWeight: 600, color: '#1E1C2E',
                             background: 'transparent', border: 'none', outline: 'none',

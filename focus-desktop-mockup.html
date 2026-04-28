@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Focus Page — Desktop Layout Mockup</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Nunito Sans', system-ui, sans-serif; background: #1A1728; color: rgba(245,242,238,0.95); min-height: 100vh; }
+
+  /* ── Tabs ── */
+  .tabs { display: flex; gap: 12px; padding: 20px 24px 0; position: relative; z-index: 10; }
+  .tab { padding: 8px 18px; border-radius: 99px; font-size: 13px; font-weight: 800; cursor: pointer; border: none; transition: all 0.15s; }
+  .tab.active { background: linear-gradient(135deg,#F4A582,#F5C98A); color: #1A1728; }
+  .tab.inactive { background: rgba(255,255,255,0.07); color: rgba(245,242,238,0.45); border: 1.5px solid rgba(255,255,255,0.09); }
+
+  /* ── Glow ── */
+  .glow { position: fixed; inset: 0; pointer-events: none;
+    background: radial-gradient(circle 340px at 50% 46%, rgba(255,248,210,0.12) 0%, rgba(245,201,138,0.16) 18%, rgba(244,165,130,0.10) 38%, rgba(232,160,191,0.05) 58%, transparent 80%); }
+
+  /* ── Layout shells ── */
+  .page { position: relative; z-index: 2; padding: 32px 40px 48px; }
+
+  /* OPTION A — centered single column */
+  .opt-a .inner { max-width: 520px; margin: 0 auto; }
+
+  /* OPTION B — two-column */
+  .opt-b .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; max-width: 960px; margin: 0 auto; align-items: start; }
+  .opt-b .col-left { display: flex; flex-direction: column; align-items: center; }
+  .opt-b .col-right { display: flex; flex-direction: column; gap: 16px; padding-top: 48px; }
+
+  /* shared elements */
+  .section-label { font-size: 10px; font-weight: 800; letter-spacing: 0.1em; color: rgba(245,242,238,0.28); margin-bottom: 10px; }
+  .card { background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.09); border-radius: 16px; padding: 16px; }
+  .card-accent { background: rgba(244,165,130,0.10); border: 1.5px solid rgba(244,165,130,0.30); border-radius: 16px; padding: 16px; }
+
+  /* task input */
+  .task-select { width: 100%; padding: 13px 14px; border-radius: 14px; border: 1.5px solid rgba(255,255,255,0.09); background: rgba(255,255,255,0.06); font-size: 14px; font-weight: 600; color: rgba(245,242,238,0.45); margin-bottom: 10px; appearance: none; }
+  .task-input  { width: 100%; padding: 13px 14px; border-radius: 14px; border: 1.5px solid rgba(244,165,130,0.4); background: rgba(255,255,255,0.06); font-size: 14px; font-weight: 600; color: rgba(245,242,238,0.95); margin-bottom: 24px; }
+  .task-input::placeholder { color: rgba(245,242,238,0.35); }
+
+  /* ring placeholder */
+  .ring-wrap { position: relative; width: 240px; height: 240px; margin: 0 auto 24px; }
+  .ring-wrap svg { position: absolute; inset: 0; }
+  .ring-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .ring-time { font-size: 54px; font-weight: 900; line-height: 1; letter-spacing: -2px; color: rgba(245,242,238,0.95); font-family: system-ui; }
+  .ring-sub { font-size: 11px; font-weight: 600; color: rgba(245,242,238,0.45); margin-top: 6px; }
+
+  /* duration pills */
+  .pills { display: flex; gap: 8px; justify-content: center; margin-bottom: 28px; }
+  .pill { padding: 8px 16px; border-radius: 99px; font-size: 12px; font-weight: 800; cursor: pointer; border: 1.5px solid rgba(255,255,255,0.09); background: rgba(255,255,255,0.06); color: rgba(245,242,238,0.50); }
+  .pill.active { background: rgba(244,165,130,0.14); border-color: rgba(244,165,130,0.45); color: #F4A582; }
+
+  /* buttons */
+  .btn-primary { width: 100%; padding: 17px; border-radius: 16px; border: none; background: linear-gradient(135deg,#F4A582,#F5C98A); font-size: 16px; font-weight: 800; color: #1A1828; cursor: pointer; margin-bottom: 10px; }
+  .btn-ghost   { width: 100%; padding: 14px; border-radius: 16px; border: 1.5px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.06); font-size: 14px; font-weight: 700; color: rgba(245,242,238,0.45); cursor: pointer; }
+
+  /* sound row */
+  .sound-row { display: flex; gap: 8px; }
+  .sound-btn { flex: 1; padding: 11px 4px; border-radius: 12px; border: 1.5px solid rgba(255,255,255,0.09); background: rgba(255,255,255,0.06); font-size: 11px; font-weight: 800; color: rgba(245,242,238,0.45); display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer; }
+  .sound-btn.active { border-color: rgba(244,165,130,0.45); background: rgba(244,165,130,0.1); color: rgba(245,242,238,0.95); }
+
+  /* chat */
+  .chat-msg { padding: 9px 13px; border-radius: 14px; font-size: 13px; font-weight: 500; line-height: 1.5; max-width: 85%; margin-bottom: 8px; }
+  .chat-lumi { background: rgba(255,255,255,0.10); border-bottom-left-radius: 4px; align-self: flex-start; }
+  .chat-user { background: linear-gradient(135deg,#F4A582,#F5C98A); color: #1A1828; font-weight: 700; border-bottom-right-radius: 4px; align-self: flex-end; }
+  .chat-wrap { display: flex; flex-direction: column; max-height: 220px; overflow-y: auto; margin-bottom: 10px; }
+  .chat-input-row { display: flex; gap: 8px; }
+  .chat-input { flex: 1; padding: 11px 14px; border-radius: 12px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.10); color: rgba(245,242,238,0.95); font-size: 14px; font-weight: 600; }
+  .chat-send { width: 40px; height: 40px; border-radius: 11px; border: none; background: linear-gradient(135deg,#F4A582,#F5C98A); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+
+  /* divider */
+  .divider { display: flex; align-items: center; gap: 8px; margin: 16px 0; }
+  .divider-line { flex: 1; height: 1px; background: rgba(255,255,255,0.07); }
+  .divider-label { font-size: 10px; font-weight: 800; letter-spacing: 0.1em; color: rgba(245,242,238,0.28); }
+
+  /* drop a thought */
+  .drop-btn { width: 100%; padding: 13px 16px; border-radius: 14px; border: 1.5px solid rgba(255,255,255,0.09); background: rgba(255,255,255,0.06); font-size: 13px; font-weight: 700; color: rgba(245,242,238,0.45); display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
+
+  /* headings */
+  h2 { font-size: 22px; font-weight: 900; color: rgba(245,242,238,0.95); margin-bottom: 6px; }
+  h3 { font-size: 16px; font-weight: 800; color: rgba(245,242,238,0.80); }
+  .muted { color: rgba(245,242,238,0.45); font-size: 13px; font-weight: 500; }
+
+  .opt-label { display: inline-block; background: rgba(143,170,224,0.20); border: 1px solid rgba(143,170,224,0.35); color: #8FAAE0; font-size: 11px; font-weight: 800; letter-spacing: 0.08em; padding: 4px 12px; border-radius: 99px; margin-bottom: 20px; }
+  .hr { border: none; border-top: 1px solid rgba(255,255,255,0.08); margin: 36px 0; }
+</style>
+</head>
+<body>
+
+<div class="glow"></div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     OPTION A — Narrow centered column (520px), single column
+     Clean, calm, focused. Timer is the hero.
+     ═══════════════════════════════════════════════════════════════ -->
+<div class="page opt-a">
+  <span class="opt-label">OPTION A — Narrow centered column</span>
+  <p class="muted" style="margin-bottom:28px; max-width:520px; margin-left:auto; margin-right:auto;">
+    Single column, max-width 520px, centered. Clean and focused — the timer is the only thing on screen. Works perfectly for all session states.
+  </p>
+
+  <div class="inner">
+    <!-- Task -->
+    <p class="section-label">WHAT ARE YOU FOCUSING ON?</p>
+    <select class="task-select"><option>Pick from Brain Dump…</option></select>
+    <input class="task-input" placeholder="Or add something new…" type="text">
+
+    <!-- Ring -->
+    <div class="ring-wrap">
+      <!-- Track -->
+      <svg viewBox="0 0 240 240" width="240" height="240" style="transform:rotate(-90deg)">
+        <circle cx="120" cy="120" r="112" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="8"/>
+        <circle cx="120" cy="120" r="112" fill="none" stroke="url(#ga)" stroke-width="8" stroke-linecap="round"
+          stroke-dasharray="703.7" stroke-dashoffset="175"/>
+        <defs>
+          <linearGradient id="ga" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#F4A582"/>
+            <stop offset="100%" stop-color="#F5C98A"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <div class="ring-center">
+        <div class="ring-time">25</div>
+        <div class="ring-sub">MIN</div>
+      </div>
+    </div>
+
+    <!-- Duration pills -->
+    <div class="pills">
+      <div class="pill">15 min</div>
+      <div class="pill active">25 min</div>
+      <div class="pill">45 min</div>
+      <div class="pill">60 min</div>
+    </div>
+
+    <button class="btn-primary">Start session</button>
+  </div>
+</div>
+
+<hr class="hr">
+
+<!-- ═══════════════════════════════════════════════════════════════
+     OPTION B — Two column: Timer left · Context right
+     Left: task + timer + controls
+     Right: Lumi chat + ambient + drop a thought
+     ═══════════════════════════════════════════════════════════════ -->
+<div class="page opt-b">
+  <span class="opt-label">OPTION B — Two columns (IDLE)</span>
+  <p class="muted" style="margin-bottom:28px; max-width:960px; margin-left:auto; margin-right:auto;">
+    Left: task picker + timer ring + start. Right: motivational quote or Lumi intro while idle.
+  </p>
+
+  <div class="two-col">
+    <!-- Left -->
+    <div class="col-left" style="align-items:stretch;">
+      <p class="section-label">WHAT ARE YOU FOCUSING ON?</p>
+      <select class="task-select"><option>Pick from Brain Dump…</option></select>
+      <input class="task-input" placeholder="Or add something new…" type="text">
+
+      <div class="ring-wrap">
+        <svg viewBox="0 0 240 240" width="240" height="240" style="transform:rotate(-90deg)">
+          <circle cx="120" cy="120" r="112" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="8"/>
+          <defs>
+            <linearGradient id="gb" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#F4A582"/>
+              <stop offset="100%" stop-color="#F5C98A"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <div class="ring-center">
+          <div class="ring-time">25</div>
+          <div class="ring-sub">MIN</div>
+        </div>
+      </div>
+
+      <div class="pills" style="justify-content:flex-start;">
+        <div class="pill">15 min</div>
+        <div class="pill active">25 min</div>
+        <div class="pill">45 min</div>
+        <div class="pill">60 min</div>
+      </div>
+      <button class="btn-primary">Start session</button>
+    </div>
+
+    <!-- Right (idle) -->
+    <div class="col-right">
+      <div class="card-accent">
+        <p style="font-size:10px;font-weight:800;letter-spacing:0.1em;color:#F4A582;margin-bottom:8px;">LUMI</p>
+        <p style="font-size:15px;font-weight:600;line-height:1.6;color:rgba(245,242,238,0.80);">
+          "The hardest part is starting. Everything after that is just showing up — and you're already doing it."
+        </p>
+        <p style="margin-top:10px;font-size:12px;color:rgba(245,242,238,0.40);font-weight:600;">
+          Pick a task and start whenever you're ready. No rush.
+        </p>
+      </div>
+
+      <div class="card" style="margin-top:8px;">
+        <p class="section-label" style="margin-bottom:12px;">RECENT SESSIONS</p>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <p style="font-size:13px;font-weight:700;color:rgba(245,242,238,0.75);">Pick up kids from school</p>
+              <p style="font-size:11px;color:rgba(245,242,238,0.35);margin-top:2px;">Today · 25 min · completed</p>
+            </div>
+            <span style="font-size:16px;">✦</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <p style="font-size:13px;font-weight:700;color:rgba(245,242,238,0.75);">Email replies</p>
+              <p style="font-size:11px;color:rgba(245,242,238,0.35);margin-top:2px;">Yesterday · 45 min · completed</p>
+            </div>
+            <span style="font-size:16px;">✦</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr class="hr">
+
+<!-- OPTION B — ACTIVE STATE -->
+<div class="page opt-b">
+  <span class="opt-label">OPTION B — Two columns (ACTIVE SESSION)</span>
+  <p class="muted" style="margin-bottom:28px; max-width:960px; margin-left:auto; margin-right:auto;">
+    Left: live timer + pause/end. Right: Lumi body-doubling chat + ambient sounds + drop a thought.
+  </p>
+
+  <div class="two-col">
+    <!-- Left (active) -->
+    <div class="col-left">
+      <p style="font-size:10px;font-weight:800;letter-spacing:0.1em;color:rgba(244,165,130,0.7);margin-bottom:6px;">FOCUS SESSION</p>
+      <p style="font-size:13px;font-weight:600;color:rgba(245,242,238,0.50);margin-bottom:28px;">"Pick up kids from school"</p>
+
+      <div class="ring-wrap">
+        <svg viewBox="0 0 240 240" width="240" height="240" style="transform:rotate(-90deg)">
+          <circle cx="120" cy="120" r="112" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="8"/>
+          <circle cx="120" cy="120" r="112" fill="none" stroke="url(#gc)" stroke-width="8" stroke-linecap="round"
+            stroke-dasharray="703.7" stroke-dashoffset="421"/>
+          <defs>
+            <linearGradient id="gc" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#F4A582"/>
+              <stop offset="100%" stop-color="#F5C98A"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <div class="ring-center">
+          <div class="ring-time" style="font-size:52px;">18:34</div>
+          <div class="ring-sub">remaining</div>
+        </div>
+      </div>
+
+      <div style="width:100%;margin-top:8px;">
+        <button class="btn-primary" style="margin-bottom:10px;">Pause</button>
+        <button class="btn-ghost">End early</button>
+      </div>
+    </div>
+
+    <!-- Right (active) -->
+    <div class="col-right">
+      <!-- Ambient -->
+      <div>
+        <p class="section-label">AMBIENT SOUND</p>
+        <div class="sound-row">
+          <div class="sound-btn active">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20 12.58A8 8 0 1 0 8 20.5" stroke="#F4A582" stroke-width="1.8" stroke-linecap="round"/><line x1="8" y1="19" x2="6" y2="23" stroke="#F4A582" stroke-width="1.8" stroke-linecap="round"/><line x1="12" y1="19" x2="10" y2="23" stroke="#F4A582" stroke-width="1.8" stroke-linecap="round"/><line x1="16" y1="19" x2="14" y2="23" stroke="#F4A582" stroke-width="1.8" stroke-linecap="round"/></svg>
+            Rain
+          </div>
+          <div class="sound-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M11 5L6 9H2v6h4l5 4V5z" stroke="rgba(245,242,238,0.3)" stroke-width="1.8" stroke-linejoin="round"/><line x1="17" y1="9" x2="23" y2="15" stroke="rgba(245,242,238,0.3)" stroke-width="1.8" stroke-linecap="round"/><line x1="23" y1="9" x2="17" y2="15" stroke="rgba(245,242,238,0.3)" stroke-width="1.8" stroke-linecap="round"/></svg>
+            Off
+          </div>
+          <div class="sound-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M2 12h3l2-5 3 10 2-7 2 4 2-2h6" stroke="rgba(245,242,238,0.3)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            White
+          </div>
+          <div class="sound-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M2 14h4l2-3 3 6 2-4 2 2h9" stroke="rgba(245,242,238,0.3)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Deep
+          </div>
+        </div>
+      </div>
+
+      <!-- Drop a thought -->
+      <button class="drop-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2a9 9 0 0 1 9 9c0 3.6-2.1 6.7-5.1 8.2L15 21H9l-.9-1.8A9 9 0 0 1 12 2z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><line x1="12" y1="8" x2="12" y2="13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        Drop a thought
+      </button>
+
+      <!-- Divider -->
+      <div class="divider">
+        <div class="divider-line"></div>
+        <span class="divider-label">LUMI IS HERE</span>
+        <div class="divider-line"></div>
+      </div>
+
+      <!-- Chat -->
+      <div class="chat-wrap">
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div class="chat-msg chat-lumi">I'm right here with you. Let's do this — "Pick up kids from school". You've got this.</div>
+          <div class="chat-msg chat-user" style="align-self:flex-end;">thanks, feeling a bit scattered</div>
+          <div class="chat-msg chat-lumi">That's okay. Just one thing at a time. You're already in it — that's the hardest part.</div>
+          <div class="chat-msg chat-lumi" style="opacity:0.6;">Halfway there. How are you holding up?</div>
+        </div>
+      </div>
+
+      <div class="chat-input-row">
+        <input class="chat-input" placeholder="Reply to Lumi…">
+        <button class="chat-send">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z" stroke="#1A1828" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

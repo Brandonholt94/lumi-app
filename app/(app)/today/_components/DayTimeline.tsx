@@ -87,6 +87,63 @@ function fmtDuration(mins: number): string {
   return h === Math.floor(h) ? `${h}h` : `${Math.round(h * 2) / 2}h`
 }
 
+// ── Quick emoji set for tasks ─────────────────────────────────
+const QUICK_EMOJIS = [
+  '🏠','🧹','🛒','💼','📝','📞','🍳','🏋️','🚗',
+  '🎯','⭐','💊','📚','✈️','💪','🔧','💰','🎂',
+  '🌱','🐕','🎮','🧘','🚿','🌿','🎵','🏃','🧺','🛁',
+]
+
+// ── Display grouping — same-minute items stack together ───────
+type RawRow = Row & { sortMins: number; endMins: number }
+type NowMarker = { key: string; isNow: true; sortMins: number }
+
+type DisplayGroup =
+  | { kind: 'now';    marker: NowMarker }
+  | { kind: 'single'; row: RawRow }
+  | { kind: 'multi';  sortMins: number; time?: string; rows: RawRow[] }
+
+function buildDisplayGroups(
+  rows: Array<RawRow | NowMarker>
+): DisplayGroup[] {
+  const groups: DisplayGroup[] = []
+  let pending: RawRow[] = []
+
+  function flush() {
+    if (pending.length === 0) return
+    if (pending.length === 1) {
+      groups.push({ kind: 'single', row: pending[0] })
+    } else {
+      groups.push({ kind: 'multi', sortMins: pending[0].sortMins, time: pending[0].time, rows: [...pending] })
+    }
+    pending = []
+  }
+
+  for (const row of rows) {
+    if ('isNow' in row && row.isNow) {
+      flush()
+      groups.push({ kind: 'now', marker: row as NowMarker })
+      continue
+    }
+    const r = row as RawRow
+    // Free block is always standalone
+    if (r.key === 'free') {
+      flush()
+      groups.push({ kind: 'single', row: r })
+      continue
+    }
+    // Group consecutive rows at the exact same minute
+    if (pending.length > 0 && pending[pending.length - 1].sortMins === r.sortMins) {
+      pending.push(r)
+    } else {
+      flush()
+      pending.push(r)
+    }
+  }
+  flush()
+  return groups
+}
+
 export default function DayTimeline({ plan }: { plan: string }) {
   const [events,     setEvents]     = useState<CalEvent[]>([])
   const [tasks,      setTasks]      = useState<PersonalTask[]>([])
@@ -95,13 +152,15 @@ export default function DayTimeline({ plan }: { plan: string }) {
   const [focusTask,     setFocusTask]     = useState<FocusTask | null>(null)
   const [focusRefreshing, setFocusRefreshing] = useState(false)
   const [loading,    setLoading]    = useState(true)
-  const [adding,    setAdding]    = useState(false)
-  const [taskName,  setTaskName]  = useState('')
-  const [taskTime,  setTaskTime]  = useState('')
-  const [saving,    setSaving]    = useState(false)
+  const [adding,     setAdding]     = useState(false)
+  const [taskName,   setTaskName]   = useState('')
+  const [taskTime,   setTaskTime]   = useState('')
+  const [saving,     setSaving]     = useState(false)
+  const [emojiOpen,  setEmojiOpen]  = useState(false)
   const nowRef       = useRef<HTMLDivElement>(null)
   const scrollRef    = useRef<HTMLDivElement>(null)
   const inputRef     = useRef<HTMLInputElement>(null)
+  const emojiRef     = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const now   = new Date()
@@ -140,6 +199,17 @@ export default function DayTimeline({ plan }: { plan: string }) {
       })
     }
   }, [])
+
+  // Close emoji picker when clicking outside
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (emojiRef.current && !emojiRef.current.contains(e.target as Node)) {
+        setEmojiOpen(false)
+      }
+    }
+    if (emojiOpen) document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [emojiOpen])
 
   async function toggleHabit(id: string) {
     const habit = habits.find(h => h.id === id)
@@ -206,6 +276,7 @@ export default function DayTimeline({ plan }: { plan: string }) {
     setTaskName('')
     setAdding(false)
     setSaving(false)
+    setEmojiOpen(false)
   }
 
   async function toggleTask(id: string, done: boolean) {
@@ -254,7 +325,6 @@ export default function DayTimeline({ plan }: { plan: string }) {
     .slice(0, 6)
 
   // Build unified rows
-  type RawRow = Row & { sortMins: number; endMins: number }
   const rawRows: RawRow[] = []
 
   for (const event of upcomingEvents) {
@@ -294,7 +364,7 @@ export default function DayTimeline({ plan }: { plan: string }) {
   rawRows.sort((a, b) => a.sortMins - b.sortMins)
 
   // Interleave "Now" marker
-  const rows: Array<RawRow | { key: string; isNow: true; sortMins: number }> = []
+  const rows: Array<RawRow | NowMarker> = []
   let nowInserted = false
   for (const row of rawRows) {
     if (!nowInserted && row.sortMins > nowMins) {
@@ -305,33 +375,26 @@ export default function DayTimeline({ plan }: { plan: string }) {
   }
   if (!nowInserted) rows.push({ key: 'now', isNow: true, sortMins: nowMins })
 
-  // Re-sort after inserting now marker (it was already inserted correctly, but
-  // the free gap will be inserted next and needs consistent ordering)
   // ── Smart free gap detection ──────────────────────────────────────────────
-  // Find the first unscheduled window ≥ 90 min in the future (before 9 PM)
-  const DAY_END = 21 * 60        // 9 PM in minutes
-  const MIN_GAP = 90             // minimum gap to surface
+  const DAY_END = 21 * 60
+  const MIN_GAP = 90
   let freeGapStart: number | null    = null
   let freeGapDuration: number | null = null
 
   if (nowMins < DAY_END - MIN_GAP) {
-    // Items that end in the future, sorted by start
     const futureItems = rawRows
       .filter(r => r.endMins > nowMins)
       .sort((a, b) => a.sortMins - b.sortMins)
 
     if (futureItems.length === 0) {
-      // Whole rest-of-day is free
       freeGapStart    = nowMins
       freeGapDuration = Math.min(DAY_END - nowMins, 8 * 60)
     } else {
-      // Gap from now → first future item
       const gapToFirst = futureItems[0].sortMins - nowMins
       if (gapToFirst >= MIN_GAP) {
         freeGapStart    = nowMins
         freeGapDuration = gapToFirst
       } else {
-        // Gaps between consecutive future items
         for (let i = 0; i < futureItems.length - 1; i++) {
           const gapStart    = futureItems[i].endMins
           const gapEnd      = futureItems[i + 1].sortMins
@@ -342,7 +405,6 @@ export default function DayTimeline({ plan }: { plan: string }) {
             break
           }
         }
-        // Gap after last item → end of day
         if (freeGapStart === null) {
           const lastEnd  = futureItems[futureItems.length - 1].endMins
           const trailing = DAY_END - lastEnd
@@ -356,7 +418,6 @@ export default function DayTimeline({ plan }: { plan: string }) {
   }
 
   if (freeGapStart !== null && freeGapDuration !== null) {
-    // Cap display duration at 4 h so it doesn't say "8h free"
     const displayDuration = Math.min(freeGapDuration, 4 * 60)
     rows.push({
       key:      'free',
@@ -365,9 +426,11 @@ export default function DayTimeline({ plan }: { plan: string }) {
       sortMins: freeGapStart,
       endMins:  freeGapStart + freeGapDuration,
     } as RawRow)
-    // Re-sort so the free block appears at the right position
     rows.sort((a, b) => a.sortMins - b.sortMins)
   }
+
+  // Build display groups (merges same-time rows)
+  const displayGroups = buildDisplayGroups(rows)
 
   if (loading) {
     return (
@@ -386,6 +449,37 @@ export default function DayTimeline({ plan }: { plan: string }) {
 
   const hasContent = rawRows.length > 0
 
+  // ── Row renderer — renders a full row (time label + card) as a plain block div ──
+  function renderSubRow(r: RawRow, _showDivider = false, timeLabel?: string) {
+    const isPast      = r.type === 'past-cal' || r.type === 'past-task'
+    const isTask      = r.type === 'task'     || r.type === 'past-task'
+    const accentColor = isPast ? 'rgba(45,42,62,0.15)' : isTask ? '#F4A582' : '#8FAAE0'
+    const cardBg      = isPast ? 'rgba(45,42,62,0.03)' : isTask ? 'rgba(244,165,130,0.07)' : 'rgba(143,170,224,0.10)'
+
+    return (
+      <div key={r.key} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 8 }}>
+        <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 700, color: '#9895B0', width: 40, flexShrink: 0, lineHeight: 1.2, textAlign: 'right', paddingTop: 11 }}>
+          {timeLabel ?? r.time ?? ''}
+        </span>
+        <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', gap: 8, padding: '9px 12px', background: cardBg, borderRadius: 12, opacity: isPast ? 0.55 : 1 }}>
+          <div style={{ width: 3.5, alignSelf: 'stretch', borderRadius: 2, background: accentColor, flexShrink: 0 }} />
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 700, color: r.done ? '#9895B0' : '#1E1C2E', lineHeight: 1.35, wordBreak: 'break-word', textDecoration: r.done ? 'line-through' : 'none' }}>
+              {r.label}
+            </p>
+            {r.sub && <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 500, color: '#9895B0', lineHeight: 1.3, marginTop: 2 }}>{r.sub}</p>}
+          </div>
+          {!isTask && r.duration && <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 600, color: '#9895B0', flexShrink: 0 }}>{r.duration}</span>}
+          {isTask && r.taskId && (
+            <button onClick={() => toggleTask(r.taskId!, !r.done)} style={{ width: 24, height: 24, borderRadius: '50%', flexShrink: 0, border: `2px solid ${r.done ? '#F4A582' : 'rgba(45,42,62,0.18)'}`, background: r.done ? '#F4A582' : 'rgba(255,255,255,0.8)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              {r.done && <svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L20 7" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+            </button>
+          )}
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div
       style={{
@@ -394,84 +488,46 @@ export default function DayTimeline({ plan }: { plan: string }) {
         border:       '1px solid rgba(45,42,62,0.07)',
         boxShadow:    '0 2px 8px rgba(45,42,62,0.05)',
         marginBottom: 20,
-        overflow:     'hidden',
+        position:     'relative',
       }}
     >
       <style>{`.lumi-timeline-scroll::-webkit-scrollbar { display: none; }`}</style>
-      {/* Morning anchors — pill row at top of card */}
+
+      {/* Morning anchors */}
       {anchors && anchors.anchors.length > 0 && (() => {
         const hour    = new Date().getHours()
         const allDone = anchors.checked.length === anchors.anchors.length
         if (allDone && hour >= 12) return null
         return (
-          <div style={{
-            padding:      '12px 14px 10px',
-            borderBottom: '1px solid rgba(45,42,62,0.05)',
-          }}>
+          <div style={{ padding: '12px 14px 10px', borderBottom: '1px solid rgba(45,42,62,0.05)' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-              <p style={{
-                fontFamily:    'var(--font-nunito-sans)',
-                fontSize:      '9px',
-                fontWeight:    800,
-                letterSpacing: '0.1em',
-                color:         '#C4A882',
-              }}>
+              <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '9px', fontWeight: 800, letterSpacing: '0.1em', color: '#C4A882' }}>
                 MORNING ANCHORS
               </p>
-              <a href="/me/anchors" style={{
-                fontFamily: 'var(--font-nunito-sans)',
-                fontSize: '10px', fontWeight: 700,
-                color: '#C4A882', textDecoration: 'none',
-                opacity: 0.7,
-              }}>
+              <a href="/me/anchors" style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '10px', fontWeight: 700, color: '#C4A882', textDecoration: 'none', opacity: 0.7 }}>
                 Edit
               </a>
             </div>
-            <div style={{
-              display:    'flex',
-              gap:        7,
-              overflowX:  'auto',
-              paddingBottom: 2,
-              scrollbarWidth: 'none',
-            }}>
+            <div style={{ display: 'flex', gap: 7, overflowX: 'auto', paddingBottom: 2, scrollbarWidth: 'none' }}>
               {anchors.anchors.map((text, i) => {
                 const done = anchors.checked.includes(i)
                 return (
-                  <button
-                    key={i}
-                    onClick={() => toggleAnchor(i)}
-                    style={{
-                      flexShrink:  0,
-                      display:     'flex',
-                      alignItems:  'center',
-                      gap:         5,
-                      padding:     '5px 11px 5px 8px',
-                      borderRadius: 20,
-                      border:      done ? 'none' : '1.5px solid rgba(45,42,62,0.12)',
-                      background:  done ? 'rgba(244,165,130,0.15)' : 'rgba(45,42,62,0.04)',
-                      cursor:      'pointer',
-                      WebkitTapHighlightColor: 'transparent',
-                    }}
-                  >
+                  <button key={i} onClick={() => toggleAnchor(i)} style={{
+                    flexShrink: 0, display: 'flex', alignItems: 'center', gap: 5,
+                    padding: '5px 11px 5px 8px', borderRadius: 20,
+                    border: done ? 'none' : '1.5px solid rgba(45,42,62,0.12)',
+                    background: done ? 'rgba(244,165,130,0.15)' : 'rgba(45,42,62,0.04)',
+                    cursor: 'pointer', WebkitTapHighlightColor: 'transparent',
+                  }}>
                     {done ? (
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
                         <circle cx="12" cy="12" r="10" fill="#F4A582" opacity="0.30"/>
                         <path d="M7 12.5l3.5 3.5L17 9" stroke="#C8784A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>
                     ) : (
-                      <div style={{
-                        width: 13, height: 13, borderRadius: '50%',
-                        border: '1.5px solid rgba(45,42,62,0.20)',
-                      }} />
+                      <div style={{ width: 13, height: 13, borderRadius: '50%', border: '1.5px solid rgba(45,42,62,0.20)' }} />
                     )}
-                    <span style={{
-                      fontFamily:     'var(--font-nunito-sans)',
-                      fontSize:       '12px',
-                      fontWeight:     done ? 700 : 600,
-                      color:          done ? '#C8784A' : '#2D2A3E',
-                      textDecoration: done ? 'line-through' : 'none',
-                      whiteSpace:     'nowrap',
-                    }}>
+                    <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '12px', fontWeight: done ? 700 : 600, color: done ? '#C8784A' : '#2D2A3E', textDecoration: done ? 'line-through' : 'none', whiteSpace: 'nowrap' }}>
                       {text}
                     </span>
                   </button>
@@ -482,46 +538,21 @@ export default function DayTimeline({ plan }: { plan: string }) {
         )
       })()}
 
-      {/* Habits pill row */}
+      {/* Habits */}
       {habits.length > 0 && (
-        <div style={{
-          padding:      '10px 14px 10px',
-          borderBottom: '1px solid rgba(45,42,62,0.05)',
-        }}>
-          <p style={{
-            fontFamily:    'var(--font-nunito-sans)',
-            fontSize:      '9px',
-            fontWeight:    800,
-            letterSpacing: '0.1em',
-            color:         '#C4A882',
-            marginBottom:  8,
-          }}>
+        <div style={{ padding: '10px 14px 10px', borderBottom: '1px solid rgba(45,42,62,0.05)' }}>
+          <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '9px', fontWeight: 800, letterSpacing: '0.1em', color: '#C4A882', marginBottom: 8 }}>
             TODAY&apos;S HABITS
           </p>
-          <div style={{
-            display:        'flex',
-            gap:            7,
-            overflowX:      'auto',
-            paddingBottom:  2,
-            scrollbarWidth: 'none',
-          }}>
+          <div style={{ display: 'flex', gap: 7, overflowX: 'auto', paddingBottom: 2, scrollbarWidth: 'none' }}>
             {habits.map(habit => (
-              <button
-                key={habit.id}
-                onClick={() => toggleHabit(habit.id)}
-                style={{
-                  flexShrink:  0,
-                  display:     'flex',
-                  alignItems:  'center',
-                  gap:         5,
-                  padding:     '5px 11px 5px 8px',
-                  borderRadius: 20,
-                  border:      habit.done ? 'none' : '1.5px solid rgba(45,42,62,0.12)',
-                  background:  habit.done ? 'rgba(232,160,191,0.18)' : 'rgba(45,42,62,0.04)',
-                  cursor:      'pointer',
-                  WebkitTapHighlightColor: 'transparent',
-                }}
-              >
+              <button key={habit.id} onClick={() => toggleHabit(habit.id)} style={{
+                flexShrink: 0, display: 'flex', alignItems: 'center', gap: 5,
+                padding: '5px 11px 5px 8px', borderRadius: 20,
+                border: habit.done ? 'none' : '1.5px solid rgba(45,42,62,0.12)',
+                background: habit.done ? 'rgba(232,160,191,0.18)' : 'rgba(45,42,62,0.04)',
+                cursor: 'pointer', WebkitTapHighlightColor: 'transparent',
+              }}>
                 {habit.done ? (
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
                     <circle cx="12" cy="12" r="10" fill="#E8A0BF" opacity="0.30"/>
@@ -530,14 +561,7 @@ export default function DayTimeline({ plan }: { plan: string }) {
                 ) : (
                   <span style={{ fontSize: '12px', lineHeight: 1 }}>{habit.emoji}</span>
                 )}
-                <span style={{
-                  fontFamily:     'var(--font-nunito-sans)',
-                  fontSize:       '12px',
-                  fontWeight:     habit.done ? 700 : 600,
-                  color:          habit.done ? '#B86090' : '#2D2A3E',
-                  textDecoration: habit.done ? 'line-through' : 'none',
-                  whiteSpace:     'nowrap',
-                }}>
+                <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '12px', fontWeight: habit.done ? 700 : 600, color: habit.done ? '#B86090' : '#2D2A3E', textDecoration: habit.done ? 'line-through' : 'none', whiteSpace: 'nowrap' }}>
                   {habit.name}
                 </span>
               </button>
@@ -554,31 +578,25 @@ export default function DayTimeline({ plan }: { plan: string }) {
         </div>
       )}
 
-      {/* Timeline rows — scrollable, max ~4 cards visible */}
+      {/* Timeline rows */}
       {hasContent && (
         <div
           ref={scrollRef}
           className="lumi-timeline-scroll"
           style={{
-            padding:          '10px 12px 4px',
-            maxHeight:        340,
-            overflowY:        'auto',
-            scrollbarWidth:   'none',
+            padding: '10px 12px 4px',
+            maxHeight: 340,
+            overflowY: 'auto',
+            scrollbarWidth: 'none',
             WebkitOverflowScrolling: 'touch',
-          } as React.CSSProperties}>
-          {rows.map((row) => {
+          } as React.CSSProperties}
+        >
+          {displayGroups.map((group, gi) => {
             // Now marker
-            if ('isNow' in row && row.isNow) {
+            if (group.kind === 'now') {
               return (
-                <div
-                  key="now"
-                  ref={nowRef}
-                  style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '6px 4px' }}
-                >
-                  <span style={{
-                    fontFamily: 'var(--font-nunito-sans)', fontSize: '10px', fontWeight: 800,
-                    letterSpacing: '0.07em', color: '#F4A582', width: 40, flexShrink: 0,
-                  }}>
+                <div key="now" ref={nowRef} style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '6px 4px', flexShrink: 0, width: '100%' }}>
+                  <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '10px', fontWeight: 800, letterSpacing: '0.07em', color: '#F4A582', width: 40, flexShrink: 0 }}>
                     NOW
                   </span>
                   <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#F4A582', flexShrink: 0 }} />
@@ -587,191 +605,65 @@ export default function DayTimeline({ plan }: { plan: string }) {
               )
             }
 
-            const r      = row as RawRow
-            const isPast = r.type === 'past-cal' || r.type === 'past-task'
-            const isTask = r.type === 'task'     || r.type === 'past-task'
-            const isFree = r.key  === 'free'
+            // Single row (includes free block)
+            if (group.kind === 'single') {
+              const r      = group.row
+              const isFree = r.key === 'free'
 
-            // Free time block — interactive dashed card
-            if (isFree) {
-              const hasTask = !!(focusTask?.task)
-              return (
-                <div key="free" style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 8 }}>
-                  <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 700, color: '#9895B0', width: 40, flexShrink: 0, lineHeight: 1.2, textAlign: 'right', paddingTop: 11 }}>
-                    —
-                  </span>
-                  <div style={{
-                    flex: 1,
-                    border: '1.5px dashed rgba(245,201,138,0.60)',
-                    borderRadius: 12,
-                    padding: '10px 12px 10px 14px',
-                    background: 'rgba(245,201,138,0.06)',
-                  }}>
-                    {/* Header row */}
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: hasTask ? 6 : 2 }}>
-                      <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 800, color: '#C4A030' }}>
-                        {r.label}
-                      </p>
-                      <span style={{ color: 'rgba(196,160,48,0.45)', fontSize: 14, flexShrink: 0 }}>✦</span>
+              if (isFree) {
+                const hasTask = !!(focusTask?.task)
+                return (
+                  <div key="free" style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 8, flexShrink: 0, width: '100%', boxSizing: 'border-box' }}>
+                    <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 700, color: '#9895B0', width: 40, flexShrink: 0, lineHeight: 1.2, textAlign: 'right', paddingTop: 11 }}>—</span>
+                    <div style={{ flex: 1, border: '1.5px dashed rgba(245,201,138,0.60)', borderRadius: 12, padding: '10px 12px 10px 14px', background: 'rgba(245,201,138,0.06)' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: hasTask ? 6 : 2 }}>
+                        <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 800, color: '#C4A030' }}>{r.label}</p>
+                        <span style={{ color: 'rgba(196,160,48,0.45)', fontSize: 14, flexShrink: 0 }}>✦</span>
+                      </div>
+                      {hasTask ? (
+                        <>
+                          <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '12px', fontWeight: 600, color: '#2D2A3E', marginBottom: 8, lineHeight: 1.3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {focusTask!.task}
+                          </p>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <Link href="/focus" style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '5px 12px', borderRadius: 20, textDecoration: 'none', background: 'linear-gradient(135deg, #F4A582, #F5C98A)', boxShadow: '0 1px 6px rgba(244,165,130,0.30)' }}>
+                              <svg width="10" height="10" viewBox="0 0 24 24" fill="none"><polygon points="5,3 19,12 5,21" fill="#1E1C2E" /></svg>
+                              <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 800, color: '#1E1C2E' }}>Start Focus</span>
+                            </Link>
+                            <button onClick={refreshFocus} disabled={focusRefreshing} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '5px 10px', borderRadius: 20, border: '1.5px solid rgba(45,42,62,0.10)', background: 'transparent', cursor: focusRefreshing ? 'not-allowed' : 'pointer', opacity: focusRefreshing ? 0.5 : 1, WebkitTapHighlightColor: 'transparent' }}>
+                              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" style={{ transition: 'transform 0.4s', transform: focusRefreshing ? 'rotate(180deg)' : 'rotate(0deg)' }}>
+                                <path d="M4 4v5h5M20 20v-5h-5" stroke="#9895B0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                <path d="M4.06 14.99A9 9 0 1 0 6 6.34M19.94 9A9 9 0 0 0 18 17.66" stroke="#9895B0" strokeWidth="2" strokeLinecap="round"/>
+                              </svg>
+                              <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 700, color: '#9895B0' }}>{focusRefreshing ? 'Thinking…' : 'Different task'}</span>
+                            </button>
+                          </div>
+                        </>
+                      ) : (
+                        <Link href="/capture" style={{ textDecoration: 'none', display: 'block' }}>
+                          <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '12px', fontWeight: 600, color: '#9895B0', lineHeight: 1.3 }}>Good window for a focus task</p>
+                          <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 700, color: 'rgba(196,160,48,0.80)', marginTop: 4 }}>Set your One Focus →</p>
+                        </Link>
+                      )}
                     </div>
-
-                    {hasTask ? (
-                      <>
-                        {/* Focus task name */}
-                        <p style={{
-                          fontFamily: 'var(--font-nunito-sans)', fontSize: '12px', fontWeight: 600,
-                          color: '#2D2A3E', marginBottom: 8, lineHeight: 1.3,
-                          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                        }}>
-                          {focusTask!.task}
-                        </p>
-                        {/* CTAs */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                          <Link href="/focus" style={{
-                            display: 'inline-flex', alignItems: 'center', gap: 5,
-                            padding: '5px 12px', borderRadius: 20, textDecoration: 'none',
-                            background: 'linear-gradient(135deg, #F4A582, #F5C98A)',
-                            boxShadow: '0 1px 6px rgba(244,165,130,0.30)',
-                          }}>
-                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
-                              <polygon points="5,3 19,12 5,21" fill="#1E1C2E" />
-                            </svg>
-                            <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 800, color: '#1E1C2E' }}>
-                              Start Focus
-                            </span>
-                          </Link>
-                          <button
-                            onClick={refreshFocus}
-                            disabled={focusRefreshing}
-                            style={{
-                              display: 'inline-flex', alignItems: 'center', gap: 4,
-                              padding: '5px 10px', borderRadius: 20,
-                              border: '1.5px solid rgba(45,42,62,0.10)',
-                              background: 'transparent', cursor: focusRefreshing ? 'not-allowed' : 'pointer',
-                              opacity: focusRefreshing ? 0.5 : 1,
-                              WebkitTapHighlightColor: 'transparent',
-                            }}
-                          >
-                            <svg
-                              width="11" height="11" viewBox="0 0 24 24" fill="none"
-                              style={{ transition: 'transform 0.4s', transform: focusRefreshing ? 'rotate(180deg)' : 'rotate(0deg)' }}
-                            >
-                              <path d="M4 4v5h5M20 20v-5h-5" stroke="#9895B0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                              <path d="M4.06 14.99A9 9 0 1 0 6 6.34M19.94 9A9 9 0 0 0 18 17.66" stroke="#9895B0" strokeWidth="2" strokeLinecap="round"/>
-                            </svg>
-                            <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 700, color: '#9895B0' }}>
-                              {focusRefreshing ? 'Thinking…' : 'Different task'}
-                            </span>
-                          </button>
-                        </div>
-                      </>
-                    ) : (
-                      <Link href="/capture" style={{ textDecoration: 'none', display: 'block' }}>
-                        <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '12px', fontWeight: 600, color: '#9895B0', lineHeight: 1.3, marginBottom: 0 }}>
-                          Good window for a focus task
-                        </p>
-                        <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 700, color: 'rgba(196,160,48,0.80)', marginTop: 4 }}>
-                          Set your One Focus →
-                        </p>
-                      </Link>
-                    )}
                   </div>
+                )
+              }
+
+              // Regular single row
+              return renderSubRow(r, false, r.time)
+            }
+
+            // Multi-row group — each row renders as its own flat block row
+            if (group.kind === 'multi') {
+              return (
+                <div key={`group-${gi}`}>
+                  {group.rows.map((r, i) => renderSubRow(r, false, i === 0 ? (r.time ?? '') : ''))}
                 </div>
               )
             }
 
-            // Calendar event card or task card
-            const accentColor = isPast
-              ? 'rgba(45,42,62,0.15)'
-              : isTask ? '#F4A582' : '#8FAAE0'
-
-            const cardBg = isPast
-              ? 'rgba(45,42,62,0.03)'
-              : isTask
-                ? 'rgba(244,165,130,0.07)'
-                : 'rgba(143,170,224,0.10)'
-
-            return (
-              <div
-                key={r.key}
-                style={{
-                  display:    'flex',
-                  alignItems: 'center',
-                  gap:        10,
-                  marginBottom: 8,
-                  opacity:    isPast ? 0.5 : 1,
-                }}
-              >
-                {/* Time label */}
-                <span style={{
-                  fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 700,
-                  color: '#9895B0', width: 40, flexShrink: 0, lineHeight: 1.2, textAlign: 'right',
-                }}>
-                  {r.time}
-                </span>
-
-                {/* Card */}
-                <div style={{
-                  flex:         1,
-                  background:   cardBg,
-                  borderRadius: 12,
-                  borderLeft:   `3.5px solid ${accentColor}`,
-                  padding:      '10px 12px',
-                  display:      'flex',
-                  alignItems:   'center',
-                  gap:          8,
-                  minWidth:     0,
-                }}>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{
-                      fontFamily:     'var(--font-nunito-sans)',
-                      fontSize:       '13px',
-                      fontWeight:     700,
-                      color:          r.done ? '#9895B0' : '#1E1C2E',
-                      lineHeight:     1.3,
-                      overflow:       'hidden',
-                      textOverflow:   'ellipsis',
-                      whiteSpace:     'nowrap',
-                      textDecoration: r.done ? 'line-through' : 'none',
-                    }}>
-                      {r.label}
-                    </p>
-                    {r.sub && (
-                      <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 500, color: '#9895B0', lineHeight: 1.3, marginTop: 2 }}>
-                        {r.sub}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Duration (calendar) */}
-                  {!isTask && r.duration && (
-                    <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 600, color: '#9895B0', flexShrink: 0 }}>
-                      {r.duration}
-                    </span>
-                  )}
-
-                  {/* Checkbox (task) */}
-                  {isTask && r.taskId && (
-                    <button
-                      onClick={() => toggleTask(r.taskId!, !r.done)}
-                      style={{
-                        width: 24, height: 24, borderRadius: '50%', flexShrink: 0,
-                        border: `2px solid ${r.done ? '#F4A582' : 'rgba(45,42,62,0.18)'}`,
-                        background: r.done ? '#F4A582' : 'rgba(255,255,255,0.8)',
-                        cursor: 'pointer',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      }}
-                    >
-                      {r.done && (
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
-                          <path d="M5 12l5 5L20 7" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
-                      )}
-                    </button>
-                  )}
-                </div>
-              </div>
-            )
+            return null
           })}
         </div>
       )}
@@ -779,20 +671,84 @@ export default function DayTimeline({ plan }: { plan: string }) {
       {/* Add task inline form */}
       {adding ? (
         <div style={{ padding: '10px 14px 12px', borderTop: hasContent ? '1px solid rgba(45,42,62,0.06)' : 'none' }}>
-          <input
-            ref={inputRef}
-            value={taskName}
-            onChange={e => setTaskName(e.target.value)}
-            onKeyDown={e => { if (e.key === 'Enter') saveTask(); if (e.key === 'Escape') setAdding(false) }}
-            placeholder="e.g. Get kids from school"
-            style={{
-              display: 'block', width: '100%', boxSizing: 'border-box',
-              marginBottom: 8, padding: '9px 12px',
-              fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 600, color: '#1E1C2E',
-              background: 'rgba(45,42,62,0.04)', border: '1.5px solid rgba(45,42,62,0.10)',
-              borderRadius: 10, outline: 'none',
-            }}
-          />
+          {/* Task name + emoji button */}
+          <div style={{ position: 'relative', display: 'flex', gap: 6, marginBottom: 8, alignItems: 'center' }}>
+            {/* Emoji button */}
+            <div ref={emojiRef} style={{ position: 'relative', flexShrink: 0 }}>
+              <button
+                type="button"
+                onClick={() => setEmojiOpen(o => !o)}
+                style={{
+                  width: 36, height: 36, borderRadius: 10,
+                  border: emojiOpen ? '1.5px solid rgba(244,165,130,0.5)' : '1.5px solid rgba(45,42,62,0.10)',
+                  background: emojiOpen ? 'rgba(244,165,130,0.10)' : 'rgba(45,42,62,0.04)',
+                  cursor: 'pointer', fontSize: '16px',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}
+                title="Add emoji"
+              >
+                😊
+              </button>
+
+              {/* Emoji picker panel */}
+              {emojiOpen && (
+                <div style={{
+                  position: 'absolute',
+                  bottom: 'calc(100% + 6px)',
+                  left: 0,
+                  zIndex: 200,
+                  background: 'white',
+                  borderRadius: 14,
+                  border: '1px solid rgba(45,42,62,0.10)',
+                  boxShadow: '0 8px 28px rgba(45,42,62,0.16)',
+                  padding: 10,
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(7, 1fr)',
+                  gap: 2,
+                  width: 224,
+                }}>
+                  {QUICK_EMOJIS.map(emoji => (
+                    <button
+                      key={emoji}
+                      onClick={() => {
+                        setTaskName(n => n ? `${emoji} ${n}` : emoji + ' ')
+                        setEmojiOpen(false)
+                        setTimeout(() => inputRef.current?.focus(), 50)
+                      }}
+                      style={{
+                        width: 28, height: 28, fontSize: '16px',
+                        borderRadius: 6, border: 'none',
+                        background: 'transparent',
+                        cursor: 'pointer',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        transition: 'background 0.1s',
+                      }}
+                      onMouseEnter={e => (e.currentTarget.style.background = 'rgba(244,165,130,0.12)')}
+                      onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                    >
+                      {emoji}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <input
+              ref={inputRef}
+              value={taskName}
+              onChange={e => setTaskName(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') saveTask(); if (e.key === 'Escape') { setAdding(false); setEmojiOpen(false) } }}
+              placeholder="e.g. Get kids from school"
+              style={{
+                flex: 1, boxSizing: 'border-box',
+                padding: '9px 12px',
+                fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 600, color: '#1E1C2E',
+                background: 'rgba(45,42,62,0.04)', border: '1.5px solid rgba(45,42,62,0.10)',
+                borderRadius: 10, outline: 'none',
+              }}
+            />
+          </div>
+
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             <input
               type="time"
@@ -821,7 +777,7 @@ export default function DayTimeline({ plan }: { plan: string }) {
               {saving ? '…' : 'Add'}
             </button>
             <button
-              onClick={() => setAdding(false)}
+              onClick={() => { setAdding(false); setEmojiOpen(false) }}
               style={{
                 padding: '7px 10px', borderRadius: 10, border: 'none',
                 background: 'transparent',

@@ -839,6 +839,29 @@ export default function FocusPage() {
           </div>
         </div>
 
+        {/* ── Task label under timer ── */}
+        {taskLabel && state !== 'idle' && (
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: -16, marginBottom: 24 }}>
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: 7,
+              padding: '7px 16px', borderRadius: 99,
+              background: 'rgba(244,165,130,0.10)',
+              border: '1.5px solid rgba(244,165,130,0.25)',
+              maxWidth: '85%',
+            }}>
+              <span style={{ color: D.peach, fontSize: 11, flexShrink: 0 }}>✦</span>
+              <span style={{
+                fontFamily: 'var(--font-nunito-sans)',
+                fontSize: '13px', fontWeight: 700,
+                color: D.textPrimary,
+                overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis',
+              }}>
+                {taskLabel}
+              </span>
+            </div>
+          </div>
+        )}
+
         {/* ── In-session content ── */}
         {inSession && (
           <>
@@ -922,7 +945,7 @@ export default function FocusPage() {
 
         {/* Controls */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {state === 'idle'   && <button onClick={start}  style={primaryBtn}>Start session</button>}
+          {state === 'idle'   && <button onClick={start}  style={primaryBtn}>Start Focus</button>}
           {state === 'active' && <>
             <button onClick={pause} style={primaryBtn}>Pause</button>
             <button onClick={end}   style={ghostBtn}>End early</button>

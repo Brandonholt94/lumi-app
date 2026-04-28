@@ -301,7 +301,7 @@ export async function GET(req: Request) {
           .join('\n')
 
         const { text: reportText } = await generateText({
-          model: anthropic('claude-sonnet-4.6'),
+          model: anthropic('claude-sonnet-4-6'),
           prompt: `You are Lumi, a warm and deeply understanding AI companion built for adults with ADHD.
 
 Write a Weekly Brain Report for this user. It's a short personal narrative — 3 paragraphs, around 150 words. Reflect on their week using the data below.

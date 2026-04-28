@@ -124,7 +124,7 @@ Lead with something specific and human. End with one grounding observation for n
 
   try {
     const { text } = await generateText({
-      model: anthropic('claude-sonnet-4.6'),
+      model: anthropic('claude-sonnet-4-6'),
       prompt,
       maxOutputTokens: 400,
     })

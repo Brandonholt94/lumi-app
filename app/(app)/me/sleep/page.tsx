@@ -304,17 +304,34 @@ export default function SleepPage() {
             0%, 100% { opacity: var(--s-op); transform: scale(1); }
             50%       { opacity: calc(var(--s-op) * 0.25); transform: scale(0.8); }
           }
+          .sleep-glow {
+            position: absolute;
+            bottom: -60px; left: -60px;
+            width: 320px; height: 320px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(244,165,130,0.22) 0%, rgba(232,160,191,0.14) 45%, transparent 72%);
+            filter: blur(32px);
+          }
+          @media (min-width: 768px) {
+            .sleep-glow {
+              width: 680px; height: 680px;
+              bottom: -140px; left: -140px;
+              filter: blur(72px);
+              background: radial-gradient(circle, rgba(244,165,130,0.18) 0%, rgba(232,160,191,0.11) 45%, transparent 70%);
+            }
+          }
+          @media (min-width: 1200px) {
+            .sleep-glow {
+              width: 900px; height: 900px;
+              bottom: -200px; left: -200px;
+              filter: blur(100px);
+              background: radial-gradient(circle, rgba(244,165,130,0.15) 0%, rgba(232,160,191,0.09) 45%, transparent 68%);
+            }
+          }
         `}</style>
 
-        {/* Bottom-left peach → rose glow */}
-        <div style={{
-          position: 'absolute',
-          bottom: -60, left: -60,
-          width: 320, height: 320,
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(244,165,130,0.22) 0%, rgba(232,160,191,0.14) 45%, transparent 72%)',
-          filter: 'blur(32px)',
-        }} />
+        {/* Bottom-left peach → rose glow — scales with viewport */}
+        <div className="sleep-glow" />
 
         {/* Stars */}
         {STARS.map((s, i) => (

@@ -58,6 +58,25 @@ export async function POST(req: Request) {
   return NextResponse.json(data)
 }
 
+// DELETE — remove a task
+export async function DELETE(req: Request) {
+  const { userId } = await auth()
+  if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const { id } = await req.json()
+  if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 })
+
+  const supabase = getServiceClient()
+  const { error } = await supabase
+    .from('captures')
+    .delete()
+    .eq('id', id)
+    .eq('clerk_user_id', userId)
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json({ ok: true })
+}
+
 // PATCH — toggle complete
 export async function PATCH(req: Request) {
   const { userId } = await auth()

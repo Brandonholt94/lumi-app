@@ -10,6 +10,7 @@ import ActivityTracker from './_components/ActivityTracker'
 import LowBatteryOverlay from './_components/LowBatteryOverlay'
 import NotificationBanner from './_components/NotificationBanner'
 import TimezoneSync from './_components/TimezoneSync'
+import OnboardingTour from './_components/OnboardingTour'
 
 export default async function AppLayout({
   children,
@@ -48,6 +49,7 @@ export default async function AppLayout({
           <div className="lumi-content-col flex-1 min-w-0 flex flex-col overflow-hidden relative">
             <SplashScreen />
             <TimezoneSync />
+            <OnboardingTour />
             <main className="flex-1 min-h-0 flex flex-col overflow-hidden">
               <PageTransition>{children}</PageTransition>
             </main>

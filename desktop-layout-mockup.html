@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200">
+<title>Lumi Desktop Layout — Mockups</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito Sans', system-ui, sans-serif;
+    background: #E8E4DF;
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
+  }
+
+  h2 {
+    font-family: system-ui;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: #666;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  /* ── Shared chrome ── */
+  .app-shell {
+    display: flex;
+    width: 100%;
+    max-width: 1280px;
+    height: 780px;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.18), 0 4px 12px rgba(0,0,0,0.10);
+    background: #FBF8F5;
+  }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    width: 220px;
+    flex-shrink: 0;
+    background: white;
+    border-right: 1px solid rgba(45,42,62,0.07);
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+  }
+  .sidebar-logo {
+    padding: 22px 20px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .sidebar-logo-text {
+    font-size: 22px;
+    font-weight: 900;
+    background: linear-gradient(135deg, #F4A582 0%, #F5C98A 50%, #E8A0BF 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .sidebar-nav {
+    flex: 1;
+    padding: 4px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    text-decoration: none;
+    color: rgba(45,42,62,0.45);
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .nav-item.active {
+    background: rgba(244,165,130,0.12);
+    color: #2D2A3E;
+    font-weight: 700;
+  }
+  .nav-item.active svg { color: #F4A582; }
+  .sidebar-profile {
+    padding: 12px;
+    border-top: 1px solid rgba(45,42,62,0.07);
+  }
+
+  /* ── Scene header ── */
+  .scene {
+    height: 200px;
+    flex-shrink: 0;
+    background: linear-gradient(180deg, #1473C8 0%, #3D9BE0 30%, #7EC5F0 55%, #C8E8F5 68%, #F5F0C8 100%);
+    position: relative;
+    overflow: hidden;
+  }
+  .scene::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0; height: 40px;
+    background: #FBF8F5;
+  }
+  .sun {
+    position: absolute;
+    top: 28px; right: 120px;
+    width: 52px; height: 52px;
+    background: radial-gradient(circle at 40% 40%, #FFF9C4, #FFE040);
+    border-radius: 50%;
+    box-shadow: 0 0 0 10px rgba(255,224,64,0.18), 0 0 0 22px rgba(255,200,0,0.08);
+  }
+  .cloud {
+    position: absolute;
+    background: #DCF0FF;
+    border-radius: 50px;
+    opacity: 0.92;
+  }
+  .greeting-bar {
+    flex-shrink: 0;
+    padding: 0 24px 16px;
+    margin-top: -20px;
+    position: relative;
+    z-index: 2;
+  }
+  .greeting-bar h1 {
+    font-size: 24px; font-weight: 900;
+    color: #1E1C2E; line-height: 1.1;
+  }
+  .greeting-bar h1 span {
+    background: linear-gradient(90deg, #F4A582, #F5C98A);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .greeting-bar p {
+    font-size: 12px; color: #9895B0; font-weight: 500; margin-top: 2px;
+  }
+
+  /* ═══════════════════════════════════════════════
+     OPTION A — 70 / 30 split
+     Left: 3-day calendar | Right: focus + context
+  ═══════════════════════════════════════════════ */
+  .option-a-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .option-a-cols {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+  }
+  .col-70 {
+    flex: 0 0 70%;
+    border-right: 1px solid rgba(45,42,62,0.07);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .col-70-inner {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 24px 40px;
+  }
+  .col-30 {
+    flex: 0 0 30%;
+    overflow-y: auto;
+    padding: 16px 20px 40px;
+  }
+
+  /* 3-day calendar grid */
+  .cal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .cal-section-label {
+    font-size: 10px; font-weight: 800; letter-spacing: 0.1em; color: #9895B0;
+  }
+  .three-day-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  .day-col {
+    background: rgba(251,248,245,0.65);
+    border-radius: 14px;
+    border: 1px solid rgba(45,42,62,0.07);
+    overflow: hidden;
+  }
+  .day-col.today {
+    background: white;
+    border: 1.5px solid rgba(244,165,130,0.28);
+    box-shadow: 0 2px 16px rgba(244,165,130,0.10);
+  }
+  .day-col-header {
+    padding: 10px 14px 8px;
+    border-bottom: 1px solid rgba(45,42,62,0.05);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .day-col.today .day-col-header { background: rgba(244,165,130,0.05); }
+  .day-name { font-size: 10px; font-weight: 800; letter-spacing: 0.07em; color: rgba(45,42,62,0.35); }
+  .day-col.today .day-name { color: #F4A582; }
+  .day-date { font-size: 13px; font-weight: 600; color: rgba(45,42,62,0.35); }
+  .day-col.today .day-date { color: #1E1C2E; }
+  .live-badge {
+    font-size: 9px; font-weight: 800; color: #F4A582;
+    background: rgba(244,165,130,0.12);
+    padding: 2px 7px; border-radius: 99px; letter-spacing: 0.06em;
+  }
+  .day-events { padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 5px; }
+
+  /* Event row */
+  .event-row {
+    display: flex; gap: 8px; align-items: flex-start;
+  }
+  .event-time {
+    font-size: 10px; font-weight: 600; color: rgba(45,42,62,0.35);
+    min-width: 34px; padding-top: 4px; white-space: nowrap;
+  }
+  .event-card {
+    flex: 1; padding: 5px 10px 6px;
+    border-radius: 8px;
+    border-left: 3px solid rgba(143,170,224,0.55);
+    background: rgba(143,170,224,0.10);
+  }
+  .event-card.task {
+    border-left-color: rgba(244,165,130,0.55);
+    background: rgba(244,165,130,0.08);
+  }
+  .event-card.past { opacity: 0.38; }
+  .event-title {
+    font-size: 12px; font-weight: 600; color: #1E1C2E; line-height: 1.3;
+  }
+  .event-sub { font-size: 10px; color: #9895B0; margin-top: 1px; }
+  .now-line {
+    display: flex; align-items: center; gap: 7px; margin: 3px 0;
+  }
+  .now-dot {
+    width: 7px; height: 7px; border-radius: 50%; background: #F4A582; flex-shrink: 0;
+  }
+  .now-rule { flex: 1; height: 1px; background: rgba(244,165,130,0.35); }
+  .now-label {
+    font-size: 9px; font-weight: 800; color: #F4A582; letter-spacing: 0.06em;
+  }
+  .free-slot {
+    display: flex; gap: 8px; align-items: center;
+    padding: 7px 10px; border-radius: 8px;
+    background: rgba(245,201,138,0.08);
+    border: 1px dashed rgba(245,201,138,0.45);
+  }
+  .free-label { font-size: 12px; font-weight: 600; color: #C49820; }
+
+  /* ── Right 30% ── */
+  .right-section-label {
+    font-size: 10px; font-weight: 800; letter-spacing: 0.1em; color: #9895B0;
+    margin-bottom: 8px;
+  }
+  .right-section-label:not(:first-child) { margin-top: 20px; }
+
+  /* Focus card (dark) */
+  .focus-card {
+    background: #1E1C2E; border-radius: 18px; padding: 16px;
+    position: relative; overflow: hidden; margin-bottom: 14px;
+  }
+  .focus-card::before {
+    content: ''; position: absolute;
+    top: -30px; right: -30px;
+    width: 90px; height: 90px;
+    background: radial-gradient(circle, rgba(244,165,130,0.18) 0%, transparent 70%);
+  }
+  .focus-label {
+    font-size: 9px; font-weight: 800; letter-spacing: 0.13em; color: #F4A582;
+    margin-bottom: 8px;
+  }
+  .focus-task {
+    font-size: 17px; font-weight: 700; color: rgba(245,243,240,0.92);
+    line-height: 1.25; margin-bottom: 10px;
+  }
+  .focus-lumi {
+    background: rgba(255,255,255,0.06); border-radius: 10px;
+    padding: 9px 11px; margin-bottom: 12px;
+    font-size: 11px; font-weight: 500; color: rgba(245,243,240,0.65); line-height: 1.55;
+  }
+  .focus-lumi strong { color: #F4A582; }
+  .focus-btns { display: flex; gap: 8px; }
+  .btn-start {
+    flex: 1; padding: 11px; text-align: center; border-radius: 99px;
+    background: linear-gradient(135deg, #F4A582, #F5C98A);
+    font-size: 13px; font-weight: 800; color: #1E1C2E; border: none; cursor: pointer;
+  }
+  .btn-done {
+    padding: 11px 14px; border-radius: 99px;
+    background: white; font-size: 13px; font-weight: 700;
+    color: #9895B0; border: 1px solid rgba(45,42,62,0.10); cursor: pointer;
+  }
+
+  /* Lumi nudge card (right col) */
+  .nudge-card {
+    background: #2D2A3E; border-radius: 16px; padding: 14px;
+    display: flex; gap: 12px; align-items: flex-start; margin-bottom: 14px;
+  }
+  .nudge-icon {
+    width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0;
+    background: linear-gradient(135deg, #F4A582, #F5C98A);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .nudge-text {
+    font-size: 12px; font-weight: 500; color: rgba(245,243,240,0.85); line-height: 1.5;
+    margin-bottom: 7px;
+  }
+  .nudge-link {
+    font-size: 12px; font-weight: 800; color: #F4A582; cursor: pointer;
+  }
+
+  /* Mood row */
+  .mood-row {
+    display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 4px;
+  }
+  .mood-pill {
+    padding: 6px 12px; border-radius: 99px; font-size: 12px; font-weight: 600;
+    border: 1.5px solid rgba(45,42,62,0.10); cursor: pointer; color: #2D2A3E;
+    background: white;
+  }
+  .mood-pill.active {
+    background: rgba(244,165,130,0.15);
+    border-color: rgba(244,165,130,0.40);
+    color: #C47850;
+    font-weight: 700;
+  }
+
+  /* ── FAB ── */
+  .fab {
+    position: absolute;
+    bottom: 28px; right: 28px;
+    display: flex; align-items: center; gap: 7px;
+    padding: 0 18px 0 14px; height: 46px; border-radius: 999px;
+    background: linear-gradient(135deg, #F4A582, #F5C98A);
+    box-shadow: 0 6px 24px rgba(244,165,130,0.45);
+    font-size: 13px; font-weight: 800; color: #1E1C2E;
+    cursor: pointer; border: none;
+  }
+
+  /* ══════════════════════
+     OPTION B — full-width
+     calendar top, cards below
+  ══════════════════════ */
+  .option-b-body {
+    flex: 1; overflow-y: auto; padding: 0 28px 40px;
+  }
+  .cards-3col {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;
+    margin-bottom: 24px;
+  }
+  .action-card {
+    border-radius: 18px; padding: 20px 18px;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .action-card.focus { background: #1E1C2E; }
+  .action-card.dump  { background: rgba(232,160,191,0.12); border: 1.5px solid rgba(232,160,191,0.30); }
+  .action-card.chat  { background: rgba(244,165,130,0.10); border: 1.5px solid rgba(244,165,130,0.28); }
+  .action-icon {
+    width: 42px; height: 42px; border-radius: 11px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .action-title-focus { font-size: 16px; font-weight: 700; color: rgba(245,243,240,0.92); }
+  .action-sub-focus   { font-size: 11px; color: rgba(245,243,240,0.45); }
+  .action-title { font-size: 16px; font-weight: 700; color: #1E1C2E; }
+  .action-sub   { font-size: 11px; color: #9895B0; }
+
+  /* ── toggle ── */
+  .toggle-bar {
+    display: flex; gap: 12px; margin-bottom: 16px;
+  }
+  .toggle-btn {
+    padding: 8px 18px; border-radius: 99px; font-size: 12px; font-weight: 700;
+    border: none; cursor: pointer; background: rgba(45,42,62,0.08); color: #2D2A3E;
+  }
+  .toggle-btn.active { background: #2D2A3E; color: white; }
+
+  /* Show/hide options */
+  .option { display: none; }
+  .option.visible { display: flex; }
+</style>
+</head>
+<body>
+
+<h2>Lumi — Desktop Layout Concepts · Click a button to switch</h2>
+
+<div class="toggle-bar">
+  <button class="toggle-btn active" onclick="show('a')">Option A — 70 / 30 Split (Calendar dominant)</button>
+  <button class="toggle-btn" onclick="show('b')">Option B — Full-width (Calendar top, cards below)</button>
+</div>
+
+<!-- ══════════════════════════════════════════
+     OPTION A — 70% calendar | 30% context
+════════════════════════════════════════════ -->
+<div id="option-a" class="app-shell option visible" style="position:relative;">
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <svg width="28" height="21" viewBox="0 0 400 295" fill="none">
+        <defs>
+          <linearGradient id="g1" x1="0" y1="0" x2="400" y2="295" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#F5C98A"/><stop offset="50%" stop-color="#F4A582"/><stop offset="100%" stop-color="#E8A0BF"/>
+          </linearGradient>
+        </defs>
+        <rect x="85.6" y="53.1" width="29.4" height="66.2" rx="14.7" transform="translate(-31.9 84.6) rotate(-40)" fill="url(#g1)"/>
+        <rect x="180.5" y="4.4" width="29.4" height="80.9" rx="14.7" fill="url(#g1)"/>
+        <rect x="31.2" y="126.2" width="31.4" height="58.8" rx="15.7" transform="translate(-115.6 157.8) rotate(-74)" fill="url(#g1)"/>
+        <rect x="325.1" y="126.2" width="31.4" height="58.8" rx="15.7" transform="translate(396.4 -214.9) rotate(74)" fill="url(#g1)"/>
+        <rect x="272.7" y="53.2" width="29.4" height="66.2" rx="14.7" transform="translate(122.7 -164.6) rotate(40)" fill="url(#g1)"/>
+        <circle cx="195.2" cy="196.4" r="89.3" fill="url(#g1)"/>
+      </svg>
+      <span class="sidebar-logo-text">Lumi</span>
+    </div>
+    <nav class="sidebar-nav">
+      <a class="nav-item active">
+        <svg width="18" height="18" viewBox="0 0 256 256" fill="#F4A582"><path d="M208,28H188V24a12,12,0,0,0-24,0v4H92V24a12,12,0,0,0-24,0v4H48A20,20,0,0,0,28,48V208a20,20,0,0,0,20,20H208a20,20,0,0,0,20-20V48A20,20,0,0,0,208,28ZM68,52a12,12,0,0,0,24,0h72a12,12,0,0,0,24,0h16V76H52V52ZM52,204V100H204V204Zm92-76a16,16,0,1,1-16-16A16,16,0,0,1,144,128Zm48,0a16,16,0,1,1-16-16A16,16,0,0,1,192,128ZM96,176a16,16,0,1,1-16-16A16,16,0,0,1,96,176Zm48,0a16,16,0,1,1-16-16A16,16,0,0,1,144,176Zm48,0a16,16,0,1,1-16-16A16,16,0,0,1,192,176Z"/></svg>
+        Today
+      </a>
+      <a class="nav-item">
+        <svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor" style="color:rgba(45,42,62,0.35)"><path d="M216,48H40A16,16,0,0,0,24,64V224a15.85,15.85,0,0,0,9.24,14.5A16.13,16.13,0,0,0,40,240a15.89,15.89,0,0,0,10.25-3.78.69.69,0,0,0,.13-.11L82.5,208H216a16,16,0,0,0,16-16V64A16,16,0,0,0,216,48ZM40,224h0ZM216,192H80a16,16,0,0,0-10.25,3.78.69.69,0,0,0-.13.11L40,224V64H216Z"/></svg>
+        Chat
+      </a>
+      <a class="nav-item">
+        <svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor" style="color:rgba(45,42,62,0.35)"><path d="M236,128a108,108,0,0,1-216,0c0-42.52,24.73-81.34,63-98.9A12,12,0,1,1,93,50.91C63.24,64.57,44,94.83,44,128a84,84,0,0,0,168,0c0-33.17-19.24-63.43-49-77.09A12,12,0,1,1,173,29.1C211.27,46.66,236,85.48,236,128Z"/></svg>
+        Focus
+      </a>
+      <a class="nav-item">
+        <svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor" style="color:rgba(45,42,62,0.35)"><path d="M248,124a56.11,56.11,0,0,0-32-50.61V72a48,48,0,0,0-88-26.49A48,48,0,0,0,40,72v1.39a56,56,0,0,0,0,101.2V176a48,48,0,0,0,88,26.49A48,48,0,0,0,216,176v-1.41A56.09,56.09,0,0,0,248,124Z"/></svg>
+        Brain Dump
+      </a>
+      <a class="nav-item">
+        <svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor" style="color:rgba(45,42,62,0.35)"><path d="M224,196h-4V40a12,12,0,0,0-12-12H152a12,12,0,0,0-12,12V76H96A12,12,0,0,0,84,88v36H48a12,12,0,0,0-12,12v60H32a12,12,0,0,0,0,24H224a12,12,0,0,0,0-24ZM164,52h32V196H164Zm-56,48h32v96H108ZM60,148H84v48H60Z"/></svg>
+        Insights
+      </a>
+    </nav>
+    <div class="sidebar-profile">
+      <a class="nav-item">
+        <svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor" style="color:rgba(45,42,62,0.35)"><path d="M234.38,210a123.36,123.36,0,0,0-60.78-53.23,76,76,0,1,0-91.2,0A123.36,123.36,0,0,0,21.62,210a12,12,0,1,0,20.77,12c18.12-31.32,50.12-50,85.61-50s67.49,18.69,85.61,50a12,12,0,0,0,20.77-12ZM76,96a52,52,0,1,1,52,52A52.06,52.06,0,0,1,76,96Z"/></svg>
+        Profile
+      </a>
+    </div>
+  </div>
+
+  <!-- Main content -->
+  <div class="option-a-body">
+
+    <!-- Scene header -->
+    <div class="scene">
+      <div class="sun"></div>
+      <!-- Clouds -->
+      <div class="cloud" style="left:-10px;top:95px;width:130px;height:44px;"></div>
+      <div class="cloud" style="right:20px;top:98px;width:110px;height:38px;"></div>
+    </div>
+
+    <!-- Greeting below scene -->
+    <div class="greeting-bar">
+      <h1>Afternoon, <span>Brandon.</span></h1>
+      <p>Thursday, April 23 · Let's find your one thing.</p>
+    </div>
+
+    <!-- 70 / 30 body columns -->
+    <div class="option-a-cols">
+
+      <!-- 70% — Calendar -->
+      <div class="col-70">
+        <div class="col-70-inner">
+          <div class="cal-header">
+            <span class="cal-section-label">YOUR WEEK</span>
+            <span style="font-size:11px;color:rgba(45,42,62,0.35);font-weight:600;">Showing 3 days</span>
+          </div>
+
+          <div class="three-day-grid">
+
+            <!-- Today -->
+            <div class="day-col today">
+              <div class="day-col-header">
+                <div>
+                  <div class="day-name">TODAY</div>
+                  <div class="day-date">Apr 23</div>
+                </div>
+                <span class="live-badge">LIVE</span>
+              </div>
+              <div class="day-events">
+                <div class="event-row">
+                  <span class="event-time">9AM</span>
+                  <div class="event-card past"><div class="event-title" style="text-decoration:line-through;color:#9895B0;">Take kids to school</div></div>
+                </div>
+                <div class="event-row">
+                  <span class="event-time">11:30</span>
+                  <div class="event-card past"><div class="event-title" style="text-decoration:line-through;color:#9895B0;">DVC Resale – Database Discussion</div><div class="event-sub">Google Calendar</div></div>
+                </div>
+                <div class="event-row">
+                  <span class="event-time">2:30</span>
+                  <div class="event-card task"><div class="event-title">Drop Lilly off at Mimia's</div></div>
+                </div>
+                <div class="event-row">
+                  <span class="event-time">2:30</span>
+                  <div class="event-card task"><div class="event-title">Pick up kids from school</div></div>
+                </div>
+                <div class="now-line">
+                  <div class="now-dot"></div>
+                  <div class="now-rule"></div>
+                  <span class="now-label">NOW</span>
+                </div>
+                <div class="free-slot">
+                  <span class="free-label">Free · 2.5h</span>
+                </div>
+                <div class="event-row">
+                  <span class="event-time">7PM</span>
+                  <div class="event-card task"><div class="event-title">Pick-up Lilly from dance</div></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tomorrow -->
+            <div class="day-col">
+              <div class="day-col-header">
+                <div>
+                  <div class="day-name">TOMORROW</div>
+                  <div class="day-date">Apr 24</div>
+                </div>
+              </div>
+              <div class="day-events">
+                <div class="event-row">
+                  <span class="event-time">9AM</span>
+                  <div class="event-card"><div class="event-title">Team standup</div><div class="event-sub">Google Calendar</div></div>
+                </div>
+                <div class="event-row">
+                  <span class="event-time">1PM</span>
+                  <div class="event-card task"><div class="event-title">Send invoice to client</div></div>
+                </div>
+                <div class="event-row">
+                  <span class="event-time">3PM</span>
+                  <div class="event-card"><div class="event-title">Dentist appt – Dr. Shaw</div><div class="event-sub">Google Calendar</div></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Saturday -->
+            <div class="day-col">
+              <div class="day-col-header">
+                <div>
+                  <div class="day-name">SATURDAY</div>
+                  <div class="day-date">Apr 25</div>
+                </div>
+              </div>
+              <div class="day-events">
+                <p style="font-size:12px;font-weight:500;color:rgba(45,42,62,0.25);padding-top:6px;">Clear day ahead ✦</p>
+              </div>
+            </div>
+
+          </div><!-- /three-day-grid -->
+
+          <!-- Mood under calendar -->
+          <div style="margin-top:20px;">
+            <p class="cal-section-label" style="margin-bottom:8px;">HOW'S YOUR BRAIN TODAY?</p>
+            <div class="mood-row">
+              <div class="mood-pill">😶 Numb</div>
+              <div class="mood-pill active">🌫️ Low</div>
+              <div class="mood-pill">😐 Meh</div>
+              <div class="mood-pill">✨ Good</div>
+              <div class="mood-pill">⚡ Charged</div>
+            </div>
+          </div>
+
+        </div>
+      </div><!-- /col-70 -->
+
+      <!-- 30% — Focus + context -->
+      <div class="col-30">
+
+        <p class="right-section-label" style="margin-top:0;">ONE FOCUS</p>
+        <div class="focus-card">
+          <div class="focus-label">TODAY'S FOCUS &nbsp;&nbsp;<span style="color:#E8A0BF;font-size:9px;">easy wins only</span></div>
+          <div class="focus-task">Pick-up Lilly from dance</div>
+          <div class="focus-lumi"><strong>Lumi:</strong> This one has a real-world consequence if it waits — and it's as straightforward as it gets. You've got this, even on a low day.</div>
+          <div class="focus-btns">
+            <button class="btn-start">▶ Start Focus</button>
+            <button class="btn-done">✓ Done</button>
+          </div>
+        </div>
+
+        <p class="right-section-label">LUMI</p>
+        <div class="nudge-card">
+          <div class="nudge-icon">
+            <svg width="22" height="19" viewBox="0 0 166.9 151.3" fill="none"><circle cx="83.8" cy="91" r="37.5" fill="white"/><rect x="37.7" y="30.8" width="12.3" height="27.8" rx="4.9" transform="translate(-18.5 38.7) rotate(-40)" fill="white"/><rect x="77.6" y="10.4" width="12.3" height="33.9" rx="4.9" fill="white"/><rect x="14.9" y="61.5" width="13.2" height="24.7" rx="5.2" transform="translate(-55.4 74.1) rotate(-74)" fill="white"/><rect x="132.6" y="67.3" width="24.7" height="13.2" rx="5.2" transform="translate(-14.7 42.8) rotate(-16)" fill="white"/><rect x="108.6" y="38.6" width="27.8" height="12.3" rx="4.9" transform="translate(9.5 109.8) rotate(-50)" fill="white"/></svg>
+          </div>
+          <div>
+            <div class="nudge-text">Afternoon check-in, Brandon. You've got the rest of the day — what matters most right now?</div>
+            <div class="nudge-link">Open Lumi →</div>
+          </div>
+        </div>
+
+        <p class="right-section-label">QUICK ACTIONS</p>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <a href="#" style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:14px;background:rgba(245,201,138,0.14);border:1.5px solid rgba(245,201,138,0.35);text-decoration:none;">
+            <span style="font-size:16px;">⏱️</span>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:#1E1C2E;">Focus Timer</div>
+              <div style="font-size:11px;color:#9895B0;">Start a session</div>
+            </div>
+          </a>
+          <a href="#" style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:14px;background:rgba(232,160,191,0.12);border:1.5px solid rgba(232,160,191,0.30);text-decoration:none;">
+            <span style="font-size:16px;">🧠</span>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:#1E1C2E;">Brain Dump</div>
+              <div style="font-size:11px;color:#9895B0;">Clear your head</div>
+            </div>
+          </a>
+        </div>
+
+      </div><!-- /col-30 -->
+    </div><!-- /cols -->
+
+  </div><!-- /option-a-body -->
+
+  <!-- FAB -->
+  <button class="fab">
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 2v12M2 8h12" stroke="#1E1C2E" stroke-width="2.5" stroke-linecap="round"/></svg>
+    Brain Dump
+  </button>
+
+</div><!-- /option-a -->
+
+
+<!-- ══════════════════════════════════════════
+     OPTION B — Full-width, calendar then cards
+════════════════════════════════════════════ -->
+<div id="option-b" class="app-shell option" style="position:relative;">
+
+  <!-- Sidebar (same) -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <svg width="28" height="21" viewBox="0 0 400 295" fill="none">
+        <defs><linearGradient id="g2" x1="0" y1="0" x2="400" y2="295" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#F5C98A"/><stop offset="50%" stop-color="#F4A582"/><stop offset="100%" stop-color="#E8A0BF"/></linearGradient></defs>
+        <rect x="85.6" y="53.1" width="29.4" height="66.2" rx="14.7" transform="translate(-31.9 84.6) rotate(-40)" fill="url(#g2)"/>
+        <rect x="180.5" y="4.4" width="29.4" height="80.9" rx="14.7" fill="url(#g2)"/>
+        <rect x="31.2" y="126.2" width="31.4" height="58.8" rx="15.7" transform="translate(-115.6 157.8) rotate(-74)" fill="url(#g2)"/>
+        <rect x="325.1" y="126.2" width="31.4" height="58.8" rx="15.7" transform="translate(396.4 -214.9) rotate(74)" fill="url(#g2)"/>
+        <rect x="272.7" y="53.2" width="29.4" height="66.2" rx="14.7" transform="translate(122.7 -164.6) rotate(40)" fill="url(#g2)"/>
+        <circle cx="195.2" cy="196.4" r="89.3" fill="url(#g2)"/>
+      </svg>
+      <span class="sidebar-logo-text">Lumi</span>
+    </div>
+    <nav class="sidebar-nav">
+      <a class="nav-item active">
+        <svg width="18" height="18" viewBox="0 0 256 256" fill="#F4A582"><path d="M208,28H188V24a12,12,0,0,0-24,0v4H92V24a12,12,0,0,0-24,0v4H48A20,20,0,0,0,28,48V208a20,20,0,0,0,20,20H208a20,20,0,0,0,20-20V48A20,20,0,0,0,208,28ZM68,52a12,12,0,0,0,24,0h72a12,12,0,0,0,24,0h16V76H52V52ZM52,204V100H204V204Zm92-76a16,16,0,1,1-16-16A16,16,0,0,1,144,128Zm48,0a16,16,0,1,1-16-16A16,16,0,0,1,192,128ZM96,176a16,16,0,1,1-16-16A16,16,0,0,1,96,176Zm48,0a16,16,0,1,1-16-16A16,16,0,0,1,144,176Zm48,0a16,16,0,1,1-16-16A16,16,0,0,1,192,176Z"/></svg>
+        Today
+      </a>
+      <a class="nav-item" style="color:rgba(45,42,62,0.45);">
+        <svg width="18" height="18" viewBox="0 0 256 256" fill="rgba(45,42,62,0.35)"><path d="M216,48H40A16,16,0,0,0,24,64V224a15.85,15.85,0,0,0,9.24,14.5A16.13,16.13,0,0,0,40,240a15.89,15.89,0,0,0,10.25-3.78.69.69,0,0,0,.13-.11L82.5,208H216a16,16,0,0,0,16-16V64A16,16,0,0,0,216,48ZM40,224h0ZM216,192H80a16,16,0,0,0-10.25,3.78.69.69,0,0,0-.13.11L40,224V64H216Z"/></svg>
+        Chat
+      </a>
+      <a class="nav-item" style="color:rgba(45,42,62,0.45);">Focus</a>
+      <a class="nav-item" style="color:rgba(45,42,62,0.45);">Brain Dump</a>
+      <a class="nav-item" style="color:rgba(45,42,62,0.45);">Insights</a>
+    </nav>
+    <div class="sidebar-profile">
+      <a class="nav-item" style="color:rgba(45,42,62,0.45);">Profile</a>
+    </div>
+  </div>
+
+  <!-- Main content — single scroll column -->
+  <div class="option-b-body">
+
+    <!-- Compact top bar -->
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 0 16px;border-bottom:1px solid rgba(45,42,62,0.06);margin-bottom:20px;">
+      <div>
+        <h1 style="font-size:22px;font-weight:900;color:#1E1C2E;">Afternoon, <span style="background:linear-gradient(90deg,#F4A582,#F5C98A);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Brandon.</span></h1>
+        <p style="font-size:12px;color:#9895B0;font-weight:500;margin-top:2px;">Thursday, April 23 · Let's find your one thing.</p>
+      </div>
+      <div class="mood-row" style="margin-bottom:0;">
+        <div class="mood-pill">😶</div>
+        <div class="mood-pill active">🌫️ Low</div>
+        <div class="mood-pill">😐</div>
+        <div class="mood-pill">✨</div>
+        <div class="mood-pill">⚡</div>
+      </div>
+    </div>
+
+    <!-- 3-day calendar (full width) -->
+    <p class="cal-section-label" style="margin-bottom:12px;">YOUR WEEK</p>
+    <div class="three-day-grid" style="margin-bottom:24px;">
+
+      <div class="day-col today">
+        <div class="day-col-header">
+          <div><div class="day-name">TODAY</div><div class="day-date">Apr 23</div></div>
+          <span class="live-badge">LIVE</span>
+        </div>
+        <div class="day-events">
+          <div class="event-row"><span class="event-time">9AM</span><div class="event-card past"><div class="event-title" style="text-decoration:line-through;color:#9895B0;">Take kids to school</div></div></div>
+          <div class="event-row"><span class="event-time">11:30</span><div class="event-card past"><div class="event-title" style="text-decoration:line-through;color:#9895B0;">DVC Meeting</div><div class="event-sub">Google Calendar</div></div></div>
+          <div class="event-row"><span class="event-time">2:30</span><div class="event-card task"><div class="event-title">Drop Lilly off at Mimia's</div></div></div>
+          <div class="now-line"><div class="now-dot"></div><div class="now-rule"></div><span class="now-label">NOW</span></div>
+          <div class="free-slot"><span class="free-label">Free · 2.5h</span></div>
+          <div class="event-row"><span class="event-time">7PM</span><div class="event-card task"><div class="event-title">Pick-up Lilly from dance</div></div></div>
+        </div>
+      </div>
+
+      <div class="day-col">
+        <div class="day-col-header"><div><div class="day-name">TOMORROW</div><div class="day-date">Apr 24</div></div></div>
+        <div class="day-events">
+          <div class="event-row"><span class="event-time">9AM</span><div class="event-card"><div class="event-title">Team standup</div><div class="event-sub">Google Calendar</div></div></div>
+          <div class="event-row"><span class="event-time">1PM</span><div class="event-card task"><div class="event-title">Send invoice</div></div></div>
+          <div class="event-row"><span class="event-time">3PM</span><div class="event-card"><div class="event-title">Dentist – Dr. Shaw</div><div class="event-sub">Google Calendar</div></div></div>
+        </div>
+      </div>
+
+      <div class="day-col">
+        <div class="day-col-header"><div><div class="day-name">SATURDAY</div><div class="day-date">Apr 25</div></div></div>
+        <div class="day-events"><p style="font-size:12px;font-weight:500;color:rgba(45,42,62,0.25);padding-top:6px;">Clear day ahead ✦</p></div>
+      </div>
+
+    </div>
+
+    <!-- 3-col cards -->
+    <p class="cal-section-label" style="margin-bottom:12px;">FOCUS &amp; ACTIONS</p>
+    <div class="cards-3col">
+
+      <!-- One Focus -->
+      <div class="action-card focus">
+        <div class="focus-label" style="margin-bottom:0;">TODAY'S FOCUS</div>
+        <div class="focus-task" style="font-size:15px;margin-bottom:8px;">Pick-up Lilly from dance</div>
+        <div class="focus-lumi" style="margin-bottom:10px;"><strong>Lumi:</strong> This one has a real-world consequence. You've got this, even on a low day.</div>
+        <div class="focus-btns">
+          <button class="btn-start" style="font-size:12px;padding:9px;">▶ Start Focus</button>
+          <button class="btn-done" style="font-size:12px;padding:9px 12px;">✓ Done</button>
+        </div>
+      </div>
+
+      <!-- Brain Dump -->
+      <div class="action-card dump">
+        <div class="action-icon" style="background:rgba(232,160,191,0.22);">
+          <svg width="26" height="26" viewBox="0 0 256 256" fill="#B86090"><path d="M248,124a56.11,56.11,0,0,0-32-50.61V72a48,48,0,0,0-88-26.49A48,48,0,0,0,40,72v1.39a56,56,0,0,0,0,101.2V176a48,48,0,0,0,88,26.49A48,48,0,0,0,216,176v-1.41A56.09,56.09,0,0,0,248,124Z"/></svg>
+        </div>
+        <div class="action-title">Brain Dump</div>
+        <div class="action-sub">Throw everything out of your head — Lumi picks the one thing</div>
+        <a href="#" style="margin-top:auto;display:inline-block;padding:9px 16px;border-radius:99px;background:rgba(232,160,191,0.22);border:1.5px solid rgba(232,160,191,0.40);font-size:12px;font-weight:700;color:#B86090;text-decoration:none;">Open Brain Dump →</a>
+      </div>
+
+      <!-- Talk to Lumi -->
+      <div class="action-card chat">
+        <div class="action-icon" style="background:linear-gradient(135deg,rgba(244,165,130,0.20),rgba(245,201,138,0.16));">
+          <svg width="26" height="22" viewBox="0 0 166.9 151.3" fill="none"><circle cx="83.8" cy="91" r="37.5" fill="#F4A582"/><rect x="37.7" y="30.8" width="12.3" height="27.8" rx="4.9" transform="translate(-18.5 38.7) rotate(-40)" fill="#F4A582"/><rect x="77.6" y="10.4" width="12.3" height="33.9" rx="4.9" fill="#F4A582"/><rect x="14.9" y="61.5" width="13.2" height="24.7" rx="5.2" transform="translate(-55.4 74.1) rotate(-74)" fill="#F4A582"/><rect x="132.6" y="67.3" width="24.7" height="13.2" rx="5.2" transform="translate(-14.7 42.8) rotate(-16)" fill="#F4A582"/><rect x="108.6" y="38.6" width="27.8" height="12.3" rx="4.9" transform="translate(9.5 109.8) rotate(-50)" fill="#F4A582"/></svg>
+        </div>
+        <div class="action-title">Talk to Lumi</div>
+        <div class="action-sub">Afternoon check-in, Brandon. You've got the rest of the day — what matters most right now?</div>
+        <a href="#" style="margin-top:auto;display:inline-block;padding:9px 16px;border-radius:99px;background:rgba(244,165,130,0.18);border:1.5px solid rgba(244,165,130,0.35);font-size:12px;font-weight:700;color:#C47850;text-decoration:none;">Open Lumi →</a>
+      </div>
+
+    </div><!-- /cards-3col -->
+
+  </div><!-- /option-b-body -->
+
+  <!-- FAB -->
+  <button class="fab">
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 2v12M2 8h12" stroke="#1E1C2E" stroke-width="2.5" stroke-linecap="round"/></svg>
+    Brain Dump
+  </button>
+
+</div><!-- /option-b -->
+
+<script>
+  function show(opt) {
+    document.querySelectorAll('.option').forEach(el => el.classList.remove('visible'))
+    document.querySelectorAll('.toggle-btn').forEach(el => el.classList.remove('active'))
+    document.getElementById('option-' + opt).classList.add('visible')
+    document.querySelectorAll('.toggle-btn')[opt === 'a' ? 0 : 1].classList.add('active')
+  }
+</script>
+</body>
+</html>

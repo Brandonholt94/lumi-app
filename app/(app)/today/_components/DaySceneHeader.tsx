@@ -165,7 +165,7 @@ export default function DaySceneHeader({ firstName }: Props) {
   const sunR  = isDesktop ? 52  : 90
 
   return (
-    <div style={{ width: '100%', flexShrink: 0 }}>
+    <div data-tour="today-header" style={{ width: '100%', flexShrink: 0 }}>
 
       {/* ── Sky scene ── */}
       <div style={{ position: 'relative' }}>

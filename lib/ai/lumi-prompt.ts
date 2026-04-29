@@ -31,6 +31,9 @@ export interface LumiUserContext {
     duration: number                          // hours, e.g. 3.5
     quality: 'great' | 'okay' | 'rough' | null
   } | null
+  // Set when user accepts the SleepInsightCard offer ("Yes please, dim things tomorrow").
+  // True until the timestamp expires; downstream tone shifts to extra-gentle, no big asks.
+  lowBatteryMode?: boolean
   upcomingEvents?: Array<{
     title: string
     start: string  // ISO string
@@ -697,6 +700,7 @@ ${ctx.sleepLastNight != null ? (() => {
     ''
   return `**Last night's sleep:** ${durLabel} — ${qualityLabel}.${guidance ? `\n${guidance}` : ''}`
 })() : ''}
+${ctx.lowBatteryMode ? `**Low Battery Mode is ON for today.** They've had a stretch of late nights and asked you to lighten things while they recover. Specifically:\n- Do not propose new tasks, projects, or productivity moves unless they ask first\n- Default to permission-giving language: "rest is the work today," "tomorrow's still there"\n- If they ask for a task pick, suggest the smallest possible thing (5 min or less)\n- Acknowledge tiredness without diagnosing or over-explaining\n- This mode is self-expiring — you don't need to mention it explicitly` : ''}
 ${ctx.mood ? `**Today's mood:** ${ctx.mood.charAt(0).toUpperCase() + ctx.mood.slice(1)}${
   ctx.mood === 'low'     ? ' — meet them gently, low demand, one small thing at a time.' :
   ctx.mood === 'okay'    ? ' — normal companion energy, check in before assuming they want to work.' :

@@ -16,6 +16,9 @@ export interface FocusPromptContext {
   tasks: FocusTask[]
   hour: number       // 0–23, time of day
   name?: string
+  // True when user accepted the SleepInsightCard offer ("dim things tomorrow").
+  // Forces the smallest possible task pick regardless of mood.
+  lowBatteryMode?: boolean
 }
 
 export function buildFocusSelectionPrompt(ctx: FocusPromptContext): string {
@@ -44,6 +47,10 @@ export function buildFocusSelectionPrompt(ctx: FocusPromptContext): string {
     })
     .join('\n')
 
+  const lowBatteryGuidance = ctx.lowBatteryMode
+    ? `\n## Low Battery Mode is ON\nThe user has been running on a stretch of late nights and asked Lumi to lighten things while they recover. Override normal selection logic: pick the absolute smallest, lowest-stakes task on the list — something completable in 5 minutes or less. The Lumi message must explicitly give them permission to rest if even this feels too much. Frame the task as optional.\n`
+    : ''
+
   return `You are Lumi's task selection engine. Your job is to read a user's task captures and pick the single best one to focus on today.
 
 ## User Context
@@ -51,6 +58,7 @@ ${ctx.name ? `Name: ${ctx.name}` : ''}
 Mood today: ${ctx.mood ?? 'not reported'}
 ${moodGuidance[ctx.mood ?? 'null']}
 ${timeGuidance}
+${lowBatteryGuidance}
 
 ## Selection Criteria (apply in order)
 

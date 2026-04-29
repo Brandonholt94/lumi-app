@@ -181,7 +181,7 @@ async function fetchPlatformContext(userId: string): Promise<Partial<LumiUserCon
     // Onboarding profile
     supabase
       .from('profiles')
-      .select('display_name, adhd_identity, biggest_struggle, hardest_time, support_situation, tone_preference, plan')
+      .select('display_name, adhd_identity, biggest_struggle, hardest_time, support_situation, tone_preference, plan, low_battery_mode_until')
       .eq('clerk_user_id', userId)
       .single(),
 
@@ -280,6 +280,10 @@ async function fetchPlatformContext(userId: string): Promise<Partial<LumiUserCon
         : 24 - sleepRow.bedtime_hour + sleepRow.wake_hour,
       quality: sleepRow.quality as 'great' | 'okay' | 'rough' | null,
     } : null,
+    // Low Battery Mode — set by SleepInsightCard accept; expires automatically
+    lowBatteryMode: profile?.low_battery_mode_until
+      ? new Date(profile.low_battery_mode_until) > new Date()
+      : false,
     // Calendar events — merged from all connected providers, sorted by start time
     ...(() => {
       const allEvents = [...googleEvents, ...microsoftEvents].sort(

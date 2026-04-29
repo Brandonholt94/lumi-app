@@ -139,10 +139,21 @@ export async function GET(req: Request) {
     })
   }
 
+  // Check if Low Battery Mode is currently active
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('low_battery_mode_until')
+    .eq('clerk_user_id', userId)
+    .maybeSingle()
+  const lowBatteryMode = profile?.low_battery_mode_until
+    ? new Date(profile.low_battery_mode_until) > new Date()
+    : false
+
   const prompt = buildFocusSelectionPrompt({
     mood,
     tasks: filteredTasks,
     hour: new Date().getHours(),
+    lowBatteryMode,
   })
 
   try {

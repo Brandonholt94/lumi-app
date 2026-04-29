@@ -14,6 +14,7 @@ import Link from 'next/link'
 import WelcomeBack from './WelcomeBack'
 import MedCheckIn from './MedCheckIn'
 import SleepCard from './SleepCard'
+import SleepInsightCard from './SleepInsightCard'
 import MorningAnchors from './MorningAnchors'
 import LumiNudge from './LumiNudge'
 import MoodSelector from './MoodSelector'
@@ -42,6 +43,7 @@ export default function TodaySideCards({ firstName, plan, desktop = false }: Pro
       <WelcomeBack />
       <MedCheckIn />
       <SleepCard />
+      <SleepInsightCard />
 
       {/* ── Morning anchors (own visibility logic) ── */}
       <MorningAnchors />

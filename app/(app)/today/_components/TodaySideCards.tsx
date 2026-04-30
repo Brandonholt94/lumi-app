@@ -26,9 +26,10 @@ interface Props {
   firstName: string
   plan: string
   desktop?: boolean
+  hideMood?: boolean
 }
 
-export default function TodaySideCards({ firstName, plan, desktop = false }: Props) {
+export default function TodaySideCards({ firstName, plan, desktop = false, hideMood = false }: Props) {
   const iconSize   = desktop ? 36 : 44
   const iconRadius = desktop ? 10 : 12
   const iconSvg    = desktop ? 18 : 26
@@ -48,13 +49,17 @@ export default function TodaySideCards({ firstName, plan, desktop = false }: Pro
       {/* ── Morning anchors (own visibility logic) ── */}
       <MorningAnchors />
 
-      {/* ── Brain check-in (desktop: moved here from calendar bottom) ── */}
-      <p className="lumi-section-label" style={{ marginTop: desktop ? 4 : 4 }}>
-        HOW&apos;S YOUR BRAIN TODAY?
-      </p>
-      <div style={{ marginBottom: desktop ? 10 : 12 }}>
-        <MoodSelector />
-      </div>
+      {/* ── Brain check-in (desktop only — mobile renders this above the timeline) ── */}
+      {!hideMood && (
+        <>
+          <p className="lumi-section-label" style={{ marginTop: 4 }}>
+            HOW&apos;S YOUR BRAIN TODAY?
+          </p>
+          <div style={{ marginBottom: desktop ? 10 : 12 }}>
+            <MoodSelector />
+          </div>
+        </>
+      )}
 
       {/* ── Lumi contextual nudge ── */}
       <LumiNudge firstName={firstName} plan={plan} />

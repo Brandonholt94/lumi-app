@@ -1,6 +1,7 @@
 import { auth } from '@clerk/nextjs/server'
 import { createClient } from '@supabase/supabase-js'
 import DaySceneHeader from './_components/DaySceneHeader'
+import MoodSelector from './_components/MoodSelector'
 import DayTimeline from './_components/DayTimeline'
 import DesktopCalendar from './_components/DesktopCalendar'
 import TodaySideCards from './_components/TodaySideCards'
@@ -47,13 +48,16 @@ export default async function TodayPage() {
               <DesktopCalendar plan={plan} />
             </div>
 
-            {/* ── MOBILE: timeline, then shared side cards (MoodSelector is inside TodaySideCards) ── */}
+            {/* ── MOBILE: mood + timeline, then shared side cards ── */}
             <div className="mobile-only" style={{ padding: '4px 20px 40px' }}>
+              <p className="lumi-section-label">HOW&apos;S YOUR BRAIN TODAY?</p>
+              <MoodSelector />
+
               <p className="lumi-section-label" style={{ marginTop: 4 }}>YOUR DAY</p>
               <DayTimeline plan={plan} />
 
               {/* Same cards, same rules — just mobile sizing */}
-              <TodaySideCards firstName={firstName} plan={plan} />
+              <TodaySideCards firstName={firstName} plan={plan} hideMood />
             </div>
 
           </div>{/* end lumi-today-left */}

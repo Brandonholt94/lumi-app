@@ -92,8 +92,9 @@ export default function ResourcesSection({ desktop = false }: { desktop?: boolea
             <Swiper
               modules={[Navigation]}
               navigation={{ prevEl: '.lumi-swiper-prev', nextEl: '.lumi-swiper-next' }}
-              slidesPerView={4}
-              spaceBetween={16}
+              slidesPerView={2}
+              spaceBetween={12}
+              breakpoints={{ 768: { slidesPerView: 4, spaceBetween: 16 } }}
               className="lumi-resources-swiper"
             >
               {resources.map(r => (

@@ -5,11 +5,13 @@ import { sendPushToUser } from '@/lib/push'
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
-// Hyperfocus detection — fires every hour, active 8pm–11pm local.
-// Triggers when: user logged "wired" mood after 6pm today OR ran a focus
-// session > 90 minutes today. Goal: gently interrupt before the 2am crash.
+// Hyperfocus detection — fires every hour, active 10am–8pm local.
+// Triggers when: user logged "wired" mood OR ended a focus session > 90 min
+// IN THE LAST 2 HOURS. Recency window means it fires once when the behavior
+// is detected, not all day long.
 
-const TARGET_HOURS = new Set([20, 21, 22]) // 8–10pm local
+const ACTIVE_START = 10 // 10am local
+const ACTIVE_END   = 20 //  8pm local
 
 const COPY = [
   {
@@ -35,12 +37,9 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const supabase   = getServiceClient()
-  const now        = new Date()
-  const todayStart = new Date(now)
-  todayStart.setUTCHours(0, 0, 0, 0)
-  const sixPmUtcEquiv = new Date(now)
-  sixPmUtcEquiv.setHours(sixPmUtcEquiv.getHours() - 2) // rough 6pm buffer for global users
+  const supabase  = getServiceClient()
+  const now       = new Date()
+  const twoHrsAgo = new Date(now.getTime() - 2 * 60 * 60 * 1000)
 
   // Users with push subscriptions
   const { data: subRows } = await supabase
@@ -54,46 +53,43 @@ export async function GET(req: Request) {
   // Fetch profiles for timezone
   const { data: profiles } = await supabase
     .from('profiles')
-    .select('clerk_user_id, timezone, display_name')
+    .select('clerk_user_id, timezone')
     .in('clerk_user_id', subscribedIds)
 
-  const profileMap: Record<string, { timezone: string; name: string }> = {}
+  const timezoneMap: Record<string, string> = {}
   for (const p of profiles ?? []) {
-    profileMap[p.clerk_user_id] = {
-      timezone: p.timezone ?? 'America/New_York',
-      name:     p.display_name ?? 'there',
-    }
+    timezoneMap[p.clerk_user_id] = p.timezone ?? 'America/New_York'
   }
 
-  // Filter to users where it's currently 8–10pm local
+  // Filter to users where it's currently 10am–8pm local
   const eligibleIds = subscribedIds.filter(id => {
-    const tz = profileMap[id]?.timezone ?? 'America/New_York'
+    const tz = timezoneMap[id] ?? 'America/New_York'
     try {
-      const localHourStr = new Intl.DateTimeFormat('en-US', {
-        hour: 'numeric', hour12: false, timeZone: tz,
-      }).format(now)
-      return TARGET_HOURS.has(parseInt(localHourStr) % 24)
+      const h = parseInt(
+        new Intl.DateTimeFormat('en-US', { hour: 'numeric', hour12: false, timeZone: tz }).format(now)
+      ) % 24
+      return h >= ACTIVE_START && h < ACTIVE_END
     } catch { return false }
   })
 
   if (eligibleIds.length === 0) return NextResponse.json({ sent: 0, total: 0 })
 
-  // Detect wired mood logged today
+  // Wired mood logged in the last 2 hours
   const { data: moodRows } = await supabase
     .from('mood_logs')
-    .select('clerk_user_id, mood, created_at')
+    .select('clerk_user_id')
     .in('clerk_user_id', eligibleIds)
-    .gte('created_at', todayStart.toISOString())
+    .gte('created_at', twoHrsAgo.toISOString())
     .in('mood', ['wired', 'bright'])
 
   const wiredUsers = new Set((moodRows ?? []).map(r => r.clerk_user_id))
 
-  // Detect long focus sessions today (> 90 mins)
+  // Focus session > 90 min that ended in the last 2 hours
   const { data: focusRows } = await supabase
     .from('focus_sessions')
-    .select('clerk_user_id, actual_duration')
+    .select('clerk_user_id, actual_duration, ended_at')
     .in('clerk_user_id', eligibleIds)
-    .gte('started_at', todayStart.toISOString())
+    .gte('ended_at', twoHrsAgo.toISOString())
 
   const longFocusUsers = new Set(
     (focusRows ?? [])

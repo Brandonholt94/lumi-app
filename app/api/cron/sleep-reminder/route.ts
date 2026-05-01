@@ -5,10 +5,11 @@ import { sendPushToUser } from '@/lib/push'
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
-// Sleep log reminder — fires at 10pm local for users who haven't logged sleep today.
-// The goal is to catch people before they crash so yesterday's sleep quality gets captured.
+// Sleep log reminder — fires at 2pm local for users who haven't logged sleep today.
+// By 2pm the person has clearly forgotten — waiting until 10pm is too late and the
+// habit won't stick. 2pm is early enough to capture last night while it's still fresh.
 
-const TARGET_HOUR = 22
+const TARGET_HOUR = 14
 
 const COPY = [
   {

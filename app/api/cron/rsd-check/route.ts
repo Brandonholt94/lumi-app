@@ -5,11 +5,11 @@ import { sendPushToUser } from '@/lib/push'
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
-// RSD proactive check — fires at 7pm local for users who logged drained/overwhelmed
-// today OR captured worry/rejection-flavored text. Goal: reach out before they spiral
-// in isolation. This is companion-level care, not re-engagement.
+// RSD proactive check — fires at 3pm local for users who logged drained/low mood
+// today OR captured worry/rejection-flavored text. 3pm catches post-lunch/workday
+// drained feelings before they spiral into the evening unaddressed.
 
-const TARGET_HOUR = 19
+const TARGET_HOUR = 15
 
 const RSD_KEYWORDS = ['rejected', 'rejection', 'nobody', 'failed', 'failure', 'worthless',
   'hate myself', 'stupid', 'embarrassed', 'humiliated', 'ignored', 'too sensitive', 'overreacted']

@@ -100,7 +100,7 @@ export default function LumiNudge({ firstName, plan }: Props) {
         boxShadow:      '0 2px 8px rgba(45,42,62,0.12)',
       }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/lumi-glow-icon.png" alt="Lumi" style={{ width: 40, height: 40, objectFit: 'contain' }} />
+        <img src="/lumi-character.png" alt="Lumi" style={{ width: 36, height: 36, objectFit: 'contain' }} />
       </div>
 
       {/* Text + link */}

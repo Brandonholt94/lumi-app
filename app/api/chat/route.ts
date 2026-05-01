@@ -141,9 +141,10 @@ async function fetchPlatformContext(userId: string): Promise<Partial<LumiUserCon
   todayStart.setHours(0, 0, 0, 0)
 
   const fortyEightHoursAgo = new Date(now.getTime() - 48 * 60 * 60 * 1000)
+  const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
 
   // Run all queries in parallel
-  const [capturesRes, recentWinsRes, moodRes, activityRes, profileRes, sleepRes, googleEvents, microsoftEvents, scheduledTasksRes] = await Promise.all([
+  const [capturesRes, recentWinsRes, moodRes, activityRes, profileRes, sleepRes, googleEvents, microsoftEvents, scheduledTasksRes, weekMoodsRes, weekFocusRes] = await Promise.all([
     // Today's captures — tasks, worries, ideas
     supabase
       .from('captures')
@@ -206,11 +207,28 @@ async function fetchPlatformContext(userId: string): Promise<Partial<LumiUserCon
       .gte('scheduled_at', todayStart.toISOString())
       .lt('scheduled_at', new Date(todayStart.getTime() + 86_400_000).toISOString())
       .order('scheduled_at', { ascending: true }),
+
+    // 7-day mood pattern — lets Lumi notice trends, not just today's state
+    supabase
+      .from('mood_logs')
+      .select('mood, created_at')
+      .eq('clerk_user_id', userId)
+      .gte('created_at', sevenDaysAgo.toISOString())
+      .order('created_at', { ascending: true }),
+
+    // 7-day focus pattern — session counts and durations
+    supabase
+      .from('focus_sessions')
+      .select('actual_duration, completed, started_at')
+      .eq('clerk_user_id', userId)
+      .gte('started_at', sevenDaysAgo.toISOString()),
   ])
 
   const captures      = capturesRes.data ?? []
   const recentWins    = recentWinsRes.data ?? []
   const scheduledTasks = scheduledTasksRes.data ?? []
+  const weekMoods     = weekMoodsRes.data ?? []
+  const weekFocus     = weekFocusRes.data ?? []
   const lastMood = moodRes.data?.mood ?? null
   const lastSeenAt = activityRes.data?.last_seen_at ?? null
   const profile = profileRes.data ?? null
@@ -244,6 +262,32 @@ async function fetchPlatformContext(userId: string): Promise<Partial<LumiUserCon
     isReturningAfterAbsence = hoursSince >= 48
   }
 
+  // Build 7-day pattern summary for Lumi — lets it notice trends and reference them naturally
+  let patternsText: string | undefined
+  if (weekMoods.length >= 3) {
+    const moodCounts: Record<string, number> = {}
+    for (const { mood } of weekMoods) {
+      moodCounts[mood] = (moodCounts[mood] ?? 0) + 1
+    }
+    const topMoods = Object.entries(moodCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .map(([m, n]) => `${m} (${n}x)`)
+      .join(', ')
+
+    const focusCount  = weekFocus.length
+    const focusDone   = weekFocus.filter(f => f.completed).length
+    const avgMins     = focusCount > 0
+      ? Math.round(weekFocus.reduce((s, f) => s + (f.actual_duration ?? 0), 0) / focusCount / 60)
+      : 0
+
+    const parts: string[] = [`Mood this week: ${topMoods}`]
+    if (focusCount > 0) {
+      parts.push(`Focus sessions: ${focusCount} this week, ${focusDone} completed, avg ${avgMins} min`)
+    }
+    patternsText = parts.join(' | ')
+  }
+
   // Format scheduled tasks for Lumi context
   const scheduledTasksText = scheduledTasks.length > 0
     ? scheduledTasks.map(t => {
@@ -262,6 +306,7 @@ async function fetchPlatformContext(userId: string): Promise<Partial<LumiUserCon
     wins: winsText,
     isReturningAfterAbsence,
     daysSinceLastVisit,
+    ...(patternsText      ? { patterns: patternsText }         : {}),
     ...(scheduledTasksText ? { scheduledToday: scheduledTasksText } : {}),
     // Onboarding profile
     ...(profile?.display_name      ? { name:             profile.display_name }      : {}),

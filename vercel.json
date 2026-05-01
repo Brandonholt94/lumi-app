@@ -10,6 +10,9 @@
     { "path": "/api/cron/calendar-reminder", "schedule": "0 * * * *"  },
     { "path": "/api/cron/burnout",           "schedule": "0 * * * *"  },
     { "path": "/api/cron/reengagement",      "schedule": "0 * * * *"  },
-    { "path": "/api/cron/weekly-report",     "schedule": "0 * * * 0"  }
+    { "path": "/api/cron/weekly-report",     "schedule": "0 * * * 0"  },
+    { "path": "/api/cron/hyperfocus",        "schedule": "0 * * * *"  },
+    { "path": "/api/cron/sleep-reminder",    "schedule": "0 * * * *"  },
+    { "path": "/api/cron/rsd-check",         "schedule": "0 * * * *"  }
   ]
 }

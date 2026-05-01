@@ -34,13 +34,16 @@ const MeIcon = () => (
   </svg>
 )
 
-// eslint-disable-next-line @next/next/no-img-element
 const LumiNavIcon = ({ active }: { active: boolean }) => (
-  <img
-    src="/lumi-glow-icon.png"
-    alt="Lumi"
-    style={{ width: 44, height: 44, objectFit: 'contain', opacity: active ? 1 : 0.75, transition: 'opacity 0.2s ease', flexShrink: 0 }}
-  />
+  <div style={{
+    width: 36, height: 36, borderRadius: '50%', background: '#FFFFFF', flexShrink: 0,
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    boxShadow: active ? '0 0 0 3px rgba(244,165,130,0.30), 0 4px 16px rgba(244,165,130,0.35)' : '0 2px 10px rgba(45,42,62,0.12)',
+    transition: 'box-shadow 0.25s ease',
+  }}>
+    {/* eslint-disable-next-line @next/next/no-img-element */}
+    <img src="/lumi-glow-icon.png" alt="Lumi" style={{ width: 26, height: 26, objectFit: 'contain' }} />
+  </div>
 )
 
 // Chevron used for the collapse toggle

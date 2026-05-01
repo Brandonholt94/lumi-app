@@ -88,6 +88,14 @@ interface FocusTask {
   capture_id:  string | null
 }
 
+interface ScheduledCapture {
+  id:             string
+  text:           string
+  tag:            'task' | 'idea' | 'worry' | 'reminder' | null
+  completed:      boolean
+  scheduled_date: string
+}
+
 function fmtDuration(mins: number): string {
   if (mins < 60) return `${mins}m`
   const h = mins / 60
@@ -159,6 +167,7 @@ export default function DayTimeline({ plan }: { plan: string }) {
   const [habits,     setHabits]     = useState<Habit[]>([])
   const [focusTask,     setFocusTask]     = useState<FocusTask | null>(null)
   const [focusRefreshing, setFocusRefreshing] = useState(false)
+  const [scheduledCaptures, setScheduledCaptures] = useState<ScheduledCapture[]>([])
   const [loading,    setLoading]    = useState(true)
   const [adding,     setAdding]     = useState(false)
   const [taskName,   setTaskName]   = useState('')
@@ -187,6 +196,7 @@ export default function DayTimeline({ plan }: { plan: string }) {
       isToday ? fetch('/api/morning-anchors').then(r => r.json()).catch(() => null) : Promise.resolve(null),
       isToday ? fetch('/api/habits').then(r => r.json()).catch(() => ({ habits: [] })) : Promise.resolve({ habits: [] }),
       isToday ? fetch('/api/focus').then(r => r.json()).catch(() => null) : Promise.resolve(null),
+      fetch(`/api/scheduled-captures?date=${date}`).then(r => r.json()).catch(() => []),
     ]
 
     if (plan.toLowerCase() === 'companion') {
@@ -194,22 +204,24 @@ export default function DayTimeline({ plan }: { plan: string }) {
         fetch(`/api/calendar/events?date=${date}`).then(r => r.json()).catch(() => ({})),
         ...baseFetches,
       ]
-      Promise.all(fetches).then(([calData, taskData, anchorData, habitData, focusData]) => {
+      Promise.all(fetches).then(([calData, taskData, anchorData, habitData, focusData, captureData]) => {
         const evts = Array.isArray(calData) ? calData : ((calData as { events?: CalEvent[] })?.events ?? [])
         setEvents(evts)
         setTasks(Array.isArray(taskData) ? taskData as PersonalTask[] : [])
         if (anchorData) setAnchors(anchorData as AnchorState)
         setHabits((habitData as { habits?: Habit[] })?.habits ?? [])
         if (focusData && !(focusData as Record<string, unknown>).error) setFocusTask(focusData as FocusTask)
+        setScheduledCaptures(Array.isArray(captureData) ? captureData as ScheduledCapture[] : [])
         setLoading(false)
       })
     } else {
-      Promise.all(baseFetches).then(([taskData, anchorData, habitData, focusData]) => {
+      Promise.all(baseFetches).then(([taskData, anchorData, habitData, focusData, captureData]) => {
         setEvents([])
         setTasks(Array.isArray(taskData) ? taskData as PersonalTask[] : [])
         if (anchorData) setAnchors(anchorData as AnchorState)
         setHabits((habitData as { habits?: Habit[] })?.habits ?? [])
         if (focusData && !(focusData as Record<string, unknown>).error) setFocusTask(focusData as FocusTask)
+        setScheduledCaptures(Array.isArray(captureData) ? captureData as ScheduledCapture[] : [])
         setLoading(false)
       })
     }
@@ -235,6 +247,27 @@ export default function DayTimeline({ plan }: { plan: string }) {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify({ habitId: id, done: newDone }),
+    })
+  }
+
+  async function toggleScheduledCapture(id: string) {
+    const cap = scheduledCaptures.find(c => c.id === id)
+    if (!cap) return
+    const next = !cap.completed
+    setScheduledCaptures(prev => prev.map(c => c.id === id ? { ...c, completed: next } : c))
+    await fetch('/api/captures', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, completed: next }),
+    })
+  }
+
+  async function unpinCapture(id: string) {
+    setScheduledCaptures(prev => prev.filter(c => c.id !== id))
+    await fetch('/api/captures', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, scheduled_date: null }),
     })
   }
 
@@ -620,6 +653,37 @@ export default function DayTimeline({ plan }: { plan: string }) {
                   {habit.name}
                 </span>
               </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Pinned captures (scheduled for this day) */}
+      {isToday && scheduledCaptures.length > 0 && (
+        <div style={{ padding: '10px 14px 10px', borderBottom: '1px solid rgba(45,42,62,0.05)' }}>
+          <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '9px', fontWeight: 800, letterSpacing: '0.1em', color: '#8FAAE0', marginBottom: 8 }}>
+            PINNED
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {scheduledCaptures.map(cap => (
+              <div key={cap.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 10px', borderRadius: 10, background: 'rgba(143,170,224,0.08)', border: '1.5px solid rgba(143,170,224,0.18)' }}>
+                <button onClick={() => toggleScheduledCapture(cap.id)} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center' }}>
+                  {cap.completed ? (
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                      <circle cx="12" cy="12" r="10" fill="rgba(143,170,224,0.25)" />
+                      <path d="M7 12.5l3.5 3.5L17 9" stroke="#8FAAE0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  ) : (
+                    <div style={{ width: 16, height: 16, borderRadius: '50%', border: '1.5px solid rgba(143,170,224,0.45)' }} />
+                  )}
+                </button>
+                <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: cap.completed ? 700 : 600, color: cap.completed ? 'rgba(143,170,224,0.55)' : '#2D2A3E', textDecoration: cap.completed ? 'line-through' : 'none', flex: 1, lineHeight: 1.3 }}>
+                  {cap.text}
+                </span>
+                <button onClick={() => unpinCapture(cap.id)} style={{ background: 'none', border: 'none', padding: '0 2px', cursor: 'pointer', flexShrink: 0, color: 'rgba(143,170,224,0.45)', fontSize: 16, lineHeight: 1, fontWeight: 400 }}>
+                  ×
+                </button>
+              </div>
             ))}
           </div>
         </div>

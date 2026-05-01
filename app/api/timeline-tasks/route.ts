@@ -10,16 +10,26 @@ function getServiceClient() {
   )
 }
 
-// GET — today's scheduled tasks
-export async function GET() {
+// GET — scheduled tasks for a given date (defaults to today)
+export async function GET(req: Request) {
   const { userId } = await auth()
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
+  const url     = new URL(req.url)
+  const dateStr = url.searchParams.get('date') // YYYY-MM-DD
+
+  let startOfDay: string, endOfDay: string
+  if (dateStr && /^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+    const [y, m, d] = dateStr.split('-').map(Number)
+    startOfDay = new Date(y, m - 1, d).toISOString()
+    endOfDay   = new Date(y, m - 1, d + 1).toISOString()
+  } else {
+    const now = new Date()
+    startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString()
+    endOfDay   = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).toISOString()
+  }
+
   const supabase = getServiceClient()
-  const now = new Date()
-  // Use local date boundaries (tasks scheduled for "today" in user's local date)
-  const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString()
-  const endOfDay   = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).toISOString()
 
   const { data } = await supabase
     .from('captures')

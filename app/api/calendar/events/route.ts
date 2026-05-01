@@ -25,12 +25,27 @@ export async function GET(req: Request) {
     return NextResponse.json([])
   }
 
-  const url   = new URL(req.url)
-  const hours = parseInt(url.searchParams.get('hours') ?? '24')
+  const url     = new URL(req.url)
+  const dateStr = url.searchParams.get('date') // YYYY-MM-DD — if provided, filter to that day
+  const hours   = parseInt(url.searchParams.get('hours') ?? '24')
+
+  // Determine the target day window
+  let targetStart: Date, targetEnd: Date
+  if (dateStr && /^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+    const [y, m, d] = dateStr.split('-').map(Number)
+    targetStart = new Date(y, m - 1, d)
+    targetEnd   = new Date(y, m - 1, d + 1)
+  } else {
+    targetStart = new Date(); targetStart.setHours(0, 0, 0, 0)
+    targetEnd   = new Date(targetStart.getTime() + 24 * 60 * 60 * 1000)
+  }
+
+  // Fetch enough hours to cover the target day
+  const hoursNeeded = Math.max(hours, Math.ceil((targetEnd.getTime() - Date.now()) / 3_600_000) + 1)
 
   const [googleEvents, microsoftEvents] = await Promise.all([
-    getUpcomingEvents(userId, hours),
-    getMicrosoftUpcomingEvents(userId, hours),
+    getUpcomingEvents(userId, hoursNeeded),
+    getMicrosoftUpcomingEvents(userId, hoursNeeded),
   ])
 
   // ── Demo seed events (screenshot / marketing) ──────────────────
@@ -64,10 +79,13 @@ export async function GET(req: Request) {
   ] : []
   // ── End demo seed ──────────────────────────────────────────────
 
-  // Merge and sort by start time
-  const events = [...googleEvents, ...microsoftEvents, ...demoEvents].sort((a, b) =>
-    new Date(a.start).getTime() - new Date(b.start).getTime()
-  )
+  // Merge, filter to target day, sort by start time
+  const events = [...googleEvents, ...microsoftEvents, ...demoEvents]
+    .filter(e => {
+      const t = new Date(e.start).getTime()
+      return t >= targetStart.getTime() && t < targetEnd.getTime()
+    })
+    .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime())
 
   return NextResponse.json({ events })
 }

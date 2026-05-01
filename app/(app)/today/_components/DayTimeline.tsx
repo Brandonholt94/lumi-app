@@ -56,10 +56,17 @@ function sourceLabel(event: CalEvent, now: Date): string {
   return calLabel
 }
 
-// Build a local ISO string for a given HH:MM today
-function todayAtTime(timeStr: string): string {
+function dateForOffset(offset: number): string {
+  const d = new Date()
+  d.setDate(d.getDate() + offset)
+  return d.toISOString().slice(0, 10)
+}
+
+// Build an ISO string for HH:MM on a given day offset
+function atTime(timeStr: string, offset: number): string {
   const [hStr, mStr] = timeStr.split(':')
   const d = new Date()
+  d.setDate(d.getDate() + offset)
   d.setHours(parseInt(hStr), parseInt(mStr), 0, 0)
   return d.toISOString()
 }
@@ -145,6 +152,7 @@ function buildDisplayGroups(
 }
 
 export default function DayTimeline({ plan }: { plan: string }) {
+  const [dayOffset,  setDayOffset]  = useState(0)
   const [events,     setEvents]     = useState<CalEvent[]>([])
   const [tasks,      setTasks]      = useState<PersonalTask[]>([])
   const [anchors,    setAnchors]    = useState<AnchorState | null>(null)
@@ -166,17 +174,24 @@ export default function DayTimeline({ plan }: { plan: string }) {
     const now   = new Date()
     const nextH = now.getHours() + 1
     setTaskTime(`${nextH.toString().padStart(2, '0')}:00`)
+    setAdding(false)
+    setLoading(true)
+    setEvents([])
+    setTasks([])
+
+    const date = dateForOffset(dayOffset)
+    const isToday = dayOffset === 0
 
     const baseFetches: Promise<unknown>[] = [
-      fetch('/api/timeline-tasks').then(r => r.json()).catch(() => []),
-      fetch('/api/morning-anchors').then(r => r.json()).catch(() => null),
-      fetch('/api/habits').then(r => r.json()).catch(() => ({ habits: [] })),
-      fetch('/api/focus').then(r => r.json()).catch(() => null),
+      fetch(`/api/timeline-tasks?date=${date}`).then(r => r.json()).catch(() => []),
+      isToday ? fetch('/api/morning-anchors').then(r => r.json()).catch(() => null) : Promise.resolve(null),
+      isToday ? fetch('/api/habits').then(r => r.json()).catch(() => ({ habits: [] })) : Promise.resolve({ habits: [] }),
+      isToday ? fetch('/api/focus').then(r => r.json()).catch(() => null) : Promise.resolve(null),
     ]
 
     if (plan.toLowerCase() === 'companion') {
       const fetches = [
-        fetch('/api/calendar/events?hours=24').then(r => r.json()).catch(() => ({})),
+        fetch(`/api/calendar/events?date=${date}`).then(r => r.json()).catch(() => ({})),
         ...baseFetches,
       ]
       Promise.all(fetches).then(([calData, taskData, anchorData, habitData, focusData]) => {
@@ -198,7 +213,7 @@ export default function DayTimeline({ plan }: { plan: string }) {
         setLoading(false)
       })
     }
-  }, [])
+  }, [dayOffset, plan])
 
   // Close emoji picker when clicking outside
   useEffect(() => {
@@ -265,7 +280,7 @@ export default function DayTimeline({ plan }: { plan: string }) {
     const res = await fetch('/api/timeline-tasks', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ content: taskName.trim(), scheduled_at: todayAtTime(taskTime) }),
+      body:    JSON.stringify({ content: taskName.trim(), scheduled_at: atTime(taskTime, dayOffset) }),
     })
     if (res.ok) {
       const newTask = await res.json()
@@ -312,22 +327,12 @@ export default function DayTimeline({ plan }: { plan: string }) {
     }
   }
 
-  // Filter calendar events to today 6am–9pm
-  const todayStr       = now.toISOString().slice(0, 10)
-  const upcomingEvents = events
-    .filter(e => {
-      const start = new Date(e.start)
-      const end   = new Date(e.end)
-      return e.start.slice(0, 10) === todayStr
-        && start.getHours() >= 6
-        && end.getHours()   <= 21
-    })
-    .slice(0, 6)
+  const isToday = dayOffset === 0
 
   // Build unified rows
   const rawRows: RawRow[] = []
 
-  for (const event of upcomingEvents) {
+  for (const event of events) {
     const start       = new Date(event.start)
     const end         = new Date(event.end)
     const startMins   = minutesFromMidnight(start)
@@ -338,7 +343,7 @@ export default function DayTimeline({ plan }: { plan: string }) {
       time:     fmt12(start),
       label:    event.title,
       sub:      sourceLabel(event, now),
-      type:     startMins < nowMins ? 'past-cal' : 'calendar',
+      type:     isToday && startMins < nowMins ? 'past-cal' : 'calendar',
       duration: durationStr,
       sortMins: startMins,
       endMins:  minutesFromMidnight(end),
@@ -352,7 +357,7 @@ export default function DayTimeline({ plan }: { plan: string }) {
       key:     task.id,
       time:    fmt12(start),
       label:   task.text,
-      type:    startMins < nowMins ? 'past-task' : 'task',
+      type:    isToday && startMins < nowMins ? 'past-task' : 'task',
       taskId:  task.id,
       done:    task.completed,
       sortMins: startMins,
@@ -363,70 +368,76 @@ export default function DayTimeline({ plan }: { plan: string }) {
   // Sort by time
   rawRows.sort((a, b) => a.sortMins - b.sortMins)
 
-  // Interleave "Now" marker
+  // Interleave "Now" marker (today only)
   const rows: Array<RawRow | NowMarker> = []
-  let nowInserted = false
-  for (const row of rawRows) {
-    if (!nowInserted && row.sortMins > nowMins) {
-      rows.push({ key: 'now', isNow: true, sortMins: nowMins })
-      nowInserted = true
+  if (isToday) {
+    let nowInserted = false
+    for (const row of rawRows) {
+      if (!nowInserted && row.sortMins > nowMins) {
+        rows.push({ key: 'now', isNow: true, sortMins: nowMins })
+        nowInserted = true
+      }
+      rows.push(row)
     }
-    rows.push(row)
+    if (!nowInserted) rows.push({ key: 'now', isNow: true, sortMins: nowMins })
+  } else {
+    rows.push(...rawRows)
   }
-  if (!nowInserted) rows.push({ key: 'now', isNow: true, sortMins: nowMins })
 
-  // ── Smart free gap detection ──────────────────────────────────────────────
-  const DAY_END = 21 * 60
-  const MIN_GAP = 90
-  let freeGapStart: number | null    = null
-  let freeGapDuration: number | null = null
+  // ── Smart free gap detection (today only) ─────────────────────────────────
+  if (isToday) {
+    const DAY_END = 21 * 60
+    const MIN_GAP = 90
+    let freeGapStart: number | null    = null
+    let freeGapDuration: number | null = null
 
-  if (nowMins < DAY_END - MIN_GAP) {
-    const futureItems = rawRows
-      .filter(r => r.endMins > nowMins)
-      .sort((a, b) => a.sortMins - b.sortMins)
+    if (nowMins < DAY_END - MIN_GAP) {
+      const futureItems = rawRows
+        .filter(r => r.endMins > nowMins)
+        .sort((a, b) => a.sortMins - b.sortMins)
 
-    if (futureItems.length === 0) {
-      freeGapStart    = nowMins
-      freeGapDuration = Math.min(DAY_END - nowMins, 8 * 60)
-    } else {
-      const gapToFirst = futureItems[0].sortMins - nowMins
-      if (gapToFirst >= MIN_GAP) {
+      if (futureItems.length === 0) {
         freeGapStart    = nowMins
-        freeGapDuration = gapToFirst
+        freeGapDuration = Math.min(DAY_END - nowMins, 8 * 60)
       } else {
-        for (let i = 0; i < futureItems.length - 1; i++) {
-          const gapStart    = futureItems[i].endMins
-          const gapEnd      = futureItems[i + 1].sortMins
-          const gapDuration = gapEnd - gapStart
-          if (gapDuration >= MIN_GAP) {
-            freeGapStart    = gapStart
-            freeGapDuration = gapDuration
-            break
+        const gapToFirst = futureItems[0].sortMins - nowMins
+        if (gapToFirst >= MIN_GAP) {
+          freeGapStart    = nowMins
+          freeGapDuration = gapToFirst
+        } else {
+          for (let i = 0; i < futureItems.length - 1; i++) {
+            const gapStart    = futureItems[i].endMins
+            const gapEnd      = futureItems[i + 1].sortMins
+            const gapDuration = gapEnd - gapStart
+            if (gapDuration >= MIN_GAP) {
+              freeGapStart    = gapStart
+              freeGapDuration = gapDuration
+              break
+            }
           }
-        }
-        if (freeGapStart === null) {
-          const lastEnd  = futureItems[futureItems.length - 1].endMins
-          const trailing = DAY_END - lastEnd
-          if (trailing >= MIN_GAP) {
-            freeGapStart    = lastEnd
-            freeGapDuration = trailing
+          if (freeGapStart === null) {
+            const lastEnd  = futureItems[futureItems.length - 1].endMins
+            const trailing = DAY_END - lastEnd
+            if (trailing >= MIN_GAP) {
+              freeGapStart    = lastEnd
+              freeGapDuration = trailing
+            }
           }
         }
       }
     }
-  }
 
-  if (freeGapStart !== null && freeGapDuration !== null) {
-    const displayDuration = Math.min(freeGapDuration, 4 * 60)
-    rows.push({
-      key:      'free',
-      type:     'free',
-      label:    `Free · ${fmtDuration(displayDuration)}`,
-      sortMins: freeGapStart,
-      endMins:  freeGapStart + freeGapDuration,
-    } as RawRow)
-    rows.sort((a, b) => a.sortMins - b.sortMins)
+    if (freeGapStart !== null && freeGapDuration !== null) {
+      const displayDuration = Math.min(freeGapDuration, 4 * 60)
+      rows.push({
+        key:      'free',
+        type:     'free',
+        label:    `Free · ${fmtDuration(displayDuration)}`,
+        sortMins: freeGapStart,
+        endMins:  freeGapStart + freeGapDuration,
+      } as RawRow)
+      rows.sort((a, b) => a.sortMins - b.sortMins)
+    }
   }
 
   // Build display groups (merges same-time rows)
@@ -491,10 +502,54 @@ export default function DayTimeline({ plan }: { plan: string }) {
         position:     'relative',
       }}
     >
-      <style>{`.lumi-timeline-scroll::-webkit-scrollbar { display: none; }`}</style>
+      <style>{`
+        .lumi-timeline-scroll::-webkit-scrollbar { display: none; }
+        .lumi-date-pills::-webkit-scrollbar { display: none; }
+      `}</style>
 
-      {/* Morning anchors */}
-      {anchors && anchors.anchors.length > 0 && (() => {
+      {/* ── Date pills ── */}
+      <div
+        className="lumi-date-pills"
+        style={{ display: 'flex', gap: 6, overflowX: 'auto', padding: '12px 14px 10px', borderBottom: '1px solid rgba(45,42,62,0.05)', scrollbarWidth: 'none' }}
+      >
+        {Array.from({ length: 10 }, (_, i) => i).map(i => {
+          const d          = new Date()
+          d.setDate(d.getDate() + i)
+          const isSelected = dayOffset === i
+          const dayLetter  = d.toLocaleDateString('en-US', { weekday: 'narrow' })
+          const dateNum    = d.getDate()
+          return (
+            <button
+              key={i}
+              onClick={() => setDayOffset(i)}
+              style={{
+                flexShrink: 0,
+                display: 'flex', flexDirection: 'column', alignItems: 'center',
+                gap: 2,
+                width: 44,
+                padding: '7px 0 6px',
+                borderRadius: 14,
+                border: 'none',
+                background: isSelected ? '#F4A582' : 'transparent',
+                cursor: 'pointer',
+                WebkitTapHighlightColor: 'transparent',
+              }}
+            >
+              <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '11px', fontWeight: 600, color: isSelected ? '#1E1C2E' : '#7A7890', letterSpacing: '0.02em' }}>
+                {dayLetter}
+              </span>
+              <span style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '18px', fontWeight: 800, color: isSelected ? '#1E1C2E' : '#2D2A3E', lineHeight: 1.2 }}>
+                {dateNum}
+              </span>
+              {/* dot — tasks exist on that day (today = sample, future = unknown until loaded) */}
+              <div style={{ width: 5, height: 5, borderRadius: '50%', marginTop: 2, background: i === dayOffset && tasks.length > 0 ? '#1E1C2E' : i !== dayOffset && i === 0 ? '#F4A582' : 'transparent' }} />
+            </button>
+          )
+        })}
+      </div>
+
+      {/* Morning anchors (today only) */}
+      {isToday && anchors && anchors.anchors.length > 0 && (() => {
         const hour    = new Date().getHours()
         const allDone = anchors.checked.length === anchors.anchors.length
         if (allDone && hour >= 12) return null
@@ -538,8 +593,8 @@ export default function DayTimeline({ plan }: { plan: string }) {
         )
       })()}
 
-      {/* Habits */}
-      {habits.length > 0 && (
+      {/* Habits (today only) */}
+      {isToday && habits.length > 0 && (
         <div style={{ padding: '10px 14px 10px', borderBottom: '1px solid rgba(45,42,62,0.05)' }}>
           <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '9px', fontWeight: 800, letterSpacing: '0.1em', color: '#C4A882', marginBottom: 8 }}>
             TODAY&apos;S HABITS
@@ -570,10 +625,13 @@ export default function DayTimeline({ plan }: { plan: string }) {
         </div>
       )}
 
-      {!hasContent && !adding && (
-        <div style={{ padding: '16px', textAlign: 'center' }}>
-          <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 500, color: '#9895B0' }}>
-            No events today — your day is open. 🌿
+      {!hasContent && !adding && !loading && (
+        <div style={{ padding: '20px 16px', textAlign: 'center' }}>
+          <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '13px', fontWeight: 600, color: '#9895B0' }}>
+            {isToday ? 'Your day is open. 🌿' : 'Nothing scheduled yet.'}
+          </p>
+          <p style={{ fontFamily: 'var(--font-nunito-sans)', fontSize: '12px', fontWeight: 500, color: 'rgba(122,120,144,0.60)', marginTop: 4 }}>
+            Tap &ldquo;Add to your day&rdquo; to plan something.
           </p>
         </div>
       )}

@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import { NextResponse, type NextRequest } from 'next/server'
 import { sendPushToUser } from '@/lib/push'
 import { generateTaskEmoji, prependEmoji } from '@/lib/ai/task-emoji'
+import { parseDateSuggestion } from '@/lib/parse-date'
 
 // Use service role to bypass RLS — we filter by clerk_user_id manually
 function getServiceClient() {
@@ -34,7 +35,7 @@ export async function POST(req: Request) {
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await req.json()
-  const { text, tag } = body
+  const { text, tag, timezone } = body
 
   if (!text?.trim()) {
     return NextResponse.json({ error: 'Text is required' }, { status: 400 })
@@ -59,7 +60,12 @@ export async function POST(req: Request) {
     .single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json(data, { status: 201 })
+
+  const suggestion = parseDateSuggestion(text.trim(), timezone ?? 'America/New_York')
+  return NextResponse.json({
+    ...data,
+    ...(suggestion ? { suggested_date: suggestion.date, suggested_label: suggestion.label } : {}),
+  }, { status: 201 })
 }
 
 // PATCH /api/captures — update a capture (completed, addressed)

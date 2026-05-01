@@ -65,6 +65,7 @@ export default function CaptureInput() {
   const [showDone, setShowDone] = useState(false)
   const [suggestedTag, setSuggestedTag] = useState<Tag>(null)
   const [showAll, setShowAll] = useState(false)
+  const [dateSuggestion, setDateSuggestion] = useState<{ id: string; date: string; label: string } | null>(null)
   const [isDesktop, setIsDesktop] = useState(false)
   const classifyTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -158,7 +159,11 @@ export default function CaptureInput() {
       const res = await fetch('/api/captures', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: text.trim(), tag: selectedTag }),
+        body: JSON.stringify({
+          text: text.trim(),
+          tag: selectedTag,
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        }),
       })
       const newCapture = await res.json()
       if (res.ok) {
@@ -167,10 +172,23 @@ export default function CaptureInput() {
         setSelectedTag(null)
         setSuggestedTag(null)
         textareaRef.current?.focus()
+        if (newCapture.suggested_date) {
+          setDateSuggestion({ id: newCapture.id, date: newCapture.suggested_date, label: newCapture.suggested_label })
+        }
       }
     } finally {
       setSaving(false)
     }
+  }
+
+  async function pinToDate(id: string, date: string) {
+    setDateSuggestion(null)
+    await fetch('/api/captures', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, scheduled_date: date }),
+    })
+    setCaptures(prev => prev.map(c => c.id === id ? { ...c, scheduled_date: date } : c))
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {
@@ -514,7 +532,7 @@ export default function CaptureInput() {
       {/* Capture button */}
       <button
         onClick={handleCapture}
-        className="w-full rounded-full mb-5 transition-all active:scale-[0.98] hover:opacity-90"
+        className="w-full rounded-full mb-3 transition-all active:scale-[0.98] hover:opacity-90"
         style={{
           padding: '15px',
           background: 'linear-gradient(135deg, #F4A582, #F5C98A)',
@@ -530,6 +548,58 @@ export default function CaptureInput() {
       >
         {saving ? 'Saving…' : 'Capture it'}
       </button>
+
+      {/* Lumi date suggestion */}
+      {dateSuggestion && (
+        <div
+          style={{
+            display: 'flex', alignItems: 'center', gap: 10,
+            padding: '11px 14px',
+            borderRadius: 14,
+            background: 'rgba(244,165,130,0.07)',
+            border: '1.5px solid rgba(244,165,130,0.22)',
+            marginBottom: 16,
+            animation: 'fadeIn 0.2s ease',
+          }}
+        >
+          <span style={{ fontSize: 13, flexShrink: 0 }}>✦</span>
+          <p style={{
+            fontFamily: 'var(--font-nunito-sans)',
+            fontSize: 12,
+            fontWeight: 500,
+            color: '#9895B0',
+            flex: 1,
+            lineHeight: 1.4,
+          }}>
+            <strong style={{ color: '#F4A582' }}>Lumi: </strong>
+            Sounds like this is for <strong style={{ color: '#2D2A3E' }}>{dateSuggestion.label}</strong>. Pin it there?
+          </p>
+          <button
+            onClick={() => pinToDate(dateSuggestion.id, dateSuggestion.date)}
+            style={{
+              fontFamily: 'var(--font-nunito-sans)',
+              fontSize: 11,
+              fontWeight: 800,
+              padding: '4px 11px',
+              borderRadius: 99,
+              border: '1.5px solid rgba(244,165,130,0.5)',
+              background: 'rgba(244,165,130,0.10)',
+              color: '#D4845A',
+              cursor: 'pointer',
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
+            }}
+          >
+            Pin to {dateSuggestion.label}
+          </button>
+          <button
+            onClick={() => setDateSuggestion(null)}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0 2px', color: '#9895B0', fontSize: 16, lineHeight: 1, flexShrink: 0 }}
+          >
+            ×
+          </button>
+        </div>
+      )}
 
       </div>{/* end lumi-capture-left */}
       <div className="lumi-capture-right">

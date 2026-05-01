@@ -42,7 +42,7 @@ const LumiNavIcon = ({ active }: { active: boolean }) => (
     transition: 'box-shadow 0.25s ease',
   }}>
     {/* eslint-disable-next-line @next/next/no-img-element */}
-    <img src="/lumi-glow-icon.png" alt="Lumi" style={{ width: 26, height: 26, objectFit: 'contain' }} />
+    <img src="/lumi-glow-icon.png" alt="Lumi" style={{ width: 32, height: 32, objectFit: 'contain' }} />
   </div>
 )
 

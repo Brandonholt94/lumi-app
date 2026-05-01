@@ -18,7 +18,7 @@ export default function LumiTabIcon({ active = false }: { active?: boolean }) {
       }}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/lumi-glow-icon.png" alt="Lumi" style={{ width: 38, height: 38, objectFit: 'contain' }} />
+      <img src="/lumi-glow-icon.png" alt="Lumi" style={{ width: 48, height: 48, objectFit: 'contain' }} />
     </div>
   )
 }

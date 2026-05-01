@@ -326,7 +326,7 @@ export async function POST(req: Request) {
 
   // Client sends messages + lightweight context it owns (mood, focusTask)
   let messages: ChatMessage[]
-  let clientContext: { plan?: string; mood?: string; focusTask?: string; focusTaskCompleted?: boolean } | undefined
+  let clientContext: { plan?: string; mood?: string; focusTask?: string; focusTaskCompleted?: boolean; bodyDoubling?: boolean; bodyDoublingContext?: string } | undefined
   try {
     const body = await req.json()
     messages = body.messages
@@ -392,6 +392,8 @@ export async function POST(req: Request) {
     ...serverContext,
     // If client just hit Done on the focus card, trust that immediately
     focusTaskCompleted: serverContext.focusTaskCompleted || clientContext?.focusTaskCompleted,
+    // Body doubling — client-owned, injected into system prompt
+    bodyDoublingContext: clientContext?.bodyDoublingContext ?? undefined,
   }
 
   // ── Plan-based feature gates ───────────────────────────────

@@ -40,6 +40,7 @@ export interface LumiUserContext {
     allDay: boolean
   }>
   scheduledToday?: string  // formatted list of personal tasks added to the day timeline
+  bodyDoublingContext?: string  // set when user is body-doubling during a focus session
 }
 
 export function buildLumiSystemPrompt(ctx: LumiUserContext = {}): string {
@@ -700,6 +701,7 @@ ${ctx.sleepLastNight != null ? (() => {
     ''
   return `**Last night's sleep:** ${durLabel} — ${qualityLabel}.${guidance ? `\n${guidance}` : ''}`
 })() : ''}
+${ctx.bodyDoublingContext ? `**BODY DOUBLING MODE — ACTIVE FOCUS SESSION**\n${ctx.bodyDoublingContext}\nYou are sitting beside them right now, not guiding from above. Keep responses to 1–2 sentences. Warm, grounded, present. No advice lists, no productivity coaching. Match their pace — if they're quiet, let them be quiet. If they share a thought or struggle, receive it simply and gently.` : ''}
 ${ctx.lowBatteryMode ? `**Low Battery Mode is ON for today.** They've had a stretch of late nights and asked you to lighten things while they recover. Specifically:\n- Do not propose new tasks, projects, or productivity moves unless they ask first\n- Default to permission-giving language: "rest is the work today," "tomorrow's still there"\n- If they ask for a task pick, suggest the smallest possible thing (5 min or less)\n- Acknowledge tiredness without diagnosing or over-explaining\n- This mode is self-expiring — you don't need to mention it explicitly` : ''}
 ${ctx.mood ? `**Today's mood:** ${ctx.mood.charAt(0).toUpperCase() + ctx.mood.slice(1)}${
   ctx.mood === 'low'     ? ' — meet them gently, low demand, one small thing at a time.' :

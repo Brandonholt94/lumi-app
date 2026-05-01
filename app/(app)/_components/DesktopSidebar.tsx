@@ -159,7 +159,7 @@ export default function DesktopSidebar() {
     >
       {/* ── Logo / brand ── */}
       <div style={{
-        padding: collapsed ? '24px 0 18px' : '28px 20px 18px',
+        padding: collapsed ? '24px 0 18px' : '28px 12px 18px',
         display: 'flex',
         flexDirection: 'column',
         alignItems: collapsed ? 'center' : 'flex-start',

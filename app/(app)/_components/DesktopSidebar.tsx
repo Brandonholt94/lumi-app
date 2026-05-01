@@ -175,15 +175,7 @@ export default function DesktopSidebar() {
         ) : (
           <>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/lumi-logo.svg" alt="Lumi" style={{ width: 160, height: 'auto' }} />
-            <span style={{
-              fontFamily: 'var(--font-nunito-sans)',
-              fontSize: '11px', fontWeight: 500,
-              color: 'rgba(45,42,62,0.42)', letterSpacing: '0.01em',
-              whiteSpace: 'nowrap',
-            }}>
-              A new day for your brain.
-            </span>
+            <img src="/lumi-logo-new.png" alt="Lumi" style={{ width: 180, height: 'auto' }} />
           </>
         )}
       </div>

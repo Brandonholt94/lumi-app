@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useMood } from '../_components/MoodContext'
-import { useUser } from '@clerk/nextjs'
 
 interface Message {
   id: string
@@ -107,8 +106,13 @@ function getGreeting(mood: MoodKey, firstName: string): { heading: string; sub: 
 
 export default function ChatPage() {
   const { mood } = useMood()
-  const { user } = useUser()
-  const firstName = user?.firstName ?? ''
+  const [firstName, setFirstName] = useState('')
+
+  useEffect(() => {
+    fetch('/api/profile').then(r => r.json()).then(d => {
+      if (d?.display_name) setFirstName(d.display_name)
+    }).catch(() => {})
+  }, [])
 
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')

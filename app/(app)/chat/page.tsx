@@ -81,43 +81,28 @@ type MoodKey = 'great' | 'good' | 'okay' | 'low' | 'drained' | null
 function getGreeting(mood: MoodKey, firstName: string): { heading: string; sub: string } {
   const hour = new Date().getHours()
   const name = firstName && firstName !== 'there' ? `, ${firstName}` : ''
+  const heading = `Hey${name}.`
 
-  const morning = hour >= 5  && hour < 12
+  const morning   = hour >= 5  && hour < 12
   const afternoon = hour >= 12 && hour < 17
-  const evening = hour >= 17 && hour < 21
-
-  const high   = mood === 'great' || mood === 'good'
-  const low    = mood === 'low'   || mood === 'drained'
+  const evening   = hour >= 17 && hour < 21
+  const high = mood === 'great' || mood === 'good'
+  const low  = mood === 'low'   || mood === 'drained'
 
   const pick = (arr: string[]) => arr[Math.floor(Date.now() / 60000) % arr.length]
 
-  if (low) {
-    return {
-      heading: pick([
-        `Take a breath${name}.`,
-        `I'm here${name}.`,
-        `No pressure${name}.`,
-      ]),
-      sub: pick([
-        'Start anywhere. I\'ll follow.',
-        'Whatever you\'re carrying — let\'s set it down together.',
-        'You don\'t have to figure it all out. Just start talking.',
-      ]),
-    }
-  }
+  if (low) return { heading, sub: pick(['Start anywhere. I\'ll follow.', 'Whatever you\'re carrying — let\'s set it down together.', 'You don\'t have to figure it all out. Just start talking.', 'Take a breath. I\'m right here.']) }
 
   if (high) {
-    if (morning) return { heading: pick([`Good morning${name}.`, `Fresh start${name}.`]), sub: pick(['What are we making happen today?', 'You\'re in a good place. Let\'s use it.']) }
-    if (afternoon) return { heading: pick([`Good afternoon${name}.`, `Hey${name}.`]), sub: pick(['Momentum is yours. What\'s next?', 'How\'s the day going?']) }
-    if (evening) return { heading: pick([`Evening${name}.`, `Hey${name}.`]), sub: pick(['You showed up today. That counts.', 'What\'s on your mind before you wind down?']) }
-    return { heading: `Hey${name}.`, sub: 'What\'s on your mind?' }
+    if (morning)   return { heading, sub: pick(['What are we making happen today?', 'You\'re in a good place. Let\'s use it.', 'Fresh energy — what\'s first?']) }
+    if (afternoon) return { heading, sub: pick(['Momentum is yours. What\'s next?', 'How\'s the day going?', 'Still going strong — what do you need?']) }
+    if (evening)   return { heading, sub: pick(['You showed up today. That counts.', 'What\'s on your mind before you wind down?', 'Good day. Want to talk about it?']) }
   }
 
-  // neutral / unknown
-  if (morning) return { heading: pick([`Morning${name}.`, `Hey${name}.`]), sub: pick(['What would make today feel good?', 'What\'s the one thing on your mind?']) }
-  if (afternoon) return { heading: pick([`Hey${name}.`, `Afternoon${name}.`]), sub: pick(['What matters most right now?', 'Brain full? Let\'s sort it out.']) }
-  if (evening) return { heading: pick([`Evening${name}.`, `Hey${name}.`]), sub: pick(['You made it through today.', 'Whatever\'s on your mind — I\'m listening.']) }
-  return { heading: `Hey${name}.`, sub: 'Still here, whenever you\'re ready.' }
+  if (morning)   return { heading, sub: pick(['What would make today feel good?', 'What\'s the one thing on your mind?', 'No rush — start anywhere.']) }
+  if (afternoon) return { heading, sub: pick(['What matters most right now?', 'Brain full? Let\'s sort it out.', 'What\'s on your mind?']) }
+  if (evening)   return { heading, sub: pick(['You made it through today.', 'Whatever\'s on your mind — I\'m listening.', 'How are you actually doing?']) }
+  return { heading, sub: 'Still here, whenever you\'re ready.' }
 }
 
 export default function ChatPage() {

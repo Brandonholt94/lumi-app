@@ -80,7 +80,7 @@ type MoodKey = 'great' | 'good' | 'okay' | 'low' | 'drained' | null
 
 function getGreeting(mood: MoodKey, firstName: string): { heading: string; sub: string } {
   const hour = new Date().getHours()
-  const name = firstName && firstName !== 'there' ? `, ${firstName}` : ''
+  const name = firstName ? `, ${firstName}` : ''
   const heading = `Hey${name}.`
 
   const morning   = hour >= 5  && hour < 12
@@ -108,7 +108,7 @@ function getGreeting(mood: MoodKey, firstName: string): { heading: string; sub: 
 export default function ChatPage() {
   const { mood } = useMood()
   const { user } = useUser()
-  const firstName = user?.firstName ?? 'there'
+  const firstName = user?.firstName ?? ''
 
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')

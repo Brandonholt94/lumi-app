@@ -424,6 +424,9 @@ export default function FocusPage() {
   const startedAtRef        = useRef<string | null>(null)
   const pauseCountRef       = useRef(0)
   const thoughtsCapturedRef = useRef(0)
+  const endTimeRef          = useRef(0)  // absolute ms timestamp when session completes
+
+  const SESSION_KEY = 'lumi_focus_session'
 
   // Paint the body background so gaps below content blend in
   useEffect(() => {
@@ -452,6 +455,64 @@ export default function FocusPage() {
   const clearTimer = useCallback(() => {
     if (intervalRef.current) { clearInterval(intervalRef.current); intervalRef.current = null }
   }, [])
+
+  // Restore session on mount (survives page navigation within the app)
+  useEffect(() => {
+    const raw = sessionStorage.getItem(SESSION_KEY)
+    if (!raw) return
+    try {
+      const saved = JSON.parse(raw)
+      if (saved.paused) {
+        setTotalSeconds(saved.totalSecs)
+        setRemaining(saved.remaining)
+        setDuration(Math.round(saved.totalSecs / 60))
+        if (saved.label) { taskLabelRef.current = saved.label; setTaskLabel(saved.label) }
+        startedAtRef.current = saved.startedAt
+        setState('paused')
+      } else if (saved.endTime > Date.now()) {
+        const rem = Math.ceil((saved.endTime - Date.now()) / 1000)
+        endTimeRef.current = saved.endTime
+        setTotalSeconds(saved.totalSecs)
+        setRemaining(rem)
+        setDuration(Math.round(saved.totalSecs / 60))
+        if (saved.label) { taskLabelRef.current = saved.label; setTaskLabel(saved.label) }
+        startedAtRef.current = saved.startedAt
+        setState('active')
+      } else {
+        // Completed while navigated away
+        sessionStorage.removeItem(SESSION_KEY)
+        setTotalSeconds(saved.totalSecs)
+        setRemaining(0)
+        saveSession(saved.totalSecs, saved.totalSecs, true)
+        setSessionComplete('natural')
+      }
+    } catch {
+      sessionStorage.removeItem(SESSION_KEY)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Resync on tab visibility restore
+  useEffect(() => {
+    if (state !== 'active') return
+    function onVisible() {
+      if (document.hidden) return
+      const rem = Math.ceil((endTimeRef.current - Date.now()) / 1000)
+      if (rem <= 0) {
+        clearTimer()
+        sessionStorage.removeItem(SESSION_KEY)
+        play('off')
+        saveSession(totalSeconds, totalSeconds, true)
+        setSessionComplete('natural')
+        setRemaining(0)
+      } else {
+        setRemaining(rem)
+      }
+    }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => document.removeEventListener('visibilitychange', onVisible)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state])
 
   useEffect(() => () => cleanup(), [cleanup])
 
@@ -490,21 +551,22 @@ export default function FocusPage() {
     return () => clearTimeout(celebrateTimer)
   }, [sessionComplete])
 
-  // Countdown
+  // Countdown — wall-clock based so tab backgrounding / navigation don't drift
   useEffect(() => {
     if (state === 'active') {
       intervalRef.current = setInterval(() => {
-        setRemaining(prev => {
-          if (prev <= 1) {
-            clearTimer()
-            play('off')
-            saveSession(totalSeconds, totalSeconds, true)
-            setSessionComplete('natural')
-            return 0
-          }
-          return prev - 1
-        })
-      }, 1000)
+        const rem = Math.ceil((endTimeRef.current - Date.now()) / 1000)
+        if (rem <= 0) {
+          clearTimer()
+          sessionStorage.removeItem(SESSION_KEY)
+          play('off')
+          saveSession(totalSeconds, totalSeconds, true)
+          setSessionComplete('natural')
+          setRemaining(0)
+          return
+        }
+        setRemaining(rem)
+      }, 500)
     }
     return clearTimer
   }, [state, clearTimer])
@@ -512,7 +574,7 @@ export default function FocusPage() {
   // Halfway check-in
   useEffect(() => {
     if (state !== 'active' || halfwayFiredRef.current) return
-    if (remaining === Math.round(totalSeconds / 2)) {
+    if (remaining <= Math.round(totalSeconds / 2)) {
       halfwayFiredRef.current = true
       // Push into inline chat thread + haptic + chime
       setBdMessages(prev => [...prev, {
@@ -566,12 +628,21 @@ export default function FocusPage() {
         body: JSON.stringify({ text: taskInput.trim(), tag: 'task' }),
       }).catch(() => {})
     }
-    setRemaining(duration * 60)
-    setTotalSeconds(duration * 60)
+    const totalSecs = duration * 60
+    endTimeRef.current = Date.now() + totalSecs * 1000
+    setRemaining(totalSecs)
+    setTotalSeconds(totalSecs)
     halfwayFiredRef.current   = false
     pauseCountRef.current     = 0
     thoughtsCapturedRef.current = 0
     startedAtRef.current      = new Date().toISOString()
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify({
+      endTime:   endTimeRef.current,
+      totalSecs,
+      label:     taskLabelRef.current,
+      startedAt: startedAtRef.current,
+      paused:    false,
+    }))
     // Kick off the inline body-double thread — brief delay so the
     // session start animation lands before Lumi's message appears
     setTimeout(() => {
@@ -589,11 +660,34 @@ export default function FocusPage() {
     setState('active')
   }
 
-  function pause()  { pauseCountRef.current += 1; clearTimer(); setState('paused') }
-  function resume() { setState('active') }
+  function pause() {
+    pauseCountRef.current += 1
+    clearTimer()
+    const raw = sessionStorage.getItem(SESSION_KEY)
+    if (raw) {
+      try {
+        const saved = JSON.parse(raw)
+        sessionStorage.setItem(SESSION_KEY, JSON.stringify({ ...saved, paused: true, remaining }))
+      } catch { /* ignore */ }
+    }
+    setState('paused')
+  }
+
+  function resume() {
+    endTimeRef.current = Date.now() + remaining * 1000
+    const raw = sessionStorage.getItem(SESSION_KEY)
+    if (raw) {
+      try {
+        const saved = JSON.parse(raw)
+        sessionStorage.setItem(SESSION_KEY, JSON.stringify({ ...saved, endTime: endTimeRef.current, paused: false }))
+      } catch { /* ignore */ }
+    }
+    setState('active')
+  }
 
   function end() {
     clearTimer()
+    sessionStorage.removeItem(SESSION_KEY)
     play('off')
     const actual = totalSeconds - remaining
     saveSession(totalSeconds, actual, false)
@@ -602,6 +696,7 @@ export default function FocusPage() {
 
   function reset() {
     clearTimer()
+    sessionStorage.removeItem(SESSION_KEY)
     setRemaining(duration * 60)
     setTotalSeconds(duration * 60)
     halfwayFiredRef.current  = false

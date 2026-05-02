@@ -76,6 +76,50 @@ function formatTime(date: Date) {
   return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
 }
 
+type MoodKey = 'great' | 'good' | 'okay' | 'low' | 'drained' | null
+
+function getGreeting(mood: MoodKey, firstName: string): { heading: string; sub: string } {
+  const hour = new Date().getHours()
+  const name = firstName && firstName !== 'there' ? `, ${firstName}` : ''
+
+  const morning = hour >= 5  && hour < 12
+  const afternoon = hour >= 12 && hour < 17
+  const evening = hour >= 17 && hour < 21
+
+  const high   = mood === 'great' || mood === 'good'
+  const low    = mood === 'low'   || mood === 'drained'
+
+  const pick = (arr: string[]) => arr[Math.floor(Date.now() / 60000) % arr.length]
+
+  if (low) {
+    return {
+      heading: pick([
+        `Take a breath${name}.`,
+        `I'm here${name}.`,
+        `No pressure${name}.`,
+      ]),
+      sub: pick([
+        'Start anywhere. I\'ll follow.',
+        'Whatever you\'re carrying — let\'s set it down together.',
+        'You don\'t have to figure it all out. Just start talking.',
+      ]),
+    }
+  }
+
+  if (high) {
+    if (morning) return { heading: pick([`Good morning${name}.`, `Fresh start${name}.`]), sub: pick(['What are we making happen today?', 'You\'re in a good place. Let\'s use it.']) }
+    if (afternoon) return { heading: pick([`Good afternoon${name}.`, `Hey${name}.`]), sub: pick(['Momentum is yours. What\'s next?', 'How\'s the day going?']) }
+    if (evening) return { heading: pick([`Evening${name}.`, `Hey${name}.`]), sub: pick(['You showed up today. That counts.', 'What\'s on your mind before you wind down?']) }
+    return { heading: `Hey${name}.`, sub: 'What\'s on your mind?' }
+  }
+
+  // neutral / unknown
+  if (morning) return { heading: pick([`Morning${name}.`, `Hey${name}.`]), sub: pick(['What would make today feel good?', 'What\'s the one thing on your mind?']) }
+  if (afternoon) return { heading: pick([`Hey${name}.`, `Afternoon${name}.`]), sub: pick(['What matters most right now?', 'Brain full? Let\'s sort it out.']) }
+  if (evening) return { heading: pick([`Evening${name}.`, `Hey${name}.`]), sub: pick(['You made it through today.', 'Whatever\'s on your mind — I\'m listening.']) }
+  return { heading: `Hey${name}.`, sub: 'Still here, whenever you\'re ready.' }
+}
+
 export default function ChatPage() {
   const { mood } = useMood()
   const { user } = useUser()
@@ -309,29 +353,34 @@ export default function ChatPage() {
               style={{ animation: 'lumiGreetIn 0.5s ease-out both' }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/lumi-chat-page.png" alt="Lumi" style={{ width: 130, height: 130, objectFit: 'contain', marginBottom: 16 }} />
-              <p style={{
-                fontFamily: 'var(--font-aegora)',
-                fontSize: '36px',
-                fontWeight: 500,
-                lineHeight: 1.15,
-                textAlign: 'center',
-                background: 'linear-gradient(135deg, #F4A582 0%, #F5C98A 40%, #8FAAE0 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-              }}>
-                Hey, {firstName}.
-              </p>
-              <p style={{
-                fontFamily: 'var(--font-nunito-sans)',
-                fontSize: '15px',
-                fontWeight: 500,
-                color: '#9895B0',
-                marginTop: 10,
-                textAlign: 'center',
-              }}>
-                What&apos;s on your mind?
-              </p>
+              {(() => {
+                const { heading, sub } = getGreeting(mood as MoodKey, firstName)
+                return <>
+                  <p style={{
+                    fontFamily: 'var(--font-aegora)',
+                    fontSize: '36px',
+                    fontWeight: 500,
+                    lineHeight: 1.15,
+                    textAlign: 'center',
+                    background: 'linear-gradient(135deg, #F4A582 0%, #F5C98A 40%, #8FAAE0 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
+                  }}>
+                    {heading}
+                  </p>
+                  <p style={{
+                    fontFamily: 'var(--font-nunito-sans)',
+                    fontSize: '15px',
+                    fontWeight: 500,
+                    color: '#9895B0',
+                    marginTop: 10,
+                    textAlign: 'center',
+                  }}>
+                    {sub}
+                  </p>
+                </>
+              })()}
 
               {/* ── Suggested prompts ── */}
               <div style={{ marginTop: 28, width: '100%', maxWidth: 320 }}>

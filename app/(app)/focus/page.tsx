@@ -801,22 +801,20 @@ export default function FocusPage() {
         position: 'relative',
       }}
     >
-      {/* ── Sun radial glow — breathing orb on dark ── */}
-      <div style={{
-        position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none',
-      }}>
+      {/* ── Corner gradients — top-right peach, bottom-left rose ── */}
+      <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none' }}>
         <div style={{
-          width: '100%', height: '100%', position: 'absolute',
+          position: 'absolute', inset: 0,
           background: [
-            'radial-gradient(circle 280px at 50% 38%,',
-            '  rgba(255,248,210,0.14) 0%,',
-            '  rgba(245,201,138,0.18) 18%,',
-            '  rgba(244,165,130,0.13) 38%,',
-            '  rgba(232,160,191,0.07) 58%,',
-            '  transparent 80%)',
+            'radial-gradient(ellipse 480px 380px at 100% 0%,',
+            '  rgba(245,201,138,0.18) 0%,',
+            '  rgba(244,165,130,0.13) 40%,',
+            '  transparent 75%),',
+            'radial-gradient(ellipse 420px 340px at 0% 100%,',
+            '  rgba(232,160,191,0.16) 0%,',
+            '  rgba(244,165,130,0.08) 45%,',
+            '  transparent 75%)',
           ].join(''),
-          animation: 'sunBreathe 5s ease-in-out infinite',
-          transformOrigin: '50% 38%',
         }} />
       </div>
 
@@ -919,20 +917,31 @@ export default function FocusPage() {
               display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
               pointerEvents: 'none',
             }}>
-              <span style={{
-                fontFamily: 'var(--font-aegora)',
-                fontSize: state === 'done' ? '40px' : '54px', fontWeight: 500,
-                color: state === 'done' ? D.peach : D.textPrimary,
-                lineHeight: 1, letterSpacing: '-1px',
-              }}>
-                {state === 'done' ? '🎉' : state === 'idle' ? duration : formatTime(remaining)}
-              </span>
-              <span style={{
-                fontFamily: 'var(--font-nunito-sans)', fontSize: '12px',
-                fontWeight: 500, color: D.textMuted, marginTop: 6,
-              }}>
-                {state === 'idle' ? 'MIN' : state === 'done' ? '' : state === 'paused' ? 'paused' : 'remaining'}
-              </span>
+              {state === 'done' ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src="/lumi-celebrating.png"
+                  alt="Lumi celebrating"
+                  style={{ width: 160, height: 160, objectFit: 'contain' }}
+                />
+              ) : (
+                <>
+                  <span style={{
+                    fontFamily: 'var(--font-aegora)',
+                    fontSize: state === 'idle' ? '54px' : '54px', fontWeight: 500,
+                    color: D.textPrimary,
+                    lineHeight: 1, letterSpacing: '-1px',
+                  }}>
+                    {state === 'idle' ? duration : formatTime(remaining)}
+                  </span>
+                  <span style={{
+                    fontFamily: 'var(--font-nunito-sans)', fontSize: '12px',
+                    fontWeight: 500, color: D.textMuted, marginTop: 6,
+                  }}>
+                    {state === 'idle' ? 'MIN' : state === 'paused' ? 'paused' : 'remaining'}
+                  </span>
+                </>
+              )}
             </div>
           </div>
         </div>

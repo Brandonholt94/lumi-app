@@ -307,6 +307,8 @@ export default function ChatPage() {
             /* ── EMPTY STATE — greeting centered ── */
             <div className="flex-1 flex flex-col items-center justify-center px-8"
               style={{ animation: 'lumiGreetIn 0.5s ease-out both' }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/lumi-chat-page.png" alt="Lumi" style={{ width: 130, height: 130, objectFit: 'contain', marginBottom: 16 }} />
               <p style={{
                 fontFamily: 'var(--font-aegora)',
                 fontSize: '36px',

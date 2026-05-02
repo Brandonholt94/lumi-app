@@ -38,7 +38,7 @@ const LumiNavIcon = ({ active }: { active: boolean }) => (
   <div style={{
     width: 36, height: 36, borderRadius: '50%', background: '#FFFFFF', flexShrink: 0,
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    boxShadow: active ? '0 0 0 3px rgba(244,165,130,0.30), 0 4px 16px rgba(244,165,130,0.35)' : '0 2px 10px rgba(45,42,62,0.12)',
+    boxShadow: active ? '0 0 0 3px #F4A582, 0 4px 16px rgba(244,165,130,0.45)' : '0 2px 10px rgba(45,42,62,0.12)',
     transition: 'box-shadow 0.25s ease',
   }}>
     {/* eslint-disable-next-line @next/next/no-img-element */}

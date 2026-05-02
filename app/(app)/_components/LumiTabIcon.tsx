@@ -9,7 +9,7 @@ export default function LumiTabIcon({ active = false }: { active?: boolean }) {
         borderRadius: '50%',
         background: '#FFFFFF',
         boxShadow: active
-          ? '0 0 0 3px rgba(244,165,130,0.30), 0 6px 20px rgba(244,165,130,0.40)'
+          ? '0 0 0 3px #F4A582, 0 6px 24px rgba(244,165,130,0.55)'
           : '0 4px 16px rgba(45,42,62,0.12)',
         display: 'flex',
         alignItems: 'center',

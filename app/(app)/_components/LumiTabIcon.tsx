@@ -8,8 +8,9 @@ export default function LumiTabIcon({ active = false }: { active?: boolean }) {
         height: 52,
         borderRadius: '50%',
         background: '#FFFFFF',
+        background: active ? 'rgba(244,165,130,0.10)' : '#FFFFFF',
         boxShadow: active
-          ? '0 0 0 3px #F4A582, 0 6px 24px rgba(244,165,130,0.55)'
+          ? '0 0 0 3px #D4773A, 0 6px 24px rgba(212,119,58,0.55)'
           : '0 4px 16px rgba(45,42,62,0.12)',
         display: 'flex',
         alignItems: 'center',
